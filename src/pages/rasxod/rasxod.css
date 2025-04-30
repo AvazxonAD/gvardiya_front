@@ -1,0 +1,16 @@
+.rasxod-tooltip:hover .rasxod-tooltip-wrap {
+  visibility: visible;
+  filter: blur(0px);
+  transition: 0.3s ease-in-out;
+}
+.rasxod-tooltip-wrap {
+  display: block;
+  transition: 0.2s ease-in-out;
+
+  visibility: hidden;
+  position: absolute; /* Pozitsiya xususiyati qo'shildi */
+  /* z-index: +1; */
+  filter: blur(100px);
+  top: 25px;
+  left: 32%;
+}
