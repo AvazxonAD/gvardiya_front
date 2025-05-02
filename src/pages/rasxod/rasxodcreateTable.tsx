@@ -67,6 +67,39 @@ export const RasxodcreateTable = ({ data, setRasxodRequestData }: Props) => {
     );
   };
 
+  // Calculate totals for the required columns
+  const calculateTotals = () => {
+    let task_time = 0;
+    let totalSumma = 0;
+    let totalDiscount = 0;
+    let wrokerNumber = 0;
+    let resultSumma = 0;
+
+    data?.forEach((item) => {
+      task_time += item.task_time ? Number(item.task_time) : 0;
+      totalSumma += item.summa ? Number(item.summa) : 0;
+      totalDiscount += item.discount_money ? Number(item.discount_money) : 0;
+      wrokerNumber += item.worker_number ? Number(item.worker_number) : 0;
+      resultSumma += item.result_summa ? Number(item.result_summa) : 0;
+    });
+
+    return { task_time, totalSumma, totalDiscount, wrokerNumber, resultSumma };
+  };
+
+  const { task_time, totalSumma, totalDiscount, wrokerNumber, resultSumma } =
+    calculateTotals();
+
+  const renderTotalsRow = () => (
+    <tr>
+      <TableItem className="font-bold">{tt("Jami", "Итого")}</TableItem>
+      <TableItem className="font-bold">{task_time}</TableItem>
+      <TableItem className="font-bold">{wrokerNumber}</TableItem>
+      <TableItem className="font-bold">{formatNum(totalSumma)}</TableItem>
+      <TableItem className="font-bold">{formatNum(totalDiscount)}</TableItem>
+      <TableItem className="font-bold">{formatNum(resultSumma)}</TableItem>
+    </tr>
+  );
+
   return (
     <div>
       <div className=" rounded-t-[6px] min-h-[300px]  text-[#323232] text-[14px] leading-[16.94px]">
@@ -103,24 +136,9 @@ export const RasxodcreateTable = ({ data, setRasxodRequestData }: Props) => {
               >
                 <TableItem>{item.doc_num}</TableItem>
                 <TableItem>{formatDate(item.doc_date)}</TableItem>
-                <TableItem
-                  // onMouseEnter={(event) =>
-                  //   handleMouseEnter(event, item.task_id)
-                  // }
-                  className="rasxod-tooltip "
-                  // onMouseLeave={() => setShowTooltipId(0)}
-                >
+                <TableItem className="rasxod-tooltip ">
                   {item.organization_name}
-                  <div
-                    className="absolute rasxod-tooltip-wrap  w-[250px] shadow-lg z-10 rounded-[6px] p-3 bg-mytablehead text-mytextcolor border border-mytableheadborder"
-                    style={
-                      {
-                        // top: tooltipPosition.y,
-                        // left: tooltipPosition.x,
-                        // transform: "translate(-50%, -100%)", // Adjust position based on mouse
-                      }
-                    }
-                  >
+                  <div className="absolute rasxod-tooltip-wrap  w-[250px] shadow-lg z-10 rounded-[6px] p-3 bg-mytablehead text-mytextcolor border border-mytableheadborder">
                     <ul className="space-y-1 text-left">
                       <li className="opacity-[0.7] text-[14px]">
                         {item.organization_name}
@@ -148,15 +166,27 @@ export const RasxodcreateTable = ({ data, setRasxodRequestData }: Props) => {
                   {item.discount_money ? formatNum(item.discount_money) : "-"}
                 </TableItem>
                 <TableItem>{formatNum(item.result_summa)}</TableItem>
-                {/* <TableItem>
-                  <div className="flex justify-center gap-2">
-                    <button onClick={() => handleRemove(item)}>
-                      <Icon name="delete" />
-                    </button>
-                  </div>
-                </TableItem> */}
               </tr>
             ))}
+            {/* Totals row */}
+            <tr className="bg-mytablehead font-medium border-t border-mytableheadborder">
+              <td colSpan={3} className="text-left"></td>
+              <TableItem className="text-center">
+                {formatNum(task_time)}
+              </TableItem>
+              <TableItem className="text-center">
+                {formatNum(wrokerNumber)}
+              </TableItem>
+              <TableItem className="text-left">
+                {formatNum(totalSumma)}
+              </TableItem>
+              <TableItem className="text-left">
+                {formatNum(totalDiscount)}
+              </TableItem>
+              <TableItem className="text-left">
+                {formatNum(resultSumma)}
+              </TableItem>
+            </tr>
           </tbody>
         </table>
       </div>

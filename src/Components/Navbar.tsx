@@ -128,13 +128,13 @@ function Navbar() {
       icon: ({ ...props }) => <Icon name="users" {...props} />,
       isAdminPath: true,
     },
-    {
-      id: 14,
-      name: "Chiqim ORG",
-      path: "/rasxod-organisation",
-      ru: "Расход ОРГ",
-      icon: ({ ...props }) => <Icon name="rasxod_fio" {...props} />,
-    },
+    // {
+    //   id: 14,
+    //   name: "Chiqim ORG",
+    //   path: "/rasxod-organisation",
+    //   ru: "Расход ОРГ",
+    //   icon: ({ ...props }) => <Icon name="rasxod_fio" {...props} />,
+    // },
   ];
 
   const { user } = useSelector((state: any) => state.auth);

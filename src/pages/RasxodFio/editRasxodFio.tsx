@@ -301,27 +301,6 @@ export const EditRasxodFio = () => {
     }
   };
   useEffect(() => {
-    // let datas = filtereddata.filter((el) => el.saved == true);
-    // let undatas = filtereddata.filter((el) => el.saved == false);
-    // if (!rasxodfromdate && !rasxodtodate) {
-    //   if (
-    //     datas?.length == editedData?.worker_tasks?.length &&
-    //     undatas?.length == 0
-    //   ) {
-    //     setCalculatedSum(editedData?.summa);
-    //     return;
-    //   }
-    //   calculateSum();
-    // } else {
-    //   if (datas.length == editedData?.tasks?.length && undatas.length == 0) {
-    //     setCalculatedSum(editedData?.summa);
-    //     return;
-    //   }
-    //   if (rasxodfromdate && rasxodtodate && undatas.length) {
-    //     calculateSum();
-    //     return;
-    //   }
-    // }
     calculateSum();
   }, [
     rasxodRequestdata,
@@ -496,7 +475,7 @@ export const EditRasxodFio = () => {
           ))}
         </div>
       </div>
-      {/* <SimpleText txt="Платежные документы" /> */}
+      {/* <SimpleText txt="To'lov hujjatlari" /> */}
       <div className="flex items-center gap-x-5 mt-5">
         <div className="flex items-center gap-x-5">
           <h5 className="font-[600]">{tt("Hujjat №", "Документ №")}</h5>
@@ -508,9 +487,7 @@ export const EditRasxodFio = () => {
           />
         </div>
         <div className="flex items-center gap-x-5">
-          <h5 className="font-[600]">
-            {tt("E'lon qilingan sana", "Дата проводки")}
-          </h5>
+          <h5 className="font-[600]">{tt("Hujjat sanasi", "Дата проводки")}</h5>
           <SpecialDatePicker
             defaultValue={docDate ?? currentPrixod?.contract_doc_date ?? ""}
             onChange={setDocDate}

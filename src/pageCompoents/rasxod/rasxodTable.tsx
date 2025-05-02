@@ -38,7 +38,7 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({
       className: "w-[100px]",
     },
     {
-      text: tt(`E'lon qilingan sana`, "Дата публикации"),
+      text: tt(`Hujjat sanasi`, "Дата публикации"),
       className: "w-[100px]",
     },
     {
@@ -88,6 +88,37 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({
   const handleExcelDownload = async (item: RasxodInterface) => {
     try {
       const URL = `/rasxod/fio/export/${item.id}?account_number_id=${account_number_id}`;
+      const excelBlob = await getExcel(JWT, URL);
+      const url = window.URL.createObjectURL(excelBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${URL.split("/")[2]}_file.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      dispatch(
+        alertt({
+          text: tt("Excel file yuklandi", "Файл Excel загружен"),
+          success: true,
+        })
+      );
+    } catch (error) {
+      dispatch(
+        alertt({
+          text: tt(
+            "Excel file yuklanishda muamo mavjud",
+            "Проблема с загрузкой файла Excel"
+          ),
+          success: false,
+        })
+      );
+    }
+  };
+
+  const handleExcelDownloadRasxod = async (item: RasxodInterface) => {
+    try {
+      const URL = `/rasxod/export/${item.id}?account_number_id=${account_number_id}`;
       const excelBlob = await getExcel(JWT, URL);
       const url = window.URL.createObjectURL(excelBlob);
       const a = document.createElement("a");
@@ -192,6 +223,14 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({
               {source === "fio" && (
                 <button
                   onClick={() => handleExcelDownload(item)}
+                  className="text-blue-500"
+                >
+                  {tt("Taqsimot", "Тақсимот")}
+                </button>
+              )}
+              {source !== "fio" && (
+                <button
+                  onClick={() => handleExcelDownloadRasxod(item)}
                   className="text-blue-500"
                 >
                   {tt("Taqsimot", "Тақсимот")}

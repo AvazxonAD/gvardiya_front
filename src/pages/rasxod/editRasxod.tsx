@@ -305,7 +305,7 @@ export const EditRasxod = () => {
           )}
         </h1>
       </div>
-      {/* <SimpleText txt="Платежные документы" /> */}
+      {/* <SimpleText txt="To'lov hujjatlari" /> */}
       <div className="flex items-center gap-x-5 mt-5">
         <div className="flex items-center gap-x-5">
           <h5 className="font-[600]">{tt("Hujjat №", "Документ №")}</h5>
@@ -318,7 +318,7 @@ export const EditRasxod = () => {
         </div>
         <div className="flex items-center gap-x-5">
           <h5 className="font-[600]">
-            {tt("E'lon qilingan sanaku bu", "Дата проводки")}
+            {tt("Hujjat sanasiku bu", "Дата проводки")}
           </h5>
           <SpecialDatePicker
             defaultValue={docDate ?? ""}
@@ -396,8 +396,12 @@ export const EditRasxod = () => {
               <Input
                 // readonly={true}
                 // t="number"
-                className="w-full text-right"
-                v={calculatedSum ? calculatedSum : ""}
+                className="w-full text-left"
+                v={
+                  calculatedSum
+                    ? Math.round(Number(calculatedSum) * 100) / 100
+                    : ""
+                }
                 change={handleChange}
               />
             </div>

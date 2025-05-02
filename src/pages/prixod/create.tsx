@@ -271,7 +271,7 @@ const CreatePrixod = () => {
             : tt("Hujjat tahrirlash", "Редактировать документ")}
         </h1>
       </div>
-      <SimpleText txt="Платежные документы" />
+      <SimpleText txt="To'lov hujjatlari" />
       <div className="flex items-center gap-x-5 mt-5">
         <div className="flex items-center gap-x-5">
           <h5 className="font-[600]">{tt("Hujjat №", "Документ №")}</h5>
@@ -283,9 +283,7 @@ const CreatePrixod = () => {
           />
         </div>
         <div className="flex items-center gap-x-5">
-          <h5 className="font-[600]">
-            {tt("E'lon qilingan sana", "Дата проводки")}
-          </h5>
+          <h5 className="font-[600]">{tt("Hujjat sanasi", "Дата проводки")}</h5>
           <SpecialDatePicker
             defaultValue={docDate ?? currentPrixod?.prixod_date ?? ""}
             onChange={setDocDate}

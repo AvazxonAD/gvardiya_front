@@ -9,6 +9,11 @@ const BudgetTable = ({ data }: any) => {
             <th className="border text-center py-1 w-[120px]">
               {latinToCyrillic("Tadbir o'tadigan joy nomi")}
             </th>
+            {data.date && (
+              <th className="border text-center py-1 w-[120px]">
+                {latinToCyrillic("Tadbir o'tadigan sanasi")}
+              </th>
+            )}
             <th className="border text-center  py-1">
               Жалб этиладиган шахсий таркиб ваколатли давлат идоралари ёки
               органлар номи
@@ -48,9 +53,14 @@ const BudgetTable = ({ data }: any) => {
           {data.tasks &&
             data.tasks.map((row: any, i: number) => (
               <tr key={row.id} className={`${data?.dist ? "border" : ""}`}>
-                <td className="border-none text-center font-bold py-1">
+                <td className="border-r text-center font-bold py-1">
                   {data.dist ? row.address : i === 0 ? row.address : ""}
                 </td>
+                {data.date && (
+                  <td className="border text-center font-bold py-1">
+                    {row.local_date}
+                  </td>
+                )}
                 <td className="border text-center py-1">
                   {/* {row.batalon_id} */}
                   {row.batalon_name}
@@ -68,13 +78,13 @@ const BudgetTable = ({ data }: any) => {
                 <td className="border text-center py-1">
                   {data.discount ? formatNum(row?.discount_money, true) : "_"}
                 </td>
-                <td className="border  text-center py-1">
+                <td className="border text-center py-1">
                   {formatNum(row.result_summa, true)}
                 </td>
               </tr>
             ))}
           <tr className="border border-mytableheadborder font-[600]">
-            <td colSpan={2} className="border text-center py-1">
+            <td colSpan={data.date ? 3 : 2} className="border text-center py-1">
               {latinToCyrillic("Jami")}
             </td>
             <td className="border text-center py-1">
