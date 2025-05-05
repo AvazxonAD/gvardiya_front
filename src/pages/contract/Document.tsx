@@ -15,6 +15,7 @@ import { replacer } from "@/lib/replace";
 import { getFullDate } from "@/lib/utils";
 import { SwitchTemplate } from "@/pageCompoents/SwitchTemplate";
 import { alertt } from "@/Redux/LanguageSlice";
+import DocumentForPrint2 from "./DocumentForPrint2";
 
 const Document = () => {
   const [templatesData, setTemplatesdata] = React.useState<templateInterface[]>(
@@ -130,7 +131,24 @@ const Document = () => {
     return formattedParagraphs.join("");
   }
 
-  const getSingleTemplate = async () => {
+  const getSingleTemplate = async (print = null) => {
+    function replaceBetween(text: string) {
+      const start = "«Бажарувчи»";
+      const end = "тасдиқланган";
+
+      const startIndex = text.indexOf(start);
+      const endIndex = text.indexOf(end);
+
+      if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
+        return text; // Agar kerakli so‘zlar topilmasa yoki noto‘g‘ri tartibda bo‘lsa, o‘zgartirmay qaytaradi
+      }
+
+      const before = text.slice(0, startIndex + start.length);
+      const after = text.slice(endIndex);
+
+      return `${before} ________________________ ${after}`;
+    }
+
     if (templatesData.length > 0) {
       const getActivetmplt = templatesData.find((el) => el?.active == true);
       if (getActivetmplt) {
@@ -153,6 +171,15 @@ const Document = () => {
             updatedtemplate.section_1 = formatSectionText(
               updatedtemplate.section_1
             );
+
+            if (print) {
+              updatedtemplate.section_1 = replaceBetween(
+                updatedtemplate.section_1
+              );
+              data.doc_date = "_____________";
+
+              console.log(updatedtemplate.section_1);
+            }
           }
           if (updatedtemplate.section_3) {
             updatedtemplate.section_3 = formatSectionText(
@@ -192,13 +219,25 @@ const Document = () => {
   };
 
   const contentRef = useRef<HTMLDivElement>(null);
+  const contentRef2 = useRef<HTMLDivElement>(null);
+
   const reactToPrintFn = useReactToPrint({
     contentRef,
+    // pageStyle: `@page {\ margin: 50px;\ }`,
+  });
+
+  const reactToPrintFn2 = useReactToPrint({
+    contentRef: contentRef2,
     // pageStyle: `@page {\ margin: 50px;\ }`,
   });
   const onPrintClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault(); // Prevent default action if needed
     reactToPrintFn(); // Call the handlePrint function
+  };
+
+  const onPrintClick2 = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault(); // Prevent default action if needed
+    getSingleTemplate(true).then(() => {}); // Call the handlePrint function
   };
   // Explicitly cast to UseReactToPrintOptions
   useEffect(() => {
@@ -230,6 +269,14 @@ const Document = () => {
               organisation={organisation}
               singleTemplate={singleTemplate}
             />
+            <DocumentForPrint2
+              ref={contentRef2}
+              data={data}
+              info={info}
+              getFullDate={getFullDate}
+              organisation={organisation}
+              singleTemplate={singleTemplate}
+            />
           </div>
           <SwitchTemplate
             templatesData={templatesData}
@@ -244,6 +291,7 @@ const Document = () => {
               </div>
               <div className="flex gap-2 justify-end mr-16">
                 <Button mode="print" onClick={onPrintClick} />
+                <Button mode="clear" onClick={onPrintClick2} />
                 <Button
                   onClick={() => setOpenSwitcher(true)}
                   mode="clear"

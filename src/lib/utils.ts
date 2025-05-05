@@ -6,13 +6,20 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const getFullDate = (promptdate: string) => {
-  const date = new Date(promptdate);
-  const day = date.getDate().toString().padStart(2, "0"); // "05"
-  let month = (date.getMonth() + 1).toString().padStart(2, "0"); // "01"
-  const year = date.getFullYear().toString(); // "2024"
-  month = getMonth(month);
+  const regex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/
 
-  return `${year}-йил ${day}-${month}`;
+  if (regex.test(promptdate)) {
+    const date = new Date(promptdate);
+    const day = date.getDate().toString().padStart(2, "0"); // "05"
+    let month = (date.getMonth() + 1).toString().padStart(2, "0"); // "01"
+    const year = date.getFullYear().toString(); // "2024"
+    month = getMonth(month);
+
+    return `${year}-йил ${day}-${month}`;
+  } else {
+    return promptdate
+  }
+
 };
 
 // need function
