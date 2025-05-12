@@ -64,7 +64,7 @@ const EditForm: React.FC<EditFormProps> = ({
 
   useEffect(() => {
     if (workersData && workers?.data) {
-      const enhancedWorkers = [...workersData, ...(workers?.data || [])];
+      const enhancedWorkers = [...(workers?.data || [])];
       setWorkersList(enhancedWorkers as unknown as IWorker[]);
     }
   }, [workersData, workers]);
@@ -153,6 +153,11 @@ const EditForm: React.FC<EditFormProps> = ({
   };
 
   useEffect(() => {}, [workersData]);
+
+  console.log({
+    workers,
+    workersData,
+  });
 
   return (
     <div className="p-4 bg-mybackground shadow-lg w-full border-[2px]">
