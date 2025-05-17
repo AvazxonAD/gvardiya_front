@@ -37,6 +37,7 @@ import Mfo from "./pages/sprPages/Mfo";
 import Tashkilot from "./pages/sprPages/Tashkilot";
 import Tasks from "./pages/Task";
 import Workers from "./pages/Workers";
+import BatalonWorkers from "./pages/batalon/worker";
 
 const MainProvider = () => {
   const { user } = useSelector((state: any) => state.auth);
@@ -53,7 +54,8 @@ const MainProvider = () => {
                 <Protected>
                   <Root />
                 </Protected>
-              }>
+              }
+            >
               {Boolean(user.region_id) ? (
                 <Fragment>
                   <Route index={true} element={<Home />} />
