@@ -2,14 +2,16 @@
 
 import { handleStatus } from "./utils";
 
-const isProd = import.meta.env.PROD;
-const port: any = window.location.port;
+// const isProd = import.meta.env.PROD;
+// const port: any = window.location.port;
 
-export const URL = isProd
-  ? port == 5173
-    ? `https://gvardiya.smartbase.uz/api`
-    : `https://${window.location.hostname}/api`
-  : `https://gvardiya.smartbase.uz/api`;
+export const URL = 'http://localhost:3009'
+// isProd
+// ? port == 5173
+//   ? `https://gvardiya.smartbase.uz/api`
+//   : `https://${window.location.hostname}/api`
+// : `https://gvardiya.smartbase.uz/api`;
+
 export const jwt = localStorage.getItem("token");
 
 export const loginAuth = async (login: any, password: any) => {

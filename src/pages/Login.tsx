@@ -47,7 +47,6 @@ function Login() {
     const res = await loginAuth(value.login, value.password);
 
     if (res.success) {
-      // localStorage.setItem("user", JSON.stringify(res.data));
       dispatch(setUserData(res.data));
       dispatch(
         alertt({
@@ -100,7 +99,7 @@ function Login() {
             alt="logo"
           />
           <h1 className="text-[#D1AA67] text-center mb-12 text-[32px] leading-[38.73px] font-bold">
-            {tt("Milliy Gvardiya", "Миллий Гвардия")}
+            {tt("Tadbir-Hisob", "Тадбир-Ҳисоб")}
           </h1>
 
           <form onSubmit={handleSubmit} className="flex flex-col">

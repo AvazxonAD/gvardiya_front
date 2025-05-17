@@ -1,4 +1,4 @@
-export type IUser =  {
+export type IUser = {
     id: number;
     login: string;
     fio: string;
@@ -17,6 +17,8 @@ export type IUsers = {
     login: string;
     image: string | null;
     region_id: number;
+    batalon_id?: number;
+    batalon?: any;
     created_at: string; // ISO date string
     name: string;
 };

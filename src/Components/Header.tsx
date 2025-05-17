@@ -134,9 +134,9 @@ function Header() {
           }}
           className="flex gap-2 cursor-pointer items-center"
         >
-          <img src={Logo} className="w-[40px] h-[40px]" alt="Milliy Gvardiya" />
+          <img src={Logo} className="w-[40px] h-[40px]" alt="Tadbir-Hisob" />
           <span className="text-[20px] leading-[24.2px] text-mylogocolor">
-            {tt("Milliy Gvardiya", "Миллий Гвардия")}
+            {tt("Tadbir-Hisob", "Тадбир-Ҳисоб")}
           </span>
         </div>
         <div className="flex gap-6 items-center">
@@ -224,9 +224,8 @@ function Header() {
               </svg>
             </button>
             <div
-              className={`${
-                isShow ? "flex z-[999]" : "hidden"
-              } absolute top-[37px] bg-mytablehead transition-all duration-300 rounded-[6px] h-[85px] w-[68px] items-center justify-center border border-mybordercolor shadow-[0px_1px_4px_0px_#00000026]`}
+              className={`${isShow ? "flex z-[999]" : "hidden"
+                } absolute top-[37px] bg-mytablehead transition-all duration-300 rounded-[6px] h-[85px] w-[68px] items-center justify-center border border-mybordercolor shadow-[0px_1px_4px_0px_#00000026]`}
             >
               <div className="flex flex-col gap-2 text-[14px] text-mytextcolor  leading-[16.94px]">
                 {language.map((e: any) => (
@@ -238,9 +237,8 @@ function Header() {
                       setIsShow(false);
                       location.reload();
                     }}
-                    className={`cursor-pointer hover:text-mylabelcolor hover:font-[600] ${
-                      e.id === selectedValue && "text-mylabelcolor font-[600]"
-                    }`}
+                    className={`cursor-pointer hover:text-mylabelcolor hover:font-[600] ${e.id === selectedValue && "text-mylabelcolor font-[600]"
+                      }`}
                   >
                     {e.text}
                   </span>

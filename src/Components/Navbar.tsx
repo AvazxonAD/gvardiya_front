@@ -128,13 +128,13 @@ function Navbar() {
       icon: ({ ...props }) => <Icon name="users" {...props} />,
       isAdminPath: true,
     },
-    // {
-    //   id: 14,
-    //   name: "Chiqim ORG",
-    //   path: "/rasxod-organisation",
-    //   ru: "Расход ОРГ",
-    //   icon: ({ ...props }) => <Icon name="rasxod_fio" {...props} />,
-    // },
+    {
+      id: 13,
+      name: "Foydalanuvchilar",
+      path: "/batalon/users",
+      ru: "Пользователь",
+      icon: ({ ...props }) => <Icon name="users" {...props} />,
+    },
   ];
 
   const { user } = useSelector((state: any) => state.auth);
@@ -253,9 +253,8 @@ function Navbar() {
     >
       <button
         onClick={() => setIsShrink(!isShrink)}
-        className={`border absolute right-[-12px] ${
-          pathname.includes("/contract/view") ? "top-[0px]" : "-top-[5px]"
-        }  transition-all duration-300 border-[#EEEDED] bg-[#323232] hover:bg-[#BEBBBB] w-[44px] h-[44px] rounded-[999px] flex justify-center items-center`}
+        className={`border absolute right-[-12px] ${pathname.includes("/contract/view") ? "top-[0px]" : "-top-[5px]"
+          }  transition-all duration-300 border-[#EEEDED] bg-[#323232] hover:bg-[#BEBBBB] w-[44px] h-[44px] rounded-[999px] flex justify-center items-center`}
       >
         {/* <img src={`/${!isShrink ? "kichray" : "kottalashtir"}.svg`} alt="" /> */}
         <div>
@@ -274,23 +273,19 @@ function Navbar() {
                     handleSpravichnikToggle();
                   }
                 }}
-                className={`flex items-center gap-3 ${
-                  isShrink ? " h-[54px]" : "h-[44px]"
-                } transition-all duration-300 rounded-[4px] px-6 py-3 text-left  text-[20px] leading-[24.2px] font-[500]  
-                ${
-                  activeItem === item.name
+                className={`flex items-center gap-3 ${isShrink ? " h-[54px]" : "h-[44px]"
+                  } transition-all duration-300 rounded-[4px] px-6 py-3 text-left  text-[20px] leading-[24.2px] font-[500]  
+                ${activeItem === item.name
                     ? "text-mylabelcolor"
                     : "text-mylabelcolor hover:text-[#323232] dark:hover:text-[#fff] "
-                }    transition-colors duration-300`}
+                  }    transition-colors duration-300`}
               >
                 <div
-                  className={`${
-                    isShrink ? "w-[30px] h-[30px] " : "w-[24px] h-[24px]"
-                  } ${
-                    activeItem == item.name
+                  className={`${isShrink ? "w-[30px] h-[30px] " : "w-[24px] h-[24px]"
+                    } ${activeItem == item.name
                       ? "dark:text-[#00A1D5]"
                       : "text-mytextcolor"
-                  }`}
+                    }`}
                 >
                   <item.icon active={activeItem === item.name} />
                 </div>
@@ -315,18 +310,16 @@ function Navbar() {
                         setActiveSubItem(subItem.name);
                       }}
                       key={subItem.id}
-                      className={`transition-all duration-300 text-[18px] flex items-center gap-3 font-[500] p-1 rounded-[4px] ${
-                        activeSubItem === subItem.name
-                          ? "text-mynavactiveborder bg-mynavactivebg border-r-[6px] border-r-mynavactiveborder"
-                          : "text-mylabelcolor hover:text-opacity-[80%]"
-                      }`}
+                      className={`transition-all duration-300 text-[18px] flex items-center gap-3 font-[500] p-1 rounded-[4px] ${activeSubItem === subItem.name
+                        ? "text-mynavactiveborder bg-mynavactivebg border-r-[6px] border-r-mynavactiveborder"
+                        : "text-mylabelcolor hover:text-opacity-[80%]"
+                        }`}
                     >
                       <span
-                        className={`w-[5px] h-[5px] rounded-[999px] ${
-                          activeSubItem === subItem.name
-                            ? "bg-mynavactiveborder"
-                            : "bg-[#323232]"
-                        }`}
+                        className={`w-[5px] h-[5px] rounded-[999px] ${activeSubItem === subItem.name
+                          ? "bg-mynavactiveborder"
+                          : "bg-[#323232]"
+                          }`}
                       ></span>{" "}
                       <span>{tt(subItem.name, subItem.ru)}</span>
                     </div>
@@ -337,9 +330,8 @@ function Navbar() {
           </div>
         ))}
         <motion.div
-          className={`absolute right-0 rounded-[4px] z-[-1] top-[0] ${
-            isShrink ? "h-[53px]" : "h-[43px]"
-          } 
+          className={`absolute right-0 rounded-[4px] z-[-1] top-[0] ${isShrink ? "h-[53px]" : "h-[43px]"
+            } 
             text-mylabelcolor
             bg-mynavactivebg border-r-[6px] border-r-mynavactiveborder`}
           initial={false}

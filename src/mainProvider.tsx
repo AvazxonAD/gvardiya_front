@@ -4,6 +4,7 @@ import { Fragment } from "react/jsx-runtime";
 import Protected from "./Components/Protected";
 import ErrorPage from "./pages/404";
 import UserTable from "./pages/admin/users";
+import BatalonUser from "./pages/region/users";
 import Batalon from "./pages/Batalon";
 import ContractAnaliz from "./pages/contract/analiz";
 import Contract from "./pages/contract/Contract";
@@ -53,9 +54,9 @@ const MainProvider = () => {
                   <Root />
                 </Protected>
               }>
-              <Route index={true} element={<Home />} />
               {Boolean(user.region_id) ? (
                 <Fragment>
+                  <Route index={true} element={<Home />} />
                   <Route path="/contract" element={<Contract />}>
                     <Route path="" element={<ContractHome />} />
                     <Route path="add" element={<ContractPage />} />
@@ -76,10 +77,6 @@ const MainProvider = () => {
                     <Route path="bank" element={<Bank />} />
                     <Route path="mfo" element={<Mfo />} />
                     <Route path="deduction" element={<Deduction />} />
-                    {/* <Route path="template" element={<Template />} />
-                    <Route path="template/create" element={<AddTemplate />} />
-                    <Route path="template/:id" element={<EditTemplate />} />
-                    <Route path="template/view/:id" element={<ViewTemplate />} /> */}
                   </Route>
                   <Route path="/rasxod" element={<RenderRasxod />}>
                     <Route path="" element={<Rasxod />} />
@@ -96,17 +93,20 @@ const MainProvider = () => {
                     <Route path="create" element={<CreateRasxodFio />} />
                     <Route path=":id" element={<EditRasxodFio />} />
                   </Route>
-                  <Route path="/rasxod-organisation" element={<RenderPrixod />}>
-                    <Route path="" element={<Prixod />} />
-                    <Route path="create" element={<CreatePrixod />} />
-                    <Route path=":id" element={<CreatePrixod />} />
-                  </Route>
+                  <Route path="/batalon/users" element={<BatalonUser />} />
+                </Fragment>
+              ) : Boolean(user.batalon) ? (
+                <Fragment>
+                  <Route path="/users" element={<UserTable />} />
+                  <Route path="/users" element={<UserTable />} />
                 </Fragment>
               ) : (
-                <Route path="/users" element={<UserTable />} />
+                <Fragment>
+                  <Route path="/users" element={<UserTable />} />
+                  <Route index={true} element={<Home />} />
+                  <Route path="/report" element={<Report />} />
+                </Fragment>
               )}
-
-              <Route path="/report" element={<Report />} />
             </Route>
             <Route path="*" element={<ErrorPage />} />
           </>

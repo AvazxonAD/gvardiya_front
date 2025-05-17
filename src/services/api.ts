@@ -1,13 +1,14 @@
 import { useNavigate } from "react-router-dom";
 
-const isProd = import.meta.env.PROD;
-const port: any = window.location.port;
+// const isProd = import.meta.env.PROD;
+// const port: any = window.location.port;
 
-export const baseUri = isProd
-  ? port == 5173
-    ? `https://gvardiya.smartbase.uz/api`
-    : `https://${window.location.hostname}/api`
-  : `https://gvardiya.smartbase.uz/api`;
+export const baseUri = 'http://localhost:3009';
+// isProd
+// ? port == 5173
+//   ? `https://gvardiya.smartbase.uz/api`
+//   : `https://${window.location.hostname}/api`
+// : `https://gvardiya.smartbase.uz/api`;
 
 const useApi = () => {
   const navigate = useNavigate();
