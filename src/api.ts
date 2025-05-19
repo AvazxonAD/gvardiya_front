@@ -71,6 +71,56 @@ export const getWorkers = async (
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
+export const getBatalonWorkers = async (
+  JWT: any,
+  page: any,
+  limet: any,
+  search: any
+) => {
+  const res = await fetch(
+    URL +
+    `/batalon/worker?page=${page}&limit=${limet}${search.length > 0 ? "&search=" + search : ""
+    }`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + JWT,
+      },
+    }
+  );
+
+  const data = await res.json();
+
+  return { ...data, message: data?.message || handleStatus(res.status) };
+};
+
+export const getTasks = async (
+  JWT: any,
+  page: any,
+  limet: any,
+  from: any,
+  to: any,
+  search: any,
+  status: any
+) => {
+  const res = await fetch(
+    URL +
+    `/batalon/tasks?page=${page}&limit=${limet}&from=${from}&to=${to}${search.length > 0 ? "&search=" + search : ""}${status.length > 0 ? "&status=" + status : ""}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + JWT,
+      },
+    }
+  );
+
+  const data = await res.json();
+
+  return { ...data, message: data?.message || handleStatus(res.status) };
+};
+
 export const getExcel = async (JWT: any, url: any) => {
   const res = await fetch(URL + url, {
     method: "GET",
@@ -100,8 +150,23 @@ export const getWorkersSearch = async (JWT: any, page: any, name: any) => {
 
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
+
 export const deleteWorker = async (JWT: any, id: any) => {
   const res = await fetch(URL + `/worker/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
+
+  const data = await res.json();
+
+  return { ...data, message: data?.message || handleStatus(res.status) };
+};
+
+export const deleteBatalonWorker = async (JWT: any, id: any) => {
+  const res = await fetch(URL + `/batalon/worker/${id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -390,6 +455,20 @@ export const getWorkerId = async (JWT: any, id: any) => {
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
+export const getBatalonWorkerId = async (JWT: any, id: any) => {
+  const res = await fetch(URL + `/batalon/worker/${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
+
+  const data = await res.json();
+
+  return { ...data, message: data?.message || handleStatus(res.status) };
+};
+
 export const getContractId = async (
   JWT: any,
   id: any,
@@ -486,8 +565,25 @@ export const updateBat = async (value: any, JWT: any, id: any) => {
 
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
+
 export const updateWorker = async (value: any, JWT: any, id: any) => {
   const res = await fetch(URL + "/worker/" + id, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+    body: JSON.stringify({ ...value }),
+  });
+
+  const data = await res.json();
+
+  return { ...data, message: data?.message || handleStatus(res.status) };
+};
+
+
+export const updateBatalonWorker = async (value: any, JWT: any, id: any) => {
+  const res = await fetch(URL + "/batalon/worker/" + id, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -560,6 +656,21 @@ export const PayCont = async (value: any, JWT: any, id: any) => {
 };
 export const CreateWorker = async (value: any, JWT: any) => {
   const res = await fetch(URL + "/worker", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+    body: JSON.stringify({ ...value }),
+  });
+
+  const data = await res.json();
+
+  return { ...data, message: data?.message || handleStatus(res.status) };
+};
+
+export const CreateBatalonWorker = async (value: any, JWT: any) => {
+  const res = await fetch(URL + "/batalon/worker", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

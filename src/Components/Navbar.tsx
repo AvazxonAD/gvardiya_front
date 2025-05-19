@@ -48,6 +48,22 @@ function Navbar() {
       icon: ({ ...props }) => <Icon name="fio" {...props} />,
     },
     {
+      id: 12,
+      name: "Topshiriqlar",
+      path: "/batalon/tasks",
+      ru: "Задания",
+      icon: ({ ...props }) => <Icon name="rasxod_fio" {...props} />,
+      isBatalon: true
+    },
+    {
+      id: 4,
+      name: "F.I.O",
+      path: "/batalon/workers",
+      ru: "Ф.И.О",
+      icon: ({ ...props }) => <Icon name="fio" {...props} />,
+      isBatalon: true
+    },
+    {
       id: 5,
       name: "Batalon",
       path: "/batalon",
@@ -138,9 +154,11 @@ function Navbar() {
   ];
 
   const { user } = useSelector((state: any) => state.auth);
-  const filteredMenuItems = !user.region_id
-    ? menuItems.filter((item) => item.isAdminPath)
-    : menuItems.filter((item) => !item.isAdminPath);
+  const filteredMenuItems = user.batalon
+    ? menuItems.filter((item) => item.isBatalon)
+    : !user.region_id
+      ? menuItems.filter((item) => item.isAdminPath)
+      : menuItems.filter((item) => !item.isAdminPath && !item.isBatalon);
 
   useEffect(() => {
     const currentPath = locationn.pathname;

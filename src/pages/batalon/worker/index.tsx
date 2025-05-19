@@ -3,12 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  CreateWorker,
-  deleteWorker,
-  getSpr,
-  getWorkerId,
-  getWorkers,
-  updateWorker,
+  CreateBatalonWorker,
+  deleteBatalonWorker,
+  getBatalonWorkerId,
+  getBatalonWorkers,
+  updateBatalonWorker,
 } from "../../../api";
 import Input from "../../../Components/Input";
 import Modal from "../../../Components/Modal";
@@ -23,7 +22,6 @@ import useApi from "@/services/api";
 import { IWorker } from "@/types/worker";
 import { useReactToPrint } from "react-to-print";
 import { useDebounce } from "use-debounce";
-import Select from "../../../Components/Select";
 import { alertt } from "../../../Redux/LanguageSlice";
 import FIOForPrint from "../.././workers/FioForPrint";
 
@@ -48,32 +46,33 @@ function Workers() {
   const [totalPages, setTotalpage] = useState(10); // Example number of pages
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(1);
-  const [batalons, setBatalons] = useState<any>([]);
   const [search, setSearch] = useState("");
   const [searchId, setSearchID] = useState(0);
   const [downOpen, setDownOpen] = useState(false);
   const [downOpen2, setDownOpen2] = useState(false);
   const [limet, setLimet] = useState(15);
   const [all, setAll] = useState(10);
+
   const [value, setValue] = useState<any>({
     fio: "",
-    batalon_id: 0,
     account_number: "",
     xisob_raqam: "",
   });
+
   const [open2, setOpen2] = useState(false);
+
   const [value2, setValue2] = useState<any>({
     fio: "",
-    batalon_id: 0,
     account_number: "",
   });
+
   const [searchingText] = useDebounce(search, 500);
+
   const getInfo = async () => {
-    const res = await getWorkers(
+    const res = await getBatalonWorkers(
       JWT,
       currentPage,
       limet,
-      searchId,
       searchingText
     );
 
@@ -82,10 +81,6 @@ function Workers() {
     setAll(res.meta.count);
   };
   // Starting at page 2 for example
-
-  useEffect(() => {
-    getBatalyons();
-  }, []);
 
   useEffect(() => {
     // If search or filter changes and we're not on page 1, reset to page 1
@@ -101,7 +96,7 @@ function Workers() {
     setOpen(false);
   };
   const handleDelete = async () => {
-    const res = await deleteWorker(JWT, active);
+    const res = await deleteBatalonWorker(JWT, active);
 
     if (res.success) {
       dispatch(
@@ -123,14 +118,13 @@ function Workers() {
 
   const dispatch = useDispatch();
   const setInfo = async () => {
-    const res = await CreateWorker(
+    const res = await CreateBatalonWorker(
       {
         ...value,
         //@ts-ignore
         account_number: value.account_number.replaceAll(" ", ""),
         //@ts-ignore
         xisob_raqam: value.xisob_raqam.replaceAll(" ", ""),
-        batalon_id: value?.batalon_id > 0 ? value.batalon_id : null,
       },
       JWT
     );
@@ -148,7 +142,6 @@ function Workers() {
 
       setValue({
         fio: "",
-        batalon_id: 0,
         account_number: "",
         xisob_raqam: "",
       });
@@ -167,13 +160,6 @@ function Workers() {
     setInfo();
   };
 
-  const getBatalyons = async () => {
-    const res = await getSpr(JWT, "batalon", true);
-
-    if (res?.data && res?.success) {
-      setBatalons(res.data);
-    }
-  };
 
   const editInfo = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -181,11 +167,8 @@ function Workers() {
     let newdata = value2;
     newdata.account_number = newdata.account_number.replaceAll(" ", "");
     newdata.xisob_raqam = newdata.xisob_raqam.replaceAll(" ", "");
-    if (newdata?.batalon_id == 0) {
-      newdata.batalon_id = null;
-    }
 
-    const res = await updateWorker(newdata, JWT, active);
+    const res = await updateBatalonWorker(newdata, JWT, active);
 
     if (res.success) {
       getInfo();
@@ -208,8 +191,7 @@ function Workers() {
   };
 
   const edit = async (e: any) => {
-    const res = await getWorkerId(JWT, e);
-    const batalon = batalons.find((i: any) => i.name === res.data.batalon_name);
+    const res = await getBatalonWorkerId(JWT, e);
 
     const { id, batalon_name, ...data } = res.data;
     if (res.success) {
@@ -218,15 +200,10 @@ function Workers() {
         ...data,
         account_number: formatAccountNumber(res?.data?.account_number),
         xisob_raqam: formatAccountNumber(res?.data.xisob_raqam),
-        batalon_id: batalon ? batalon.id : 0,
       });
       setActive(e);
       setOpen2(true);
     }
-  };
-
-  const handleSearchByBatalon = async (e: number) => {
-    setSearchID(e);
   };
 
   const api = useApi();
@@ -237,12 +214,12 @@ function Workers() {
   });
   const onPrintClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    const batalonParam = searchId ? `?batalon_id=${searchId}` : "";
-    const get = await api.get(`worker/pdf${batalonParam}`);
+    const get = await api.get(`batalon/worker/?page=1&limit=1000000000000000`);
     if (get?.success) {
-      setForPdf(get.data as any);
+      setForPdf(get as any);
     }
   };
+
   useEffect(() => {
     if (forPdf) {
       reactToPrintFn();
@@ -271,14 +248,6 @@ function Workers() {
               />
             </div>
 
-            <Select
-              data={batalons}
-              def
-              value={searchId}
-              onChange={(e: any) => handleSearchByBatalon(e)}
-              p={tt("Batalon orqali qidiring", "Выберите название батальона")}
-            />
-
             <Button
               mode="clear"
               onClick={() => {
@@ -293,11 +262,6 @@ function Workers() {
               mode="download"
               onClick={() => setDownOpen(true)}
               text={tt("Excel", "Экcель")}
-            />
-            <Button
-              mode="download"
-              onClick={() => setDownOpen2(true)}
-              text={tt("Shablon yuklash", "Экcель")}
             />
             <Button mode="add" onClick={() => setOpen(true)} />
           </div>
@@ -362,14 +326,6 @@ function Workers() {
               label={tt("Hisob raqam", "Номер счета")}
               p={tt("Hisob raqamini kiriting", "Введите номер счета")}
             />
-            <Select
-              up
-              value={value.batalon_id}
-              onChange={(e: any) => setValue({ ...value, batalon_id: e })}
-              data={[{ id: 0, name: tt("Tanlang", "Выбрать") }, ...batalons]}
-              label={tt("Batalon nomi", "Наименование батальона")}
-              p={tt("Batalon nomini tanlang", "Выберите название батальона")}
-            />
             <div className="flex justify-end mt-4">
               <Button mode="save" type="submit" />
             </div>
@@ -421,17 +377,6 @@ function Workers() {
               p={tt("Hisob raqamini kiriting", "Введите номер счета")}
               className="w-full"
             />
-            {value2 && (
-              <Select
-                up
-                value={value2?.batalon_id ? value2.batalon_id : 0}
-                onChange={(e: any) => setValue2({ ...value2, batalon_id: e })}
-                data={[{ id: 0, name: tt("Tanlang", "Выбрать") }, ...batalons]}
-                label={tt("Batalon nomi", "Наименование батальона")}
-                p={tt("Batalon nomini tanlang", "Выберите название батальона")}
-                className="!w-full"
-              />
-            )}
             <div className="flex justify-end mt-4">
               <Button mode="save" type="submit" />
             </div>

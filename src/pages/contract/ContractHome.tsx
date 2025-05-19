@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Input from "../../Components/Input";
 import Paginatsiya from "../../Components/Paginatsiya";
 import { alertt } from "../../Redux/LanguageSlice";
-import { PayCont, deleteCont, getBat, getSpr, getCont } from "../../api";
+import { PayCont, deleteCont, getSpr, getCont } from "../../api";
 import ContTab from "../../pageCompoents/ContTab";
 import { tt } from "../../utils";
 import Modal from "@/Components/Modal";
@@ -366,9 +366,8 @@ function ContractHome() {
         className="!p-5"
       >
         <section
-          className={`${
-            openSelect ? "h-[300px]" : ""
-          } flex flex-col items-center justify-start`}
+          className={`${openSelect ? "h-[300px]" : ""
+            } flex flex-col items-center justify-start`}
         >
           <div className="w-[300px] mb-4">
             <Select

@@ -27,6 +27,7 @@ type IReportState = {
 };
 
 function ReportUser() {
+  console.log('find index')
   const [data, setData] = useState<IReportState>();
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(15);
@@ -121,7 +122,7 @@ function ReportUser() {
               },
             ]}
           >
-            {data?.data.map((r, ind) => (
+            {data?.data?.map((r, ind) => (
               <tr
                 key={ind}
                 className="my-[25px] cursor-pointer font-[500] hover:text-[#3B7FAF] transition-colors duration-300 border-b border-mytableheadborder"

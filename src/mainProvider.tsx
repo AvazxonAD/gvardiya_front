@@ -9,6 +9,7 @@ import Batalon from "./pages/Batalon";
 import ContractAnaliz from "./pages/contract/analiz";
 import Contract from "./pages/contract/Contract";
 import ContractHome from "./pages/contract/ContractHome";
+import BatalonTasks from "./pages/batalon/task/index";
 import ContractPage from "./pages/contract/contractPage";
 import Document from "./pages/contract/Document";
 import Home from "./pages/Home";
@@ -43,6 +44,7 @@ const MainProvider = () => {
   const { user } = useSelector((state: any) => state.auth);
   const token = useSelector((state: any) => state.auth.jwt);
 
+  console.log(user.region_id)
   return (
     <BrowserRouter>
       <Routes>
@@ -59,6 +61,7 @@ const MainProvider = () => {
               {Boolean(user.region_id) ? (
                 <Fragment>
                   <Route index={true} element={<Home />} />
+                  <Route path="/report" element={<Report />} />
                   <Route path="/contract" element={<Contract />}>
                     <Route path="" element={<ContractHome />} />
                     <Route path="add" element={<ContractPage />} />
@@ -99,8 +102,8 @@ const MainProvider = () => {
                 </Fragment>
               ) : Boolean(user.batalon) ? (
                 <Fragment>
-                  <Route path="/users" element={<UserTable />} />
-                  <Route path="/users" element={<UserTable />} />
+                  <Route path="/batalon/workers" element={<BatalonWorkers />} />
+                  <Route path="/batalon/tasks" element={<BatalonTasks />} />
                 </Fragment>
               ) : (
                 <Fragment>
