@@ -10,6 +10,7 @@ import ContractAnaliz from "./pages/contract/analiz";
 import Contract from "./pages/contract/Contract";
 import ContractHome from "./pages/contract/ContractHome";
 import BatalonTasks from "./pages/batalon/task/index";
+import BatalonWorkerTasks from "./pages/batalon/worker.tasks/index";
 import ContractPage from "./pages/contract/contractPage";
 import Document from "./pages/contract/Document";
 import Home from "./pages/Home";
@@ -44,7 +45,7 @@ const MainProvider = () => {
   const { user } = useSelector((state: any) => state.auth);
   const token = useSelector((state: any) => state.auth.jwt);
 
-  console.log(user.region_id)
+  console.log(user.region_id);
   return (
     <BrowserRouter>
       <Routes>
@@ -104,6 +105,10 @@ const MainProvider = () => {
                 <Fragment>
                   <Route path="/batalon/workers" element={<BatalonWorkers />} />
                   <Route path="/batalon/tasks" element={<BatalonTasks />} />
+                  <Route
+                    path="/batalon/worker/tasks/:id"
+                    element={<BatalonWorkerTasks />}
+                  />
                 </Fragment>
               ) : (
                 <Fragment>
