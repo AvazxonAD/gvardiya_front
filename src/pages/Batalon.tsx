@@ -182,7 +182,7 @@ function Batalon() {
         open={open}
         closeModal={() => setOpen(false)}
         w="730px"
-        title={tt("Batalion qo’shish", "Добавить батальон")}
+        title={tt("Batalon qo’shish", "Добавить батальон")}
       >
         <form onSubmit={handleCreate}>
           <div className="flex gap-6">
@@ -270,7 +270,7 @@ function Batalon() {
         open={open2}
         w="730px"
         closeModal={() => setOpen2(false)}
-        title={tt("Batalion tahrirlash", "Редактировать батальон")}
+        title={tt("Batalon tahrirlash", "Редактировать батальон")}
       >
         <form onSubmit={editInfo}>
           <div className="flex gap-6">

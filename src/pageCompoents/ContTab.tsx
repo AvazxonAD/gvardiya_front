@@ -7,9 +7,10 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DeleteModal from "../Components/DeleteModal";
 import { formatDate, formatSum, textNum, tt } from "../utils";
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 interface ContTabProps {
-  data: IContract[];
+  data: any[];
   handleDelete: (id: string) => void;
   setActive: Dispatch<SetStateAction<any>>;
 }
@@ -66,15 +67,19 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive }) => {
               },
               {
                 text: tt("Summa", "Сумма"),
-                className: "px-2 py-3 text-left w-[180px]",
+                className: "px-2 py-3 text-center w-[180px]",
               },
               {
                 text: tt("Debit", "Дебет"),
-                className: "px-2 py-3 text-left w-[180px]",
+                className: "px-2 py-3 text-center w-[180px]",
               },
               {
                 text: tt("Kredit", "Кредит"),
-                className: "px-2 py-3 text-left w-[180px]",
+                className: "px-2 py-3 text-center w-[180px]",
+              },
+              {
+                text: tt("Xodim biriktirish", "Привязанность к сотруднику"),
+                className: "px-2 py-3 text-center w-[180px]",
               },
               {
                 text: tt("Amallar", "Действия"),
@@ -111,6 +116,17 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive }) => {
                 </td>
                 <td className="px-2 text-right text-inherit border-l border-r">
                   {formatSum(item.remaining_balance)}
+                </td>
+                <td className="px-2 text-center border-l border-r">
+                  {item.worker_task_status === "Bajarilmagan" ? (
+                    <span className="text-red-500 flex items-center justify-center gap-1">
+                      <FaTimesCircle /> Bajarilmagan
+                    </span>
+                  ) : (
+                    <span className="text-green-500 flex items-center justify-center gap-1">
+                      <FaCheckCircle /> Bajarilgan
+                    </span>
+                  )}
                 </td>
                 <ThreeDotMenu
                   id={item.id}

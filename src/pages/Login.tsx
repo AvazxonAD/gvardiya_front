@@ -54,7 +54,11 @@ function Login() {
           success: true,
         })
       );
-      navigate("/");
+      if (res?.data?.user?.batalon) {
+        navigate("/batalon/tasks");
+      } else {
+        navigate("/");
+      }
     }
 
     if (!res.success) {

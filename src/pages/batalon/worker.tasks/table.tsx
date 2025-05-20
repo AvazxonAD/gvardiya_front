@@ -23,10 +23,7 @@ const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
             <tr className="bg-mytablehead border border-mytableheadborder text-mytextcolor uppercase text-sm leading-normal">
               <th className="py-3 px-6 text-left">№</th>
               <th className="py-3 px-6 text-left">
-                {tt(
-                  "Batalon / Boshqarma nomi",
-                  "Название батальона / организации"
-                )}
+                {tt("Batalon", "Название батальона")}
               </th>
               <th className="py-3 px-6 text-center">
                 {tt("Topshiriq vaqti", "Время задачи")}
@@ -37,10 +34,20 @@ const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
                   {tt("Xodimlar soni", "Количество сотрудников")}
                 </div>
               </th>
-              <th className="py-3 px-6 text-left">{tt("Summa", "Сумма")}</th>
-              <th className="py-3 px-6 text-left">{tt("Sana", "Дата")}</th>
+              <th className="py-3 px-6 text-center">
+                {tt("Umumiy vaqt", "Общее время")}
+              </th>
               <th className="py-3 px-6 text-center">
                 {tt("Qolgan vaqt", "Оставшееся время")}
+              </th>
+              <th className="py-3 px-6 text-center">
+                {tt("Manzil", "Адресс")}
+              </th>
+              <th className="py-3 px-6 text-center">
+                {tt("Tadbir sanasi", "Дата события")}
+              </th>
+              <th className="py-3 px-6 text-center w-64">
+                {tt("Izoh", "Примечание")}
               </th>
               <th className="py-3 px-6 text-center">
                 {tt("Amallar", "Действия")}

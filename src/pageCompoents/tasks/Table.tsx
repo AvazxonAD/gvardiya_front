@@ -32,10 +32,18 @@ const Table: React.FC<{ data: ITask[]; getTasks: Function }> = ({
                 {tt("Xodimlar soni", "Количество сотрудников")}
               </div>
             </th>
-            <th className="py-3 px-6 text-left">{tt("Summa", "Сумма")}</th>
+            <th className="py-3 px-6 text-left min-w-[170px]">
+              {tt("Summa", "Сумма")}
+            </th>
             <th className="py-3 px-6 text-left">{tt("Sana", "Дата")}</th>
             <th className="py-3 px-6 text-center">
               {tt("Qolgan vaqt", "Оставшееся время")}
+            </th>
+            <th className="py-3 px-6 text-center">
+              {tt("Topshiriq muddati", "Крайний срок выполнения задания")}
+            </th>
+            <th className="py-3 px-6 text-center">
+              {tt("Topshiriq holati", "Статус задания")}
             </th>
             <th className="py-3 px-6 text-center">
               {tt("Amallar", "Действия")}

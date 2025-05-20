@@ -9,6 +9,8 @@ import EditForm from "./update";
 import Input from "@/Components/Input";
 import { useDebounce } from "use-debounce";
 import { CheckCircle2, XCircle } from "lucide-react";
+import { alertt } from "@/Redux/LanguageSlice";
+import { useDispatch } from "react-redux";
 
 type Props = {
   row: any;
@@ -27,6 +29,7 @@ const TableItem = ({
   setEditingId,
   setCreatingId,
 }: Props) => {
+  const dispatch = useDispatch();
   const [open, setOpen] = useState<boolean>(false);
   const [taskWorkers, setTaskWorkers] = useState<ITaskWorker[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -61,6 +64,14 @@ const TableItem = ({
       const filter = taskWorkers.filter((w) => w.worker_id !== worker_id);
       setTaskWorkers(filter);
       getTasks();
+    } else {
+      console.log(remove?.message);
+      dispatch(
+        alertt({
+          text: remove?.message || "Xatolik yuz berdi",
+          success: false,
+        })
+      );
     }
   };
 
@@ -79,11 +90,8 @@ const TableItem = ({
         <td className="py-3 px-6 text-center font-[500] text-[14px]">
           {row.worker_number}
         </td>
-        <td className="py-3 px-6 text-left font-[500] text-[14px]">
-          {formatSum(row.summa)}
-        </td>
-        <td className="py-3 px-6 text-left font-[500] text-[14px]">
-          {formatDate(row.task_date)}
+        <td className="py-3 px-6 text-center font-[500] text-[14px]">
+          {Math.round(row.worker_number * row.task_time * 100) / 100}
         </td>
         <td
           style={{ color: row.remaining_task_time > 0 ? "red" : "green" }}
@@ -102,6 +110,15 @@ const TableItem = ({
               </div>
             )}
           </div>
+        </td>
+        <td className="py-3 px-6 text-center font-[500] text-[14px]">
+          {row.address}
+        </td>
+        <td className="py-3 px-6 text-center font-[500] text-[14px]">
+          {formatDate(row.task_date)}
+        </td>
+        <td className="py-3 px-6 text-left font-[500] text-[14px]">
+          {row.comment}
         </td>
         <td className="py-3 px-6 flex justify-center items-center gap-2 font-[500] text-[14px]">
           {!row.birgada && (

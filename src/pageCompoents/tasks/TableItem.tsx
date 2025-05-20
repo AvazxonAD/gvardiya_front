@@ -9,6 +9,10 @@ import EditForm from "./editForm";
 import Input from "@/Components/Input";
 import { useDebounce } from "use-debounce";
 import { CheckCircle2, XCircle } from "lucide-react";
+import { FiClock } from "react-icons/fi";
+import DateModal from "./update.deadline";
+import { alertt } from "@/Redux/LanguageSlice";
+import { useDispatch } from "react-redux";
 
 type Props = {
   row: ITask;
@@ -26,11 +30,15 @@ const TableItem = ({
   creatingId,
   setEditingId,
   setCreatingId,
-}: Props) => {
+}: any) => {
+  const dispatch = useDispatch();
   const [open, setOpen] = useState<boolean>(false);
   const [taskWorkers, setTaskWorkers] = useState<ITaskWorker[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [search] = useDebounce(searchTerm, 400);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [clockId, setclockId] = useState<number | null>(null);
+
   const api = useApi();
 
   useEffect(() => {
@@ -46,7 +54,42 @@ const TableItem = ({
         }
       }
     })();
-  }, [open, search]);
+  }, [open, search, clockId, modalOpen]);
+
+  const handleSaveDeadline = async (date: string) => {
+    try {
+      const response: any = await api.update(`task/${clockId}`, {
+        deadline: date,
+      });
+
+      if (response.success) {
+        dispatch(
+          alertt({
+            text: tt("Muvaffaqiyatli bajarildi", "Успешно выполнено"),
+            success: true,
+          })
+        );
+        setModalOpen(false);
+        setclockId(null);
+
+        window.location.reload();
+      } else {
+        dispatch(
+          alertt({
+            text: response.message,
+            success: response.success,
+          })
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleclockClick = (id: number) => {
+    setclockId(id);
+    setModalOpen(true);
+  };
 
   const handleEditClick = (id: number) => {
     setCreatingId(null);
@@ -103,6 +146,22 @@ const TableItem = ({
             )}
           </div>
         </td>
+        <td className="py-3 px-6 text-center font-[500] text-[14px]">
+          {!row.birgada ? formatDate(row.deadline) : ""}
+        </td>
+        <td
+          className={`px-4 py-3 text-center font-semibold ${
+            row.status === "Muddati o'tgan"
+              ? "text-red-600"
+              : row.status === "Bajarilgan"
+              ? "text-green-600"
+              : row.status === "Bajarilmoqda"
+              ? "text-yellow-600"
+              : ""
+          }`}
+        >
+          {!row.birgada ? row.status : ""}
+        </td>
         <td className="py-3 px-6 flex justify-center items-center gap-2 font-[500] text-[14px]">
           {!row.birgada && (
             <>
@@ -129,6 +188,12 @@ const TableItem = ({
                 className="text-blue-600 hover:text-blue-800"
               >
                 <Icon name="pencil" />
+              </button>
+              <button
+                onClick={() => handleclockClick(row.id)}
+                className="text-blue-600 hover:text-blue-800"
+              >
+                <FiClock size={20} />
               </button>
             </>
           )}
@@ -222,6 +287,14 @@ const TableItem = ({
           </Table>
         </div>
       </Modal>
+
+      <DateModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSave={async (date) => {
+          await handleSaveDeadline(date);
+        }}
+      />
     </React.Fragment>
   );
 };

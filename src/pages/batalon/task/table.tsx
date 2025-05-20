@@ -3,7 +3,6 @@ import { useState } from "react";
 import DeleteModal from "../../../Components/DeleteModal";
 import { tt } from "../../../utils";
 import { FaUserPlus } from "react-icons/fa";
-import Task from "../worker.tasks";
 import { useNavigate } from "react-router-dom";
 
 const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
@@ -84,7 +83,7 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
                   {tt("Tadbir vaqti", "Время события")}
                 </th>
                 <th className="px-4 py-3 text-center w-[180px]">
-                  {tt("Umumiy ", "Время события")}
+                  {tt("Umumiy vaqt ", "Время события")}
                 </th>
                 <th className="px-4 py-3 text-center w-[180px]">
                   {tt("Qolgan ", "Остальные")}
@@ -128,7 +127,8 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
                   </td>
                   <td className="px-4 py-3 text-center">{task.task_time}</td>
                   <td className="px-4 py-3 text-center">
-                    {task.task_time * task.worker_number}
+                    {Math.round(task.task_time * task.worker_number * 100) /
+                      100}
                   </td>
                   <td
                     className={`px-4 py-3 text-center ${
@@ -137,7 +137,7 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
                         : "text-red-500"
                     }`}
                   >
-                    {task.remaining_task_time}
+                    {Math.round(task.remaining_task_time * 100) / 100}
                   </td>
                   <td className="px-4 py-3 text-center">{task.deadline}</td>
                   <td className="px-4 py-3 text-center">{task.address}</td>

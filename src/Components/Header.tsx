@@ -121,6 +121,12 @@ function Header() {
 
   const { user } = useSelector((state: any) => state.auth);
 
+  let path = "/";
+
+  if (user?.batalon) {
+    path = "/batalon/tasks";
+  }
+
   const { pathname } = useLocation();
   const [imageError, setImageError] = useState(false);
 
@@ -129,7 +135,7 @@ function Header() {
       <div className="mx-auto w-[85%] flex justify-between items-center">
         <div
           onClick={() => {
-            navigate("/");
+            navigate(path);
             location.reload();
           }}
           className="flex gap-2 cursor-pointer items-center"
@@ -224,8 +230,9 @@ function Header() {
               </svg>
             </button>
             <div
-              className={`${isShow ? "flex z-[999]" : "hidden"
-                } absolute top-[37px] bg-mytablehead transition-all duration-300 rounded-[6px] h-[85px] w-[68px] items-center justify-center border border-mybordercolor shadow-[0px_1px_4px_0px_#00000026]`}
+              className={`${
+                isShow ? "flex z-[999]" : "hidden"
+              } absolute top-[37px] bg-mytablehead transition-all duration-300 rounded-[6px] h-[85px] w-[68px] items-center justify-center border border-mybordercolor shadow-[0px_1px_4px_0px_#00000026]`}
             >
               <div className="flex flex-col gap-2 text-[14px] text-mytextcolor  leading-[16.94px]">
                 {language.map((e: any) => (
@@ -237,8 +244,9 @@ function Header() {
                       setIsShow(false);
                       location.reload();
                     }}
-                    className={`cursor-pointer hover:text-mylabelcolor hover:font-[600] ${e.id === selectedValue && "text-mylabelcolor font-[600]"
-                      }`}
+                    className={`cursor-pointer hover:text-mylabelcolor hover:font-[600] ${
+                      e.id === selectedValue && "text-mylabelcolor font-[600]"
+                    }`}
                   >
                     {e.text}
                   </span>

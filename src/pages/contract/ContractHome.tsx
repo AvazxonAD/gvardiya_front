@@ -366,8 +366,9 @@ function ContractHome() {
         className="!p-5"
       >
         <section
-          className={`${openSelect ? "h-[300px]" : ""
-            } flex flex-col items-center justify-start`}
+          className={`${
+            openSelect ? "h-[300px]" : ""
+          } flex flex-col items-center justify-start`}
         >
           <div className="w-[300px] mb-4">
             <Select

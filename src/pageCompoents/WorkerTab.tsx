@@ -27,24 +27,26 @@ const WorkerTab = ({
   };
 
   const height = useFullHeight();
-  const fullHeight =
+
+  // fullHeight ni integer yoki string bo'lishiga qarab px formatini beramiz
+  const fullHeightValue =
     typeof height === "string" ? `calc(${height} - 250px)` : height - 250;
 
   return (
     <>
       {data ? (
         <div
-          className={`rounded-t-[6px] text-[14px] leading-[16.94px] border hide__scrollbar`}
-          style={{ maxHeight: fullHeight, overflowY: "auto" }}
+          className="rounded-t-[6px] text-[14px] leading-[16.94px] border"
+          style={{
+            maxHeight: fullHeightValue,
+            overflowY: "auto",
+          }}
         >
-          <table className="min-w-full relative">
-            <thead className="bg-mytablehead sticky z-10 -top-1 text-[14px] leading-[16.94px] rounded-t-[6px] border border-mytableheadborder">
+          <table className="min-w-full relative border-collapse">
+            <thead className="bg-mytablehead sticky top-0 z-10 text-[14px] leading-[16.94px] rounded-t-[6px] border border-mytableheadborder">
               <tr className="text-mytextcolor">
                 <th className="px-4 py-3 text-left w-[100px]">
                   {tt("№", "№")}
-                </th>
-                <th className="px-4 py-3 text-left w-[250px]">
-                  {tt("ID", "ID")}
                 </th>
                 <th className="px-4 py-3 text-left w-[250px]">
                   {tt("F.I.O", "Ф.И.О")}
@@ -56,7 +58,7 @@ const WorkerTab = ({
                   {tt("Hisob raqam", "Номер счета")}
                 </th>
                 <th className="px-4 py-3 text-center w-[200px]">
-                  {tt("Batalion", "Батальон")}
+                  {tt("Batalon", "Батальон")}
                 </th>
                 <th className="px-4 py-3 text-right w-[120px]">
                   {tt("Amallar", "Действия")}
@@ -67,31 +69,25 @@ const WorkerTab = ({
               {data.map((person: IWorker, index: number) => (
                 <tr
                   key={person.id}
-                  className={`hover:text-[#3B7FAF] text-mytextcolor cursor-pointer transition-colors duration-300 border-b border-mytableheadborder`}
+                  className="hover:text-[#3B7FAF] text-mytextcolor cursor-pointer transition-colors duration-300 border-b border-mytableheadborder"
                 >
-                  <td className="px-4 py-3 text-inherit   text-left">
-                    {getRowNumber(index)}
-                  </td>
-                  <td className="px-4 py-3 text-inherit   text-left truncate">
-                    {person.id}
-                  </td>
-                  <td className="px-4 py-3 text-inherit   text-left truncate">
-                    {person.fio}
-                  </td>
-                  <td className="px-4 py-3 text-inherit   text-center">
+                  <td className="px-4 py-3 text-left">{getRowNumber(index)}</td>
+                  <td className="px-4 py-3 text-left truncate">{person.fio}</td>
+                  <td className="px-4 py-3 text-center">
                     {textNum(person.account_number, 4)}
                   </td>
-                  <td className="px-4 py-3 text-inherit   text-center">
+                  <td className="px-4 py-3 text-center">
                     {textNum(person.xisob_raqam, 4)}
                   </td>
-                  <td className="px-4 py-3 text-inherit   text-center truncate">
+                  <td className="px-4 py-3 text-center truncate">
                     {person.batalon_name}
                   </td>
-                  <td className="px-4 py-3   text-right">
+                  <td className="px-4 py-3 text-right">
                     <div className="flex justify-end space-x-4">
                       <button
                         onClick={() => edit(person.id)}
                         className="hover:opacity-80 transition-opacity"
+                        type="button"
                       >
                         <Icon name="edit" />
                       </button>
@@ -101,6 +97,7 @@ const WorkerTab = ({
                           setActive(person.id);
                         }}
                         className="hover:opacity-80 transition-opacity"
+                        type="button"
                       >
                         <Icon name="delete" />
                       </button>
@@ -113,7 +110,12 @@ const WorkerTab = ({
         </div>
       ) : (
         <div
-          style={{ height: fullHeight }}
+          style={{
+            height:
+              typeof fullHeightValue === "number"
+                ? `${fullHeightValue}px`
+                : fullHeightValue,
+          }}
           className="w-full text-[#323232] font-[500] text-[20px] flex justify-center items-center bg-[#F4FAFD] rounded-lg"
         >
           {tt("Malumot yo'q", "Нет ссылки")}

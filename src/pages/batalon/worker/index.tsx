@@ -69,12 +69,7 @@ function Workers() {
   const [searchingText] = useDebounce(search, 500);
 
   const getInfo = async () => {
-    const res = await getBatalonWorkers(
-      JWT,
-      currentPage,
-      limet,
-      searchingText
-    );
+    const res = await getBatalonWorkers(JWT, currentPage, limet, searchingText);
 
     setData(res.data);
     setTotalpage(res.meta.pageCount);
@@ -159,7 +154,6 @@ function Workers() {
 
     setInfo();
   };
-
 
   const editInfo = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -266,14 +260,19 @@ function Workers() {
             <Button mode="add" onClick={() => setOpen(true)} />
           </div>
         </div>
-        <WorkerTab
-          setActive={setActive}
-          handleDelete={handleDelete}
-          page={currentPage}
-          itemsPerPage={10}
-          data={data}
-          edit={edit}
-        />
+        <div
+          className={`rounded-t-[6px] text-[14px] leading-[16.94px] border`}
+          style={{ maxHeight: fullHeight, overflowY: "auto" }}
+        >
+          <WorkerTab
+            setActive={setActive}
+            handleDelete={handleDelete}
+            page={currentPage}
+            itemsPerPage={10}
+            data={data}
+            edit={edit}
+          />
+        </div>
       </div>
       <div className="">
         <Paginatsiya
