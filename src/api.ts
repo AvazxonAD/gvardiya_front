@@ -5,7 +5,7 @@ import { handleStatus } from "./utils";
 // const isProd = import.meta.env.PROD;
 // const port: any = window.location.port;
 
-export const URL = 'http://localhost:3009'
+export const URL = 'https://gvardiya.smartbase.uz/api'
 // isProd
 // ? port == 5173
 //   ? `https://gvardiya.smartbase.uz/api`
