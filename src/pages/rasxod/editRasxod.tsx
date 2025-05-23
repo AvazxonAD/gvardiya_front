@@ -61,6 +61,7 @@ export const EditRasxod = () => {
   const [editedData, setEditedData] = useState<SingleRasxodInterface | null>(
     null
   );
+
   const filtereddata = rasxodRequestdata.filter(
     (item) => selectedO?.id == item.batalon_id
   );
@@ -78,6 +79,8 @@ export const EditRasxod = () => {
           const data = res.data.data as SingleRasxodInterface;
           setDocnum(data.doc_num);
           setEditedData(data);
+          setRasxodFromDate(data.from);
+          setRasxodToDate(data.to)
 
           //@ts-ignore
           setSelectedO({
@@ -128,6 +131,8 @@ export const EditRasxod = () => {
         doc_date: docDate,
         batalon_id: selectedO?.id,
         opisanie: opisanie,
+        from: rasxodfromdate,
+        to: rasxodtodate,
         tasks: filtereddata.map((item: any) => {
           return {
             task_id: item.task_id,
@@ -135,13 +140,10 @@ export const EditRasxod = () => {
         }),
       };
 
-      const res = await request.put("/rasxod/" + editedData?.id, data, {
-        params: {
-          account_number_id: accountNumber,
-        },
-      });
-      if (res.status == 200 || res.status == 201) {
-        if (res.data.success) {
+      const res = await api.update(`rasxod/${editedData?.id}?account_number_id=${accountNumber}`, data);
+
+      if (res.code == 200 || res.code == 201) {
+        if (res.success) {
           navigate("/rasxod");
           dispatch(
             alertt({
@@ -153,6 +155,13 @@ export const EditRasxod = () => {
             })
           );
         }
+      } else {
+        dispatch(
+          alertt({
+            success: false,
+            text: res.message,
+          })
+        );
       }
     } catch (error) {
       dispatch(
@@ -354,11 +363,10 @@ export const EditRasxod = () => {
             {organization?.data.map((o: any, ind) => (
               <tr
                 key={ind}
-                className={`cursor-pointer ${
-                  selectedO?.id === o.id
-                    ? "bg-[#f3f4f6] dark:bg-mytableheadborder"
-                    : "bg-mybackground"
-                }`}
+                className={`cursor-pointer ${selectedO?.id === o.id
+                  ? "bg-[#f3f4f6] dark:bg-mytableheadborder"
+                  : "bg-mybackground"
+                  }`}
                 onClick={() => {
                   setSelectedO(o);
                   setOpen(false);

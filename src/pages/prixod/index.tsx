@@ -58,6 +58,7 @@ const Prixod = () => {
   const dispatch = useDispatch();
   const { account_number_id } = useSelector((state: any) => state.account);
   const api = useApi();
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     setStartDate(defDate.startDate);
@@ -66,8 +67,9 @@ const Prixod = () => {
 
   const navigate = useNavigate();
   const getData = async () => {
+
     const get = await api.get<IPrixodState>(
-      `prixod?from=${startDate}&to=${endDate}&account_number_id=${account_number_id}&limit=${limet}&page=${currentPage}`
+      `prixod?from=${startDate}&to=${endDate}&account_number_id=${account_number_id}&limit=${limet}&page=${currentPage}&search=${searchTerm}`
     );
     if (get?.success) {
       setData(get as any);
@@ -75,10 +77,11 @@ const Prixod = () => {
   };
 
   useEffect(() => {
-    if (startDate && endDate) {
+    if ((startDate && endDate) || searchTerm) {
+      console.log('ajdhajdhasdhj')
       getData();
     }
-  }, [currentPage, limet]);
+  }, [currentPage, limet, searchTerm]);
 
   const handleDownload = () => {
     getData();
@@ -179,6 +182,14 @@ const Prixod = () => {
           )}
           <div className="flex -mt-5 sticky py-5 -top-1 z-[30] bg-mybackground items-center  justify-between">
             <Input v={data?.meta?.from_balance} readonly />
+            <Input
+              p={tt("Qidiriuv", "Поиск")}
+              className="border border-gray-300 rounded px-3 py-2 w-full"
+              v={searchTerm}
+              change={(e: any) => setSearchTerm(e.target.value)}
+              removeValue={() => setSearchTerm("")}
+              search
+            />
             <div className="flex items-center">
               <SpecialDatePicker
                 defaultValue={startDate}

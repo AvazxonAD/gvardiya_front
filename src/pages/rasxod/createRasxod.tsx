@@ -85,20 +85,18 @@ export const CreateRasxod = () => {
         doc_date: docDate,
         batalon_id: selectedO?.id,
         opisanie: opisanie,
+        from: rasxodfromdate,
+        to: rasxodtodate,
         tasks: rasxodRequestdata.map((item: any) => {
           return {
             task_id: item.task_id,
           };
         }),
       };
+      const res = await api.post(`rasxod/?account_number_id=${accountNumber}`, data);
 
-      const res = await request.post("/rasxod", data, {
-        params: {
-          account_number_id: accountNumber,
-        },
-      });
-      if (res.status == 200 || res.status == 201) {
-        if (res.data.success) {
+      if (res.code == 200 || res.code == 201) {
+        if (res.success) {
           navigate("/rasxod");
           dispatch(
             alertt({
@@ -107,6 +105,13 @@ export const CreateRasxod = () => {
             })
           );
         }
+      } else {
+        dispatch(
+          alertt({
+            success: false,
+            text: res.message,
+          })
+        );
       }
     } catch (error) {
       dispatch(
@@ -222,7 +227,7 @@ export const CreateRasxod = () => {
       value: textNum(
         (selectedO?.account_number ??
           currentPrixod?.organization_account_number) ||
-          "",
+        "",
         4
       ),
     },
@@ -306,11 +311,10 @@ export const CreateRasxod = () => {
             {organization?.data.map((o: any, ind) => (
               <tr
                 key={ind}
-                className={`cursor-pointer ${
-                  (selectedO?.id ?? currentPrixod?.organization_id) === o.id
-                    ? "bg-[#f3f4f6] dark:bg-mytableheadborder"
-                    : "bg-mybackground"
-                }`}
+                className={`cursor-pointer ${(selectedO?.id ?? currentPrixod?.organization_id) === o.id
+                  ? "bg-[#f3f4f6] dark:bg-mytableheadborder"
+                  : "bg-mybackground"
+                  }`}
                 onClick={() => {
                   setSelectedO(o);
                   setOpen(false);

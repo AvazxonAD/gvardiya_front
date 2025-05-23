@@ -4,11 +4,6 @@ import { useNavigate } from "react-router-dom";
 // const port: any = window.location.port;
 
 export const baseUri = 'https://gvardiya.smartbase.uz/api';
-// isProd
-// ? port == 5173
-//   ? `https://gvardiya.smartbase.uz/api`
-//   : `https://${window.location.hostname}/api`
-// : `https://gvardiya.smartbase.uz/api`;
 
 const useApi = () => {
   const navigate = useNavigate();

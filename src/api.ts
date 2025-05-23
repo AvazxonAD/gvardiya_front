@@ -6,11 +6,6 @@ import { handleStatus } from "./utils";
 // const port: any = window.location.port;
 
 export const URL = 'https://gvardiya.smartbase.uz/api'
-// isProd
-// ? port == 5173
-//   ? `https://gvardiya.smartbase.uz/api`
-//   : `https://${window.location.hostname}/api`
-// : `https://gvardiya.smartbase.uz/api`;
 
 export const jwt = localStorage.getItem("token");
 

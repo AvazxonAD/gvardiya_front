@@ -17,26 +17,25 @@ function Batalon() {
   const [active, setActive] = useState(1);
 
   const [open, setOpen] = useState(false);
+
   const [value, setValue] = useState({
     name: "",
     birgada: false,
     mfo: "",
     bank_name: "",
     account_number: "",
-    treasury1: "",
-    treasury2: "",
     address: "",
     str: "",
   });
+
   const [open2, setOpen2] = useState(false);
+
   const [value2, setValue2] = useState({
     name: "",
     birgada: false,
     mfo: "",
     bank_name: "",
     account_number: "",
-    treasury1: "",
-    treasury2: "",
     address: "",
     str: "",
   });
@@ -49,6 +48,7 @@ function Batalon() {
   useEffect(() => {
     getInfo();
   }, []);
+
   const handleDelete = async () => {
     const res = await getDEl(JWT, active);
 
@@ -69,6 +69,7 @@ function Batalon() {
       );
     }
   };
+
   const handleChange = (e: any) => {
     if (e.target.name === "account_number") {
       setValue({
@@ -157,14 +158,18 @@ function Batalon() {
     const res = await getBatID(JWT, e);
     if (res.success) {
       const { id, account_number, ...rest } = res.data;
+
       setValue2({
-        account_number: formatAccountNumber(account_number),
+        account_number: account_number ? formatAccountNumber(account_number) : '',
         ...rest,
       });
+
       setActive(e);
+
       setOpen2(true);
     }
   };
+
   return (
     <div className="flex flex-col w-full">
       <div className="flex justify-end items-center ">
@@ -210,6 +215,8 @@ function Batalon() {
                 label={tt("INN", "ИНН")}
                 p={tt("INN", "ИНН")}
               />
+            </div>
+            <div className="flex gap-3 flex-col">
               <Input
                 change={handleChange}
                 v={value.bank_name}
@@ -217,8 +224,6 @@ function Batalon() {
                 label={tt("Bank nomi", "Название банка")}
                 p={tt("Bank nomi kiriting", "Введите название банка")}
               />
-            </div>
-            <div className="flex gap-3 flex-col">
               <Input
                 change={handleChange}
                 v={value.mfo}
@@ -233,22 +238,6 @@ function Batalon() {
                 n="account_number"
                 label={tt("Hisob raqam", "Счет номер")}
                 p={tt("Hisob raqam kiriting", "Введите номер счета")}
-              />
-              <Input
-                change={handleChange}
-                v={value.treasury1}
-                n="treasury1"
-                t="number"
-                label={tt("G'azna 1", "Казначейство 1")}
-                p={tt("G'azna raqamini kiriting", "Введите номер казначейства")}
-              />
-              <Input
-                change={handleChange}
-                v={value.treasury2}
-                n="treasury2"
-                t="number"
-                label={tt("G'azna 2", "Казначейство 2")}
-                p={tt("G'azna raqamini kiriting", "Введите номер казначейства")}
               />
             </div>
           </div>
@@ -298,6 +287,8 @@ function Batalon() {
                 label={tt("INN", "ИНН")}
                 p={tt("INN", "ИНН")}
               />
+            </div>
+            <div className="flex gap-3 flex-col">
               <Input
                 change={handleChangeEdit}
                 v={value2.bank_name}
@@ -305,8 +296,6 @@ function Batalon() {
                 label={tt("Bank nomi", "Название банка")}
                 p={tt("Bank nomi kiritng", "Введите название банка")}
               />
-            </div>
-            <div className="flex gap-3 flex-col">
               <Input
                 change={handleChangeEdit}
                 v={value2.mfo}
@@ -321,22 +310,6 @@ function Batalon() {
                 n="account_number"
                 label={tt("Hisob raqam", "Счет номер")}
                 p={tt("Hisob raqam kiriting", "Введите номер счета")}
-              />
-              <Input
-                change={handleChangeEdit}
-                v={value2.treasury1}
-                n="treasury1"
-                t="number"
-                label={tt("G'azna 1", "Казначейство 1")}
-                p={tt("Xazna raqam kiriting", "Введите номер казначейства")}
-              />
-              <Input
-                change={handleChangeEdit}
-                v={value2.treasury2}
-                n="treasury2"
-                t="number"
-                label={tt("G'azna 2", "Казначейство 2")}
-                p={tt("Xazna raqam kiriting", "Введите номер казначейства")}
               />
             </div>
           </div>

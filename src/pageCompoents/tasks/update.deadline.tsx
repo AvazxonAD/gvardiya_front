@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import { tt } from "../../utils";
+import { alertt } from "@/Redux/LanguageSlice";
+import { useDispatch } from "react-redux";
 
 type DateModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSave: (selectedDate: string) => void;
+  default_date: string
 };
 
-const DateModal: React.FC<DateModalProps> = ({ isOpen, onClose, onSave }) => {
-  const [date, setDate] = useState("");
+const DateModal: React.FC<DateModalProps> = ({ isOpen, onClose, onSave, default_date }) => {
+  const [date, setDate] = useState("")
+  const dispatch = useDispatch();
 
   if (!isOpen) return null;
 
@@ -23,6 +27,7 @@ const DateModal: React.FC<DateModalProps> = ({ isOpen, onClose, onSave }) => {
           label={tt("kun oy yil", "один ой йил")}
           name="start_date"
           value={date}
+          defaultValue={default_date}
           onChange={(event) => {
             setDate(event);
           }}
@@ -38,9 +43,13 @@ const DateModal: React.FC<DateModalProps> = ({ isOpen, onClose, onSave }) => {
             onClick={() => {
               if (date) {
                 onSave(date);
-                onClose();
               } else {
-                alert("Iltimos, sana tanlang");
+                dispatch(
+                  alertt({
+                    text: tt('Iltimos sana tanlnag', 'Iltimos sana tanlnag'),
+                    success: false,
+                  })
+                );
               }
             }}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"

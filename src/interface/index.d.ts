@@ -84,7 +84,7 @@ export interface InfoInterFace {
   mfo: string;
 }
 
-export interface OrganizationInterface {}
+export interface OrganizationInterface { }
 
 export interface templateInterface {
   idx: number;
@@ -152,6 +152,8 @@ interface SingleRasxodInterface {
   batalon_account_number: string;
   summa: number;
   tasks: RasxodTabelInterface[];
+  from: string,
+  to: string
 }
 
 export interface UstamaInterFace {

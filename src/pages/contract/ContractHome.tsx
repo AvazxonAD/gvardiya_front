@@ -42,8 +42,9 @@ function ContractHome() {
   const [active, setactive] = useState(1);
   const [all, setAll] = useState(10);
   const [balance, setBalance] = useState({
-    from_balance: 0,
-    to_balance: 0,
+    internal_summa: 0,
+    debet_summa: 0,
+    kredit_summa: 0,
   });
   const [dates, setDates] = useState<any>({
     date1: startDate,
@@ -78,8 +79,9 @@ function ContractHome() {
     setTotalPages(res.meta.pageCount);
     setAll(res.meta.count);
     setBalance({
-      from_balance: res.meta.from_balance,
-      to_balance: res.meta.to_balance,
+      debet_summa: res.meta.debet_summa,
+      kredit_summa: res.meta.kredit_summa,
+      internal_summa: res.meta.internal_summa,
     });
   };
   // const getBatalyons = async () => {
@@ -226,9 +228,6 @@ function ContractHome() {
       <div style={{ minHeight: fullHeight }}>
         <div className="-mt-5 sticky py-5 -top-1 z-[30] bg-mybackground flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <div className="flex flex-col gap-2 w-[200px]">
-              <Input v={balance.from_balance} className="w-full" />
-            </div>
             <div className="w-[250px]">
               <Input
                 v={value}
@@ -310,20 +309,27 @@ function ContractHome() {
 
       {data ? (
         <div className="sticky bottom-0 bg-mybackground z-2 mt-[30px]">
-          <div className="flex justify-center items-center relative">
-            <div className="absolute left-0 w-[200px] flex justify-start">
-              <Input v={balance.to_balance} className="w-full" />
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex gap-1 ml-[620px]">
+              <div className="w-[180px]">
+                <Input v={balance.internal_summa} className="w-full text-right" />
+              </div>
+              <div className="w-[180px]">
+                <Input v={balance.debet_summa} className="w-full text-right" />
+              </div>
+              <div className="w-[180px]">
+                <Input v={balance.kredit_summa} className="w-full text-right" />
+              </div>
             </div>
-            <div className="">
-              <Paginatsiya
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                totalPages={totalPages}
-                limet={limet}
-                setLimet={setLimet}
-                count={all}
-              />
-            </div>
+
+            <Paginatsiya
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+              limet={limet}
+              setLimet={setLimet}
+              count={all}
+            />
           </div>
         </div>
       ) : (
@@ -366,9 +372,8 @@ function ContractHome() {
         className="!p-5"
       >
         <section
-          className={`${
-            openSelect ? "h-[300px]" : ""
-          } flex flex-col items-center justify-start`}
+          className={`${openSelect ? "h-[300px]" : ""
+            } flex flex-col items-center justify-start`}
         >
           <div className="w-[300px] mb-4">
             <Select

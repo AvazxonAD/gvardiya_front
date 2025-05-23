@@ -38,6 +38,7 @@ const TableItem = ({
   const [search] = useDebounce(searchTerm, 400);
   const [modalOpen, setModalOpen] = useState(false);
   const [clockId, setclockId] = useState<number | null>(null);
+  const [default_date, SetDefaultDate] = useState('')
 
   const api = useApi();
 
@@ -86,9 +87,10 @@ const TableItem = ({
     }
   };
 
-  const handleclockClick = (id: number) => {
+  const handleclockClick = (id: number, default_date: string) => {
     setclockId(id);
     setModalOpen(true);
+    SetDefaultDate(default_date)
   };
 
   const handleEditClick = (id: number) => {
@@ -106,6 +108,7 @@ const TableItem = ({
       getTasks();
     }
   };
+  console.log('--------------------------')
 
   return (
     <React.Fragment>
@@ -150,15 +153,14 @@ const TableItem = ({
           {!row.birgada ? formatDate(row.deadline) : ""}
         </td>
         <td
-          className={`px-4 py-3 text-center font-semibold ${
-            row.status === "Muddati o'tgan"
-              ? "text-red-600"
-              : row.status === "Bajarilgan"
+          className={`px-4 py-3 text-center font-semibold ${row.status === "Muddati o'tgan"
+            ? "text-red-600"
+            : row.status === "Bajarilgan"
               ? "text-green-600"
               : row.status === "Bajarilmoqda"
-              ? "text-yellow-600"
-              : ""
-          }`}
+                ? "text-yellow-600"
+                : ""
+            }`}
         >
           {!row.birgada ? row.status : ""}
         </td>
@@ -190,7 +192,7 @@ const TableItem = ({
                 <Icon name="pencil" />
               </button>
               <button
-                onClick={() => handleclockClick(row.id)}
+                onClick={() => handleclockClick(row.id, row.deadline)}
                 className="text-blue-600 hover:text-blue-800"
               >
                 <FiClock size={20} />
@@ -235,8 +237,9 @@ const TableItem = ({
         title={tt("Xodimlarni ko’rish", "Просмотр сотрудников")}
         w={"80%"}
       >
-        <div>
-          <div className="w-[400px] mb-4">
+        {/* Sticky input qismi */}
+        <div className="sticky top-0 z-40 bg-white pt-2 pb-2">
+          <div className="w-[400px]">
             <Input
               p={tt("Ismlar bo'yicha qidiriuv", "Поиск по именам")}
               className="border border-gray-300 rounded px-3 py-2 w-full"
@@ -246,45 +249,35 @@ const TableItem = ({
               search
             />
           </div>
-          <Table
-            thead={[
-              { text: "№", className: "border text-center w-[50px]" },
-              { text: tt("F.I.O", "Ф.И.О"), className: "border text-left" },
-              {
-                text: tt("Topshiriq vaqti", "Время задачи"),
-                className: "border text-left",
-              },
-              { text: tt("Summa", "Сумма"), className: "border text-left" },
-              {
-                text: tt("Amallar", "Действия"),
-                className: "border text-center w-[100px]",
-              },
-            ]}
-          >
-            {taskWorkers.map((e, ind) => {
-              return (
+        </div>
+
+        <div className="overflow-auto max-h-[70vh]">
+          <table className="w-full border-collapse">
+            <thead className="bg-gray-100 sticky top-[1px] z-30">
+              <tr>
+                <th className="border text-center w-[50px] py-2">№</th>
+                <th className="border text-left py-2">{tt("F.I.O", "Ф.И.О")}</th>
+                <th className="border text-left py-2">{tt("Topshiriq vaqti", "Время задачи")}</th>
+                <th className="border text-left py-2">{tt("Summa", "Сумма")}</th>
+                <th className="border text-center w-[100px] py-2">{tt("Amallar", "Действия")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {taskWorkers.map((e, ind) => (
                 <tr key={ind} className="hover:text-[#3B7FAF] text-mytextcolor">
+                  <td className="border py-3 px-6 text-center font-[500] text-[14px]">{ind + 1}</td>
+                  <td className="border py-3 px-6 text-left font-[500] text-[14px]">{e.fio}</td>
+                  <td className="border py-3 px-6 text-left font-[500] text-[14px]">{e.task_time}</td>
+                  <td className="border py-3 px-6 text-left font-[500] text-[14px]">{e.summa}</td>
                   <td className="border py-3 px-6 text-center font-[500] text-[14px]">
-                    {ind + 1}
-                  </td>
-                  <td className="border py-3 px-6 text-left font-[500] text-[14px]">
-                    {e.fio}
-                  </td>
-                  <td className="border py-3 px-6 text-left  font-[500] text-[14px]">
-                    {e.task_time}
-                  </td>
-                  <td className="border py-3 px-6 text-left  font-[500] text-[14px]">
-                    {e.summa}
-                  </td>
-                  <td className="border py-3 px-6 text-center  font-[500] text-[14px]">
                     <button onClick={() => handleDelete(e.worker_id, row.id)}>
                       <Icon name="delete" />
                     </button>
                   </td>
                 </tr>
-              );
-            })}
-          </Table>
+              ))}
+            </tbody>
+          </table>
         </div>
       </Modal>
 
@@ -294,6 +287,7 @@ const TableItem = ({
         onSave={async (date) => {
           await handleSaveDeadline(date);
         }}
+        default_date={default_date}
       />
     </React.Fragment>
   );

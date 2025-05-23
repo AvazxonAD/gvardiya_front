@@ -152,12 +152,7 @@ const EditForm: React.FC<EditFormProps> = ({
     setWorkersData(changedWorkersData);
   };
 
-  useEffect(() => {}, [workersData]);
-
-  console.log({
-    workers,
-    workersData,
-  });
+  useEffect(() => { }, [workersData]);
 
   return (
     <div className="p-4 bg-mybackground shadow-lg w-full border-[2px]">
@@ -207,7 +202,7 @@ const EditForm: React.FC<EditFormProps> = ({
         </div>
       </div>
 
-      <div className="space-y-4 mt-5 max-h-[600px] overflow-y-auto">
+      <div className="space-y-2 mt-5 max-h-[600px] overflow-y-auto">
         {workersList
           .sort((a, b) => {
             const isAChecked = workersData.some((e) => e.worker_id === a.id);
@@ -226,13 +221,13 @@ const EditForm: React.FC<EditFormProps> = ({
                     type="checkbox"
                     checked={Boolean(find)}
                     onChange={() => handleCheck(worker.id)}
-                    className="mr-2 w-5 h-5"
+                    className="mr-2 w-4 h-4" // height kamaytirildi
                   />
                   <span
                     style={{
                       color: Boolean(find) ? "#3B7FAF" : "",
                     }}
-                    className={`font-[400] text-mytextcolor`}
+                    className="font-[400] text-mytextcolor"
                   >
                     {worker.fio}
                   </span>
@@ -248,7 +243,7 @@ const EditForm: React.FC<EditFormProps> = ({
                     onChange={(e) =>
                       handleInputChange(worker.id, Number(e.target.value))
                     }
-                    className={`taskinput_${worker.id} border bg-mybackground border-gray-300 text-mytextcolor w-[100px] rounded px-2 py-1`}
+                    className={`taskinput_${worker.id} border bg-mybackground border-gray-300 text-mytextcolor w-[100px] rounded px-2 py-0.5`} // height qisqartirildi
                   />
                 </div>
               </div>
@@ -256,17 +251,6 @@ const EditForm: React.FC<EditFormProps> = ({
           })}
       </div>
 
-      {/* Pagination */}
-      {/* <div className=" mt-[30px]">
-        <Paginatsiya
-          currentPage={page}
-          setCurrentPage={setPage}
-          totalPages={workers?.meta.pageCount}
-          limet={limit}
-          setLimet={setLimit}
-          count={workers?.meta.count}
-        />
-      </div> */}
     </div>
   );
 };

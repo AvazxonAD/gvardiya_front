@@ -6,6 +6,5 @@ export type IBatalon = {
   bank_name: string;
   mfo: string;
   birgada: boolean;
-  account_numbers: { account_number: string }[];
-  gazna_numbers: { gazna_number: string }[];
+  account_number: string;
 };
