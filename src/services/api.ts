@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 // const isProd = import.meta.env.PROD;
 // const port: any = window.location.port;
 
-export const baseUri = 'https://gvardiya.smartbase.uz/';
+export const baseUri = 'https://gvardiya.smartbase.uz/api';
 
 const useApi = () => {
   const navigate = useNavigate();
