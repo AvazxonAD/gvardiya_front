@@ -80,6 +80,10 @@ export type IContractAnaliz = {
     kridit: number;
     debit: number;
     remaining_summa: number;
+    rasxod_summa: number;
+    rasxod_fio: number;
+    rasxod: number;
+    adress: string
   };
   prixods: {
     id: number;
@@ -95,8 +99,10 @@ export type IContractAnaliz = {
     doc_num: string;
     rasxod_date: string;
     summa: string;
-    batalon_name: string;
+    batalon: string;
     batalon_account_number: number;
+    task_time: number;
+    fio: string
   }[];
   rasxods: {
     id: number;

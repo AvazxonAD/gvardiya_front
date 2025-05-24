@@ -1,11 +1,9 @@
 import BackButton from "@/Components/reusable/BackButton";
-import Button from "@/Components/reusable/button";
 import useApi from "@/services/api";
 import { IContractAnaliz } from "@/types/contract";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { useReactToPrint } from "react-to-print";
 import AnalizView from "./analizView";
 
 
@@ -29,13 +27,6 @@ const ContractAnaliz = () => {
     }, [id])
 
     const fioRef = useRef<HTMLDivElement>(null);
-    const reactToPrintFn = useReactToPrint({
-        contentRef: fioRef,
-    });
-    const onPrintClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-        reactToPrintFn();
-    };
 
     return (
         <div>
@@ -43,7 +34,6 @@ const ContractAnaliz = () => {
                 <div>
                     <BackButton />
                 </div>
-                <Button onClick={onPrintClick} mode="print" />
             </div>
             {
                 data ? (

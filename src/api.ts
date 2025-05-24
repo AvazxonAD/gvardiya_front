@@ -5,7 +5,7 @@ import { handleStatus } from "./utils";
 // const isProd = import.meta.env.PROD;
 // const port: any = window.location.port;
 
-export const URL = 'https://gvardiya.smartbase.uz/api'
+export const URL = 'https://gvardiya.smartbase.uz/'
 
 export const jwt = localStorage.getItem("token");
 

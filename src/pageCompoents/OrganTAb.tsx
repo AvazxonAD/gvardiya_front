@@ -79,11 +79,10 @@ const OrganTAb = ({
                   }
                 }}
                 key={person.id}
-                className={`${
-                  index % 2 === 0
-                    ? "bg-white dark:bg-mybackground"
-                    : "bg-[#F4FAFD] dark:bg-mybackground"
-                } cursor-pointer hover:text-[#3B7FAF] transition-colors duration-300 text-mytextcolor border-b border-mytableheadborder`}
+                className={`${index % 2 === 0
+                  ? "bg-white dark:bg-mybackground"
+                  : "bg-[#F4FAFD] dark:bg-mybackground"
+                  } cursor-pointer hover:text-[#3B7FAF] transition-colors duration-300 text-mytextcolor border-b border-mytableheadborder`}
               >
                 <td className="px-4 py-3  text-inherit ">
                   {getRowNumber(index)}{" "}
@@ -146,7 +145,7 @@ const OrganTAb = ({
           setDelOpen(false);
         }}
       />
-      {activeItem ? (
+      {/* {activeItem ? (
         <DescriptionModal
           open={Boolean(activeItem)}
           closeModal={() => setActiveItem(undefined)}
@@ -165,7 +164,7 @@ const OrganTAb = ({
         />
       ) : (
         <></>
-      )}
+      )} */}
     </>
   );
 };
