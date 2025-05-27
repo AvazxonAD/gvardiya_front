@@ -152,7 +152,7 @@ const EditForm: React.FC<EditFormProps> = ({
     setWorkersData(changedWorkersData);
   };
 
-  useEffect(() => { }, [workersData]);
+  useEffect(() => {}, [workersData]);
 
   return (
     <div className="p-4 bg-mybackground shadow-lg w-full border-[2px]">
@@ -239,18 +239,17 @@ const EditForm: React.FC<EditFormProps> = ({
                   </h3>
                   <input
                     type="number"
-                    value={find && find.task_time > 0 ? find.task_time : ""}
+                    value={find && find.task_time >= 0 ? find.task_time : ""}
                     onChange={(e) =>
                       handleInputChange(worker.id, Number(e.target.value))
                     }
-                    className={`taskinput_${worker.id} border bg-mybackground border-gray-300 text-mytextcolor w-[100px] rounded px-2 py-0.5`} // height qisqartirildi
+                    className={`taskinput_${worker.id} border bg-mybackground border-gray-300 text-mytextcolor w-[100px] rounded px-2 py-0.5`}
                   />
                 </div>
               </div>
             );
           })}
       </div>
-
     </div>
   );
 };
