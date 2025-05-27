@@ -38,7 +38,7 @@ const TableItem = ({
   const [search] = useDebounce(searchTerm, 400);
   const [modalOpen, setModalOpen] = useState(false);
   const [clockId, setclockId] = useState<number | null>(null);
-  const [default_date, SetDefaultDate] = useState('')
+  const [default_date, SetDefaultDate] = useState("");
 
   const api = useApi();
 
@@ -90,7 +90,7 @@ const TableItem = ({
   const handleclockClick = (id: number, default_date: string) => {
     setclockId(id);
     setModalOpen(true);
-    SetDefaultDate(default_date)
+    SetDefaultDate(default_date);
   };
 
   const handleEditClick = (id: number) => {
@@ -108,7 +108,7 @@ const TableItem = ({
       getTasks();
     }
   };
-  console.log('--------------------------')
+  console.log("--------------------------");
 
   return (
     <React.Fragment>
@@ -153,14 +153,15 @@ const TableItem = ({
           {!row.birgada ? formatDate(row.deadline) : ""}
         </td>
         <td
-          className={`px-4 py-3 text-center font-semibold ${row.status === "Muddati o'tgan"
-            ? "text-red-600"
-            : row.status === "Bajarilgan"
+          className={`px-4 py-3 text-center font-semibold ${
+            row.status === "Muddati o'tgan"
+              ? "text-red-600"
+              : row.status === "Bajarilgan"
               ? "text-green-600"
               : row.status === "Bajarilmoqda"
-                ? "text-yellow-600"
-                : ""
-            }`}
+              ? "text-yellow-600"
+              : ""
+          }`}
         >
           {!row.birgada ? row.status : ""}
         </td>
@@ -256,19 +257,41 @@ const TableItem = ({
             <thead className="bg-gray-100 sticky top-[1px] z-30">
               <tr>
                 <th className="border text-center w-[50px] py-2">№</th>
-                <th className="border text-left py-2">{tt("F.I.O", "Ф.И.О")}</th>
-                <th className="border text-left py-2">{tt("Topshiriq vaqti", "Время задачи")}</th>
-                <th className="border text-left py-2">{tt("Summa", "Сумма")}</th>
-                <th className="border text-center w-[100px] py-2">{tt("Amallar", "Действия")}</th>
+                <th className="border text-left py-2">
+                  {tt("F.I.O", "Ф.И.О")}
+                </th>
+                <th className="border text-left py-2">
+                  {tt("Topshiriq vaqti", "Время задачи")}
+                </th>
+                <th className="border text-left py-2">
+                  {tt("Summa", "Сумма")}
+                </th>
+                <th className="border text-left py-2">
+                  {tt("Foydalanuvchi", "Фойдаланувчи")}
+                </th>
+                <th className="border text-center w-[100px] py-2">
+                  {tt("Amallar", "Действия")}
+                </th>
               </tr>
             </thead>
             <tbody>
               {taskWorkers.map((e, ind) => (
                 <tr key={ind} className="hover:text-[#3B7FAF] text-mytextcolor">
-                  <td className="border py-3 px-6 text-center font-[500] text-[14px]">{ind + 1}</td>
-                  <td className="border py-3 px-6 text-left font-[500] text-[14px]">{e.fio}</td>
-                  <td className="border py-3 px-6 text-left font-[500] text-[14px]">{e.task_time}</td>
-                  <td className="border py-3 px-6 text-left font-[500] text-[14px]">{e.summa}</td>
+                  <td className="border py-3 px-6 text-center font-[500] text-[14px]">
+                    {ind + 1}
+                  </td>
+                  <td className="border py-3 px-6 text-left font-[500] text-[14px]">
+                    {e.fio}
+                  </td>
+                  <td className="border py-3 px-6 text-left font-[500] text-[14px]">
+                    {e.task_time}
+                  </td>
+                  <td className="border py-3 px-6 text-left font-[500] text-[14px]">
+                    {e.summa}
+                  </td>
+                  <td className="border py-3 px-6 text-left font-[500] text-[14px]">
+                    {e.user}
+                  </td>
                   <td className="border py-3 px-6 text-center font-[500] text-[14px]">
                     <button onClick={() => handleDelete(e.worker_id, row.id)}>
                       <Icon name="delete" />

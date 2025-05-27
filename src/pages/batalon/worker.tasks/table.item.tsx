@@ -206,7 +206,10 @@ const TableItem = ({
                 text: tt("Topshiriq vaqti", "Время задачи"),
                 className: "border text-left",
               },
-              { text: tt("Summa", "Сумма"), className: "border text-left" },
+              {
+                text: tt("Foydalanuvchi", "Фойдаланувчи"),
+                className: "border text-left",
+              },
               {
                 text: tt("Amallar", "Действия"),
                 className: "border text-center w-[100px]",
@@ -226,7 +229,7 @@ const TableItem = ({
                     {e.task_time}
                   </td>
                   <td className="border py-3 px-6 text-left  font-[500] text-[14px]">
-                    {e.summa}
+                    {e.user}
                   </td>
                   <td className="border py-3 px-6 text-center  font-[500] text-[14px]">
                     <button onClick={() => handleDelete(e.worker_id, row.id)}>
