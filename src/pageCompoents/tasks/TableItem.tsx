@@ -106,6 +106,13 @@ const TableItem = ({
       const filter = taskWorkers.filter((w) => w.worker_id !== worker_id);
       setTaskWorkers(filter);
       getTasks();
+    } else {
+      dispatch(
+        alertt({
+          text: remove.message,
+          success: remove.success,
+        })
+      );
     }
   };
   console.log("--------------------------");

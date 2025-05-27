@@ -312,7 +312,10 @@ function ContractHome() {
           <div className="flex flex-col items-center gap-4">
             <div className="flex gap-1 ml-[620px]">
               <div className="w-[180px]">
-                <Input v={balance.internal_summa} className="w-full text-right" />
+                <Input
+                  v={balance.internal_summa}
+                  className="w-full text-right"
+                />
               </div>
               <div className="w-[180px]">
                 <Input v={balance.debet_summa} className="w-full text-right" />
@@ -372,8 +375,9 @@ function ContractHome() {
         className="!p-5"
       >
         <section
-          className={`${openSelect ? "h-[300px]" : ""
-            } flex flex-col items-center justify-start`}
+          className={`${
+            openSelect ? "h-[300px]" : ""
+          } flex flex-col items-center justify-start`}
         >
           <div className="w-[300px] mb-4">
             <Select

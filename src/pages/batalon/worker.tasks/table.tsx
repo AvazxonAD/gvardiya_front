@@ -3,6 +3,7 @@ import { tt } from "@/utils";
 import TableItem from "./table.item";
 import Icon from "@/assets/icons";
 import BackButton from "@/Components/reusable/BackButton";
+import Button from "@/Components/reusable/button";
 
 const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
   data,
@@ -11,10 +12,33 @@ const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
   const [editingId, setEditingId] = useState<number | null>(null);
   const [creatingId, setCreatingId] = useState<number | null>(null);
 
+  const handleDownloadExel = async () => {
+    const response = await request({
+      url: "/contract/export",
+      method: "GET",
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `download`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="my-5">
       <div className="m-0 p-1">
         <BackButton />
+
+        {/* <Button
+          mode="download"
+          onClick={handleDownloadExel}
+          text={tt("Excelga yuklash", "Эхcелга юклаш")}
+        /> */}
       </div>
 
       <div className="overflow-x-auto">

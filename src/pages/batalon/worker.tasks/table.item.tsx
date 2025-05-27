@@ -65,7 +65,6 @@ const TableItem = ({
       setTaskWorkers(filter);
       getTasks();
     } else {
-      console.log(remove?.message);
       dispatch(
         alertt({
           text: remove?.message || "Xatolik yuz berdi",
