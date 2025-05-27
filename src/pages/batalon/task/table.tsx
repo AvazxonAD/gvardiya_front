@@ -37,6 +37,9 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
                 <strong>Hamkor tashkilot:</strong>{" "}
                 {selectedTask.contract_info?.organization}
               </div>
+              <div className="border-l-4 border-blue-500 pl-3">
+                <strong>Manzil:</strong> {selectedTask.contract_info?.adress}
+              </div>
               <div className="border-l-4 border-green-500 pl-3">
                 <strong>Tadbir boshlanish vaqti:</strong>{" "}
                 {selectedTask.contract_info?.start_date}{" "}

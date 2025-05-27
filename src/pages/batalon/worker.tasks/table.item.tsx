@@ -89,7 +89,7 @@ const TableItem = ({
   )} ${row.end_time} gacha`;
 
   return (
-    <React.Fragment>
+    <>
       {showModal && selectedTask && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-2xl shadow-2xl w-[400px] animate-scale-in">
@@ -99,20 +99,24 @@ const TableItem = ({
 
             <div className="space-y-3 text-gray-700 text-[15px]">
               <div className="border-l-4 border-blue-500 pl-3">
-                <strong>Shartnoma raqami:</strong>{" "}
+                <strong className="font-bold">Shartnoma raqami:</strong>{" "}
                 {selectedTask.contract_info?.doc_num}
               </div>
               <div className="border-l-4 border-blue-500 pl-3">
-                <strong>Hamkor tashkilot:</strong>{" "}
+                <strong className="font-bold">Hamkor tashkilot:</strong>{" "}
                 {selectedTask.contract_info?.organization}
               </div>
+              <div className="border-l-4 border-blue-500 pl-3">
+                <strong className="font-bold">Manzil:</strong>{" "}
+                {selectedTask.contract_info?.adress}
+              </div>
               <div className="border-l-4 border-green-500 pl-3">
-                <strong>Tadbir boshlanish vaqti:</strong>{" "}
+                <strong className="font-bold">Tadbir boshlanish vaqti:</strong>{" "}
                 {selectedTask.contract_info?.start_date}{" "}
                 {selectedTask.contract_info?.start_time}
               </div>
               <div className="border-l-4 border-red-500 pl-3">
-                <strong>Tadbir tugash vaqti:</strong>{" "}
+                <strong className="font-bold">Tadbir tugash vaqti:</strong>{" "}
                 {selectedTask.contract_info?.end_date}{" "}
                 {selectedTask.contract_info?.end_time}
               </div>
@@ -133,172 +137,177 @@ const TableItem = ({
         </div>
       )}
 
-      <tr className="border-b border-mytableheadborder text-mytextcolor">
-        <td
-          className="px-4 py-3 text-center text-blue-600 cursor-pointer hover:font-semibold transition"
-          onClick={() => {
-            setSelectedTask(row);
-            setShowModal(true);
-          }}
-        >
-          {row.contract_info?.doc_num}
-        </td>
-        <td className="py-3 px-6 text-center font-[500] text-[14px]">
-          {row.task_time}
-        </td>
-        <td className="py-3 px-6 text-center font-[500] text-[14px]">
-          {row.worker_number}
-        </td>
-        <td className="py-3 px-6 text-center font-[500] text-[14px]">
-          {Math.round(row.worker_number * row.task_time * 100) / 100}
-        </td>
-        <td
-          style={{ color: row.remaining_task_time > 0 ? "red" : "green" }}
-          className={`py-3 px-6 text-left font-[500] text-[14px]`}
-        >
-          <div className="flex items-center gap-2 justify-center">
-            <p>{row.remaining_task_time}</p>
-            {row.remaining_task_time === 0 && !row.birgada && (
-              <div style={{ color: "green" }}>
-                <CheckCircle2 />
-              </div>
-            )}
-            {row.remaining_task_time > 0 && !row.birgada && (
-              <div style={{ color: "red" }}>
-                <XCircle />
-              </div>
-            )}
-          </div>
-        </td>
-        <td className="py-3 px-6 text-center font-[500] text-[14px]">
-          {row.address}
-        </td>
-        <td className="py-3 px-6 text-left font-[500] text-[14px]">
-          {row.comment}
-        </td>
-        <td className="py-3 px-6 flex justify-center items-center gap-2 font-[500] text-[14px]">
-          {!row.birgada && (
-            <>
-              <button
-                onClick={() => {
-                  if (row.remaining_task_time > 0) {
-                    setEditingId(null);
-                    setCreatingId(creatingId === row.id ? null : row.id);
-                  }
-                }}
-              >
-                <Icon name="plus" />
-              </button>
-              <button
-                onClick={() => {
-                  setEditingId(null);
-                  setOpen(true);
-                }}
-              >
-                <Icon name="eye" />
-              </button>
-              <button
-                onClick={() => handleEditClick(row.id)}
-                className="text-blue-600 hover:text-blue-800"
-              >
-                <Icon name="pencil" />
-              </button>
-            </>
-          )}
-        </td>
-      </tr>
-      {editingId === row.id && (
-        <tr className="w-full">
-          <td colSpan={12}>
-            <div className="transition duration-500 ease-in-out transform translate-y-0 bg-gray-100 w-full">
-              <EditForm
-                type="edit"
-                row={row}
-                closeForm={setEditingId}
-                getTasks={getTasks}
-              />
-            </div>
-          </td>
-        </tr>
-      )}
-
-      {creatingId === row.id && (
-        <tr className="w-full">
-          <td colSpan={12}>
-            <div className="transition duration-500 ease-in-out transform translate-y-0 bg-gray-100 w-full">
-              <EditForm
-                type="create"
-                row={row}
-                closeForm={setCreatingId}
-                getTasks={getTasks}
-              />
-            </div>
-          </td>
-        </tr>
-      )}
-
-      <Modal
-        open={open}
-        closeModal={() => setOpen(false)}
-        title={tt("Xodimlarni ko’rish", "Просмотр сотрудников")}
-        w={"80%"}
-      >
-        <div>
-          <div className="w-[400px] mb-4">
-            <Input
-              p={tt("Ismlar bo'yicha qidiriuv", "Поиск по именам")}
-              className="border border-gray-300 rounded px-3 py-2 w-full"
-              v={searchTerm}
-              change={(e: any) => setSearchTerm(e.target.value)}
-              removeValue={() => setSearchTerm("")}
-              search
-            />
-          </div>
-          <Table
-            thead={[
-              { text: "№", className: "border text-center w-[50px]" },
-              { text: tt("F.I.O", "Ф.И.О"), className: "border text-left" },
-              {
-                text: tt("Topshiriq vaqti", "Время задачи"),
-                className: "border text-left",
-              },
-              {
-                text: tt("Foydalanuvchi", "Фойдаланувчи"),
-                className: "border text-left",
-              },
-              {
-                text: tt("Amallar", "Действия"),
-                className: "border text-center w-[100px]",
-              },
-            ]}
+      <React.Fragment>
+        <tr className="border-b border-mytableheadborder text-mytextcolor">
+          <td
+            className="px-4 py-3 text-center text-blue-600 cursor-pointer hover:font-semibold transition"
+            onClick={() => {
+              setSelectedTask(row);
+              setShowModal(true);
+            }}
           >
-            {taskWorkers.map((e, ind) => {
-              return (
-                <tr key={ind} className="hover:text-[#3B7FAF] text-mytextcolor">
-                  <td className="border py-3 px-6 text-center font-[500] text-[14px]">
-                    {ind + 1}
-                  </td>
-                  <td className="border py-3 px-6 text-left font-[500] text-[14px]">
-                    {e.fio}
-                  </td>
-                  <td className="border py-3 px-6 text-left  font-[500] text-[14px]">
-                    {e.task_time}
-                  </td>
-                  <td className="border py-3 px-6 text-left  font-[500] text-[14px]">
-                    {e.user}
-                  </td>
-                  <td className="border py-3 px-6 text-center  font-[500] text-[14px]">
-                    <button onClick={() => handleDelete(e.worker_id, row.id)}>
-                      <Icon name="delete" />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </Table>
-        </div>
-      </Modal>
-    </React.Fragment>
+            {row.contract_info?.doc_num}
+          </td>
+          <td className="py-3 px-6 text-center font-[500] text-[14px]">
+            {row.task_time}
+          </td>
+          <td className="py-3 px-6 text-center font-[500] text-[14px]">
+            {row.worker_number}
+          </td>
+          <td className="py-3 px-6 text-center font-[500] text-[14px]">
+            {Math.round(row.worker_number * row.task_time * 100) / 100}
+          </td>
+          <td
+            style={{ color: row.remaining_task_time > 0 ? "red" : "green" }}
+            className={`py-3 px-6 text-left font-[500] text-[14px]`}
+          >
+            <div className="flex items-center gap-2 justify-center">
+              <p>{row.remaining_task_time}</p>
+              {row.remaining_task_time === 0 && !row.birgada && (
+                <div style={{ color: "green" }}>
+                  <CheckCircle2 />
+                </div>
+              )}
+              {row.remaining_task_time > 0 && !row.birgada && (
+                <div style={{ color: "red" }}>
+                  <XCircle />
+                </div>
+              )}
+            </div>
+          </td>
+          <td className="py-3 px-6 text-center font-[500] text-[14px]">
+            {row.address}
+          </td>
+          <td className="py-3 px-6 text-left font-[500] text-[14px]">
+            {row.comment}
+          </td>
+          <td className="py-3 px-6 flex justify-center items-center gap-2 font-[500] text-[14px]">
+            {!row.birgada && (
+              <>
+                <button
+                  onClick={() => {
+                    if (row.remaining_task_time > 0) {
+                      setEditingId(null);
+                      setCreatingId(creatingId === row.id ? null : row.id);
+                    }
+                  }}
+                >
+                  <Icon name="plus" />
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingId(null);
+                    setOpen(true);
+                  }}
+                >
+                  <Icon name="eye" />
+                </button>
+                <button
+                  onClick={() => handleEditClick(row.id)}
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  <Icon name="pencil" />
+                </button>
+              </>
+            )}
+          </td>
+        </tr>
+        {editingId === row.id && (
+          <tr className="w-full">
+            <td colSpan={12}>
+              <div className="transition duration-500 ease-in-out transform translate-y-0 bg-gray-100 w-full">
+                <EditForm
+                  type="edit"
+                  row={row}
+                  closeForm={setEditingId}
+                  getTasks={getTasks}
+                />
+              </div>
+            </td>
+          </tr>
+        )}
+
+        {creatingId === row.id && (
+          <tr className="w-full">
+            <td colSpan={12}>
+              <div className="transition duration-500 ease-in-out transform translate-y-0 bg-gray-100 w-full">
+                <EditForm
+                  type="create"
+                  row={row}
+                  closeForm={setCreatingId}
+                  getTasks={getTasks}
+                />
+              </div>
+            </td>
+          </tr>
+        )}
+
+        <Modal
+          open={open}
+          closeModal={() => setOpen(false)}
+          title={tt("Xodimlarni ko’rish", "Просмотр сотрудников")}
+          w={"80%"}
+        >
+          <div>
+            <div className="w-[400px] mb-4">
+              <Input
+                p={tt("Ismlar bo'yicha qidiriuv", "Поиск по именам")}
+                className="border border-gray-300 rounded px-3 py-2 w-full"
+                v={searchTerm}
+                change={(e: any) => setSearchTerm(e.target.value)}
+                removeValue={() => setSearchTerm("")}
+                search
+              />
+            </div>
+            <Table
+              thead={[
+                { text: "№", className: "border text-center w-[50px]" },
+                { text: tt("F.I.O", "Ф.И.О"), className: "border text-left" },
+                {
+                  text: tt("Topshiriq vaqti", "Время задачи"),
+                  className: "border text-left",
+                },
+                {
+                  text: tt("Foydalanuvchi", "Фойдаланувчи"),
+                  className: "border text-left",
+                },
+                {
+                  text: tt("Amallar", "Действия"),
+                  className: "border text-center w-[100px]",
+                },
+              ]}
+            >
+              {taskWorkers.map((e, ind) => {
+                return (
+                  <tr
+                    key={ind}
+                    className="hover:text-[#3B7FAF] text-mytextcolor"
+                  >
+                    <td className="border py-3 px-6 text-center font-[500] text-[14px]">
+                      {ind + 1}
+                    </td>
+                    <td className="border py-3 px-6 text-left font-[500] text-[14px]">
+                      {e.fio}
+                    </td>
+                    <td className="border py-3 px-6 text-left  font-[500] text-[14px]">
+                      {e.task_time}
+                    </td>
+                    <td className="border py-3 px-6 text-left  font-[500] text-[14px]">
+                      {e.user}
+                    </td>
+                    <td className="border py-3 px-6 text-center  font-[500] text-[14px]">
+                      <button onClick={() => handleDelete(e.worker_id, row.id)}>
+                        <Icon name="delete" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </Table>
+          </div>
+        </Modal>
+      </React.Fragment>
+    </>
   );
 };
 
