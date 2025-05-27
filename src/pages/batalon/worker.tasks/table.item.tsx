@@ -92,9 +92,6 @@ const TableItem = ({
         <td className="py-3 px-6 text-left font-[500] text-[14px]">
           {row?.contract_number ?? ""}
         </td>
-        <td className="py-3 px-6 text-left font-[500] text-[14px]">
-          {row.batalon_name}
-        </td>
         <td className="py-3 px-6 text-center font-[500] text-[14px]">
           {row.task_time}
         </td>
