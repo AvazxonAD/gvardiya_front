@@ -65,12 +65,6 @@ const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
               <th className="py-3 px-6 text-center">
                 {tt("Manzil", "Адресс")}
               </th>
-              <th className="py-3 px-6 text-center">
-                {tt("Tadbir sanasi", "Дата события")}
-              </th>
-              <th className="py-3 px-6 text-center">
-                {tt("Hamkor tashkilot", "Ҳамкор ташкилот")}
-              </th>
               <th className="py-3 px-6 text-center w-64">
                 {tt("Izoh", "Примечание")}
               </th>

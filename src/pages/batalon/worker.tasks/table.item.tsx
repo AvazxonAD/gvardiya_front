@@ -35,6 +35,8 @@ const TableItem = ({
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [search] = useDebounce(searchTerm, 400);
   const api = useApi();
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -88,9 +90,58 @@ const TableItem = ({
 
   return (
     <React.Fragment>
+      {showModal && selectedTask && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-2xl shadow-2xl w-[400px] animate-scale-in">
+            <h2 className="text-xl font-semibold text-center text-blue-700 mb-6 border-b pb-3">
+              📄 Shartnoma tafsilotlari
+            </h2>
+
+            <div className="space-y-3 text-gray-700 text-[15px]">
+              <div className="border-l-4 border-blue-500 pl-3">
+                <strong>Shartnoma raqami:</strong>{" "}
+                {selectedTask.contract_info?.doc_num}
+              </div>
+              <div className="border-l-4 border-blue-500 pl-3">
+                <strong>Hamkor tashkilot:</strong>{" "}
+                {selectedTask.contract_info?.organization}
+              </div>
+              <div className="border-l-4 border-green-500 pl-3">
+                <strong>Tadbir boshlanish vaqti:</strong>{" "}
+                {selectedTask.contract_info?.start_date}{" "}
+                {selectedTask.contract_info?.start_time}
+              </div>
+              <div className="border-l-4 border-red-500 pl-3">
+                <strong>Tadbir tugash vaqti:</strong>{" "}
+                {selectedTask.contract_info?.end_date}{" "}
+                {selectedTask.contract_info?.end_time}
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-center">
+              <button
+                className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition duration-200"
+                onClick={() => {
+                  setShowModal(false);
+                  setSelectedTask(null);
+                }}
+              >
+                Yopish
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <tr className="border-b border-mytableheadborder text-mytextcolor">
-        <td className="py-3 px-6 text-left font-[500] text-[14px]">
-          {row?.contract_number ?? ""}
+        <td
+          className="px-4 py-3 text-center text-blue-600 cursor-pointer hover:font-semibold transition"
+          onClick={() => {
+            setSelectedTask(row);
+            setShowModal(true);
+          }}
+        >
+          {row.contract_info?.doc_num}
         </td>
         <td className="py-3 px-6 text-center font-[500] text-[14px]">
           {row.task_time}
@@ -121,10 +172,6 @@ const TableItem = ({
         </td>
         <td className="py-3 px-6 text-center font-[500] text-[14px]">
           {row.address}
-        </td>
-        <td className="py-3 px-6 text-center font-[500] text-[14px]">{str}</td>
-        <td className="py-3 px-6 text-left font-[500] text-[14px]">
-          {row.organization_name}
         </td>
         <td className="py-3 px-6 text-left font-[500] text-[14px]">
           {row.comment}
