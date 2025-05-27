@@ -15,12 +15,20 @@ import { SpecialDatePicker } from "../../../Components/SpecialDatePicker";
 
 function BatalonTasks() {
   const now = new Date();
+  const currentYear = now.getFullYear();
 
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startDate = startOfMonth.toISOString().split("T")[0];
+  function formatLocalDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
 
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  const endDate = endOfMonth.toISOString().split("T")[0];
+  const startOfYear = new Date(currentYear, 0, 1);
+  const endOfYear = new Date(currentYear, 11, 31);
+
+  const startDate = formatLocalDate(startOfYear);
+  const endDate = formatLocalDate(endOfYear);
 
   const [data, setData] = useState<any[]>([]);
   const JWT = useSelector((s: any) => s.auth.jwt);
