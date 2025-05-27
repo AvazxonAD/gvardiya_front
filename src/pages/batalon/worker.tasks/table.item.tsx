@@ -74,6 +74,18 @@ const TableItem = ({
     }
   };
 
+  const formatDate = (isoDate) => {
+    const date = new Date(isoDate);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Oy 0-based
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+  };
+
+  const str = `${formatDate(row.start_date)} ${row.start_time} dan ${formatDate(
+    row.end_date
+  )} ${row.end_time} gacha`;
+
   return (
     <React.Fragment>
       <tr className="border-b border-mytableheadborder text-mytextcolor">
@@ -113,9 +125,7 @@ const TableItem = ({
         <td className="py-3 px-6 text-center font-[500] text-[14px]">
           {row.address}
         </td>
-        <td className="py-3 px-6 text-center font-[500] text-[14px]">
-          {formatDate(row.task_date)}
-        </td>
+        <td className="py-3 px-6 text-center font-[500] text-[14px]">{str}</td>
         <td className="py-3 px-6 text-left font-[500] text-[14px]">
           {row.comment}
         </td>
