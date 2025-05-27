@@ -4,17 +4,19 @@ import TableItem from "./table.item";
 import Icon from "@/assets/icons";
 import BackButton from "@/Components/reusable/BackButton";
 import Button from "@/Components/reusable/button";
+import { useRequest } from "@/hooks/useRequest";
 
 const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
   data,
   getTasks,
 }) => {
+  const request = useRequest();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [creatingId, setCreatingId] = useState<number | null>(null);
 
   const handleDownloadExel = async () => {
     const response = await request({
-      url: "/contract/export",
+      url: `/batalon/worker-tasks/?task_id=${data.id}&excel=true`,
       method: "GET",
       responseType: "blob",
     });
@@ -22,7 +24,7 @@ const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `download`);
+    link.setAttribute("download", `${data.contract_number}.xlsx`);
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -31,14 +33,13 @@ const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
 
   return (
     <div className="my-5">
-      <div className="m-0 p-1">
+      <div className="m-0 p-1 flex items-center gap-2">
         <BackButton />
-
-        {/* <Button
+        <Button
           mode="download"
           onClick={handleDownloadExel}
           text={tt("Excelga yuklash", "Эхcелга юклаш")}
-        /> */}
+        />
       </div>
 
       <div className="overflow-x-auto">
