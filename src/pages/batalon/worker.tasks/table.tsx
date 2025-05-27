@@ -46,7 +46,7 @@ const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
         <table className="min-w-full border-none">
           <thead>
             <tr className="bg-mytablehead border border-mytableheadborder text-mytextcolor uppercase text-sm leading-normal">
-              <th className="py-3 px-6 text-left">№</th>
+              <th className="py-3 px-6 text-left">Shartnoma raqami</th>
               <th className="py-3 px-6 text-left">
                 {tt("Batalon", "Название батальона")}
               </th>
@@ -70,6 +70,9 @@ const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
               </th>
               <th className="py-3 px-6 text-center">
                 {tt("Tadbir sanasi", "Дата события")}
+              </th>
+              <th className="py-3 px-6 text-center">
+                {tt("Hamkor tashkilot", "Ҳамкор ташкилот")}
               </th>
               <th className="py-3 px-6 text-center w-64">
                 {tt("Izoh", "Примечание")}

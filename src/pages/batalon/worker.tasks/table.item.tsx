@@ -127,6 +127,9 @@ const TableItem = ({
         </td>
         <td className="py-3 px-6 text-center font-[500] text-[14px]">{str}</td>
         <td className="py-3 px-6 text-left font-[500] text-[14px]">
+          {row.organization_name}
+        </td>
+        <td className="py-3 px-6 text-left font-[500] text-[14px]">
           {row.comment}
         </td>
         <td className="py-3 px-6 flex justify-center items-center gap-2 font-[500] text-[14px]">
