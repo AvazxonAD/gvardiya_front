@@ -5,7 +5,7 @@ import { handleStatus } from "./utils";
 // const isProd = import.meta.env.PROD;
 // const port: any = window.location.port;
 
-export const URL = 'http://localhost:3009'
+export const URL = 'https://gvardiya.smartbase.uz/api'
 
 export const jwt = localStorage.getItem("token");
 
@@ -276,14 +276,16 @@ export const getCont = async (
   limet: any,
   search: any,
   account_number: string,
-  batalon_id: number
+  batalon_id: number,
+  status: string = ""
 ) => {
   const batalonParam = batalon_id > 0 ? `&batalon_id=${batalon_id}` : "";
+  const statusParam = status ? `&status=${status}` : "";
   const res = await fetch(
     URL +
     `/contract/?from=${date.date1}&to=${date.date2
     }&page=${page}&limit=${limet}${search.length > 0 ? "&search=" + search : ""
-    }&account_number_id=${account_number}${batalonParam}`,
+    }&account_number_id=${account_number}${batalonParam}${statusParam}`,
     {
       method: "GET",
       headers: {

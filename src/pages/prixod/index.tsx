@@ -327,11 +327,7 @@ const Prixod = () => {
           <div className="mt-3 pt-2 flex items-center justify-between">
             <div className="flex items-center gap-x-3">
               <div className="flex items-center gap-x-1">
-                <Input
-                  readOnly
-                  value={data?.meta?.summa}
-                  className="mt-2 ml-2"
-                />
+                <Input readOnly v={data?.meta?.summa} className="mt-2 ml-2" />
               </div>
             </div>
           </div>

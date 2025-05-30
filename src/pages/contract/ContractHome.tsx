@@ -41,6 +41,7 @@ function ContractHome() {
   const [totalPages, setTotalPages] = useState(1);
   const [active, setactive] = useState(1);
   const [all, setAll] = useState(10);
+  const [status, setStatus] = useState("");
   const [balance, setBalance] = useState({
     internal_summa: 0,
     debet_summa: 0,
@@ -73,7 +74,8 @@ function ContractHome() {
       // value,
       searchText,
       account_id,
-      0
+      0,
+      status
     );
     setData(res.data);
     setTotalPages(res.meta.pageCount);
@@ -234,6 +236,35 @@ function ContractHome() {
                 p={tt("Ma’lumotlarni qidirish", "Поиск данных")}
                 className="w-full"
               />
+            </div>
+            <div className="w-[200px]">
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="
+                                    block w-full
+                                    bg-white
+                                    border border-gray-300
+                                    rounded-md
+                                    py-2 px-3
+                                    text-gray-700
+                                    text-base
+                                    focus:outline-none
+                                    focus:ring-2
+                                    focus:ring-blue-500
+                                    focus:border-blue-500
+                                    cursor-pointer
+                                    transition
+                                    duration-200
+                                    ease-in-out
+                                    shadow-sm
+                                    hover:border-blue-400
+                                "
+              >
+                <option value="">Barchasi</option>
+                <option value="done">Bajarilgan</option>
+                <option value="not_done">Bajarilmagan</option>
+              </select>
             </div>
           </div>
 
