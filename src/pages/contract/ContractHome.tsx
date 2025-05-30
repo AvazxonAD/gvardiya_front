@@ -195,8 +195,6 @@ function ContractHome() {
     }
   };
 
-  console.log(selectedBatalon);
-
   const handleDownloadExelByBatalon = async () => {
     const response = await request({
       url: "/contract/export/batalon",
@@ -310,17 +308,17 @@ function ContractHome() {
       {data ? (
         <div className="sticky bottom-0 bg-mybackground z-2 mt-[30px]">
           <div className="flex flex-col items-center gap-4">
-            <div className="flex gap-1 ml-[620px]">
-              <div className="w-[180px]">
+            <div className="flex gap-1 ml-[420px]">
+              <div className="w-[170px]">
                 <Input
                   v={balance.internal_summa}
                   className="w-full text-right"
                 />
               </div>
-              <div className="w-[180px]">
+              <div className="w-[170px]">
                 <Input v={balance.debet_summa} className="w-full text-right" />
               </div>
-              <div className="w-[180px]">
+              <div className="w-[170px]">
                 <Input v={balance.kredit_summa} className="w-full text-right" />
               </div>
             </div>

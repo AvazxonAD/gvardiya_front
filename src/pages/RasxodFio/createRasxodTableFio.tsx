@@ -30,14 +30,14 @@ const tablehead = [
     name: tt("Summa", "Сумма"),
     className: "text-right",
   },
-  {
-    name: tt("Chegirma summa", "Сумма скидки"),
-    className: "text-right",
-  },
-  {
-    name: tt("Natijaviy summa", "Полученная сумма"),
-    className: "text-right",
-  },
+  // {
+  //   name: tt("Chegirma summa", "Сумма скидки"),
+  //   className: "text-right",
+  // },
+  // {
+  //   name: tt("Natijaviy summa", "Полученная сумма"),
+  //   className: "text-right",
+  // },
   // {
   //   name: tt("Amallar", "Действия"),
   // },
@@ -154,12 +154,12 @@ export const RasxodcreateTableFio = ({
                   <TableItem className="!text-right">
                     {formatNum(item.summa)}
                   </TableItem>
-                  <TableItem className="!text-right">
+                  {/* <TableItem className="!text-right">
                     {formatNum(item.summa - calculate)}
                   </TableItem>
                   <TableItem className="!text-right">
                     {formatNum(calculate)}
-                  </TableItem>
+                  </TableItem> */}
                   {/* <TableItem>
                     <div className="flex justify-center gap-2">
                       <button onClick={() => handleRemove(item)}>
@@ -180,12 +180,12 @@ export const RasxodcreateTableFio = ({
               <TableItem className="text-right">
                 {formatNum(totalSumma)}
               </TableItem>
-              <TableItem className="text-right">
+              {/* <TableItem className="text-right">
                 {formatNum(totalDiscount)}
               </TableItem>
               <TableItem className="text-right">
                 {formatNum(totalFinalAmount)}
-              </TableItem>
+              </TableItem> */}
             </tr>
           </tbody>
         </table>

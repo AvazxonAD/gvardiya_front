@@ -303,7 +303,7 @@ export const CreateRasxodFio = () => {
           {tt("Сhiqim FIO yaratish ", "Создание расхода ФИО")}
         </h1>
         <div className="flex ml-[53px] gap-[32px] items-center">
-          {ustamaData.map((item: UstamaInterFaceEdited, index: number) => (
+          {/* {ustamaData.map((item: UstamaInterFaceEdited, index: number) => (
             <Checkbox
               label={item.name + " /" + item.percent + "%"}
               key={index}
@@ -316,7 +316,7 @@ export const CreateRasxodFio = () => {
                 );
               }}
             />
-          ))}
+          ))} */}
         </div>
       </div>
       {/* <SimpleText txt="To'lov hujjatlari" /> */}

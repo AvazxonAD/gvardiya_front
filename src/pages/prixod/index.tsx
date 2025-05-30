@@ -67,7 +67,6 @@ const Prixod = () => {
 
   const navigate = useNavigate();
   const getData = async () => {
-
     const get = await api.get<IPrixodState>(
       `prixod?from=${startDate}&to=${endDate}&account_number_id=${account_number_id}&limit=${limet}&page=${currentPage}&search=${searchTerm}`
     );
@@ -78,7 +77,7 @@ const Prixod = () => {
 
   useEffect(() => {
     if ((startDate && endDate) || searchTerm) {
-      console.log('ajdhajdhasdhj')
+      console.log("ajdhajdhasdhj");
       getData();
     }
   }, [currentPage, limet, searchTerm]);
@@ -181,7 +180,7 @@ const Prixod = () => {
             </div>
           )}
           <div className="flex -mt-5 sticky py-5 -top-1 z-[30] bg-mybackground items-center  justify-between">
-            <Input v={data?.meta?.from_balance} readonly />
+            {/* <Input v={data?.meta?.from_balance} readonly /> */}
             <Input
               p={tt("Qidiriuv", "Поиск")}
               className="border border-gray-300 rounded px-3 py-2 w-full"
@@ -325,19 +324,18 @@ const Prixod = () => {
 
       {data ? (
         <div className="sticky bottom-0 z-[30] bg-mybackground">
-          {/* Total summary */}
           <div className="mt-3 pt-2 flex items-center justify-between">
-            <Input readonly v={data?.meta?.to_balance} />
             <div className="flex items-center gap-x-3">
               <div className="flex items-center gap-x-1">
-                <h2 className="font-[700]">
-                  {tt("Jami summa", "Итого сумма")}:
-                </h2>
-                <Input readonly v={data?.meta?.summa} />
+                <Input
+                  readOnly
+                  value={data?.meta?.summa}
+                  className="mt-2 ml-2"
+                />
               </div>
             </div>
           </div>
-          <div className="">
+          <div>
             <Paginatsiya
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}

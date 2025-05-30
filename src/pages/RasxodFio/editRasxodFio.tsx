@@ -458,7 +458,7 @@ export const EditRasxodFio = () => {
           {tt("Сhiqim FIO tahrirlash ", "Изменить расхода ФИО")}
         </h1>
         <div className="flex ml-[53px] gap-[32px] items-center">
-          {ustamaData?.map((item: UstamaInterFaceEdited, index: number) => (
+          {/* {ustamaData?.map((item: UstamaInterFaceEdited, index: number) => (
             <Checkbox
               deleted={item.deleted}
               label={item.name + " /" + item.percent + "%"}
@@ -472,7 +472,7 @@ export const EditRasxodFio = () => {
                 );
               }}
             />
-          ))}
+          ))} */}
         </div>
       </div>
       {/* <SimpleText txt="To'lov hujjatlari" /> */}

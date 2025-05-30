@@ -66,15 +66,15 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive }) => {
                 className: "px-2 py-3 text-left",
               },
               {
-                text: tt("Summa", "Сумма"),
+                text: tt("Hisoblangan summa", "Ҳисобланган сумма"),
                 className: "px-2 py-3 text-center w-[180px]",
               },
               {
-                text: tt("Debit", "Дебет"),
+                text: tt("Kelib tushgan summa", "Келиб тушган сумма"),
                 className: "px-2 py-3 text-center w-[180px]",
               },
               {
-                text: tt("Kredit", "Кредит"),
+                text: tt("Debitor qarzdorlik", "Дебитор қарздорлик"),
                 className: "px-2 py-3 text-center w-[180px]",
               },
               {
@@ -114,7 +114,15 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive }) => {
                 <td className="px-2 text-right text-inherit border-l border-r">
                   {formatSum(item.remaining_summa)}
                 </td>
-                <td className="px-2 text-right text-inherit border-l border-r">
+                <td
+                  className={`px-2 text-right text-inherit border-l border-r ${
+                    Number(item.remaining_balance) === 0
+                      ? "text-green-500"
+                      : Number(item.remaining_balance) > 0
+                      ? "text-blue-500"
+                      : "text-red-500"
+                  }`}
+                >
                   {formatSum(item.remaining_balance)}
                 </td>
                 <td className="px-2 text-center border-l border-r">
