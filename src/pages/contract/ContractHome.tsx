@@ -36,7 +36,7 @@ function ContractHome() {
   const [searchText] = useDebounce(value, 500);
   // const [value2, setValue2] = useState();
   const dispatch = useDispatch();
-  const [limet, setLimet] = useState(15);
+  const [limet, setLimet] = useState(50);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [active, setactive] = useState(1);
