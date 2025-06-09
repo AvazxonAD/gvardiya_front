@@ -18,9 +18,7 @@ import { alertt } from "@/Redux/LanguageSlice";
 import DocumentForPrint2 from "./DocumentForPrint2";
 
 const Document = () => {
-  const [templatesData, setTemplatesdata] = React.useState<templateInterface[]>(
-    []
-  );
+  const [templatesData, setTemplatesdata] = React.useState<templateInterface[]>([]);
   const request = useRequest();
   const [openSwitcher, setOpenSwitcher] = React.useState(false);
   const [singleTemplate, setSingleTemplate] = React.useState<any>(null);
@@ -59,16 +57,15 @@ const Document = () => {
 
   const getInfoForDoc = async (data: any) => {
     try {
-      const [resDoer, resBoss, resBank, resStr, resAddress, resAccount, bxm] =
-        await Promise.all([
-          getSpr(JWT, "doer"),
-          getSpr(JWT, "boss"),
-          getSpr(JWT, "bank"),
-          getSpr(JWT, "str"),
-          getSpr(JWT, "adress"),
-          getSpr(JWT, `account/${data.account_number_id}`),
-          getSpr(JWT, "bxm"),
-        ]);
+      const [resDoer, resBoss, resBank, resStr, resAddress, resAccount, bxm] = await Promise.all([
+        getSpr(JWT, "doer"),
+        getSpr(JWT, "boss"),
+        getSpr(JWT, "bank"),
+        getSpr(JWT, "str"),
+        getSpr(JWT, "adress"),
+        getSpr(JWT, `account/${data.account_number_id}`),
+        getSpr(JWT, "bxm"),
+      ]);
 
       setInfo({
         ...info,
@@ -149,6 +146,29 @@ const Document = () => {
       return `${before} ________________________ ${after}`;
     }
 
+    function getMonthName(oyRaqami: number) {
+      const oylar = [
+        "Январь",
+        "Февраль",
+        "Март",
+        "Апрель",
+        "Май",
+        "Июнь",
+        "Июль",
+        "Август",
+        "Сентябрь",
+        "Октябрь",
+        "Ноябрь",
+        "Декабрь",
+      ];
+
+      if (oyRaqami < 1 || oyRaqami > 12) {
+        return "Noto‘g‘ri oy raqami";
+      }
+
+      return oylar[oyRaqami - 1];
+    }
+
     if (templatesData.length > 0) {
       const getActivetmplt = templatesData.find((el) => el?.active == true);
       if (getActivetmplt) {
@@ -161,55 +181,48 @@ const Document = () => {
 
           // Format all section texts
           if (updatedtemplate.section_2) {
-            updatedtemplate.section_2 = formatSectionText(
-              updatedtemplate.section_2
-            );
+            updatedtemplate.section_2 = formatSectionText(updatedtemplate.section_2);
           }
 
           // Format other sections
           if (updatedtemplate.section_1) {
-            updatedtemplate.section_1 = formatSectionText(
-              updatedtemplate.section_1
-            );
+            updatedtemplate.section_1 = formatSectionText(updatedtemplate.section_1);
+            if (updatedtemplate.section_1.includes("${start_month}")) {
+              const start_month = new Date(data.start_date).getMonth() + 1;
+              const end_month = new Date(data.end_date).getMonth() + 1;
+              const start_month_str = getMonthName(start_month);
+              const end_month_str = getMonthName(end_month);
+
+              // Bold uchun span qo'shamiz
+              const start_month_bold = `<span class="font-bold">${start_month_str}</span>`;
+              const end_month_bold = `<span class="font-bold">${end_month_str}</span>`;
+
+              updatedtemplate.section_1 = updatedtemplate.section_1.replace("${start_month}", start_month_bold);
+              updatedtemplate.section_1 = updatedtemplate.section_1.replace("${end_month}", end_month_bold);
+            }
 
             if (print) {
-              updatedtemplate.section_1 = replaceBetween(
-                updatedtemplate.section_1
-              );
+              updatedtemplate.section_1 = replaceBetween(updatedtemplate.section_1);
               data.doc_date = "_____________";
-
-              console.log(updatedtemplate.section_1);
             }
           }
           if (updatedtemplate.section_3) {
-            updatedtemplate.section_3 = formatSectionText(
-              updatedtemplate.section_3
-            );
+            updatedtemplate.section_3 = formatSectionText(updatedtemplate.section_3);
           }
           if (updatedtemplate.section_4) {
-            updatedtemplate.section_4 = formatSectionText(
-              updatedtemplate.section_4
-            );
+            updatedtemplate.section_4 = formatSectionText(updatedtemplate.section_4);
           }
           if (updatedtemplate.section_5) {
-            updatedtemplate.section_5 = formatSectionText(
-              updatedtemplate.section_5
-            );
+            updatedtemplate.section_5 = formatSectionText(updatedtemplate.section_5);
           }
           if (updatedtemplate.section_6) {
-            updatedtemplate.section_6 = formatSectionText(
-              updatedtemplate.section_6
-            );
+            updatedtemplate.section_6 = formatSectionText(updatedtemplate.section_6);
           }
           if (updatedtemplate.section_7) {
-            updatedtemplate.section_7 = formatSectionText(
-              updatedtemplate.section_7
-            );
+            updatedtemplate.section_7 = formatSectionText(updatedtemplate.section_7);
           }
           if (updatedtemplate.main_section) {
-            updatedtemplate.main_section = formatSectionText(
-              updatedtemplate.main_section
-            );
+            updatedtemplate.main_section = formatSectionText(updatedtemplate.main_section);
           }
 
           setSingleTemplate(updatedtemplate);
@@ -292,11 +305,7 @@ const Document = () => {
               <div className="flex gap-2 justify-end mr-16">
                 <Button mode="print" onClick={onPrintClick} />
                 <Button mode="clear" onClick={onPrintClick2} />
-                <Button
-                  onClick={() => setOpenSwitcher(true)}
-                  mode="clear"
-                  text={tt("almashtirish", "замена")}
-                />
+                <Button onClick={() => setOpenSwitcher(true)} mode="clear" text={tt("almashtirish", "замена")} />
               </div>
             </div>
             <div className="mb-[100px] mt-5">
@@ -308,9 +317,7 @@ const Document = () => {
                     {singleTemplate?.title}
                   </h1>
 
-                  <p className="text-center font-bold mb-1">
-                    {data.doc_num}-сон
-                  </p>
+                  <p className="text-center font-bold mb-1">{data.doc_num}-сон</p>
 
                   <div className="flex justify-between font-bold mb-6">
                     <p>{getFullDate(data.doc_date)}</p>
@@ -342,9 +349,7 @@ const Document = () => {
                     />
                   </div>
 
-                  <h2 className="text-lg text-center font-semibold mt-1 -mb-1">
-                    {singleTemplate?.section_2_title}
-                  </h2>
+                  <h2 className="text-lg text-center font-semibold mt-1 -mb-1">{singleTemplate?.section_2_title}</h2>
                   <div className="">
                     <div
                       className="text-justify"
@@ -354,9 +359,7 @@ const Document = () => {
                     />
                   </div>
 
-                  <h2 className="text-lg text-center font-semibold mt-1 -mb-1">
-                    {singleTemplate?.section_3_title}
-                  </h2>
+                  <h2 className="text-lg text-center font-semibold mt-1 -mb-1">{singleTemplate?.section_3_title}</h2>
                   <div className="mb-6 ">
                     <p
                       className="mb-0 text-justify"
@@ -371,9 +374,7 @@ const Document = () => {
 
                 <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300">
                   <div className="">
-                    <h2 className="text-lg text-center font-semibold mt-1 -mb-1">
-                      {singleTemplate?.section_4_title}
-                    </h2>
+                    <h2 className="text-lg text-center font-semibold mt-1 -mb-1">{singleTemplate?.section_4_title}</h2>
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
@@ -382,9 +383,7 @@ const Document = () => {
                     />
                   </div>
                   <div className="">
-                    <h2 className="text-lg text-center font-semibold mt-1 -mb-1">
-                      {singleTemplate?.section_5_title}
-                    </h2>
+                    <h2 className="text-lg text-center font-semibold mt-1 -mb-1">{singleTemplate?.section_5_title}</h2>
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
@@ -393,9 +392,7 @@ const Document = () => {
                     />
                   </div>
                   <div className="">
-                    <h2 className="text-lg text-center font-semibold mt-1 -mb-1">
-                      {singleTemplate?.section_6_title}
-                    </h2>
+                    <h2 className="text-lg text-center font-semibold mt-1 -mb-1">{singleTemplate?.section_6_title}</h2>
                     <p
                       className="text-justify"
                       dangerouslySetInnerHTML={{
@@ -404,9 +401,7 @@ const Document = () => {
                     />
                   </div>
                   <div className="">
-                    <h2 className="text-lg text-center font-semibold mt-1 -mb-1">
-                      {singleTemplate?.section_7_title}
-                    </h2>
+                    <h2 className="text-lg text-center font-semibold mt-1 -mb-1">{singleTemplate?.section_7_title}</h2>
                     <p
                       className="text-justify"
                       dangerouslySetInnerHTML={{
@@ -419,15 +414,11 @@ const Document = () => {
                 <div className="h-[16px] bg-mybackground w-[100%]  "></div>
 
                 <section className="pt-8 pr-[40px] pb-[565px] pl-[80px] border border-gray-300">
-                  <h2 className="text-lg font-semibold text-center mb-4">
-                    8. Томонларнинг реквизитлари
-                  </h2>
+                  <h2 className="text-lg font-semibold text-center mb-4">8. Томонларнинг реквизитлари</h2>
                   <div className="flex max-w-[85%]   font-semibold mx-auto justify-between">
                     <div className="max-w-[50%]">
                       <h3 className="font-bold mb-2 text-center">Буюртмачи:</h3>
-                      <p className="font-semibold mb-3 text-center">
-                        "{organisation.name}"
-                      </p>
+                      <p className="font-semibold mb-3 text-center">"{organisation.name}"</p>
                       <p>Манзил: {organisation.address}</p>
                       <p>ИНН: {textNum(organisation.str, 3)}</p>
                       <p>Банк реквизитлари: {organisation.bank_name}</p>
@@ -437,17 +428,13 @@ const Document = () => {
                       {(organisation.treasury1 || organisation.treasury2) && (
                         <p>
                           {" "}
-                          Ғазначилиги х/р:{" "}
-                          {textNum(organisation.treasury1, 4) ||
-                            textNum(organisation.treasury2, 4)}
+                          Ғазначилиги х/р: {textNum(organisation.treasury1, 4) || textNum(organisation.treasury2, 4)}
                         </p>
                       )}
                     </div>
                     <div className="max-w-[50%]">
                       <h3 className="font-bold mb-2 text-center">Бажарувчи:</h3>
-                      <p className="font-semibold mb-3 text-center">
-                        "{info.doer}"
-                      </p>
+                      <p className="font-semibold mb-3 text-center">"{info.doer}"</p>
                       <p>Манзил: {info.address}</p>
                       <p>ИНН: {textNum(info.str, 3)}</p>
                       <p>Банк реквизитлари: {info.bank} </p>
@@ -460,9 +447,7 @@ const Document = () => {
                       <p className="mt-2">Раҳбари:_____________________</p>
                     </div>
                     <div className="max-w-[50%]">
-                      <p className="mt-2 w-full">
-                        Раҳбари:___________{info.boss}
-                      </p>
+                      <p className="mt-2 w-full">Раҳбари:___________{info.boss}</p>
                     </div>
                   </div>
                 </section>
@@ -476,30 +461,20 @@ const Document = () => {
                   </div>
 
                   <h1 className="text-center text-lg my-[70px] font-semibold">
-                    Оммавий тадбирни ўтказишда фуқаролар хавсизлигини таъминлаш
-                    ва жамоат тартибини сақлашни ташкил этишда
+                    Оммавий тадбирни ўтказишда фуқаролар хавсизлигини таъминлаш ва жамоат тартибини сақлашни ташкил
+                    этишда
                   </h1>
 
-                  <h1 className="text-center text-lg mb-[50px] font-semibold ">
-                    Харажатлар сметаси
-                  </h1>
+                  <h1 className="text-center text-lg mb-[50px] font-semibold ">Харажатлар сметаси</h1>
                   {data && <BudgetTable data={data} />}
                   <div className="flex items-start justify-around mt-14">
                     <div className="flex items-center flex-col">
-                      <h1 className="text-center text-lg  font-semibold">
-                        Буюртмачи:
-                      </h1>
-                      <span className="block mt-5">
-                        ______________________________
-                      </span>
+                      <h1 className="text-center text-lg  font-semibold">Буюртмачи:</h1>
+                      <span className="block mt-5">______________________________</span>
                     </div>
                     <div className="flex items-center flex-col">
-                      <h1 className="text-center text-lg  font-semibold">
-                        Бажарувчи:
-                      </h1>
-                      <span className="block mt-5">
-                        ______________________________
-                      </span>
+                      <h1 className="text-center text-lg  font-semibold">Бажарувчи:</h1>
+                      <span className="block mt-5">______________________________</span>
                     </div>
                   </div>
                 </section>
