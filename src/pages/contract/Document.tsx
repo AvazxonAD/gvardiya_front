@@ -192,9 +192,10 @@ const Document = () => {
               const end_month = new Date(data.end_date).getMonth() + 1;
               const start_month_str = getMonthName(start_month);
               const end_month_str = getMonthName(end_month);
+              const year = new Date(data.start_date).getFullYear();
 
               // Bold uchun span qo'shamiz
-              const start_month_bold = `<span class="font-bold">${start_month_str}</span>`;
+              const start_month_bold = `<span class="font-bold">${year}-йил ${start_month_str}</span>`;
               const end_month_bold = `<span class="font-bold">${end_month_str}</span>`;
 
               updatedtemplate.section_1 = updatedtemplate.section_1.replace("${start_month}", start_month_bold);
