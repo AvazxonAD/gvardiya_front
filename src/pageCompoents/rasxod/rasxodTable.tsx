@@ -18,11 +18,7 @@ interface RasxodTableProps {
   source?: string;
 }
 
-export const RasxodTable: React.FC<RasxodTableProps> = ({
-  data,
-  getAllFn,
-  source,
-}) => {
+export const RasxodTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source }) => {
   const [activeDeleteModal, setActiveDeleteModal] = useState(false);
   const [activeId, setActiveId] = useState(0);
   const [screenLoader, setScreenLoader] = useState(false);
@@ -43,15 +39,35 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({
     },
     {
       text: tt("Qabul qiluvchi", "Получатель"),
-      className: "w-[270px]",
+      className: "w-[100px]",
     },
     {
-      text: tt("Summa", "Сумма"),
-      className: "w-[208px] text-right",
+      text: tt("Premiya (100%)", "Премия (100%)"),
+      className: "w-[208px] text-center",
     },
     {
-      text: tt("Tavsiflar", "Описания"),
-      className: "w-[175px]",
+      text: tt("Moddiy bazani rivojlantirish uchun (75%)", "Моддий базани ривожлантириш учун (75%)"),
+      className: "w-[208px] text-center",
+    },
+    {
+      text: tt("I va II guruh xarajatlari uchun (25%)", "I ва II гурух харажатлари учун (25%)"),
+      className: "w-[208px] text-center",
+    },
+    {
+      text: tt("Shaxsiy tarkibga taqsimlandi", "Шахсий таркибга таксимланди"),
+      className: "w-[208px] text-center",
+    },
+    {
+      text: tt("Yagona ijtimoiy soliq (25%)", "Ягона ижтимоий солик (25%)"),
+      className: "w-[208px] text-center",
+    },
+    {
+      text: tt("Daromad solig'i (12%)", "Даромад солиғи (12%)"),
+      className: "w-[208px] text-center",
+    },
+    {
+      text: tt("Bank plastik kartasiga o'tkazib berildi", "Банк пластик картасига ўтказиб берилди"),
+      className: "w-[208px] text-center",
     },
     {
       text: tt("Amallar", "Действия"),
@@ -62,12 +78,9 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({
   const handleRemove = async () => {
     try {
       setScreenLoader(true);
-      const res = await request.delete(
-        `/rasxod${source === "fio" ? "/fio" : ""}/${activeId}`,
-        {
-          params: { account_number_id },
-        }
-      );
+      const res = await request.delete(`/rasxod${source === "fio" ? "/fio" : ""}/${activeId}`, {
+        params: { account_number_id },
+      });
 
       if (res.status === 200 || res.status === 201) {
         getAllFn();
@@ -106,10 +119,7 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({
     } catch (error) {
       dispatch(
         alertt({
-          text: tt(
-            "Excel file yuklanishda muamo mavjud",
-            "Проблема с загрузкой файла Excel"
-          ),
+          text: tt("Excel file yuklanishda muamo mavjud", "Проблема с загрузкой файла Excel"),
           success: false,
         })
       );
@@ -137,10 +147,7 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({
     } catch (error) {
       dispatch(
         alertt({
-          text: tt(
-            "Excel file yuklanishda muamo mavjud",
-            "Проблема с загрузкой файла Excel"
-          ),
+          text: tt("Excel file yuklanishda muamo mavjud", "Проблема с загрузкой файла Excel"),
           success: false,
         })
       );
@@ -168,10 +175,7 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({
     } catch (error) {
       dispatch(
         alertt({
-          text: tt(
-            "Excel file yuklanishda muamo mavjud",
-            "Проблема с загрузкой файла Excel"
-          ),
+          text: tt("Excel file yuklanishda muamo mavjud", "Проблема с загрузкой файла Excel"),
           success: false,
         })
       );
@@ -180,21 +184,11 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({
 
   return (
     <>
-      <Table
-        theadClassName="sticky top-[80px] z-[30] bg-mybackground"
-        thead={tableHeaders}
-      >
+      <Table theadClassName="sticky top-[80px] z-[30] bg-mybackground" thead={tableHeaders}>
         {data.map((item, index) => (
-          <tr
-            key={index}
-            className="border-b border-mytableheadborder transition-colors"
-          >
-            <td className="py-3 px-6 border-l border-r text-center">
-              {item.doc_num}
-            </td>
-            <td className="py-3 px-6 border-l border-r text-center">
-              {formatDate(item.doc_date)}
-            </td>
+          <tr key={index} className="border-b border-mytableheadborder transition-colors">
+            <td className="py-3 px-6 border-l border-r text-center">{item.doc_num}</td>
+            <td className="py-3 px-6 border-l border-r text-center">{formatDate(item.doc_date)}</td>
             <td className="py-3 px-6 relative group border-l border-r cursor-pointer">
               {item.batalon_name}
               <div className="hidden group-hover:block -mt-8 ms-16 absolute z-10 bg-mybackground border rounded-md p-3 shadow-lg w-[250px]">
@@ -208,39 +202,30 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({
                   {tt("INN", "ИНН")}: {textNum(item.batalon_str, 3)}
                 </h2>
                 <h2>
-                  {tt("Hisob raqam", "Номер счета")}:{" "}
-                  {textNum(item.batalon_account_number, 4)}
+                  {tt("Hisob raqam", "Номер счета")}: {textNum(item.batalon_account_number, 4)}
                 </h2>
               </div>
             </td>
-            <td className="py-3 px-6 text-right border-l border-r">
-              {formatNum(item.summa)}
-            </td>
-            <td className="py-3 px-6 border-l border-r">
-              {item.opisanie || "-"}
-            </td>
+            <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.summa)}</td>
+            <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.summa_75)}</td>
+            <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.summa_25)}</td>
+            <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.summa_1_25)}</td>
+            <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.summa_25_2)}</td>
+            <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.summa_12)}</td>
+            <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.worker_summa)}</td>
             <td className="py-3 px-15 border-l border-r flex justify-center gap-2">
               {source === "fio" && (
-                <button
-                  onClick={() => handleExcelDownload(item)}
-                  className="text-blue-500"
-                >
+                <button onClick={() => handleExcelDownload(item)} className="text-blue-500">
                   {tt("Taqsimot", "Тақсимот")}
                 </button>
               )}
               {source !== "fio" && (
-                <button
-                  onClick={() => handleExcelDownloadRasxod(item)}
-                  className="text-blue-500"
-                >
+                <button onClick={() => handleExcelDownloadRasxod(item)} className="text-blue-500">
                   {tt("Taqsimot", "Тақсимот")}
                 </button>
               )}
               {source === "fio" && (
-                <button
-                  onClick={() => handleExcelDownload2(item)}
-                  className="text-blue-500"
-                >
+                <button onClick={() => handleExcelDownload2(item)} className="text-blue-500">
                   {tt("Premiya", "Премия")}
                 </button>
               )}
@@ -260,14 +245,8 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({
         ))}
       </Table>
 
-      <DeleteModal
-        closeModal={() => setActiveDeleteModal(false)}
-        open={activeDeleteModal}
-        deletee={handleRemove}
-      />
-      {screenLoader && (
-        <ScreenLoader title={tt("O'chirilmoqda...", "Удаляется...")} />
-      )}
+      <DeleteModal closeModal={() => setActiveDeleteModal(false)} open={activeDeleteModal} deletee={handleRemove} />
+      {screenLoader && <ScreenLoader title={tt("O'chirilmoqda...", "Удаляется...")} />}
     </>
   );
 };

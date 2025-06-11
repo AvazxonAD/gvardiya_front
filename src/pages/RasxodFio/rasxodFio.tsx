@@ -17,9 +17,7 @@ import { useReactToPrint } from "react-to-print";
 import RasxodFioForPrint from "./print";
 
 export const RasxodFio = () => {
-  const { startDate, endDate } = useSelector(
-    (state: RootState) => state.defaultDate
-  );
+  const { startDate, endDate } = useSelector((state: RootState) => state.defaultDate);
   const [search, setSearch] = React.useState({
     fromDate: startDate,
     toDate: endDate,
@@ -89,10 +87,7 @@ export const RasxodFio = () => {
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute(
-      "download",
-      `rasxod-fio-${search.fromDate}-dan-${search.toDate}-gacha.xlsx`
-    );
+    link.setAttribute("download", `rasxod-fio-${search.fromDate}-dan-${search.toDate}-gacha.xlsx`);
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -112,8 +107,7 @@ export const RasxodFio = () => {
   };
 
   const height = useFullHeight();
-  const fullHeight =
-    typeof height === "string" ? `calc(${height} - 2303px)` : height - 230;
+  const fullHeight = typeof height === "string" ? `calc(${height} - 2303px)` : height - 230;
   const api = useApi();
   const navigate = useNavigate();
 
@@ -125,9 +119,7 @@ export const RasxodFio = () => {
 
   const onPrintClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    const get = await api.get(
-      `rasxod/fio/pdf/?from=${search.fromDate}&to=${search.toDate}&account_number_id=${account_number_id}`
-    );
+    const get = await api.get(`rasxod/fio/pdf/?from=${search.fromDate}&to=${search.toDate}&account_number_id=${account_number_id}`);
     if (get?.success) {
       setForPdf(get.data as any);
     }
@@ -144,17 +136,11 @@ export const RasxodFio = () => {
       <div style={{ minHeight: fullHeight }}>
         {forPdf?.data && (
           <div className=" hidden">
-            <RasxodFioForPrint
-              ref={fioRef}
-              data={forPdf.data}
-              fromDate={search.fromDate}
-              endDate={search.toDate}
-            />
+            <RasxodFioForPrint ref={fioRef} data={forPdf.data} fromDate={search.fromDate} endDate={search.toDate} />
           </div>
         )}
         <div>
           <div className="flex -mt-5 sticky py-5 -top-1 z-[30] bg-mybackground items-center  justify-between">
-            <Input disabled={true} v={rasxodmeta?.from_balance} />
             <div className="flex items-center gap-x-[40px]">
               <div className="flex items-center">
                 <SpecialDatePicker
@@ -183,15 +169,8 @@ export const RasxodFio = () => {
               </div>
               <div className="flex ms-5 gap-[10px]">
                 <Button mode="print" onClick={onPrintClick} />
-                <Button
-                  mode="download"
-                  onClick={handleDownloadExel}
-                  text={tt("Excel", "Экcель")}
-                />
-                <Button
-                  mode="add"
-                  onClick={() => navigate("/rasxod-workers/create")}
-                />
+                <Button mode="download" onClick={handleDownloadExel} text={tt("Excel", "Экcель")} />
+                <Button mode="add" onClick={() => navigate("/rasxod-workers/create")} />
               </div>
             </div>
           </div>
@@ -203,13 +182,46 @@ export const RasxodFio = () => {
         <div className="sticky bottom-0 z-[30] bg-mybackground">
           {/* Total summary */}
           <div className="mt-3 pt-2 flex items-center justify-between">
-            <Input readonly v={rasxodmeta?.to_balance} />
-            <div className="flex items-center gap-x-3">
-              <div className="flex items-center gap-x-1">
-                <h2 className="font-[700]">
-                  {tt("Jami summa", "Итого сумма")}:
-                </h2>
-                <Input readonly v={rasxodmeta.summa} />
+            <div className="flex items-center gap-x-1">
+              <div className="flex flex-col items-start gap-y-0.5 w-[220px]">
+                <label className="font-[700] text-[10px] truncate whitespace-nowrap">{tt("Premiya (100%)", "Премия (100%)")}:</label>
+                <Input readonly v={rasxodmeta.summa} className="text-[10px] h-6 px-1 py-0 w-full" />
+              </div>
+              <div className="flex flex-col items-start gap-y-0.5 w-[220px]">
+                <label className="font-[700] text-[10px] truncate whitespace-nowrap">
+                  {tt("Moddiy bazani rivojlantirish uchun (75%)", "Моддий базани ривожлантириш учун (75%)")}:
+                </label>
+                <Input readonly v={rasxodmeta.summa_75} className="text-[10px] h-6 px-1 py-0 w-full" />
+              </div>
+              <div className="flex flex-col items-start gap-y-0.5 w-[220px]">
+                <label className="font-[700] text-[10px] truncate whitespace-nowrap">
+                  {tt("I va II guruh xarajatlari uchun (25%)", "I ва II гурух харажатлари учун (25%)")}:
+                </label>
+                <Input readonly v={rasxodmeta.summa_25} className="text-[10px] h-6 px-1 py-0 w-full" />
+              </div>
+              <div className="flex flex-col items-start gap-y-0.5 w-[220px]">
+                <label className="font-[700] text-[10px] truncate whitespace-nowrap">
+                  {tt("Shaxsiy tarkibga taqsimlandi", "Шахсий таркибга таксимланди")}:
+                </label>
+                <Input readonly v={rasxodmeta.summa_1_25} className="text-[10px] h-6 px-1 py-0 w-full" />
+              </div>
+              <div className="flex flex-col items-start gap-y-0.5 w-[220px]">
+                <label className="font-[700] text-[10px] truncate whitespace-nowrap">
+                  {tt("Yagona ijtimoiy soliq (25%)", "Ягона ижтимоий солик (25%)")}:
+                </label>
+                <Input readonly v={rasxodmeta.summa_25_2} className="text-[10px] h-6 px-1 py-0 w-full" />
+              </div>
+              <div className="flex flex-col items-start gap-y-0.5 w-[220px]">
+                <label className="font-[700] text-[10px] truncate whitespace-nowrap">
+                  {tt("Daromad solig'i (12%)", "Даромад солиғи (12%)")}:
+                </label>
+                <Input readonly v={rasxodmeta.summa_12} className="text-[10px] h-6 px-1 py-0 w-full" />
+              </div>
+              <div className="flex flex-col items-start gap-y-0.5 w-[220px]">
+                <label className="font-[700] text-[10px] truncate whitespace-nowrap">
+                  {tt("Bank plastik kartasiga o'tkazib berildi", "Банк пластик картасига ўтказиб берилди")}:
+                </label>
+                <Input readonly v={rasxodmeta.worker_summa} className="text-[10px] h-6 px-1 py-0 w-full" />
               </div>
             </div>
           </div>
