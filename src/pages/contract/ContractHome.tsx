@@ -42,6 +42,7 @@ function ContractHome() {
   const [active, setactive] = useState(1);
   const [all, setAll] = useState(10);
   const [status, setStatus] = useState("");
+  const [statusSumma, setStatusSumma] = useState("");
   const [balance, setBalance] = useState({
     internal_summa: 0,
     debet_summa: 0,
@@ -75,7 +76,8 @@ function ContractHome() {
       searchText,
       account_id,
       0,
-      status
+      status,
+      statusSumma
     );
     setData(res.data);
     setTotalPages(res.meta.pageCount);
@@ -86,18 +88,10 @@ function ContractHome() {
       internal_summa: res.meta.internal_summa,
     });
   };
-  // const getBatalyons = async () => {
-  //   const res = await getSpr(JWT, "batalon");
-
-  //   setBatalons(res.data);
-  // };
-  // useEffect(() => {
-  //   getBatalyons();
-  // }, []);
 
   useEffect(() => {
     getInfo(dates);
-  }, [currentPage, limet, searchText, account_id]);
+  }, [currentPage, limet, searchText, account_id, status, statusSumma]);
 
   const handleDownload = () => {
     getInfo(dates);
@@ -228,7 +222,7 @@ function ContractHome() {
       <div style={{ minHeight: fullHeight }}>
         <div className="-mt-5 sticky py-5 -top-1 z-[30] bg-mybackground flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <div className="w-[250px]">
+            <div className="w-[200px]">
               <Input
                 v={value}
                 change={(e: any) => setValue(e.target.value)}
@@ -237,47 +231,69 @@ function ContractHome() {
                 className="w-full"
               />
             </div>
-            <div className="w-[200px]">
+            <div className="w-[130px]">
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="
-                                    block w-full
-                                    bg-white
-                                    border border-gray-300
-                                    rounded-md
-                                    py-2 px-3
-                                    text-gray-700
-                                    text-base
-                                    focus:outline-none
-                                    focus:ring-2
-                                    focus:ring-blue-500
-                                    focus:border-blue-500
-                                    cursor-pointer
-                                    transition
-                                    duration-200
-                                    ease-in-out
-                                    shadow-sm
-                                    hover:border-blue-400
-                                "
+                  block w-full
+                  bg-white
+                  border border-gray-300
+                  rounded-md
+                  py-1.5 px-2
+                  text-gray-700
+                  text-sm
+                  focus:outline-none
+                  focus:ring-1
+                  focus:ring-blue-500
+                  focus:border-blue-500
+                  cursor-pointer
+                  transition
+                  duration-200
+                  ease-in-out
+                  shadow-sm
+                  hover:border-blue-400
+                "
               >
                 <option value="">Barchasi</option>
                 <option value="done">Bajarilgan</option>
                 <option value="not_done">Bajarilmagan</option>
               </select>
             </div>
+
+            <div className="w-[120px]">
+              <select
+                value={statusSumma}
+                onChange={(e) => setStatusSumma(e.target.value)}
+                className="
+                  block w-full
+                  bg-white
+                  border border-gray-300
+                  rounded-md
+                  py-1.5 px-2
+                  text-gray-700
+                  text-sm
+                  focus:outline-none
+                  focus:ring-1
+                  focus:ring-blue-500
+                  focus:border-blue-500
+                  cursor-pointer
+                  transition
+                  duration-200
+                  ease-in-out
+                  shadow-sm
+                  hover:border-blue-400
+                "
+              >
+                <option value="">Barchasi</option>
+                <option value="debet">Tolangan</option>
+                <option value="kredit">Tolanmagan</option>
+              </select>
+            </div>
+
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* <div>
-              <Select
-                data={batalons}
-                def
-                value={searchId}
-                onChange={(e: any) => setSearchID(e)}
-                p={tt("Batalon orqali qidiring", "Выберите название батальона")}
-              />
-            </div> */}
+          <div className="flex items-center gap-2">
             <div className="flex gap-2  items-center">
               <SpecialDatePicker
                 defaultValue={dates.date1}
@@ -303,7 +319,8 @@ function ContractHome() {
                   date1: startDate,
                   date2: endDate,
                 });
-                // setSearchID(0);
+                setStatus("");
+                setStatusSumma("")
               }}
             />
             <div className="ms-2 flex gap-x-3">
@@ -404,9 +421,8 @@ function ContractHome() {
         className="!p-5"
       >
         <section
-          className={`${
-            openSelect ? "h-[300px]" : ""
-          } flex flex-col items-center justify-start`}
+          className={`${openSelect ? "h-[300px]" : ""
+            } flex flex-col items-center justify-start`}
         >
           <div className="w-[300px] mb-4">
             <Select

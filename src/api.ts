@@ -5,7 +5,7 @@ import { handleStatus } from "./utils";
 // const isProd = import.meta.env.PROD;
 // const port: any = window.location.port;
 
-export const URL = 'http://localhost:3009'
+export const URL = "http://localhost:3009";
 
 export const jwt = localStorage.getItem("token");
 
@@ -41,67 +41,37 @@ export const updateAuth = async (value: any, JWT: any) => {
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getWorkers = async (
-  JWT: any,
-  page: any,
-  limet: any,
-  id: any,
-  search: any
-) => {
-  const res = await fetch(
-    URL +
-    `/worker?page=${page}&limit=${limet}${id > 0 ? "&batalon_id=" + id : ""}${search.length > 0 ? "&search=" + search : ""
-    }`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-    }
-  );
+export const getWorkers = async (JWT: any, page: any, limet: any, id: any, search: any) => {
+  const res = await fetch(URL + `/worker?page=${page}&limit=${limet}${id > 0 ? "&batalon_id=" + id : ""}${search.length > 0 ? "&search=" + search : ""}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
 
   const data = await res.json();
 
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getBatalonWorkers = async (
-  JWT: any,
-  page: any,
-  limet: any,
-  search: any
-) => {
-  const res = await fetch(
-    URL +
-    `/batalon/worker?page=${page}&limit=${limet}${search.length > 0 ? "&search=" + search : ""
-    }`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-    }
-  );
+export const getBatalonWorkers = async (JWT: any, page: any, limet: any, search: any) => {
+  const res = await fetch(URL + `/batalon/worker?page=${page}&limit=${limet}${search.length > 0 ? "&search=" + search : ""}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
 
   const data = await res.json();
 
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getTasks = async (
-  JWT: any,
-  page: any,
-  limet: any,
-  from: any,
-  to: any,
-  search: any,
-  status: any
-) => {
+export const getTasks = async (JWT: any, page: any, limet: any, from: any, to: any, search: any, status: any) => {
   const res = await fetch(
-    URL +
-    `/batalon/tasks?page=${page}&limit=${limet}&from=${from}&to=${to}${search.length > 0 ? "&search=" + search : ""}${status.length > 0 ? "&status=" + status : ""}`,
+    URL + `/batalon/tasks?page=${page}&limit=${limet}&from=${from}&to=${to}${search.length > 0 ? "&search=" + search : ""}${status.length > 0 ? "&status=" + status : ""}`,
     {
       method: "GET",
       headers: {
@@ -130,16 +100,13 @@ export const getExcel = async (JWT: any, url: any) => {
 };
 
 export const getWorkersSearch = async (JWT: any, page: any, name: any) => {
-  const res = await fetch(
-    URL + `/worker?page=${page}&limit=10&search=${name}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-    }
-  );
+  const res = await fetch(URL + `/worker?page=${page}&limit=10&search=${name}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
 
   const data = await res.json();
 
@@ -175,31 +142,21 @@ export const deleteBatalonWorker = async (JWT: any, id: any) => {
 };
 
 export const deleteCont = async (JWT: any, id: any, account_id: number) => {
-  const res = await fetch(
-    URL + `/contract/${id}?account_number_id=${account_id}`,
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-    }
-  );
+  const res = await fetch(URL + `/contract/${id}?account_number_id=${account_id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
 
   const data = await res.json();
 
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getSpr = async (
-  JWT: any,
-  path: any,
-  isWorkerTabBatalon?: boolean | null
-) => {
-  let url =
-    URL +
-    `/${path}${path === "batalon" && isWorkerTabBatalon ? "?birgada=false" : ""
-    }`;
+export const getSpr = async (JWT: any, path: any, isWorkerTabBatalon?: boolean | null) => {
+  let url = URL + `/${path}${path === "batalon" && isWorkerTabBatalon ? "?birgada=false" : ""}`;
   const res = await fetch(url, {
     method: "GET",
     headers: {
@@ -213,16 +170,13 @@ export const getSpr = async (
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 export const getOrgan = async (JWT: any, page: any, limit?: number) => {
-  const res = await fetch(
-    URL + `/organization?page=${page}&limit=${limit || 10}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-    }
-  );
+  const res = await fetch(URL + `/organization?page=${page}&limit=${limit || 10}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
 
   const data = await res.json();
 
@@ -230,39 +184,27 @@ export const getOrgan = async (JWT: any, page: any, limit?: number) => {
 };
 
 export const getAllOrgans = async (JWT: any, page?: any, limet?: any) => {
-  const res = await fetch(
-    URL +
-    `/organization?page=${page ? page : 1}&limit=${limet ? limet : 10000}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-    }
-  );
+  const res = await fetch(URL + `/organization?page=${page ? page : 1}&limit=${limet ? limet : 10000}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
 
   const data = await res.json();
 
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getSearch = async (
-  JWT: any,
-  page: any,
-  search: any,
-  limet?: any
-) => {
-  const res = await fetch(
-    URL + `/organization?page=${page}&limit=${limet || 20}&search=${search}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-    }
-  );
+export const getSearch = async (JWT: any, page: any, search: any, limet?: any) => {
+  const res = await fetch(URL + `/organization?page=${page}&limit=${limet || 20}&search=${search}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
 
   const data = await res.json();
 
@@ -277,15 +219,17 @@ export const getCont = async (
   search: any,
   account_number: string,
   batalon_id: number,
-  status: string = ""
+  status: string = "",
+  statusSumma: string = ""
 ) => {
   const batalonParam = batalon_id > 0 ? `&batalon_id=${batalon_id}` : "";
   const statusParam = status ? `&status=${status}` : "";
+  const statusSummaParam = statusSumma ? `&status-summa=${statusSumma}` : "";
   const res = await fetch(
     URL +
-    `/contract/?from=${date.date1}&to=${date.date2
-    }&page=${page}&limit=${limet}${search.length > 0 ? "&search=" + search : ""
-    }&account_number_id=${account_number}${batalonParam}${statusParam}`,
+      `/contract/?from=${date.date1}&to=${date.date2}&page=${page}&limit=${limet}${
+        search.length > 0 ? "&search=" + search : ""
+      }&account_number_id=${account_number}${batalonParam}${statusParam}${statusSummaParam}`,
     {
       method: "GET",
       headers: {
@@ -300,62 +244,40 @@ export const getCont = async (
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getSingleCont = async (
-  JWT: string,
-  id: string,
-  account_number_id: string
-) => {
-  const res = await fetch(
-    URL + `/contract/` + id + "?account_number_id=" + account_number_id,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-    }
-  );
+export const getSingleCont = async (JWT: string, id: string, account_number_id: string) => {
+  const res = await fetch(URL + `/contract/` + id + "?account_number_id=" + account_number_id, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
 
   const data = await res.json();
 
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
-export const postCont = async (
-  JWT: any,
-  datas?: any,
-  account_number_id?: any
-) => {
-  const res = await fetch(
-    URL + `/contract?account_number_id=${account_number_id}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-      body: JSON.stringify(datas),
-    }
-  );
+export const postCont = async (JWT: any, datas?: any, account_number_id?: any) => {
+  const res = await fetch(URL + `/contract?account_number_id=${account_number_id}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+    body: JSON.stringify(datas),
+  });
   const data = await res.json();
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
-export const putCont = async (
-  JWT: any,
-  id: string,
-  account_number_id: number,
-  datas?: any
-) => {
-  const res = await fetch(
-    URL + "/contract/" + id + "?account_number_id=" + account_number_id,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-      body: JSON.stringify(datas),
-    }
-  );
+export const putCont = async (JWT: any, id: string, account_number_id: number, datas?: any) => {
+  const res = await fetch(URL + "/contract/" + id + "?account_number_id=" + account_number_id, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+    body: JSON.stringify(datas),
+  });
   const data = await res.json();
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
@@ -388,23 +310,14 @@ export const getDEl = async (JWT: any, id: any) => {
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getByDate = async (
-  JWT: any,
-  page: any,
-  date: any,
-  account_number_id: any
-) => {
-  const res = await fetch(
-    URL +
-    `/contract/?from=${date.date1}&to=${date.date2}&page=${page}&limit=10&account_number_id=${account_number_id}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-    }
-  );
+export const getByDate = async (JWT: any, page: any, date: any, account_number_id: any) => {
+  const res = await fetch(URL + `/contract/?from=${date.date1}&to=${date.date2}&page=${page}&limit=10&account_number_id=${account_number_id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
 
   const data = await res.json();
 
@@ -466,21 +379,14 @@ export const getBatalonWorkerId = async (JWT: any, id: any) => {
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getContractId = async (
-  JWT: any,
-  id: any,
-  account_number: string
-) => {
-  const res = await fetch(
-    URL + `/contract/${id}?account_number_id=${account_number}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-    }
-  );
+export const getContractId = async (JWT: any, id: any, account_number: string) => {
+  const res = await fetch(URL + `/contract/${id}?account_number_id=${account_number}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
 
   const data = await res.json();
 
@@ -488,16 +394,13 @@ export const getContractId = async (
 };
 
 export const getWorkerBat = async (JWT: any, page: any, id: any) => {
-  const res = await fetch(
-    URL + `/worker?page=${page}&limit=10&batalon_id=${id} `,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-    }
-  );
+  const res = await fetch(URL + `/worker?page=${page}&limit=10&batalon_id=${id} `, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
 
   const data = await res.json();
 
@@ -577,7 +480,6 @@ export const updateWorker = async (value: any, JWT: any, id: any) => {
 
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
-
 
 export const updateBatalonWorker = async (value: any, JWT: any, id: any) => {
   const res = await fetch(URL + "/batalon/worker/" + id, {

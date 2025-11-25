@@ -24,23 +24,36 @@ const tablehead = [
   },
   {
     name: tt("Topshiriq vaqti", "Время назначения"),
-    className: "text-left",
+    className: "text-center",
   },
   {
-    name: tt("Summa", "Сумма"),
+    name: tt("Premiya (100%)", "Премия (100%)"),
     className: "text-right",
   },
-  // {
-  //   name: tt("Chegirma summa", "Сумма скидки"),
-  //   className: "text-right",
-  // },
-  // {
-  //   name: tt("Natijaviy summa", "Полученная сумма"),
-  //   className: "text-right",
-  // },
-  // {
-  //   name: tt("Amallar", "Действия"),
-  // },
+  {
+    name: tt("Moddiy bazani rivojlantrish uchun (75%)", "Моддий базани ривожлантириш учун (75%)"),
+    className: "text-right",
+  },
+  {
+    name: tt("I va II gurux xarajatlari uchun (25%)", "I ва II гурух харажатлари учун (25%)"),
+    className: "text-right",
+  },
+  {
+    name: tt("Shaxsiy tarkibga taksimlandi", "Шахсий таркибга таксимланди"),
+    className: "text-right",
+  },
+  {
+    name: tt("Yagona ijtimoiy solik (25%)", "Ягона ижтимоий солик (25%)"),
+    className: "text-right",
+  },
+  {
+    name: tt("Daromad solig‘i (12%)", "Даромад солиғи (12%)"),
+    className: "text-right",
+  },
+  {
+    name: tt("Bank plastik kartasiga o‘tkazib berildi", "Банк пластик картасига ўтказиб берилди"),
+    className: "text-right",
+  },
 ];
 
 interface Props {
@@ -71,27 +84,39 @@ export const RasxodcreateTableFio = ({
   // Calculate totals for the required columns
   const calculateTotals = () => {
     let totalSumma = 0;
-    let totalDiscount = 0;
-    let totalFinalAmount = 0;
     let task_time = 0;
+    let summa_75 = 0
+    let summa_25 = 0
+    let summa_1_25 = 0
+    let summa_25_2 = 0
+    let summa_12 = 0
+    let worker_summa = 0
 
-    data?.forEach((item) => {
-      const activeUstama = ustamaData.filter((el) => el.active === true);
-      const calculate = activeUstama.reduce((currentSum, ustama) => {
-        return currentSum - (currentSum * ustama.percent) / 100;
-      }, item.summa);
 
-      task_time += item.task_time;
-      totalSumma += item.summa;
-      totalDiscount += item.summa - calculate;
-      totalFinalAmount += calculate;
+    data?.forEach((task) => {
+      task_time += task.task_time;
+      totalSumma += task.summa;
+      summa_75 += task.summa * 0.75
+      summa_25 += task.summa * 0.25
+      summa_1_25 += (task.summa * 0.25) / 1.25
+      summa_25_2 += ((task.summa * 0.25) / 1.25) * 0.25
+      summa_12 += ((task.summa * 0.25) / 1.25) * 0.12
+      worker_summa += (task.summa * 0.25) / 1.25 - ((task.summa * 0.25) / 1.25) * 0.12
     });
 
-    return { totalSumma, totalDiscount, totalFinalAmount, task_time };
+    return {
+      totalSumma,
+      task_time,
+      summa_75,
+      summa_25,
+      summa_1_25,
+      summa_25_2,
+      summa_12,
+      worker_summa,
+    };
   };
 
-  const { totalSumma, totalDiscount, totalFinalAmount, task_time } =
-    calculateTotals();
+  const total = calculateTotals();
 
   return (
     <div>
@@ -123,22 +148,23 @@ export const RasxodcreateTableFio = ({
               return (
                 <tr
                   key={index}
-                  className={`text-mytextcolor ${
-                    item.saved ? "bg-[#e5fedea9] dark:bg-mytableheadborder" : ""
-                  } relative`}
+                  className={`text-mytextcolor ${item.saved ? "bg-[#e5fedea9] dark:bg-mytableheadborder" : ""
+                    } relative`}
                 >
                   <TableItem>{item.contract_doc_num}</TableItem>
                   <TableItem>{newdate(item.contract_doc_date)}</TableItem>
                   <TableItem className="rasxod-tooltip">
                     {item.organization_name}
-                    <div className="absolute rasxod-tooltip-wrap w-[250px] shadow-lg z-10 rounded-[6px] bg-mybackground border border-mytableheadborder text-mytextcolor p-3">
+                    <div
+                      className="absolute rasxod-tooltip-wrap w-[250px] shadow-lg z-10 rounded-[6px] bg-mybackground border border-mytableheadborder text-mytextcolor p-3"
+                      style={{ left: "400px" }} // Bu yerda tooltipni chapga surdik
+                    >
                       <ul className="space-y-1 text-left">
                         <li className="opacity-[0.7] text-[14px]">
                           {item.organization_name}
                         </li>
                         <li className="opacity-[0.7] text-[12px]">
-                          {tt("Joriy hisob", "Текущий счет")}:{" "}
-                          {textNum(item.organization_account_number, 4)}
+                          {tt("Joriy hisob", "Текущий счет")}: {textNum(item.organization_account_number, 4)}
                         </li>
                         <li className="opacity-[0.7] text-[12px]">
                           {tt("INN", "ИНН")}: {item.organization_str}
@@ -150,23 +176,28 @@ export const RasxodcreateTableFio = ({
                     </div>
                   </TableItem>
                   <TableItem>{item.fio}</TableItem>
-                  <TableItem>{item.task_time}</TableItem>
+                  <TableItem className="!text-center">{item.task_time}</TableItem>
                   <TableItem className="!text-right">
                     {formatNum(item.summa)}
                   </TableItem>
-                  {/* <TableItem className="!text-right">
-                    {formatNum(item.summa - calculate)}
+                  <TableItem className="!text-right">
+                    {formatNum(Math.round(item.summa * 0.75))}
                   </TableItem>
                   <TableItem className="!text-right">
-                    {formatNum(calculate)}
-                  </TableItem> */}
-                  {/* <TableItem>
-                    <div className="flex justify-center gap-2">
-                      <button onClick={() => handleRemove(item)}>
-                        <Icon name="delete" />
-                      </button>
-                    </div>
-                  </TableItem> */}
+                    {formatNum(Math.round(item.summa * 0.25))}
+                  </TableItem>
+                  <TableItem className="!text-right">
+                    {Math.round((item.summa * 0.25) / 1.25)}
+                  </TableItem>
+                  <TableItem className="!text-right">
+                    {Math.round(((item.summa * 0.25) / 1.25) * 0.25)}
+                  </TableItem>
+                  <TableItem className="!text-right">
+                    {Math.round(((item.summa * 0.25) / 1.25) * 0.12)}
+                  </TableItem>
+                  <TableItem className="!text-right">
+                    {Math.round((item.summa * 0.25) / 1.25 - ((item.summa * 0.25) / 1.25) * 0.12)}
+                  </TableItem>
                 </tr>
               );
             })}
@@ -174,18 +205,30 @@ export const RasxodcreateTableFio = ({
             {/* Totals row */}
             <tr className="bg-mytablehead font-medium border-t border-mytableheadborder">
               <td colSpan={4} className="text-right"></td>
-              <TableItem className="text-left">
-                {formatNum(task_time)}
+              <TableItem className="text-center">
+                {formatNum(total.task_time)}
               </TableItem>
               <TableItem className="text-right">
-                {formatNum(totalSumma)}
-              </TableItem>
-              {/* <TableItem className="text-right">
-                {formatNum(totalDiscount)}
+                {formatNum(total.totalSumma)}
               </TableItem>
               <TableItem className="text-right">
-                {formatNum(totalFinalAmount)}
-              </TableItem> */}
+                {formatNum(total.summa_75)}
+              </TableItem>
+              <TableItem className="text-right">
+                {formatNum(total.summa_25)}
+              </TableItem>
+              <TableItem className="text-right">
+                {formatNum(total.summa_1_25)}
+              </TableItem>
+              <TableItem className="text-right">
+                {formatNum(total.summa_25_2)}
+              </TableItem>
+              <TableItem className="text-right">
+                {formatNum(total.summa_12)}
+              </TableItem>
+              <TableItem className="text-right">
+                {formatNum(total.worker_summa)}
+              </TableItem>
             </tr>
           </tbody>
         </table>

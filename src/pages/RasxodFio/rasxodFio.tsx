@@ -5,7 +5,7 @@ import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import useFullHeight from "@/hooks/useFullHeight";
 import { useRequest } from "@/hooks/useRequest";
 import { IRasxodFio, RasxodInterface } from "@/interface";
-import { RasxodTable } from "@/pageCompoents/rasxod/rasxodTable";
+import { RasxodFIOTable } from "@/pageCompoents/rasxod/rasxodFioTable";
 import { alertt } from "@/Redux/LanguageSlice";
 import { RootState } from "@/Redux/store";
 import useApi from "@/services/api";
@@ -174,7 +174,7 @@ export const RasxodFio = () => {
               </div>
             </div>
           </div>
-          <RasxodTable data={rasxoddata} getAllFn={getRasxod} source="fio" />
+          <RasxodFIOTable data={rasxoddata} getAllFn={getRasxod} source="fio" />
         </div>
       </div>
 

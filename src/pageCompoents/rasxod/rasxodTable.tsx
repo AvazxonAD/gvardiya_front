@@ -8,7 +8,6 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Table, { ITheadItem } from "../../Components/reusable/table/Table"; // Assuming Table is in the same directory
-import { Download } from "lucide-react";
 import { getExcel } from "@/api";
 import ScreenLoader from "@/Components/ScreenLoader";
 
@@ -42,31 +41,11 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source
       className: "w-[100px]",
     },
     {
-      text: tt("Premiya (100%)", "Премия (100%)"),
-      className: "w-[208px] text-center",
+      text: tt("Izoh", "Объяснение"),
+      className: "w-[100px]",
     },
     {
-      text: tt("Moddiy bazani rivojlantirish uchun (75%)", "Моддий базани ривожлантириш учун (75%)"),
-      className: "w-[208px] text-center",
-    },
-    {
-      text: tt("I va II guruh xarajatlari uchun (25%)", "I ва II гурух харажатлари учун (25%)"),
-      className: "w-[208px] text-center",
-    },
-    {
-      text: tt("Shaxsiy tarkibga taqsimlandi", "Шахсий таркибга таксимланди"),
-      className: "w-[208px] text-center",
-    },
-    {
-      text: tt("Yagona ijtimoiy soliq (25%)", "Ягона ижтимоий солик (25%)"),
-      className: "w-[208px] text-center",
-    },
-    {
-      text: tt("Daromad solig'i (12%)", "Даромад солиғи (12%)"),
-      className: "w-[208px] text-center",
-    },
-    {
-      text: tt("Bank plastik kartasiga o'tkazib berildi", "Банк пластик картасига ўтказиб берилди"),
+      text: tt("Summa", "Сумма"),
       className: "w-[208px] text-center",
     },
     {
@@ -206,13 +185,8 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source
                 </h2>
               </div>
             </td>
+            <td className="py-3 px-6 border-l border-r text-center">{item.opisanie || ""}</td>
             <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.summa)}</td>
-            <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.summa_75)}</td>
-            <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.summa_25)}</td>
-            <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.summa_1_25)}</td>
-            <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.summa_25_2)}</td>
-            <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.summa_12)}</td>
-            <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.worker_summa)}</td>
             <td className="py-3 px-15 border-l border-r flex justify-center gap-2">
               {source === "fio" && (
                 <button onClick={() => handleExcelDownload(item)} className="text-blue-500">
