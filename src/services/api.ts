@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 // const isProd = import.meta.env.PROD;
 // const port: any = window.location.port;
 
-export const baseUri = 'http://localhost:3009';
+export const baseUri = "https://gvardiya.smartbase.uz/api";
 
 const useApi = () => {
   const navigate = useNavigate();
@@ -26,12 +26,7 @@ const useApi = () => {
     formData?: boolean;
   };
 
-  const request = async <T>({
-    endpoint,
-    method = "GET",
-    data,
-    formData = false,
-  }: RequestOptions<T>): Promise<ReturnType<T> | null> => {
+  const request = async <T>({ endpoint, method = "GET", data, formData = false }: RequestOptions<T>): Promise<ReturnType<T> | null> => {
     const headers: HeadersInit = {};
 
     // FormData bo'lmasa Content-Type JSON formatida bo'ladi
@@ -68,10 +63,7 @@ const useApi = () => {
         return null;
       }
 
-      if (
-        !response.ok ||
-        (response.status !== 200 && response.status !== 201)
-      ) {
+      if (!response.ok || (response.status !== 200 && response.status !== 201)) {
         return {
           ...(await response.json()),
           success: false,
@@ -94,11 +86,7 @@ const useApi = () => {
   };
 
   // POST so'rovi
-  const post = async <T>(
-    endpoint: string,
-    data: any,
-    formData?: boolean
-  ): Promise<ReturnType<T> | null> => {
+  const post = async <T>(endpoint: string, data: any, formData?: boolean): Promise<ReturnType<T> | null> => {
     return await request<T>({ endpoint, method: "POST", data, formData });
   };
 
@@ -108,11 +96,7 @@ const useApi = () => {
   };
 
   // UPDATE (PUT) so'rovi
-  const update = async <T>(
-    endpoint: string,
-    data: any,
-    formData?: boolean
-  ): Promise<ReturnType<T> | null> => {
+  const update = async <T>(endpoint: string, data: any, formData?: boolean): Promise<ReturnType<T> | null> => {
     return await request<T>({ endpoint, method: "PUT", data, formData });
   };
 
