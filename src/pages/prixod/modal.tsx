@@ -140,6 +140,7 @@ const PrixodModal = ({
                 ]
             }
           >
+            {console.log('-------------')}
             {children}
           </Table>
 

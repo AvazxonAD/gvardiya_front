@@ -186,8 +186,8 @@ const CreatePrixod = () => {
       value:
         textNum(
           selectedO?.account_number ??
-            currentPrixod?.organization_account_number ??
-            "",
+          currentPrixod?.organization_account_number ??
+          "",
           4
         ) || "",
     },
@@ -337,11 +337,10 @@ const CreatePrixod = () => {
                 // style={{
                 //     background: (selectedO?.id ?? currentPrixod?.organization_id) === o.id ? "#f3f4f6" : "white"
                 // }}
-                className={`cursor-pointer text-mytextcolor ${
-                  (selectedO?.id ?? currentPrixod?.organization_id) === o.id
-                    ? "bg-[#f3f4f6] dark:bg-mytableheadborder"
-                    : "bg-mybackground"
-                }`}
+                className={`cursor-pointer text-mytextcolor ${(selectedO?.id ?? currentPrixod?.organization_id) === o.id
+                  ? "bg-[#f3f4f6] dark:bg-mytableheadborder"
+                  : "bg-mybackground"
+                  }`}
                 onClick={() => {
                   setSelectedO(o);
                   setOpen(false);
@@ -448,31 +447,25 @@ const CreatePrixod = () => {
               contract.data.map((c, ind) => (
                 <tr
                   key={ind}
-                  style={{
-                    opacity: c.remaining_balance > 0 ? 1 : 0.7,
-                  }}
-                  className={`cursor-pointer ${
-                    c.id === selectedC?.id
-                      ? "bg-[#f3f4f6] dark:bg-mytableheadborder"
-                      : "bg-mybackground"
-                  }`}
+                  className={`cursor-pointer ${c.id === selectedC?.id
+                    ? "bg-[#f3f4f6] dark:bg-mytableheadborder"
+                    : "bg-mybackground"
+                    }`}
                   onClick={() => {
-                    if (c.remaining_balance > 0) {
-                      setSelectedC(c);
+                    setSelectedC(c);
 
-                      // Find and set the organization based on the contract's organization_id
-                      if (c.organization_id) {
-                        api
-                          .get(`organization/${c.organization_id}`)
-                          .then((response: any) => {
-                            if (response?.success) {
-                              setSelectedO(response.data);
-                            }
-                          });
-                      }
-
-                      setDocOpen(false);
+                    // Find and set the organization based on the contract's organization_id
+                    if (c.organization_id) {
+                      api
+                        .get(`organization/${c.organization_id}`)
+                        .then((response: any) => {
+                          if (response?.success) {
+                            setSelectedO(response.data);
+                          }
+                        });
                     }
+
+                    setDocOpen(false);
                   }}
                 >
                   <OrganizationTD txt={c.doc_num} />
