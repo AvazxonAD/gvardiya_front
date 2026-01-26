@@ -43,6 +43,7 @@ function ContractHome() {
   const [all, setAll] = useState(10);
   const [status, setStatus] = useState("");
   const [statusSumma, setStatusSumma] = useState("");
+  const [rasxodStatus, setRasxodStatus] = useState("");
   const [balance, setBalance] = useState({
     internal_summa: 0,
     debet_summa: 0,
@@ -77,7 +78,8 @@ function ContractHome() {
       account_id,
       0,
       status,
-      statusSumma
+      statusSumma,
+      rasxodStatus
     );
     setData(res.data);
     setTotalPages(res.meta.pageCount);
@@ -91,7 +93,7 @@ function ContractHome() {
 
   useEffect(() => {
     getInfo(dates);
-  }, [currentPage, limet, searchText, account_id, status, statusSumma]);
+  }, [currentPage, limet, searchText, account_id, status, statusSumma, rasxodStatus]);
 
   const handleDownload = () => {
     getInfo(dates);
@@ -291,10 +293,40 @@ function ContractHome() {
               </select>
             </div>
 
+            <div className="w-[130px]">
+              <select
+                value={rasxodStatus}
+                onChange={(e) => setRasxodStatus(e.target.value)}
+                className="
+                  block w-full
+                  bg-white
+                  border border-gray-300
+                  rounded-md
+                  py-1.5 px-2
+                  text-gray-700
+                  text-sm
+                  focus:outline-none
+                  focus:ring-1
+                  focus:ring-blue-500
+                  focus:border-blue-500
+                  cursor-pointer
+                  transition
+                  duration-200
+                  ease-in-out
+                  shadow-sm
+                  hover:border-blue-400
+                "
+              >
+                <option value="">{tt("Barchasi", "Все")}</option>
+                <option value="spent">{tt("Sarflangan", "Потрачено")}</option>
+                <option value="not_spent">{tt("Sarflanmagan", "Не потрачено")}</option>
+              </select>
+            </div>
+
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="flex gap-2  items-center">
+          <div className="flex items-center gap-1">
+            <div className="flex gap-1 items-center">
               <SpecialDatePicker
                 defaultValue={dates.date1}
                 onChange={(e) => setDates({ ...dates, date1: e })}
@@ -303,9 +335,7 @@ function ContractHome() {
                 defaultValue={dates.date2}
                 onChange={(e) => setDates({ ...dates, date2: e })}
               />
-              <div className="">
-                <Button mode="download" onClick={handleDownload} />
-              </div>
+              <Button mode="download" onClick={handleDownload} className="!px-2" />
             </div>
             <Button
               mode="clear"
@@ -320,26 +350,28 @@ function ContractHome() {
                   date2: endDate,
                 });
                 setStatus("");
-                setStatusSumma("")
+                setStatusSumma("");
+                setRasxodStatus("");
               }}
+              className="!px-2"
             />
-            <div className="ms-2 flex gap-x-3">
+            <div className="flex gap-1">
               <Button
                 mode="download"
                 onClick={handleDownloadExel}
-                text={tt("Barchasi", "Барчаси")}
+                text={tt("Barchasi", "Все")}
+                className="!px-2"
               />
-
               <Button
                 mode="download"
                 onClick={async () => {
                   await getBatalyons();
                   setBatalonOpen(true);
                 }}
-                text={tt("Batalon bo‘yicha", "Батальон бўйича")}
+                text={tt("Batalon", "Бат.")}
+                className="!px-2"
               />
-
-              <Button mode="add" onClick={() => navigate("/contract/add")} />
+              <Button mode="add" onClick={() => navigate("/contract/add")} className="!px-2" />
             </div>
           </div>
         </div>

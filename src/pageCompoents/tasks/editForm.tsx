@@ -128,6 +128,11 @@ const EditForm: React.FC<EditFormProps> = ({
 
   const attachedWorkersCount = workersData?.filter((task) => task)?.length || 0;
 
+  // Calculate total required hours and assigned hours
+  const totalRequiredHours = (row?.task_time || 0) * (row?.worker_number || 0);
+  const assignedHours = workersData?.reduce((sum, w) => sum + (w.task_time || 0), 0) || 0;
+  const remainingHours = totalRequiredHours - assignedHours;
+
   const handleInputChange = (id: number, value: number) => {
     const update = workersData.map((w) => {
       if (w.worker_id === id) {
@@ -176,12 +181,20 @@ const EditForm: React.FC<EditFormProps> = ({
           </div>
         </div>
         <div className="w-1/2 flex justify-between items-center">
-          <p className="block ms-5 text-[#636566] text-[16px]">
-            {tt(
-              `Jami ${workers?.meta.count} ta xodimdan ${attachedWorkersCount} ta biriktirilgan`,
-              `Всего из ${workers?.meta.count} сотрудников назначено ${attachedWorkersCount}`
-            )}
-          </p>
+          <div className="block ms-5 text-[#636566] text-[14px]">
+            <p>
+              {tt(
+                `Jami ${workers?.meta.count} ta xodimdan ${attachedWorkersCount} ta biriktirilgan`,
+                `Всего из ${workers?.meta.count} сотрудников назначено ${attachedWorkersCount}`
+              )}
+            </p>
+            <p className="mt-1">
+              {tt(
+                `Soat: ${assignedHours} / ${totalRequiredHours} (qoldi: ${remainingHours})`,
+                `Часы: ${assignedHours} / ${totalRequiredHours} (осталось: ${remainingHours})`
+              )}
+            </p>
+          </div>
 
           <div className="flex gap-3 items-center">
             <Input

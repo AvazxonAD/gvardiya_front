@@ -20,8 +20,7 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive }) => {
   const [delOpen, setDelOpen] = useState(false);
 
   const height = useFullHeight();
-  const fullHeight =
-    typeof height === "string" ? `calc(${height} - 230px)` : height - 230;
+  const fullHeight = typeof height === "string" ? `calc(${height} - 230px)` : height - 230;
 
   const renderOrganizationTooltip = (item: IContract) => (
     <div className="text-mytextcolor absolute rasxod-tooltip-wrap !top-[0] w-[250px] z-10 bg-mybackground border border-mytableheadborder rounded-md shadow-lg p-3">
@@ -35,8 +34,7 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive }) => {
         {tt("INN", "ИНН")}: {textNum(item.organization_str, 3)}
       </h2>
       <h2>
-        {tt("Hisob raqam", "Номер счета")}:{" "}
-        {textNum(item.organization_account_number, 4)}
+        {tt("Hisob raqam", "Номер счета")}: {textNum(item.organization_account_number, 4)}
       </h2>
     </div>
   );
@@ -78,6 +76,10 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive }) => {
                 className: "px-2 py-3 text-center w-[180px]",
               },
               {
+                text: tt("Rasxod summa", "Расход сумма"),
+                className: "px-2 py-3 text-center w-[180px]",
+              },
+              {
                 text: tt("Xodim biriktirish", "Привязанность к сотруднику"),
                 className: "px-2 py-3 text-center w-[180px]",
               },
@@ -88,43 +90,20 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive }) => {
             ]}
           >
             {data.map((item, index) => (
-              <tr
-                key={index}
-                className="my-[25px] text-mytextcolor cursor-pointer font-[500] hover:text-[#3B7FAF] transition-colors duration-300 border-b border-mytableheadborder"
-              >
-                <td
-                  className="px-2 py-3 text-[#3B7FAF] border-l border-r text-left"
-                  onClick={() => navigate(`/contract/view/${item.id}`)}
-                >
+              <tr key={index} className="my-[25px] text-mytextcolor cursor-pointer font-[500] hover:text-[#3B7FAF] transition-colors duration-300 border-b border-mytableheadborder">
+                <td className="px-2 py-3 text-[#3B7FAF] border-l border-r text-left" onClick={() => navigate(`/contract/view/${item.id}`)}>
                   {item.doc_num}
                 </td>
-                <td className="text-center text-inherit border-l border-r">
-                  {formatDate(item.doc_date)}
-                </td>
+                <td className="text-center text-inherit border-l border-r">{formatDate(item.doc_date)}</td>
                 <td className="rasxod-tooltip relative border-l border-r px-2 text-left text-inherit">
                   {item.organization_name}
                   {renderOrganizationTooltip(item)}
                 </td>
-                <td className="px-2 py-[6px] text-left border-l border-r text-inherit">
-                  {item.adress}
-                </td>
-                <td className="px-2 text-right text-inherit border-l border-r">
-                  {formatSum(item.result_summa)}
-                </td>
-                <td className="px-2 text-right text-inherit border-l border-r">
-                  {formatSum(item.remaining_summa)}
-                </td>
-                <td
-                  className={`px-2 text-right text-inherit border-l border-r ${
-                    Number(item.remaining_balance) === 0
-                      ? "text-green-500"
-                      : Number(item.remaining_balance) > 0
-                      ? "text-blue-500"
-                      : "text-red-500"
-                  }`}
-                >
-                  {formatSum(item.remaining_balance)}
-                </td>
+                <td className="px-2 py-[6px] text-left border-l border-r text-inherit">{item.adress}</td>
+                <td className="px-2 text-right text-inherit border-l border-r">{formatSum(item.result_summa)}</td>
+                <td className="px-2 text-right text-inherit border-l border-r">{formatSum(item.remaining_summa)}</td>
+                <td className={`px-2 text-right text-inherit border-l border-r ${Number(item.remaining_balance) === 0 ? "text-green-500" : Number(item.remaining_balance) > 0 ? "text-blue-500" : "text-red-500"}`}>{formatSum(item.remaining_balance)}</td>
+                <td className="px-2 text-right text-inherit border-l border-r">{formatSum(item.rasxod_summa)}</td>
                 <td className="px-2 text-center border-l border-r">
                   {item.worker_task_status === "Bajarilmagan" ? (
                     <span className="text-red-500 flex items-center justify-center gap-1">
@@ -136,29 +115,18 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive }) => {
                     </span>
                   )}
                 </td>
-                <ThreeDotMenu
-                  id={item.id}
-                  setDelOpen={setDelOpen}
-                  setActive={setActive}
-                />
+                <ThreeDotMenu id={item.id} setDelOpen={setDelOpen} setActive={setActive} />
               </tr>
             ))}
           </Table>
         </>
       ) : (
-        <div
-          style={{ minHeight: fullHeight }}
-          className="w-full text-mytextcolor font-[500] text-[20px] flex justify-center items-center bg-mybackground rounded-lg"
-        >
+        <div style={{ minHeight: fullHeight }} className="w-full text-mytextcolor font-[500] text-[20px] flex justify-center items-center bg-mybackground rounded-lg">
           {tt("Ma'lumot yo'q", "Нет данных")}
         </div>
       )}
 
-      <DeleteModal
-        open={delOpen}
-        deletee={handleDelete}
-        closeModal={() => setDelOpen(false)}
-      />
+      <DeleteModal open={delOpen} deletee={handleDelete} closeModal={() => setDelOpen(false)} />
     </>
   );
 };
@@ -183,12 +151,7 @@ export const ThreeDotMenu = ({ id, setDelOpen, setActive }: Props) => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Close modal if the click is outside the menu or button
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node) && buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
@@ -200,19 +163,12 @@ export const ThreeDotMenu = ({ id, setDelOpen, setActive }: Props) => {
 
   return (
     <td className="p-2 h-full border-l border-r relative">
-      <div
-        className="h-[25px] hover:border hover:border-mytextcolor w-[20px] mx-auto rounded-md flex items-center justify-center"
-        onClick={toggleMenu}
-        ref={buttonRef}
-      >
+      <div className="h-[25px] hover:border hover:border-mytextcolor w-[20px] mx-auto rounded-md flex items-center justify-center" onClick={toggleMenu} ref={buttonRef}>
         <button className="text-mytextcolor">
           <Icon name="more" />
         </button>
         {isOpen && (
-          <div
-            ref={menuRef}
-            className="absolute right-[80px] mt-[110px] w-[170px] bg-mybackground border border-gray-300 rounded-md shadow-lg z-10"
-          >
+          <div ref={menuRef} className="absolute right-[80px] mt-[110px] w-[170px] bg-mybackground border border-gray-300 rounded-md shadow-lg z-10">
             <ul className="py-1 text-mytextcolor font-[400] text-[14px]">
               <li
                 className="px-4 py-[6px]  cursor-pointer"
@@ -231,16 +187,10 @@ export const ThreeDotMenu = ({ id, setDelOpen, setActive }: Props) => {
               >
                 {tt("O'chirish", "Удалить")}
               </li>
-              <li
-                onClick={() => navigate("/contract/tasks/" + id)}
-                className="px-4 py-[6px] cursor-pointer"
-              >
+              <li onClick={() => navigate("/contract/tasks/" + id)} className="px-4 py-[6px] cursor-pointer">
                 {tt("Xodim biriktirish", "Прикрепить сотрудника")}
               </li>
-              <li
-                onClick={() => navigate("/contract/analiz/" + id)}
-                className="px-4 py-[6px] cursor-pointer"
-              >
+              <li onClick={() => navigate("/contract/analiz/" + id)} className="px-4 py-[6px] cursor-pointer">
                 {tt("Analiz", "Анализ")}
               </li>
             </ul>

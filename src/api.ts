@@ -70,16 +70,13 @@ export const getBatalonWorkers = async (JWT: any, page: any, limet: any, search:
 };
 
 export const getTasks = async (JWT: any, page: any, limet: any, from: any, to: any, search: any, status: any) => {
-  const res = await fetch(
-    URL + `/batalon/tasks?page=${page}&limit=${limet}&from=${from}&to=${to}${search.length > 0 ? "&search=" + search : ""}${status.length > 0 ? "&status=" + status : ""}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-    }
-  );
+  const res = await fetch(URL + `/batalon/tasks?page=${page}&limit=${limet}&from=${from}&to=${to}${search.length > 0 ? "&search=" + search : ""}${status.length > 0 ? "&status=" + status : ""}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
 
   const data = await res.json();
 
@@ -211,33 +208,18 @@ export const getSearch = async (JWT: any, page: any, search: any, limet?: any) =
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getCont = async (
-  JWT: any,
-  date: any,
-  page: any,
-  limet: any,
-  search: any,
-  account_number: string,
-  batalon_id: number,
-  status: string = "",
-  statusSumma: string = ""
-) => {
+export const getCont = async (JWT: any, date: any, page: any, limet: any, search: any, account_number: string, batalon_id: number, status: string = "", statusSumma: string = "", rasxodStatus: string = "") => {
   const batalonParam = batalon_id > 0 ? `&batalon_id=${batalon_id}` : "";
   const statusParam = status ? `&status=${status}` : "";
   const statusSummaParam = statusSumma ? `&status-summa=${statusSumma}` : "";
-  const res = await fetch(
-    URL +
-      `/contract/?from=${date.date1}&to=${date.date2}&page=${page}&limit=${limet}${
-        search.length > 0 ? "&search=" + search : ""
-      }&account_number_id=${account_number}${batalonParam}${statusParam}${statusSummaParam}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + JWT,
-      },
-    }
-  );
+  const rasxodStatusParam = rasxodStatus ? `&rasxod-status=${rasxodStatus}` : "";
+  const res = await fetch(URL + `/contract/?from=${date.date1}&to=${date.date2}&page=${page}&limit=${limet}${search.length > 0 ? "&search=" + search : ""}&account_number_id=${account_number}${batalonParam}${statusParam}${statusSummaParam}${rasxodStatusParam}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
 
   const data = await res.json();
 
