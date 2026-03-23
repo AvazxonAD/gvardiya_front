@@ -164,10 +164,16 @@ function Header() {
           ) : (
             <>
               {pathname === "/" && (
-                <SpecialMonthPicker
-                  defaultValue={month}
-                  onChange={(e) => dispatch(changeMonth(e))}
-                />
+                <div className="flex items-center gap-3">
+                  <SpecialDatePicker
+                    defaultValue={startDate}
+                    onChange={(isoDate) => dispatch(changeDefaultDate({ startDate: isoDate }))}
+                  />
+                  <SpecialDatePicker
+                    defaultValue={endDate}
+                    onChange={(isoDate) => dispatch(changeDefaultDate({ endDate: isoDate }))}
+                  />
+                </div>
               )}
               <button onClick={() => setDefaultDateOpen(true)}>
                 <Icon name="settings" />
