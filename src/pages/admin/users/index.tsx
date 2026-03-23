@@ -92,9 +92,7 @@ const UserTable: React.FC = () => {
         )
         .required(tt("Parolni kiriting", "Введите пароль")),
       login: Yup.string().required(tt("Login kiriting", "Введите логин")),
-      file: Yup.mixed()
-        .nullable()
-        .required(tt("Rasm tanlang", "Выберите изображение")),
+      file: Yup.mixed().nullable(),
       region_id: Yup.number().required(
         tt("Hududni tanlang", "Выберите регион")
       ),
@@ -269,9 +267,11 @@ const UserTable: React.FC = () => {
                   className="w-12 h-12 rounded-full mx-auto"
                 />
               ) : (
-                <span className="opacity-[0.7]">
-                  {tt("Rasm topilmadi", "Нет изображения")}
-                </span>
+                <div className="w-12 h-12 rounded-full mx-auto bg-blue-500/20 flex items-center justify-center">
+                  <span className="text-blue-400 font-bold text-lg">
+                    {user.fio?.charAt(0)?.toUpperCase() || "U"}
+                  </span>
+                </div>
               )}
             </td>
             <td
@@ -387,19 +387,23 @@ const UserTable: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <label className="me-2">{tt("Rasm", "Изображение")}</label>
-            <input
-              type="file"
-              onChange={(e) =>
-                formik2.setFieldValue(
-                  "file",
-                  e.currentTarget.files?.[0] || null
-                )
-              }
-            />
-            <p className="text-red-500 text-sm">
-              {formik2.touched?.file ? formik2.errors?.file : undefined}
-            </p>
+            <label className="block text-sm text-mylabelcolor mb-1">{tt("Rasm", "Изображение")} <span className="text-[var(--dash-text-muted,#94a3b8)] text-xs">({tt("ixtiyoriy", "необязательно")})</span></label>
+            <label className="flex items-center gap-3 border border-mybordercolor rounded-lg px-4 py-2.5 cursor-pointer hover:border-blue-400 transition">
+              <svg className="w-5 h-5 text-mylabelcolor shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span className="text-sm text-mytextcolor truncate">
+                {formik2.values.file ? formik2.values.file.name : tt("Rasm tanlang", "Выберите изображение")}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) =>
+                  formik2.setFieldValue("file", e.currentTarget.files?.[0] || null)
+                }
+              />
+            </label>
           </div>
 
           <div className="flex justify-end">
@@ -482,16 +486,23 @@ const UserTable: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <label className="me-2">{tt("Rasm", "Изображение")}</label>
-            <input
-              type="file"
-              onChange={(e) =>
-                formik.setFieldValue("file", e.currentTarget.files?.[0] || null)
-              }
-            />
-            <p className="text-red-500 text-sm">
-              {formik.touched?.file ? formik.errors?.file : undefined}
-            </p>
+            <label className="block text-sm text-mylabelcolor mb-1">{tt("Rasm", "Изображение")} <span className="text-[var(--dash-text-muted,#94a3b8)] text-xs">({tt("ixtiyoriy", "необязательно")})</span></label>
+            <label className="flex items-center gap-3 border border-mybordercolor rounded-lg px-4 py-2.5 cursor-pointer hover:border-blue-400 transition">
+              <svg className="w-5 h-5 text-mylabelcolor shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span className="text-sm text-mytextcolor truncate">
+                {formik.values.file ? formik.values.file.name : tt("Rasm tanlang", "Выберите изображение")}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) =>
+                  formik.setFieldValue("file", e.currentTarget.files?.[0] || null)
+                }
+              />
+            </label>
           </div>
 
           <div className="flex justify-end">
