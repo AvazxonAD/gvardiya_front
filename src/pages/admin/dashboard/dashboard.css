@@ -1,0 +1,126 @@
+/* Dashboard Glassmorphism Cards */
+.dash-glass {
+  background: var(--dash-glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--dash-glass-border);
+  border-radius: 1rem;
+  box-shadow: 0 4px 30px var(--dash-shadow);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.dash-glass:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 40px var(--dash-hover-shadow);
+  border-color: var(--dash-hover-border);
+}
+
+/* Light theme variables */
+.light .dashboard-content {
+  --dash-bg: #f1f5f9;
+  --dash-glass-bg: rgba(255, 255, 255, 0.7);
+  --dash-glass-border: rgba(0, 0, 0, 0.08);
+  --dash-shadow: rgba(0, 0, 0, 0.05);
+  --dash-hover-shadow: rgba(59, 130, 246, 0.1);
+  --dash-hover-border: rgba(59, 130, 246, 0.3);
+  --dash-text: #0f172a;
+  --dash-text-secondary: #64748b;
+  --dash-text-muted: #94a3b8;
+  --dash-card-bg: rgba(255, 255, 255, 0.8);
+  --dash-region-fill-start: #bfdbfe;
+  --dash-region-fill-end: #93c5fd;
+  --dash-region-stroke: #3b82f6;
+  --dash-region-hover: rgba(59, 130, 246, 0.5);
+  --dash-region-label: #1e3a5f;
+  --dash-tooltip-bg: rgba(255, 255, 255, 0.95);
+  --dash-tooltip-border: #cbd5e1;
+  --dash-tooltip-text: #0f172a;
+  --dash-modal-overlay: rgba(0, 0, 0, 0.4);
+  --dash-modal-bg: #ffffff;
+  --dash-modal-border: #e2e8f0;
+  --dash-modal-header-bg: #f8fafc;
+  --dash-table-row-alt: rgba(248, 250, 252, 0.5);
+  --dash-table-header-bg: #f1f5f9;
+  --dash-table-border: #e2e8f0;
+}
+
+/* Dark theme variables */
+.dark .dashboard-content,
+.dashboard-content {
+  --dash-bg: #020617;
+  --dash-glass-bg: rgba(30, 41, 59, 0.4);
+  --dash-glass-border: rgba(255, 255, 255, 0.08);
+  --dash-shadow: rgba(0, 0, 0, 0.1);
+  --dash-hover-shadow: rgba(56, 189, 248, 0.1);
+  --dash-hover-border: rgba(56, 189, 248, 0.3);
+  --dash-text: #f8fafc;
+  --dash-text-secondary: #94a3b8;
+  --dash-text-muted: #64748b;
+  --dash-card-bg: rgba(30, 41, 59, 0.4);
+  --dash-region-fill-start: #1e3a5f;
+  --dash-region-fill-end: #0f2d4a;
+  --dash-region-stroke: #2a6f97;
+  --dash-region-hover: rgba(56, 189, 248, 0.6);
+  --dash-region-label: #c8d6e5;
+  --dash-tooltip-bg: rgba(15, 23, 42, 0.95);
+  --dash-tooltip-border: #475569;
+  --dash-tooltip-text: #f8fafc;
+  --dash-modal-overlay: rgba(2, 6, 23, 0.8);
+  --dash-modal-bg: #0f172a;
+  --dash-modal-border: #334155;
+  --dash-modal-header-bg: rgba(30, 41, 59, 0.5);
+  --dash-table-row-alt: rgba(30, 41, 59, 0.3);
+  --dash-table-header-bg: #1e293b;
+  --dash-table-border: rgba(51, 65, 85, 0.5);
+}
+
+/* Map Styles */
+.uz-region {
+  fill: url(#regionGrad);
+  stroke: var(--dash-region-stroke);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.uz-region:hover {
+  fill: var(--dash-region-hover);
+  stroke: #38bdf8;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.8));
+}
+
+.region-label {
+  fill: var(--dash-region-label);
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+/* Map tooltip */
+.map-tooltip {
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+/* Modal overlay */
+.dash-modal-overlay {
+  background: var(--dash-modal-overlay);
+  backdrop-filter: blur(8px);
+}
+
+/* Scrollbar */
+.dashboard-content ::-webkit-scrollbar {
+  width: 6px;
+}
+.dashboard-content ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dashboard-content ::-webkit-scrollbar-thumb {
+  background: var(--dash-text-muted);
+  border-radius: 4px;
+}

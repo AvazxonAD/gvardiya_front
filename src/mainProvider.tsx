@@ -26,6 +26,8 @@ import { RenderRasxodFio } from "./pages/RasxodFio";
 import { CreateRasxodFio } from "./pages/RasxodFio/createRasxodFio";
 import { EditRasxodFio } from "./pages/RasxodFio/editRasxodFio";
 import { RasxodFio } from "./pages/RasxodFio/rasxodFio";
+import AdminDashboard from "./pages/admin/dashboard";
+import RegionDashboard from "./pages/region/dashboard";
 import Report from "./pages/Report";
 import Root from "./pages/Root";
 import Spravichnik from "./pages/Spravichnik";
@@ -61,7 +63,7 @@ const MainProvider = () => {
             >
               {Boolean(user.region_id) ? (
                 <Fragment>
-                  <Route index={true} element={<Home />} />
+                  <Route index={true} element={<RegionDashboard />} />
                   <Route path="/report" element={<Report />} />
                   <Route path="/contract" element={<Contract />}>
                     <Route path="" element={<ContractHome />} />
@@ -114,6 +116,7 @@ const MainProvider = () => {
                 <Fragment>
                   <Route path="/users" element={<UserTable />} />
                   <Route index={true} element={<Home />} />
+                  <Route path="/dashboard" element={<AdminDashboard />} />
                   <Route path="/report" element={<Report />} />
                 </Fragment>
               )}
