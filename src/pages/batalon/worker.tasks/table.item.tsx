@@ -92,12 +92,12 @@ const TableItem = ({
     <>
       {showModal && selectedTask && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-2xl shadow-2xl w-[400px] animate-scale-in">
-            <h2 className="text-xl font-semibold text-center text-blue-700 mb-6 border-b pb-3">
-              📄 Shartnoma tafsilotlari
+          <div className="bg-white dark:bg-mybackground p-6 rounded-2xl shadow-2xl w-[400px] animate-scale-in">
+            <h2 className="text-xl font-semibold text-center text-blue-700 dark:text-blue-400 mb-6 border-b pb-3">
+              Shartnoma tafsilotlari
             </h2>
 
-            <div className="space-y-3 text-gray-700 text-[15px]">
+            <div className="space-y-3 text-gray-700 dark:text-gray-300 text-[15px]">
               <div className="border-l-4 border-blue-500 pl-3">
                 <strong className="font-bold">Shartnoma raqami:</strong>{" "}
                 {selectedTask.contract_info?.doc_num}
@@ -215,7 +215,7 @@ const TableItem = ({
         {editingId === row.id && (
           <tr className="w-full">
             <td colSpan={12}>
-              <div className="transition duration-500 ease-in-out transform translate-y-0 bg-gray-100 w-full">
+              <div className="transition duration-500 ease-in-out transform translate-y-0 bg-gray-100 dark:bg-mytablehead w-full">
                 <EditForm
                   type="edit"
                   row={row}
@@ -230,7 +230,7 @@ const TableItem = ({
         {creatingId === row.id && (
           <tr className="w-full">
             <td colSpan={12}>
-              <div className="transition duration-500 ease-in-out transform translate-y-0 bg-gray-100 w-full">
+              <div className="transition duration-500 ease-in-out transform translate-y-0 bg-gray-100 dark:bg-mytablehead w-full">
                 <EditForm
                   type="create"
                   row={row}

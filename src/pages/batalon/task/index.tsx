@@ -97,11 +97,11 @@ function BatalonTasks() {
                 onChange={(e) => setStatus(e.target.value)}
                 className="
                                     block w-full
-                                    bg-white
-                                    border border-gray-300
+                                    bg-white dark:bg-mybackground
+                                    border border-gray-300 dark:border-mybordercolor
                                     rounded-md
                                     py-2 px-3
-                                    text-gray-700
+                                    text-gray-700 dark:text-mytextcolor
                                     text-base
                                     focus:outline-none
                                     focus:ring-2

@@ -20,7 +20,7 @@ const Table = ({ thead, children, theadClassName, tableClassName, tbodyClassName
     return (
         <div className={tableClassName ?? ""} style={tableStyle}>
             <table className={`w-full`}>
-                <thead style={theadStyle} className={`bg-mytablehead text-[#323232] border border-mytableheadborder text-[14px] ${theadClassName ?? ""}`}>
+                <thead style={theadStyle} className={`bg-mytablehead text-mytextcolor border border-mytableheadborder text-[14px] ${theadClassName ?? ""}`}>
                     <tr className="uppercase text-sm leading-normal">
                         {
                             thead.map((e, ind) => (

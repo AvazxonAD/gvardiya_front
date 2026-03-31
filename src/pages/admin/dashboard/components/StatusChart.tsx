@@ -18,11 +18,17 @@ const formatNum = (num?: number): string => {
   return num.toLocaleString();
 };
 
+const formatFull = (num?: number): string => {
+  if (!num && num !== 0) return "0";
+  return num.toLocaleString("ru-RU");
+};
+
 export default function StatusChart({ distData }: StatusChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const theme = useSelector((state: any) => state.theme);
   const [modalOpen, setModalOpen] = useState(false);
+  const [hoverInfo, setHoverInfo] = useState<{ label: string; value: number } | null>(null);
 
   const d = distData || {
     summa_75: 0, summa_75_percent: 0,
@@ -106,8 +112,17 @@ export default function StatusChart({ distData }: StatusChartProps) {
             },
           },
           tooltip: {
-            callbacks: {
-              label: (context) => context.label + ": " + formatNum(context.raw as number),
+            enabled: false,
+            external: (context) => {
+              const { tooltip } = context;
+              if (tooltip.opacity === 0) {
+                setHoverInfo(null);
+                return;
+              }
+              const dp = tooltip.dataPoints?.[0];
+              if (dp) {
+                setHoverInfo({ label: dp.label, value: dp.raw as number });
+              }
             },
           },
         },
@@ -137,9 +152,18 @@ export default function StatusChart({ distData }: StatusChartProps) {
         </div>
         <div className="relative flex-1 w-full h-full flex justify-center items-center min-h-0">
           <canvas ref={canvasRef} />
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-[var(--dash-text-muted)] text-[10px]">Jami kirim</span>
-            <span className="text-[20px] font-bold text-[var(--dash-text)]">{formatNum(d.prixod?.summa)}</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-4">
+            {hoverInfo ? (
+              <>
+                <span className="text-[var(--dash-text-muted)] text-[9px] text-center leading-tight max-w-[140px]">{hoverInfo.label}</span>
+                <span className="text-[16px] font-bold text-[var(--dash-text)]">{formatFull(hoverInfo.value)}</span>
+              </>
+            ) : (
+              <>
+                <span className="text-[var(--dash-text-muted)] text-[10px]">Jami kirim</span>
+                <span className="text-[18px] font-bold text-[var(--dash-text)]">{formatFull(d.prixod?.summa)}</span>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -210,7 +234,7 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
           ].map((c, i) => (
             <div key={i} className="rounded-lg p-2.5" style={{ background: "var(--dash-table-row-alt)" }}>
               <p className="text-[10px] text-[var(--dash-text-muted)] uppercase tracking-wider">{c.label}</p>
-              <p className={`text-[18px] font-bold leading-none mt-1 ${c.color || "text-[var(--dash-text)]"}`}>{formatNum(c.value)}</p>
+              <p className={`text-[18px] font-bold leading-none mt-1 ${c.color || "text-[var(--dash-text)]"}`}>{formatFull(c.value)}</p>
             </div>
           ))}
         </div>
@@ -242,12 +266,12 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                       style={{ background: i % 2 === 1 ? "var(--dash-table-row-alt)" : "transparent", borderBottom: "1px solid var(--dash-table-border)" }}>
                       <td className="px-4 py-3 text-[var(--dash-text-muted)]">{i + 1}</td>
                       <td className="px-4 py-3 font-medium text-[var(--dash-text)]">{r.region_name}</td>
-                      <td className="px-4 py-3 text-right text-[var(--dash-text)]">{formatNum(r.jami_kirim)}</td>
-                      <td className="px-4 py-3 text-right text-blue-400">{formatNum(r.summa_75)}</td>
-                      <td className="px-4 py-3 text-right text-emerald-500">{formatNum(r.rasxod_summa)}</td>
-                      <td className="px-4 py-3 text-right text-amber-500">{formatNum(r.summa_25)}</td>
-                      <td className="px-4 py-3 text-right text-[var(--dash-text-secondary)]">{formatNum(r.all_rasxod)}</td>
-                      <td className="px-4 py-3 text-right text-red-500">{formatNum((r.jami_kirim || 0) - (r.all_rasxod || 0))}</td>
+                      <td className="px-4 py-3 text-right text-[var(--dash-text)]">{formatFull(r.jami_kirim)}</td>
+                      <td className="px-4 py-3 text-right text-blue-400">{formatFull(r.summa_75)}</td>
+                      <td className="px-4 py-3 text-right text-emerald-500">{formatFull(r.rasxod_summa)}</td>
+                      <td className="px-4 py-3 text-right text-amber-500">{formatFull(r.summa_25)}</td>
+                      <td className="px-4 py-3 text-right text-[var(--dash-text-secondary)]">{formatFull(r.all_rasxod)}</td>
+                      <td className="px-4 py-3 text-right text-red-500">{formatFull((r.jami_kirim || 0) - (r.all_rasxod || 0))}</td>
                     </tr>
                   ))}
                 </tbody>

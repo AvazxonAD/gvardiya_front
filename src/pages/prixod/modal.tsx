@@ -55,7 +55,7 @@ const PrixodModal = ({
     >
       <div className="relative max-h-[80vh] overflow-y-auto">
         {/* Sticky Title */}
-        <div className="sticky top-0 z-50 bg-white pb-3">
+        <div className="sticky top-0 z-50 bg-mybackground pb-3">
           <h2 className="text-xl font-bold px-3 pt-3">
             {type === "organization"
               ? tt("Tashkilotni tanlang", "Выберите организацию")
@@ -89,53 +89,53 @@ const PrixodModal = ({
                 ? [
                   {
                     text: tt("Shartnoma №", "№ договора"),
-                    className: "border text-left w-[170px] sticky top-[110px] bg-white z-40",
+                    className: "border text-left w-[170px] sticky top-[110px] bg-mybackground z-40",
                   },
                   {
                     text: tt("Sanasi", "Дата"),
-                    className: "border text-left w-[130px] sticky top-[110px] bg-white z-40",
+                    className: "border text-left w-[130px] sticky top-[110px] bg-mybackground z-40",
                   },
                   {
                     text: tt("Buyurtmachi", "Заказчик"),
-                    className: "border text-left sticky top-[110px] bg-white z-40",
+                    className: "border text-left sticky top-[110px] bg-mybackground z-40",
                   },
                   {
                     text: tt("Tadbir manzili", "Место проведения"),
-                    className: "border text-left sticky top-[110px] bg-white z-40",
+                    className: "border text-left sticky top-[110px] bg-mybackground z-40",
                   },
                   {
                     text: tt("Summa", "Сумма"),
-                    className: "border text-left w-[200px] sticky top-[110px] bg-white z-40",
+                    className: "border text-left w-[200px] sticky top-[110px] bg-mybackground z-40",
                   },
                   {
                     text: tt("Qoldiq", "Остаток"),
-                    className: "border text-left w-[200px] sticky top-[110px] bg-white z-40",
+                    className: "border text-left w-[200px] sticky top-[110px] bg-mybackground z-40",
                   },
                 ]
                 : [
                   {
                     text: tt("Ism", "Название"),
-                    className: "border text-left sticky top-[110px] bg-white z-40",
+                    className: "border text-left sticky top-[110px] bg-mybackground z-40",
                   },
                   {
                     text: tt("INN", "ИНН"),
-                    className: "border text-left sticky top-[110px] bg-white z-40",
+                    className: "border text-left sticky top-[110px] bg-mybackground z-40",
                   },
                   {
                     text: tt("MFO", "МФО"),
-                    className: "border text-left sticky top-[110px] bg-white z-40",
+                    className: "border text-left sticky top-[110px] bg-mybackground z-40",
                   },
                   {
                     text: tt("Bank nomi", "Название банка"),
-                    className: "border text-left sticky top-[110px] bg-white z-40",
+                    className: "border text-left sticky top-[110px] bg-mybackground z-40",
                   },
                   {
                     text: tt("Joriy hisob", "Расчетный счет"),
-                    className: "border text-left sticky top-[110px] bg-white z-40",
+                    className: "border text-left sticky top-[110px] bg-mybackground z-40",
                   },
                   {
                     text: tt("Joriy g'azna hisobi", "Расчетный счет газна"),
-                    className: "border text-left sticky top-[110px] bg-white z-40",
+                    className: "border text-left sticky top-[110px] bg-mybackground z-40",
                   },
                 ]
             }

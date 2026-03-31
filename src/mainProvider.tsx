@@ -101,7 +101,7 @@ const MainProvider = () => {
                     <Route path="create" element={<CreateRasxodFio />} />
                     <Route path=":id" element={<EditRasxodFio />} />
                   </Route>
-                  <Route path="/batalon/users" element={<BatalonUser />} />
+                  {/* <Route path="/batalon/users" element={<BatalonUser />} /> */}
                 </Fragment>
               ) : Boolean(user.batalon) ? (
                 <Fragment>

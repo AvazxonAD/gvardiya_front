@@ -11,9 +11,7 @@ interface KpiCardProps {
 
 const formatAmount = (num?: number): string => {
   if (!num && num !== 0) return "0";
-  if (num >= 1000000000) return (num / 1000000000).toFixed(1) + " mlrd";
-  if (num >= 1000000) return (num / 1000000).toFixed(0) + " mln";
-  return num.toLocaleString();
+  return num.toLocaleString("ru-RU");
 };
 
 function KpiCard({ title, count, amount, borderColor, icon, onDetail }: KpiCardProps) {
@@ -90,10 +88,10 @@ export default function KpiCards({ data, onDetail }: { data: KpiData; onDetail: 
   ];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-[10px]">
+    <>
       {cards.map((card, i) => (
         <KpiCard key={i} {...card} />
       ))}
-    </div>
+    </>
   );
 }

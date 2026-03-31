@@ -239,11 +239,11 @@ function ContractHome() {
                 onChange={(e) => setStatus(e.target.value)}
                 className="
                   block w-full
-                  bg-white
-                  border border-gray-300
+                  bg-white dark:bg-mybackground
+                  border border-gray-300 dark:border-mybordercolor
                   rounded-md
                   py-1.5 px-2
-                  text-gray-700
+                  text-gray-700 dark:text-mytextcolor
                   text-sm
                   focus:outline-none
                   focus:ring-1
@@ -269,11 +269,11 @@ function ContractHome() {
                 onChange={(e) => setStatusSumma(e.target.value)}
                 className="
                   block w-full
-                  bg-white
-                  border border-gray-300
+                  bg-white dark:bg-mybackground
+                  border border-gray-300 dark:border-mybordercolor
                   rounded-md
                   py-1.5 px-2
-                  text-gray-700
+                  text-gray-700 dark:text-mytextcolor
                   text-sm
                   focus:outline-none
                   focus:ring-1
@@ -299,11 +299,11 @@ function ContractHome() {
                 onChange={(e) => setRasxodStatus(e.target.value)}
                 className="
                   block w-full
-                  bg-white
-                  border border-gray-300
+                  bg-white dark:bg-mybackground
+                  border border-gray-300 dark:border-mybordercolor
                   rounded-md
                   py-1.5 px-2
-                  text-gray-700
+                  text-gray-700 dark:text-mytextcolor
                   text-sm
                   focus:outline-none
                   focus:ring-1

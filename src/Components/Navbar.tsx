@@ -144,13 +144,13 @@ function Navbar() {
       icon: ({ ...props }) => <Icon name="users" {...props} />,
       isAdminPath: true,
     },
-    {
-      id: 13,
-      name: "Foydalanuvchilar",
-      path: "/batalon/users",
-      ru: "Пользователь",
-      icon: ({ ...props }) => <Icon name="users" {...props} />,
-    },
+    // {
+    //   id: 13,
+    //   name: "Foydalanuvchilar",
+    //   path: "/batalon/users",
+    //   ru: "Пользователь",
+    //   icon: ({ ...props }) => <Icon name="users" {...props} />,
+    // },
   ];
 
   const { user } = useSelector((state: any) => state.auth);

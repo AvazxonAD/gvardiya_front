@@ -80,6 +80,59 @@ export interface ContractsMeta {
   backPage: number | null;
 }
 
+// GET /region/dashboard/soldier-tasks
+export interface SoldierTaskRow {
+  batalon_id: number;
+  batalon_name: string;
+  task_count: number;
+  total_time: number;
+  total_summa: number;
+  summa_25: number;
+}
+
+export interface SoldierTasksResponse {
+  total_task_count: number;
+  total_time: number;
+  total_summa: number;
+  total_summa_25: number;
+  count: number;
+  rows: SoldierTaskRow[];
+}
+
+// GET /region/dashboard/batalon-stats
+export interface BatalonStatRow {
+  batalon_id: number;
+  batalon_name: string;
+  task_count: number;
+  worker_count: number;
+  total_summa: number;
+  total_time: number;
+  summa_percent: number;
+  time_percent: number;
+  task_percent: number;
+}
+
+export interface BatalonStatsResponse {
+  grand_summa: number;
+  grand_time: number;
+  grand_task_count: number;
+  count: number;
+  rows: BatalonStatRow[];
+}
+
+// GET /region/dashboard/batalon-workers
+export interface BatalonWorkerRow {
+  batalon_id: number;
+  batalon_name: string;
+  worker_count: number;
+}
+
+export interface BatalonWorkersResponse {
+  total_workers: number;
+  count: number;
+  rows: BatalonWorkerRow[];
+}
+
 // === Frontend KPI data ===
 export interface KpiData {
   all: ContractGroup;

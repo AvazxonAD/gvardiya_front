@@ -19,8 +19,8 @@ const DateModal: React.FC<DateModalProps> = ({ isOpen, onClose, onSave, default_
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white rounded p-6 w-80">
-        <h3 className="mb-4 font-semibold text-lg">
+      <div className="bg-white dark:bg-mybackground rounded p-6 w-80">
+        <h3 className="mb-4 font-semibold text-lg text-mytextcolor">
           Topshiriq muddatini kiriting
         </h3>
         <SpecialDatePicker
@@ -35,7 +35,7 @@ const DateModal: React.FC<DateModalProps> = ({ isOpen, onClose, onSave, default_
         <div className="flex justify-end gap-3 mt-4">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+            className="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500 dark:text-white"
           >
             Bekor qilish
           </button>

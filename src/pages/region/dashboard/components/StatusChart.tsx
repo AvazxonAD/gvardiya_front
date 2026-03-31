@@ -16,10 +16,16 @@ const formatNum = (num?: number): string => {
   return num.toLocaleString();
 };
 
+const formatFull = (num?: number): string => {
+  if (!num && num !== 0) return "0";
+  return num.toLocaleString("ru-RU");
+};
+
 export default function StatusChart({ distData }: StatusChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
   const theme = useSelector((state: any) => state.theme);
+  const [hoverInfo, setHoverInfo] = useState<{ label: string; value: number } | null>(null);
 
   const d = distData || {
     summa_75: 0, summa_75_percent: 0,
@@ -103,8 +109,17 @@ export default function StatusChart({ distData }: StatusChartProps) {
             },
           },
           tooltip: {
-            callbacks: {
-              label: (context) => context.label + ": " + formatNum(context.raw as number),
+            enabled: false,
+            external: (context) => {
+              const { tooltip } = context;
+              if (tooltip.opacity === 0) {
+                setHoverInfo(null);
+                return;
+              }
+              const dp = tooltip.dataPoints?.[0];
+              if (dp) {
+                setHoverInfo({ label: dp.label, value: dp.raw as number });
+              }
             },
           },
         },
@@ -122,9 +137,18 @@ export default function StatusChart({ distData }: StatusChartProps) {
       </h2>
       <div className="relative flex-1 w-full h-full flex justify-center items-center min-h-0">
         <canvas ref={canvasRef} />
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-[var(--dash-text-muted)] text-[10px]">Jami kirim</span>
-          <span className="text-[20px] font-bold text-[var(--dash-text)]">{formatNum(d.prixod?.summa)}</span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-4">
+          {hoverInfo ? (
+            <>
+              <span className="text-[var(--dash-text-muted)] text-[9px] text-center leading-tight max-w-[140px]">{hoverInfo.label}</span>
+              <span className="text-[16px] font-bold text-[var(--dash-text)]">{formatFull(hoverInfo.value)}</span>
+            </>
+          ) : (
+            <>
+              <span className="text-[var(--dash-text-muted)] text-[10px]">Jami kirim</span>
+              <span className="text-[18px] font-bold text-[var(--dash-text)]">{formatFull(d.prixod?.summa)}</span>
+            </>
+          )}
         </div>
       </div>
     </div>

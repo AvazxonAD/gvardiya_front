@@ -20,9 +20,7 @@ const labels = [
 
 const formatNum = (num?: number): string => {
   if (!num && num !== 0) return "0";
-  if (num >= 1000000000) return (num / 1000000000).toFixed(1) + " mlrd";
-  if (num >= 1000000) return (num / 1000000).toFixed(0) + " mln";
-  return num.toLocaleString();
+  return num.toLocaleString("ru-RU");
 };
 
 interface DashboardMapProps {

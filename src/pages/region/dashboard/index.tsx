@@ -3,12 +3,14 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/Redux/store";
 import useApi from "@/services/api";
 import KpiCards from "./components/KpiCards";
-import RegionMap from "./components/RegionMap";
 import { UserModal } from "./components/UsersTable";
 import StatusChart from "./components/StatusChart";
 import AlertCard from "./components/AlertCard";
 import ContractsModal from "./components/ContractsModal";
-import { DashboardCountResponse, UserApiData, DistributionResponse, RedWorkersResponse, KpiData, ContractType } from "./types";
+import SoldierTasksChart from "./components/SoldierTasksChart";
+import BatalonStatsChart from "./components/BatalonStatsChart";
+import BatalonWorkersChart from "./components/BatalonWorkersChart";
+import { DashboardCountResponse, UserApiData, DistributionResponse, RedWorkersResponse, SoldierTasksResponse, BatalonStatsResponse, BatalonWorkersResponse, KpiData, ContractType } from "./types";
 import "./dashboard.css";
 
 export default function RegionDashboard() {
@@ -19,6 +21,9 @@ export default function RegionDashboard() {
   const [usersData, setUsersData] = useState<UserApiData[]>([]);
   const [distData, setDistData] = useState<DistributionResponse | null>(null);
   const [redData, setRedData] = useState<RedWorkersResponse | null>(null);
+  const [soldierData, setSoldierData] = useState<SoldierTasksResponse | null>(null);
+  const [batalonData, setBatalonData] = useState<BatalonStatsResponse | null>(null);
+  const [workersData, setWorkersData] = useState<BatalonWorkersResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   const { startDate, endDate } = useSelector((state: RootState) => state.defaultDate);
@@ -28,17 +33,23 @@ export default function RegionDashboard() {
     try {
       setLoading(true);
 
-      const [countRes, usersRes, distRes, redRes] = await Promise.all([
+      const [countRes, usersRes, distRes, redRes, soldierRes, batalonRes, workersRes] = await Promise.all([
         api.get<DashboardCountResponse>(`region/dashboard/count?from=${startDate}&to=${endDate}`),
         api.get<UserApiData[]>(`region/dashboard/by-user?from=${startDate}&to=${endDate}`),
         api.get<DistributionResponse>(`region/dashboard/distribution?from=${startDate}&to=${endDate}`),
         api.get<RedWorkersResponse>(`region/dashboard/red-border?from=${startDate}&to=${endDate}`),
+        api.get<SoldierTasksResponse>(`region/dashboard/soldier-tasks?from=${startDate}&to=${endDate}`),
+        api.get<BatalonStatsResponse>(`region/dashboard/batalon-stats?from=${startDate}&to=${endDate}`),
+        api.get<BatalonWorkersResponse>(`region/dashboard/batalon-workers?from=${startDate}&to=${endDate}`),
       ]);
 
       if (countRes?.success) setCountData(countRes.data);
       if (usersRes?.success) setUsersData(usersRes.data);
       if (distRes?.success) setDistData(distRes.data);
       if (redRes?.success) setRedData(redRes.data);
+      if (soldierRes?.success) setSoldierData(soldierRes.data);
+      if (batalonRes?.success) setBatalonData(batalonRes.data);
+      if (workersRes?.success) setWorkersData(workersRes.data);
     } catch (error) {
       console.error("Dashboard fetch error:", error);
     } finally {
@@ -70,17 +81,16 @@ export default function RegionDashboard() {
         </div>
       ) : (
         <>
-          <KpiCards data={kpiData} onDetail={(type) => { setContractsType(type); setContractsModalOpen(true); }} />
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-[10px]">
+            <KpiCards data={kpiData} onDetail={(type) => { setContractsType(type); setContractsModalOpen(true); }} />
+            <AlertCard redData={redData} from={startDate} to={endDate} />
+          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-[10px] h-[calc(100vh-230px)]">
-            <RegionMap
-              usersData={usersData}
-              onDetail={() => setUserModalOpen(true)}
-            />
-            <div className="flex flex-col gap-[8px]">
-              <StatusChart distData={distData} />
-              <AlertCard redData={redData} from={startDate} to={endDate} />
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-[10px]">
+            <BatalonStatsChart data={batalonData} />
+            <SoldierTasksChart data={soldierData} />
+            <StatusChart distData={distData} />
+            <BatalonWorkersChart data={workersData} />
           </div>
 
           <UserModal

@@ -23,12 +23,12 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
     <>
       {showModal && selectedTask && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-2xl shadow-2xl w-[400px] animate-scale-in">
-            <h2 className="text-xl font-semibold text-center text-blue-700 mb-6 border-b pb-3">
-              📄 Shartnoma tafsilotlari
+          <div className="bg-white dark:bg-mybackground p-6 rounded-2xl shadow-2xl w-[400px] animate-scale-in">
+            <h2 className="text-xl font-semibold text-center text-blue-700 dark:text-blue-400 mb-6 border-b pb-3">
+              Shartnoma tafsilotlari
             </h2>
 
-            <div className="space-y-3 text-gray-700 text-[15px]">
+            <div className="space-y-3 text-gray-700 dark:text-gray-300 text-[15px]">
               <div className="border-l-4 border-blue-500 pl-3">
                 <strong>Shartnoma raqami:</strong>{" "}
                 {selectedTask.contract_info?.doc_num}
@@ -180,7 +180,7 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
       ) : (
         <div
           style={{ height: fullHeight }}
-          className="w-full text-[#323232] font-[500] text-[20px] flex justify-center items-center bg-[#F4FAFD] rounded-lg"
+          className="w-full text-[#323232] dark:text-mytextcolor font-[500] text-[20px] flex justify-center items-center bg-[#F4FAFD] dark:bg-mytablehead rounded-lg"
         >
           {tt("Malumot yo'q", "Нет ссылки")}
         </div>

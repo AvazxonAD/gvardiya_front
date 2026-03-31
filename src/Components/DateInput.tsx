@@ -186,7 +186,7 @@ const CustomDateInput: React.FC<CustomDateInputProps> = ({
         )}
         <div
           onClick={handleInputClick}
-          className="flex gap-2  bg-white border text-[14px] items-center rounded-[6px] py-[8px] px-[10px] max-w-[300px] border-[#D9D9D9] leading-[16.94px] text-[#636566] placeholder:text-[#BEBBBB] focus:border-[#636566] focus:outline-none">
+          className="flex gap-2 bg-white dark:bg-mybackground border text-[14px] items-center rounded-[6px] py-[8px] px-[10px] max-w-[300px] border-[#D9D9D9] dark:border-mybordercolor leading-[16.94px] text-[#636566] dark:text-mytextcolor placeholder:text-[#BEBBBB] focus:border-[#636566] focus:outline-none">
           <Icon name="calendar" />
           <span className="text-[#636363]">
             {(date1Selected && formattedDate) || initialDate
@@ -198,7 +198,7 @@ const CustomDateInput: React.FC<CustomDateInputProps> = ({
 
       {isOpen && (
         <div
-          className={`absolute left-1/2 transform -translate-x-1/2 z-10 mt-2 bg-white border border-gray-300 rounded-md shadow-lg ${
+          className={`absolute left-1/2 transform -translate-x-1/2 z-10 mt-2 bg-white dark:bg-mybackground border border-gray-300 dark:border-mybordercolor rounded-md shadow-lg ${
             double ? "w-[550px]" : "w-[300px]"
           }`}
           style={{ boxShadow: "0.5px 0.5px 10px 0px #00000026" }}>

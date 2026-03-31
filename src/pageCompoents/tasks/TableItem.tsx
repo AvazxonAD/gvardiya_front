@@ -9,36 +9,28 @@ import EditForm from "./editForm";
 import Input from "@/Components/Input";
 import { useDebounce } from "use-debounce";
 import { CheckCircle2, XCircle } from "lucide-react";
-import { FiClock } from "react-icons/fi";
-import DateModal from "./update.deadline";
 import { alertt } from "@/Redux/LanguageSlice";
 import { useDispatch } from "react-redux";
 
 type Props = {
   row: ITask;
   getTasks: Function;
-  editingId: number | null;
   creatingId: number | null;
-  setEditingId: Dispatch<SetStateAction<number | null>>;
   setCreatingId: Dispatch<SetStateAction<number | null>>;
 };
 
 const TableItem = ({
   row,
   getTasks,
-  editingId,
   creatingId,
-  setEditingId,
   setCreatingId,
+  contract,
 }: any) => {
   const dispatch = useDispatch();
   const [open, setOpen] = useState<boolean>(false);
   const [taskWorkers, setTaskWorkers] = useState<ITaskWorker[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [search] = useDebounce(searchTerm, 400);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [clockId, setclockId] = useState<number | null>(null);
-  const [default_date, SetDefaultDate] = useState("");
 
   const api = useApi();
 
@@ -55,48 +47,8 @@ const TableItem = ({
         }
       }
     })();
-  }, [open, search, clockId, modalOpen]);
+  }, [open, search]);
 
-  const handleSaveDeadline = async (date: string) => {
-    try {
-      const response: any = await api.update(`task/${clockId}`, {
-        deadline: date,
-      });
-
-      if (response.success) {
-        dispatch(
-          alertt({
-            text: tt("Muvaffaqiyatli bajarildi", "Успешно выполнено"),
-            success: true,
-          })
-        );
-        setModalOpen(false);
-        setclockId(null);
-
-        window.location.reload();
-      } else {
-        dispatch(
-          alertt({
-            text: response.message,
-            success: response.success,
-          })
-        );
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleclockClick = (id: number, default_date: string) => {
-    setclockId(id);
-    setModalOpen(true);
-    SetDefaultDate(default_date);
-  };
-
-  const handleEditClick = (id: number) => {
-    setCreatingId(null);
-    setEditingId(editingId === id ? null : id);
-  };
 
   const handleDelete = async (worker_id: number, task_id: number) => {
     const remove = await api.remove(
@@ -119,28 +71,22 @@ const TableItem = ({
 
   return (
     <React.Fragment>
-      <tr className="border-b border-mytableheadborder text-mytextcolor">
-        <td className="py-3 px-6 text-left font-[500] text-[14px]">
-          {row?.contract_number ?? ""}
-        </td>
-        <td className="py-3 px-6 text-left font-[500] text-[14px]">
+      <tr className="text-mytextcolor">
+        <td className="py-3 px-6 text-left font-[500] text-[14px] border border-mytableheadborder">
           {row.batalon_name}
         </td>
-        <td className="py-3 px-6 text-center font-[500] text-[14px]">
+        <td className="py-3 px-6 text-center font-[500] text-[14px] border border-mytableheadborder">
           {row.task_time}
         </td>
-        <td className="py-3 px-6 text-center font-[500] text-[14px]">
+        <td className="py-3 px-6 text-center font-[500] text-[14px] border border-mytableheadborder">
           {row.worker_number}
         </td>
-        <td className="py-3 px-6 text-left font-[500] text-[14px]">
+        <td className="py-3 px-6 text-left font-[500] text-[14px] border border-mytableheadborder">
           {formatSum(row.summa)}
-        </td>
-        <td className="py-3 px-6 text-left font-[500] text-[14px]">
-          {formatDate(row.task_date)}
         </td>
         <td
           style={{ color: row.remaining_task_time > 0 ? "red" : "green" }}
-          className={`py-3 px-6 text-left font-[500] text-[14px]`}
+          className={`py-3 px-6 text-left font-[500] text-[14px] border border-mytableheadborder`}
         >
           <div className="flex items-center gap-2 justify-center">
             <p>{row.remaining_task_time}</p>
@@ -156,11 +102,8 @@ const TableItem = ({
             )}
           </div>
         </td>
-        <td className="py-3 px-6 text-center font-[500] text-[14px]">
-          {!row.birgada ? formatDate(row.deadline) : ""}
-        </td>
-        <td
-          className={`px-4 py-3 text-center font-semibold ${
+<td
+          className={`px-4 py-3 text-center font-semibold border border-mytableheadborder ${
             row.status === "Muddati o'tgan"
               ? "text-red-600"
               : row.status === "Bajarilgan"
@@ -172,13 +115,13 @@ const TableItem = ({
         >
           {!row.birgada ? row.status : ""}
         </td>
-        <td className="py-3 px-6 flex justify-center items-center gap-2 font-[500] text-[14px]">
+        <td className="py-3 px-6 border border-mytableheadborder">
+          <div className="flex justify-center items-center gap-2 font-[500] text-[14px]">
           {!row.birgada && (
             <>
               <button
                 onClick={() => {
                   if (row.remaining_task_time > 0) {
-                    setEditingId(null);
                     setCreatingId(creatingId === row.id ? null : row.id);
                   }
                 }}
@@ -186,53 +129,24 @@ const TableItem = ({
                 <Icon name="plus" />
               </button>
               <button
-                onClick={() => {
-                  setEditingId(null);
-                  setOpen(true);
-                }}
+                onClick={() => setOpen(true)}
               >
                 <Icon name="eye" />
               </button>
-              <button
-                onClick={() => handleEditClick(row.id)}
-                className="text-blue-600 hover:text-blue-800"
-              >
-                <Icon name="pencil" />
-              </button>
-              <button
-                onClick={() => handleclockClick(row.id, row.deadline)}
-                className="text-blue-600 hover:text-blue-800"
-              >
-                <FiClock size={20} />
-              </button>
             </>
           )}
+          </div>
         </td>
       </tr>
-      {editingId === row.id && (
-        <tr className="w-full">
-          <td colSpan={12}>
-            <div className="transition duration-500 ease-in-out transform translate-y-0 bg-gray-100 w-full">
-              <EditForm
-                type="edit"
-                row={row}
-                closeForm={setEditingId}
-                getTasks={getTasks}
-              />
-            </div>
-          </td>
-        </tr>
-      )}
-
       {creatingId === row.id && (
         <tr className="w-full">
           <td colSpan={12}>
-            <div className="transition duration-500 ease-in-out transform translate-y-0 bg-gray-100 w-full">
+            <div className="transition duration-500 ease-in-out transform translate-y-0 bg-gray-100 dark:bg-mytablehead w-full">
               <EditForm
-                type="create"
                 row={row}
                 closeForm={setCreatingId}
                 getTasks={getTasks}
+                contract={contract}
               />
             </div>
           </td>
@@ -246,7 +160,7 @@ const TableItem = ({
         w={"80%"}
       >
         {/* Sticky input qismi */}
-        <div className="sticky top-0 z-40 bg-white pt-2 pb-2">
+        <div className="sticky top-0 z-40 bg-mybackground pt-2 pb-2">
           <div className="w-[400px]">
             <Input
               p={tt("Ismlar bo'yicha qidiriuv", "Поиск по именам")}
@@ -261,7 +175,7 @@ const TableItem = ({
 
         <div className="overflow-auto max-h-[70vh]">
           <table className="w-full border-collapse">
-            <thead className="bg-gray-100 sticky top-[1px] z-30">
+            <thead className="bg-mytablehead sticky top-[1px] z-30">
               <tr>
                 <th className="border text-center w-[50px] py-2">№</th>
                 <th className="border text-left py-2">
@@ -275,6 +189,9 @@ const TableItem = ({
                 </th>
                 <th className="border text-left py-2">
                   {tt("Foydalanuvchi", "Фойдаланувчи")}
+                </th>
+                <th className="border text-left py-2">
+                  {tt("Sana / Vaqt", "Дата / Время")}
                 </th>
                 <th className="border text-center w-[100px] py-2">
                   {tt("Amallar", "Действия")}
@@ -299,6 +216,15 @@ const TableItem = ({
                   <td className="border py-3 px-6 text-left font-[500] text-[14px]">
                     {e.user}
                   </td>
+                  <td className="border py-3 px-6 text-left font-[500] text-[12px]">
+                    {(e as any).dates?.map((d: any, i: number) => (
+                      <div key={i} className="whitespace-nowrap">
+                        {d.task_date ? formatDate(d.task_date) : ""}{" "}
+                        {d.start_time && d.end_time ? `${d.start_time}-${d.end_time}` : d.start_time || ""}
+                        {d.task_time ? ` (${d.task_time} ${tt("soat", "ч")})` : ""}
+                      </div>
+                    ))}
+                  </td>
                   <td className="border py-3 px-6 text-center font-[500] text-[14px]">
                     <button onClick={() => handleDelete(e.worker_id, row.id)}>
                       <Icon name="delete" />
@@ -311,14 +237,6 @@ const TableItem = ({
         </div>
       </Modal>
 
-      <DateModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSave={async (date) => {
-          await handleSaveDeadline(date);
-        }}
-        default_date={default_date}
-      />
     </React.Fragment>
   );
 };

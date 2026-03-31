@@ -49,7 +49,7 @@ function Input({
         onDoubleClick={onDoubleClick}
         readOnly={readonly}
         className={
-          `${tush ? "w-[320px]" : "w-[300px]"} h-[41px] rounded-[6px] ${removeValue ? "pe-10" : ""
+          `${tush ? "w-[320px]" : "w-full"} h-[41px] rounded-[6px] ${removeValue ? "pe-10" : ""
           } ${search ? "pl-10" : "px-2"
           } bg-mycalendarbg border text-[14px] leading-[16.94px] text-mytextcolor placeholder:text-[#BEBBBB]   focus:border-[#636566] focus:outline-none ${error ? "border-[#F23D53]" : "border-myinputborder"
           } ` + className

@@ -5,11 +5,11 @@ import { useNavigate } from "react-router-dom";
 const ErrorPage: React.FC = () => {
     const navigate = useNavigate();
     return (
-        <div className="flex flex-col items-center justify-center h-screen bg-gray-100 text-center">
-            <h1 className="text-4xl font-bold text-gray-800 mb-4">
+        <div className="flex flex-col items-center justify-center h-screen bg-gray-100 dark:bg-mybackground text-center">
+            <h1 className="text-4xl font-bold text-gray-800 dark:text-mytextcolor mb-4">
                 {tt("Sahifa mavjud emas", "Страница не существует")}
             </h1>
-            <p className="text-gray-600 mb-8">
+            <p className="text-gray-600 dark:text-gray-400 mb-8">
                 {tt("Kechirasiz, siz izlayotgan sahifa topilmadi.", "Извините, страница не найдена.")}
             </p>
             <button
