@@ -58,6 +58,9 @@ const OrganTAb = ({
                 {tt("MFO", "МФО")}
               </th>
               <th className="px-4 py-3 text-left w-[200px]">
+                {tt("Rahbar", "Руководитель")}
+              </th>
+              <th className="px-4 py-3 text-left w-[200px]">
                 {tt("Hisob raqami", "Номер счета")}
               </th>
               <th className="px-4 py-3 text-left w-[200px]">
@@ -104,6 +107,9 @@ const OrganTAb = ({
                 </td>
                 <td className="px-4 py-3 text-inherit  max-w-[70px] truncate">
                   {person.mfo}
+                </td>
+                <td className="px-4 py-3 text-inherit  max-w-[150px] truncate">
+                  {person.boss}
                 </td>
                 <td className="px-4 py-3 text-inherit  max-w-[70px] truncate">
                   {person.account_numbers?.map((num) => (

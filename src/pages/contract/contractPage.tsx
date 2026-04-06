@@ -58,6 +58,7 @@ const ContractPage = () => {
     str: "",
     bank_name: "",
     mfo: "",
+    boss: "",
     account_numbers: [] as string[],
     gazna_numbers: [] as string[],
   });
@@ -295,6 +296,7 @@ const ContractPage = () => {
         str: organizationValue.str,
         bank_name: organizationValue.bank_name,
         mfo: organizationValue.mfo,
+        boss: organizationValue.boss,
         account_numbers: organizationValue.account_numbers.map((number) => ({
           account_number: number,
         })),

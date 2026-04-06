@@ -424,7 +424,7 @@ const Document = () => {
                       <p>ИНН: {textNum(organisation.str, 3)}</p>
                       <p>Банк реквизитлари: {organisation.bank_name}</p>
                       <p>МФО: {organisation.mfo}</p>
-                      <p>х/р: {textNum(organisation.account_number, 4)} </p>
+                      <p>х/р: {textNum(data.organization_account_number || organisation.account_number, 4)} </p>
 
                       {(organisation.treasury1 || organisation.treasury2) && (
                         <p>

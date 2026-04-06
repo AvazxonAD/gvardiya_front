@@ -55,6 +55,7 @@ function Organisation() {
     str: "",
     bank_name: "",
     mfo: "",
+    boss: "",
     account_numbers: [] as string[],
     gazna_numbers: [] as string[],
   });
@@ -65,6 +66,7 @@ function Organisation() {
     str: "",
     bank_name: "",
     mfo: "",
+    boss: "",
     account_numbers: [] as string[],
     gazna_numbers: [] as string[],
   });
@@ -153,6 +155,7 @@ function Organisation() {
         str: "",
         bank_name: "",
         mfo: "",
+        boss: "",
         account_numbers: [],
         gazna_numbers: [],
       });
@@ -222,6 +225,7 @@ function Organisation() {
         str: res.data?.str ?? "",
         bank_name: res.data?.bank_name ?? "",
         mfo: res.data?.mfo ?? "",
+        boss: res.data?.boss ?? "",
         // Extract account_numbers from the objects
         account_numbers: (res.data?.account_numbers || []).map((item: any) =>
           formatAccountNumber(item.account_number || "")

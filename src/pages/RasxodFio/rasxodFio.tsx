@@ -98,6 +98,28 @@ export const RasxodFio = () => {
     // link.click();
   };
 
+  const handleUmumiyHisobot = async () => {
+    const response = await request({
+      url: "/rasxod/fio/umumiy-hisobot",
+      method: "GET",
+      params: {
+        from: search.fromDate,
+        to: search.toDate,
+        account_number_id: account_number_id,
+      },
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `umumiy-hisobot-${search.fromDate}-dan-${search.toDate}-gacha.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
   React.useEffect(() => {
     getRasxod();
   }, [limet, currentPage]);
@@ -170,6 +192,7 @@ export const RasxodFio = () => {
               <div className="flex ms-5 gap-[10px]">
                 <Button mode="print" onClick={onPrintClick} />
                 <Button mode="download" onClick={handleDownloadExel} text={tt("Excel", "Экcель")} />
+                <Button mode="download" onClick={handleUmumiyHisobot} text={tt("Umumiy hisobot", "Умумий ҳисобот")} />
                 <Button mode="add" onClick={() => navigate("/rasxod-workers/create")} />
               </div>
             </div>
@@ -183,45 +206,57 @@ export const RasxodFio = () => {
           {/* Total summary */}
           <div className="mt-3 pt-2 flex items-center justify-between">
             <div className="flex items-center gap-x-1">
-              <div className="flex flex-col items-start gap-y-0.5 w-[220px]">
-                <label className="font-[700] text-[10px] truncate whitespace-nowrap">{tt("Premiya (100%)", "Премия (100%)")}:</label>
-                <Input readonly v={rasxodmeta.summa} className="text-[10px] h-6 px-1 py-0 w-full" />
+              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
+                <label className="font-[600] text-[8px] truncate whitespace-nowrap">{tt("Jami (100%)", "Жами (100%)")}:</label>
+                <Input readonly v={rasxodmeta.summa} className="text-[11px] h-7 px-2 py-0 w-full" />
               </div>
-              <div className="flex flex-col items-start gap-y-0.5 w-[220px]">
-                <label className="font-[700] text-[10px] truncate whitespace-nowrap">
-                  {tt("Moddiy bazani rivojlantirish uchun (75%)", "Моддий базани ривожлантириш учун (75%)")}:
+              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
+                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
+                  {tt("Boshqarma uchun (10%)", "Бошқарма учун (10%)")}:
                 </label>
-                <Input readonly v={rasxodmeta.summa_75} className="text-[10px] h-6 px-1 py-0 w-full" />
+                <Input readonly v={rasxodmeta.summa_10} className="text-[11px] h-7 px-2 py-0 w-full" />
               </div>
-              <div className="flex flex-col items-start gap-y-0.5 w-[220px]">
-                <label className="font-[700] text-[10px] truncate whitespace-nowrap">
+              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
+                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
+                  {tt("Qolgan jami (90%)", "Қолган жами (90%)")}:
+                </label>
+                <Input readonly v={rasxodmeta.summa_remaining} className="text-[11px] h-7 px-2 py-0 w-full" />
+              </div>
+              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
+                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
+                  {tt("Moddiy bazaga (75%)", "Моддий базага (75%)")}:
+                </label>
+                <Input readonly v={rasxodmeta.summa_75} className="text-[11px] h-7 px-2 py-0 w-full" />
+              </div>
+              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
+                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
                   {tt("I va II guruh xarajatlari uchun (25%)", "I ва II гурух харажатлари учун (25%)")}:
                 </label>
-                <Input readonly v={rasxodmeta.summa_25} className="text-[10px] h-6 px-1 py-0 w-full" />
+                <Input readonly v={rasxodmeta.summa_25} className="text-[11px] h-7 px-2 py-0 w-full" />
               </div>
-              <div className="flex flex-col items-start gap-y-0.5 w-[220px]">
-                <label className="font-[700] text-[10px] truncate whitespace-nowrap">
+              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
+                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
                   {tt("Shaxsiy tarkibga taqsimlandi", "Шахсий таркибга таксимланди")}:
                 </label>
-                <Input readonly v={rasxodmeta.summa_1_25} className="text-[10px] h-6 px-1 py-0 w-full" />
+                <Input readonly v={rasxodmeta.summa_1_25} className="text-[11px] h-7 px-2 py-0 w-full" />
               </div>
-              <div className="flex flex-col items-start gap-y-0.5 w-[220px]">
-                <label className="font-[700] text-[10px] truncate whitespace-nowrap">
+              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
+                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
                   {tt("Yagona ijtimoiy soliq (25%)", "Ягона ижтимоий солик (25%)")}:
                 </label>
-                <Input readonly v={rasxodmeta.summa_25_2} className="text-[10px] h-6 px-1 py-0 w-full" />
+                <Input readonly v={rasxodmeta.summa_25_2} className="text-[11px] h-7 px-2 py-0 w-full" />
               </div>
-              <div className="flex flex-col items-start gap-y-0.5 w-[220px]">
-                <label className="font-[700] text-[10px] truncate whitespace-nowrap">
+              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
+                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
                   {tt("Daromad solig'i (12%)", "Даромад солиғи (12%)")}:
                 </label>
-                <Input readonly v={rasxodmeta.summa_12} className="text-[10px] h-6 px-1 py-0 w-full" />
+                <Input readonly v={rasxodmeta.summa_12} className="text-[11px] h-7 px-2 py-0 w-full" />
               </div>
-              <div className="flex flex-col items-start gap-y-0.5 w-[220px]">
-                <label className="font-[700] text-[10px] truncate whitespace-nowrap">
+              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
+                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
                   {tt("Bank plastik kartasiga o'tkazib berildi", "Банк пластик картасига ўтказиб берилди")}:
                 </label>
-                <Input readonly v={rasxodmeta.worker_summa} className="text-[10px] h-6 px-1 py-0 w-full" />
+                <Input readonly v={rasxodmeta.worker_summa} className="text-[11px] h-7 px-2 py-0 w-full" />
               </div>
             </div>
           </div>

@@ -6,54 +6,20 @@ import React from "react";
 import { TableItem } from "../rasxod/rasxodcreateTable";
 
 const tablehead = [
-  {
-    name: tt("Shartnoma №", "Номер контракта"),
-    className: "text-left",
-  },
-  {
-    name: tt("Shartnoma sanasi", "Дата контракта"),
-    className: "text-left",
-  },
-  {
-    name: tt("Tashkilot nomi", "Название организации"),
-    className: "text-left",
-  },
-  {
-    name: tt("FIO", "ФИО"),
-    className: "text-left",
-  },
-  {
-    name: tt("Topshiriq vaqti", "Время назначения"),
-    className: "text-center",
-  },
-  {
-    name: tt("Premiya (100%)", "Премия (100%)"),
-    className: "text-right",
-  },
-  {
-    name: tt("Moddiy bazani rivojlantrish uchun (75%)", "Моддий базани ривожлантириш учун (75%)"),
-    className: "text-right",
-  },
-  {
-    name: tt("I va II gurux xarajatlari uchun (25%)", "I ва II гурух харажатлари учун (25%)"),
-    className: "text-right",
-  },
-  {
-    name: tt("Shaxsiy tarkibga taksimlandi", "Шахсий таркибга таксимланди"),
-    className: "text-right",
-  },
-  {
-    name: tt("Yagona ijtimoiy solik (25%)", "Ягона ижтимоий солик (25%)"),
-    className: "text-right",
-  },
-  {
-    name: tt("Daromad solig‘i (12%)", "Даромад солиғи (12%)"),
-    className: "text-right",
-  },
-  {
-    name: tt("Bank plastik kartasiga o‘tkazib berildi", "Банк пластик картасига ўтказиб берилди"),
-    className: "text-right",
-  },
+  { name: tt("Shartnoma №", "№ контракта"), className: "text-left" },
+  { name: tt("Sana", "Дата"), className: "text-left" },
+  { name: tt("Tashkilot", "Организация"), className: "text-left" },
+  { name: tt("FIO", "ФИО"), className: "text-left" },
+  { name: tt("Vaqt", "Время"), className: "text-center" },
+  { name: tt("Jami (100%)", "Жами (100%)"), className: "text-right" },
+  { name: tt("Boshqarma (10%)", "Бошқарма (10%)"), className: "text-right" },
+  { name: tt("Qolgan (90%)", "Қолган (90%)"), className: "text-right" },
+  { name: tt("Moddiy baza (75%)", "Моддий база (75%)"), className: "text-right" },
+  { name: tt("I-II guruh (25%)", "I-II гурух (25%)"), className: "text-right" },
+  { name: tt("Shaxsiy tarkib", "Шахсий таркиб"), className: "text-right" },
+  { name: tt("Ijtimoiy soliq (25%)", "Ижтимоий солиқ (25%)"), className: "text-right" },
+  { name: tt("Daromad solig’i (12%)", "Даромад солиғи (12%)"), className: "text-right" },
+  { name: tt("Kartaga o’tkazildi", "Картага ўтказилди"), className: "text-right" },
 ];
 
 interface Props {
@@ -62,12 +28,14 @@ interface Props {
   setRasxodRequestData: React.Dispatch<
     React.SetStateAction<RasxodFioTaskInterface[]>
   >;
+  summa_10_percent?: number;
 }
 
 export const RasxodcreateTableFio = ({
   ustamaData,
   data,
   setRasxodRequestData,
+  summa_10_percent = 0,
 }: Props) => {
   const handleRemove = (item: RasxodFioTaskInterface) => {
     setRasxodRequestData((prev) =>
@@ -84,6 +52,8 @@ export const RasxodcreateTableFio = ({
   // Calculate totals for the required columns
   const calculateTotals = () => {
     let totalSumma = 0;
+    let total_summa_10 = 0;
+    let total_summa_remaining = 0;
     let task_time = 0;
     let summa_75 = 0
     let summa_25 = 0
@@ -92,20 +62,31 @@ export const RasxodcreateTableFio = ({
     let summa_12 = 0
     let worker_summa = 0
 
-
     data?.forEach((task) => {
+      const s10 = task.saved && task.summa_10 != null ? task.summa_10 : task.summa * summa_10_percent / 100;
+      const rem = task.saved && task.summa_remaining != null ? task.summa_remaining : task.summa - s10;
+      const s75 = task.saved && task.summa_75 != null ? task.summa_75 : rem * 0.75;
+      const s25 = task.saved && task.summa_25 != null ? task.summa_25 : rem * 0.25;
+      const s125 = task.saved && task.summa_1_25 != null ? task.summa_1_25 : s25 / 1.25;
+      const s252 = task.saved && task.summa_25_2 != null ? task.summa_25_2 : s125 * 0.25;
+      const s12 = task.saved && task.summa_12 != null ? task.summa_12 : s125 * 0.12;
+      const ws = task.saved && task.worker_summa != null ? task.worker_summa : s125 - s12;
       task_time += task.task_time;
       totalSumma += task.summa;
-      summa_75 += task.summa * 0.75
-      summa_25 += task.summa * 0.25
-      summa_1_25 += (task.summa * 0.25) / 1.25
-      summa_25_2 += ((task.summa * 0.25) / 1.25) * 0.25
-      summa_12 += ((task.summa * 0.25) / 1.25) * 0.12
-      worker_summa += (task.summa * 0.25) / 1.25 - ((task.summa * 0.25) / 1.25) * 0.12
+      total_summa_10 += s10;
+      total_summa_remaining += rem;
+      summa_75 += s75;
+      summa_25 += s25;
+      summa_1_25 += s125;
+      summa_25_2 += s252;
+      summa_12 += s12;
+      worker_summa += ws;
     });
 
     return {
       totalSumma,
+      total_summa_10,
+      total_summa_remaining,
       task_time,
       summa_75,
       summa_25,
@@ -120,15 +101,14 @@ export const RasxodcreateTableFio = ({
 
   return (
     <div>
-      <div className="rounded-t-[6px] max-h-[400px] overflow-y-auto text-[#323232] text-[14px] leading-[16.94px]">
-        <table className="min-w-full table-fixed relative">
-          <thead className="bg-mytablehead text-mytextcolor border border-mytableheadborder text-[14px] leading-[16.94px] rounded-t-[6px] sticky -top-1 z-[2]">
-            <tr className="h-[46px] rounded-t-[6px]">
+      <div className="rounded-t-[6px] max-h-[400px] overflow-y-auto overflow-x-auto text-[#323232] text-[11px] leading-[14px]">
+        <table className="min-w-full table-auto relative border-collapse">
+          <thead className="bg-mytablehead text-mytextcolor text-[11px] leading-[14px] rounded-t-[6px] sticky -top-1 z-[2]">
+            <tr className="rounded-t-[6px]">
               {tablehead.map((item, index) => (
                 <th
                   key={index}
-                  style={{ width: "200px" }}
-                  className={`px-4 py-[7px] text-left truncate ${item.className}`}
+                  className={`px-2 py-2 border border-mytableheadborder text-left ${item.className}`}
                 >
                   {item.name}
                 </th>
@@ -136,7 +116,7 @@ export const RasxodcreateTableFio = ({
             </tr>
           </thead>
 
-          <tbody className="text-mytextcolor bg-mybackground text-[14px] leading-[16.94px] relative z-[1]">
+          <tbody className="text-mytextcolor bg-mybackground text-[11px] leading-[14px] relative z-[1]">
             {data?.map((item, index) => {
               const activeUstama = ustamaData.filter(
                 (el) => el.active === true
@@ -151,85 +131,66 @@ export const RasxodcreateTableFio = ({
                   className={`text-mytextcolor ${item.saved ? "bg-[#e5fedea9] dark:bg-mytableheadborder" : ""
                     } relative`}
                 >
-                  <TableItem>{item.contract_doc_num}</TableItem>
-                  <TableItem>{newdate(item.contract_doc_date)}</TableItem>
-                  <TableItem className="rasxod-tooltip">
-                    {item.organization_name}
-                    <div
-                      className="absolute rasxod-tooltip-wrap w-[250px] shadow-lg z-10 rounded-[6px] bg-mybackground border border-mytableheadborder text-mytextcolor p-3"
-                      style={{ left: "400px" }} // Bu yerda tooltipni chapga surdik
-                    >
-                      <ul className="space-y-1 text-left">
-                        <li className="opacity-[0.7] text-[14px]">
-                          {item.organization_name}
-                        </li>
-                        <li className="opacity-[0.7] text-[12px]">
-                          {tt("Joriy hisob", "Текущий счет")}: {textNum(item.organization_account_number, 4)}
-                        </li>
-                        <li className="opacity-[0.7] text-[12px]">
-                          {tt("INN", "ИНН")}: {item.organization_str}
-                        </li>
-                        <li className="opacity-[0.7] text-[12px]">
-                          {tt("MFO", "МФО")}: {item.organization_mfo}
-                        </li>
-                      </ul>
-                    </div>
-                  </TableItem>
-                  <TableItem>{item.fio}</TableItem>
-                  <TableItem className="!text-center">{item.task_time}</TableItem>
-                  <TableItem className="!text-right">
-                    {formatNum(item.summa)}
-                  </TableItem>
-                  <TableItem className="!text-right">
-                    {formatNum(Math.round(item.summa * 0.75))}
-                  </TableItem>
-                  <TableItem className="!text-right">
-                    {formatNum(Math.round(item.summa * 0.25))}
-                  </TableItem>
-                  <TableItem className="!text-right">
-                    {Math.round((item.summa * 0.25) / 1.25)}
-                  </TableItem>
-                  <TableItem className="!text-right">
-                    {Math.round(((item.summa * 0.25) / 1.25) * 0.25)}
-                  </TableItem>
-                  <TableItem className="!text-right">
-                    {Math.round(((item.summa * 0.25) / 1.25) * 0.12)}
-                  </TableItem>
-                  <TableItem className="!text-right">
-                    {Math.round((item.summa * 0.25) / 1.25 - ((item.summa * 0.25) / 1.25) * 0.12)}
-                  </TableItem>
+                  {(() => {
+                    const r = (v: number) => Math.round(v * 100) / 100;
+                    // Saved items use DB values, new items calculate with percent
+                    const s10 = item.saved && item.summa_10 != null ? item.summa_10 : item.summa * summa_10_percent / 100;
+                    const rem = item.saved && item.summa_remaining != null ? item.summa_remaining : item.summa - s10;
+                    const s75 = item.saved && item.summa_75 != null ? item.summa_75 : rem * 0.75;
+                    const s25 = item.saved && item.summa_25 != null ? item.summa_25 : rem * 0.25;
+                    const s125 = item.saved && item.summa_1_25 != null ? item.summa_1_25 : s25 / 1.25;
+                    const s252 = item.saved && item.summa_25_2 != null ? item.summa_25_2 : s125 * 0.25;
+                    const s12 = item.saved && item.summa_12 != null ? item.summa_12 : s125 * 0.12;
+                    const ws = item.saved && item.worker_summa != null ? item.worker_summa : s125 - s12;
+                    const c = "px-2 py-1 border border-mytableheadborder";
+                    return (<>
+                      <td className={`${c} text-left`}>{item.contract_doc_num}</td>
+                      <td className={`${c} text-left`}>{newdate(item.contract_doc_date)}</td>
+                      <td className={`${c} text-left relative group cursor-pointer`}>
+                        {item.organization_name}
+                        <div className="hidden group-hover:block absolute left-[100px] -mt-4 w-[220px] shadow-lg z-10 rounded-md bg-mybackground border border-mytableheadborder text-mytextcolor p-2 text-[10px]">
+                          <p>{item.organization_name}</p>
+                          <p>{tt("Hisob", "Счет")}: {textNum(item.organization_account_number, 4)}</p>
+                          <p>{tt("INN", "ИНН")}: {item.organization_str}</p>
+                          <p>{tt("MFO", "МФО")}: {item.organization_mfo}</p>
+                        </div>
+                      </td>
+                      <td className={`${c} text-left`}>{item.fio}</td>
+                      <td className={`${c} text-center`}>{item.task_time}</td>
+                      <td className={`${c} text-right`}>{formatNum(item.summa)}</td>
+                      <td className={`${c} text-right`}>{formatNum(r(s10))}</td>
+                      <td className={`${c} text-right`}>{formatNum(r(rem))}</td>
+                      <td className={`${c} text-right`}>{formatNum(r(s75))}</td>
+                      <td className={`${c} text-right`}>{formatNum(r(s25))}</td>
+                      <td className={`${c} text-right`}>{formatNum(r(s125))}</td>
+                      <td className={`${c} text-right`}>{formatNum(r(s252))}</td>
+                      <td className={`${c} text-right`}>{formatNum(r(s12))}</td>
+                      <td className={`${c} text-right`}>{formatNum(r(ws))}</td>
+                    </>);
+                  })()}
                 </tr>
               );
             })}
 
             {/* Totals row */}
-            <tr className="bg-mytablehead font-medium border-t border-mytableheadborder">
-              <td colSpan={4} className="text-right"></td>
-              <TableItem className="text-center">
-                {formatNum(total.task_time)}
-              </TableItem>
-              <TableItem className="text-right">
-                {formatNum(total.totalSumma)}
-              </TableItem>
-              <TableItem className="text-right">
-                {formatNum(total.summa_75)}
-              </TableItem>
-              <TableItem className="text-right">
-                {formatNum(total.summa_25)}
-              </TableItem>
-              <TableItem className="text-right">
-                {formatNum(total.summa_1_25)}
-              </TableItem>
-              <TableItem className="text-right">
-                {formatNum(total.summa_25_2)}
-              </TableItem>
-              <TableItem className="text-right">
-                {formatNum(total.summa_12)}
-              </TableItem>
-              <TableItem className="text-right">
-                {formatNum(total.worker_summa)}
-              </TableItem>
-            </tr>
+            {(() => {
+              const c = "px-2 py-1 border border-mytableheadborder font-semibold";
+              return (
+                <tr className="bg-mytablehead">
+                  <td colSpan={4} className={`${c} text-right`}>{tt("Jami", "Итого")}</td>
+                  <td className={`${c} text-center`}>{formatNum(total.task_time)}</td>
+                  <td className={`${c} text-right`}>{formatNum(total.totalSumma)}</td>
+                  <td className={`${c} text-right`}>{formatNum(total.total_summa_10)}</td>
+                  <td className={`${c} text-right`}>{formatNum(total.total_summa_remaining)}</td>
+                  <td className={`${c} text-right`}>{formatNum(total.summa_75)}</td>
+                  <td className={`${c} text-right`}>{formatNum(total.summa_25)}</td>
+                  <td className={`${c} text-right`}>{formatNum(total.summa_1_25)}</td>
+                  <td className={`${c} text-right`}>{formatNum(total.summa_25_2)}</td>
+                  <td className={`${c} text-right`}>{formatNum(total.summa_12)}</td>
+                  <td className={`${c} text-right`}>{formatNum(total.worker_summa)}</td>
+                </tr>
+              );
+            })()}
           </tbody>
         </table>
       </div>

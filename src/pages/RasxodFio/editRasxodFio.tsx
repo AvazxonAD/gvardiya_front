@@ -241,9 +241,38 @@ export const EditRasxodFio = () => {
           .map((el) => ({
             deduction_id: el.id,
           })),
-        worker_tasks: filtereddata.map((item) => ({
-          worker_task_id: item.worker_task_id,
-        })),
+        worker_tasks: filtereddata.map((item) => {
+          if (item.saved && item.summa_10 != null) {
+            return {
+              worker_task_id: item.worker_task_id,
+              summa: item.summa,
+              summa_10: item.summa_10,
+              summa_remaining: item.summa_remaining,
+              summa_75: item.summa_75,
+              summa_25: item.summa_25,
+              summa_1_25: item.summa_1_25,
+              summa_25_2: item.summa_25_2,
+              summa_12: item.summa_12,
+              worker_summa: item.worker_summa,
+            };
+          }
+          const s10 = item.summa * 10 / 100;
+          const rem = item.summa - s10;
+          const s25 = rem * 0.25;
+          const s125 = s25 / 1.25;
+          return {
+            worker_task_id: item.worker_task_id,
+            summa: item.summa,
+            summa_10: s10,
+            summa_remaining: rem,
+            summa_75: rem * 0.75,
+            summa_25: s25,
+            summa_1_25: s125,
+            summa_25_2: s125 * 0.25,
+            summa_12: s125 * 0.12,
+            worker_summa: s125 - s125 * 0.12,
+          };
+        }),
       };
 
       setScreenLoader(true);
@@ -369,11 +398,7 @@ export const EditRasxodFio = () => {
     }
   };
 
-  useEffect(() => {
-    if (accountNumber && selectedO?.id) {
-      getRasxodRequest();
-    }
-  }, [accountNumber, selectedO?.id]);
+  // getRasxodRequest faqat tugma bosilganda chaqiriladi
 
   useEffect(() => {
     if (open) getBrigada();
@@ -604,7 +629,7 @@ export const EditRasxodFio = () => {
           onChange={setRasxodToDate}
         />
         <Button
-          text="Ishga tushirish"
+          text={tt("Summalarni yangilash", "Обновить суммы")}
           type="button"
           className="text-white hover:!bg-white hover:!text-[#297157] border-[#297157] !h-10 !bg-[#297157] !mt-[20px]"
           onClick={() => getRasxodRequest()}
@@ -612,9 +637,9 @@ export const EditRasxodFio = () => {
       </div>
       <RasxodcreateTableFio
         ustamaData={ustamaData}
-        // data={rasxodRequestdata}
         data={filtereddata}
         setRasxodRequestData={setRasxodRequestData}
+        summa_10_percent={10}
       />
 
       {/* submit btn  */}

@@ -48,6 +48,7 @@ function ContractHome() {
     internal_summa: 0,
     debet_summa: 0,
     kredit_summa: 0,
+    rasxod_summa: 0,
   });
   const [dates, setDates] = useState<any>({
     date1: startDate,
@@ -88,6 +89,7 @@ function ContractHome() {
       debet_summa: res.meta.debet_summa,
       kredit_summa: res.meta.kredit_summa,
       internal_summa: res.meta.internal_summa,
+      rasxod_summa: res.meta.rasxod_summa,
     });
   };
 
@@ -389,17 +391,21 @@ function ContractHome() {
         <div className="sticky bottom-0 bg-mybackground z-2 mt-[30px]">
           <div className="flex flex-col items-center gap-4">
             <div className="flex gap-1 ml-[420px]">
-              <div className="w-[170px]">
-                <Input
-                  v={balance.internal_summa}
-                  className="w-full text-right"
-                />
+              <div className="flex flex-col items-start gap-y-0.5 min-w-0">
+                <label className="font-[600] text-[8px] truncate whitespace-nowrap">{tt("Hisoblangan summa", "Ҳисобланган сумма")}:</label>
+                <Input readonly v={balance.internal_summa} className="w-[170px] text-[11px] h-7 px-2 py-0" />
               </div>
-              <div className="w-[170px]">
-                <Input v={balance.debet_summa} className="w-full text-right" />
+              <div className="flex flex-col items-start gap-y-0.5 min-w-0">
+                <label className="font-[600] text-[8px] truncate whitespace-nowrap">{tt("Kelib tushgan summa", "Келиб тушган сумма")}:</label>
+                <Input readonly v={balance.debet_summa} className="w-[170px] text-[11px] h-7 px-2 py-0" />
               </div>
-              <div className="w-[170px]">
-                <Input v={balance.kredit_summa} className="w-full text-right" />
+              <div className="flex flex-col items-start gap-y-0.5 min-w-0">
+                <label className="font-[600] text-[8px] truncate whitespace-nowrap">{tt("Debitor qarzdorlik", "Дебитор қарздорлик")}:</label>
+                <Input readonly v={balance.kredit_summa} className="w-[170px] text-[11px] h-7 px-2 py-0" />
+              </div>
+              <div className="flex flex-col items-start gap-y-0.5 min-w-0">
+                <label className="font-[600] text-[8px] truncate whitespace-nowrap">{tt("Rasxod summa", "Расход сумма")}:</label>
+                <Input readonly v={balance.rasxod_summa} className="w-[170px] text-[11px] h-7 px-2 py-0" />
               </div>
             </div>
 

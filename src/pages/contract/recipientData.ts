@@ -1,7 +1,7 @@
 import { IContractForm } from "@/types/contract";
 import { IOrganization } from "@/types/organization";
 import { textNum, tt } from "@/utils";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export const recipient = () => {
   try {
@@ -33,130 +33,73 @@ export const payer = ({
   contract?: IContractForm;
   setContract?: (contract: any) => void;
 }) => {
-  const [selectedAccount, setSelectedAccount] = useState<any>(null);
-  const [selectedGaznaAccount, setSelectedGaznaAccount] = useState<any>(null);
+  const org = data?.find((d: any) => d.id == contract?.organization_id);
 
   const defaultAccount =
-    data
-      ?.find((d: any) => d.id == contract?.organization_id)
-      ?.account_numbers?.map((d: any) => ({
-        ...d,
-        name: textNum(d.account_number, 4),
-      }))?.[0]?.id ?? "";
+    org?.account_numbers?.map((d: any) => ({
+      ...d,
+      name: textNum(d.account_number, 4),
+    }))?.[0]?.id ?? "";
 
-  const defaultGaznaAccount =
-    data
-      ?.find((d: any) => d.id == contract?.organization_id)
-      ?.gazna_numbers?.map((d: any) => ({
-        ...d,
-        name: textNum(d.gazna_number, 4),
-      }))?.[0]?.id ?? "";
-
+  // Yangi shartnoma uchun default hisob raqamni set qilish
   useEffect(() => {
-    if (contract?.organ_account_number_id) {
-      setSelectedAccount(contract?.organ_account_number_id);
-    } else {
-      setSelectedAccount(defaultAccount);
-    }
-    if (contract?.gazna_number_id) {
-      setSelectedGaznaAccount(contract?.gazna_number_id);
-    } else {
-      setSelectedGaznaAccount(defaultGaznaAccount);
-    }
-  }, [contract]);
-
-  useEffect(() => {
-    if (selectedAccount || selectedGaznaAccount) {
+    if (contract?.organization_id && data?.length && !contract?.organ_account_number_id && defaultAccount) {
       setContract?.({
         ...contract,
-        organ_account_number_id: selectedAccount,
-        gazna_number_id: selectedGaznaAccount,
+        organ_account_number_id: defaultAccount,
       });
     }
-  }, [selectedAccount, selectedGaznaAccount]);
+  }, [contract?.organization_id, defaultAccount]);
 
   try {
     const payer = [
       {
         txt: tt("To'lovchi", "Плательщик"),
-        value:
-          data?.find((d: any) => d.id == contract?.organization_id)?.name || "",
+        value: org?.name || "",
       },
       {
         txt: tt("Bank", "Банк"),
-        value:
-          data?.find((d: any) => d.id == contract?.organization_id)
-            ?.bank_name || "",
+        value: org?.bank_name || "",
       },
       {
-        txt: tt("MFO", "МФО"),
-        value:
-          data?.find((d: any) => d.id == contract?.organization_id)?.mfo || "",
+        txt: tt("MFО", "МФО"),
+        value: org?.mfo || "",
       },
       {
         txt: tt("INN", "ИНН"),
-        value:
-          textNum(
-            data?.find((d: any) => d.id == contract?.organization_id)?.str ??
-              "",
-            3
-          ) || "",
+        value: textNum(org?.str ?? "", 3) || "",
       },
       {
         type: "select",
         txt: tt("Hisob raqami", "Счет"),
         selectData:
-          data
-            ?.find((d: any) => d.id == contract?.organization_id)
-            ?.account_numbers?.map((d: any) => ({
-              ...d,
-              name: textNum(d.account_number, 4),
-            })) ?? [],
+          org?.account_numbers?.map((d: any) => ({
+            ...d,
+            name: textNum(d.account_number, 4),
+          })) ?? [],
         onChange: (value: any) => {
-          const accountNumbers: any =
-            data?.find((d: any) => d.id == contract?.organization_id)
-              ?.account_numbers || [];
-          const selectedAccount = accountNumbers.find(
-            (acc: any) => acc.id === value
-          )?.id;
-
-          if (selectedAccount) {
-            setSelectedAccount(selectedAccount);
-            setContract?.({
-              ...contract,
-              organ_account_number_id: selectedAccount,
-            });
-          }
+          setContract?.({
+            ...contract,
+            organ_account_number_id: value,
+          });
         },
-        value: selectedAccount ?? defaultAccount,
+        value: contract?.organ_account_number_id || defaultAccount,
       },
       {
         type: "select",
         txt: tt("Hisob raqami g'azna", "Номер счета казна"),
         selectData:
-          data
-            ?.find((d: any) => d.id == contract?.organization_id)
-            ?.gazna_numbers?.map((d: any) => ({
-              ...d,
-              name: textNum(d.gazna_number, 4),
-            })) ?? [],
+          org?.gazna_numbers?.map((d: any) => ({
+            ...d,
+            name: textNum(d.gazna_number, 4),
+          })) ?? [],
         onChange: (value: any) => {
-          const accountNumbers: any =
-            data?.find((d: any) => d.id == contract?.organization_id)
-              ?.gazna_numbers || [];
-          const selectedGaznaAccount = accountNumbers.find(
-            (acc: any) => acc.id === value
-          )?.id;
-
-          if (selectedGaznaAccount) {
-            setSelectedGaznaAccount(selectedGaznaAccount);
-            setContract?.({
-              ...contract,
-              gazna_number_id: selectedGaznaAccount,
-            });
-          }
+          setContract?.({
+            ...contract,
+            gazna_number_id: value,
+          });
         },
-        value: selectedGaznaAccount ?? defaultGaznaAccount,
+        value: contract?.gazna_number_id || "",
       },
     ];
     return payer;

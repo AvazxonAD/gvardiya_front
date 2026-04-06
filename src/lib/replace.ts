@@ -27,6 +27,7 @@ export const replacer = (
       newtemplate[key] = newtemplate[key].replaceAll("${doc_date}", getFullDate(data.doc_date));
       newtemplate[key] = newtemplate[key].replaceAll("${ijrochi}", fontBold(info.doer));
       newtemplate[key] = newtemplate[key].replaceAll("${client.name}", fontBold(organisation.name));
+      newtemplate[key] = newtemplate[key].replaceAll("${client.boss}", fontBold(organisation.boss || "___________________"));
       newtemplate[key] = newtemplate[key].replaceAll("${start_date}", getFullDate(data.start_date));
       newtemplate[key] = newtemplate[key].replaceAll("${end_date}", getFullDate(data.end_date));
       newtemplate[key] = newtemplate[key].replaceAll("${end_time}", data.end_time);
@@ -48,6 +49,7 @@ export const replacer = (
             .replaceAll("${doc_date}", getFullDate(data.doc_date))
             .replaceAll("${ijrochi}", fontBold(info.doer))
             .replaceAll("${client.name}", fontBold(organisation.name))
+            .replaceAll("${client.boss}", fontBold(organisation.boss || "___________________"))
             .replaceAll("${start_date}", getFullDate(data.start_date))
             .replaceAll("${end_date}", getFullDate(data.end_date))
             .replaceAll("${end_time}", data.end_time)

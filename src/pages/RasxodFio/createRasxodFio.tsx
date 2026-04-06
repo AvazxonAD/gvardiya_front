@@ -118,9 +118,24 @@ export const CreateRasxodFio = () => {
           .map((el) => ({
             deduction_id: el.id,
           })),
-        worker_tasks: rasxodRequestdata.map((item) => ({
-          worker_task_id: item.worker_task_id,
-        })),
+        worker_tasks: rasxodRequestdata.map((item) => {
+          const s10 = item.summa * 10 / 100;
+          const rem = item.summa - s10;
+          const s25 = rem * 0.25;
+          const s125 = s25 / 1.25;
+          return {
+            worker_task_id: item.worker_task_id,
+            summa: item.summa,
+            summa_10: s10,
+            summa_remaining: rem,
+            summa_75: rem * 0.75,
+            summa_25: s25,
+            summa_1_25: s125,
+            summa_25_2: s125 * 0.25,
+            summa_12: s125 * 0.12,
+            worker_summa: s125 - s125 * 0.12,
+          };
+        }),
       };
 
       setScreenLoader(true);
@@ -453,10 +468,10 @@ export const CreateRasxodFio = () => {
         />
       </div>
       <RasxodcreateTableFio
-        // data={rasxodRequestdata}
         ustamaData={ustamaData}
         data={rasxodRequestdata}
         setRasxodRequestData={setRasxodRequestData}
+        summa_10_percent={10}
       />
 
       {/* submit btn  */}

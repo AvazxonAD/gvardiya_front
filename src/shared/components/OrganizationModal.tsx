@@ -14,6 +14,7 @@ interface OrganizationModalProps {
     str: string;
     bank_name: string;
     mfo: string;
+    boss: string;
     account_numbers: string[];
     gazna_numbers: string[];
   };
@@ -90,6 +91,14 @@ function OrganizationModal({
               t="number"
               label={tt("MFO", "МФО")}
               p={tt("MFO kiriting", "Введите МФО")}
+              className="w-full"
+            />
+            <Input
+              change={handleChange}
+              v={value.boss}
+              n="boss"
+              label={tt("Rahbar", "Руководитель")}
+              p={tt("Rahbar kiriting", "Введите руководителя")}
               className="w-full"
             />
           </div>

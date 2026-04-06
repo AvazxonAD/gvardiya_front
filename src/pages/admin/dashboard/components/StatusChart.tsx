@@ -77,7 +77,7 @@ export default function StatusChart({ distData }: StatusChartProps) {
       type: "doughnut",
       data: {
         labels: [
-          `Moddiy bazani rivojlantirish (${d.summa_75_percent}%)`,
+          `Moddiy bazaga (${d.summa_75_percent}%)`,
           `Hamkor tashkilotlar (${d.rasxod_summa_percent}%)`,
           `Xodimlar uchun premiya (${d.summa_25_percent}%)`,
           `Qolgan`,
