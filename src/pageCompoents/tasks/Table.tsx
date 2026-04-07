@@ -31,6 +31,9 @@ const Table: React.FC<{ data: ITask[]; getTasks: Function; contract?: any }> = (
                 {tt("Xodimlar soni", "Количество сотрудников")}
               </div>
             </th>
+            <th className="py-3 px-6 text-center border border-mytableheadborder">
+              {tt("Jami soat", "Всего часов")}
+            </th>
             <th className="py-3 px-6 text-left min-w-[170px] border border-mytableheadborder">
               {tt("Summa", "Сумма")}
             </th>
@@ -38,7 +41,10 @@ const Table: React.FC<{ data: ITask[]; getTasks: Function; contract?: any }> = (
               {tt("Qolgan vaqt", "Оставшееся время")}
             </th>
 <th className="py-3 px-6 text-center border border-mytableheadborder">
-              {tt("Topshiriq holati", "Статус задания")}
+              {tt("Biriktirilgan jami xodimlar", "Всего прикреплённых сотрудников")}
+            </th>
+            <th className="py-3 px-6 text-center border border-mytableheadborder">
+              {tt("Biriktirilgan jami soat", "Всего прикреплённых часов")}
             </th>
             <th className="py-3 px-6 text-center border border-mytableheadborder">
               {tt("Amallar", "Действия")}

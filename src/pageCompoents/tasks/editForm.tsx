@@ -1,3 +1,4 @@
+import { Users, Clock, Hourglass } from "lucide-react";
 import Input from "@/Components/Input";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import Button from "@/Components/reusable/button";
@@ -47,6 +48,7 @@ const EditForm: React.FC<EditFormProps> = ({
   const [taskDate, setTaskDate] = useState<string>(contract?.start_date ?? "");
   const [startTime, setStartTime] = useState<string>(contract?.start_time ?? "");
   const [endTime, setEndTime] = useState<string>(contract?.end_time ?? "");
+  const [activeTab, setActiveTab] = useState<"all" | "selected">("all");
   const dispatch = useDispatch();
 
   const fetchWorkers = async () => {
@@ -121,7 +123,7 @@ const EditForm: React.FC<EditFormProps> = ({
   // Calculate total required hours and assigned hours
   const totalRequiredHours = (row?.task_time || 0) * (row?.worker_number || 0);
   const assignedHours = workersData?.reduce((sum, w) => sum + (w.task_time || 0), 0) || 0;
-  const remainingHours = totalRequiredHours - assignedHours;
+  const remainingHours = (row?.remaining_task_time || 0) - assignedHours;
 
   const handleInputChange = (id: number, value: number) => {
     const update = workersData.map((w) => {
@@ -151,15 +153,15 @@ const EditForm: React.FC<EditFormProps> = ({
 
   return (
     <div className="p-4 bg-mybackground shadow-lg w-full border-[2px]">
-      <div className="flex items-end gap-3 w-full">
-        <div className="w-[13%]">
+      <div className="flex items-end gap-2 w-full">
+        <div className="w-[130px]">
           <SpecialDatePicker
             label={tt("Sana", "Дата")}
             defaultValue={taskDate}
             onChange={(date) => setTaskDate(date)}
           />
         </div>
-        <div className="w-[8%]">
+        <div className="w-[90px] ml-16">
           <Input
             label={tt("Boshlanish", "Начало")}
             v={startTime}
@@ -168,7 +170,7 @@ const EditForm: React.FC<EditFormProps> = ({
             p="00:00"
           />
         </div>
-        <div className="w-[8%]">
+        <div className="w-[90px]">
           <Input
             label={tt("Tugash", "Конец")}
             v={endTime}
@@ -177,7 +179,7 @@ const EditForm: React.FC<EditFormProps> = ({
             p="00:00"
           />
         </div>
-        <div className="w-[5%]">
+        <div className="w-[65px]">
           <Input
             label={tt("Soat", "Часы")}
             t="number"
@@ -187,7 +189,7 @@ const EditForm: React.FC<EditFormProps> = ({
           />
         </div>
         <Button text={tt("Qo'llash", "Применить")} onClick={() => setAllWorkersTaskTime()} />
-        <div className="w-[15%]">
+        <div className="w-[280px]">
           <Input
             p={tt("Qidiruv...", "Поиск...")}
             v={searchTerm}
@@ -196,23 +198,131 @@ const EditForm: React.FC<EditFormProps> = ({
             search
           />
         </div>
-        <Button mode="cancel" onClick={() => closeForm(null)} />
-        <Button mode="add" onClick={handleSave} />
-        <div className="text-[12px] leading-snug whitespace-nowrap ml-auto text-mytextcolor">
-          <p>
-            {tt("Jami", "Всего")} {workers?.meta.count} {tt("ta xodimdan", "сотр. из них")}{" "}
-            <span className="text-blue-400 font-semibold">{attachedWorkersCount}</span>
-            {" "}{tt("ta biriktirilgan", "прикреплено")}
-          </p>
-          <p>
-            {tt("Soat", "Часы")}:{" "}
-            <span className={`font-semibold ${remainingHours > 0 ? "text-amber-400" : "text-green-400"}`}>{assignedHours}</span>
-            {" "}/ {totalRequiredHours} ({tt("qoldi", "осталось")}:{" "}
-            <span className={`font-semibold ${remainingHours > 0 ? "text-amber-400" : "text-green-400"}`}>{remainingHours}</span>)
-          </p>
+        <div className="ml-auto flex items-stretch gap-2">
+          <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-blue-200 dark:border-blue-900/50 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/40 dark:to-blue-900/20 shadow-sm">
+            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400">
+              <Users size={12} />
+            </div>
+            <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              {tt("Xodimlar", "Сотр.")}:
+            </span>
+            <span className="text-[13px] font-bold text-blue-600 dark:text-blue-400">
+              {attachedWorkersCount}
+            </span>
+          </div>
+
+          <div
+            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md border shadow-sm ${
+              remainingHours > 0
+                ? "border-amber-200 dark:border-amber-900/50 bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-950/40 dark:to-amber-900/20"
+                : "border-green-200 dark:border-green-900/50 bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-950/40 dark:to-green-900/20"
+            }`}
+          >
+            <div
+              className={`flex items-center justify-center w-6 h-6 rounded-full ${
+                remainingHours > 0
+                  ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                  : "bg-green-500/15 text-green-600 dark:text-green-400"
+              }`}
+            >
+              <Clock size={12} />
+            </div>
+            <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              {tt("Biriktirilgan soat", "Прикр. часы")}:
+            </span>
+            <span
+              className={`text-[13px] font-bold ${
+                remainingHours > 0
+                  ? "text-amber-600 dark:text-amber-400"
+                  : "text-green-600 dark:text-green-400"
+              }`}
+            >
+              {assignedHours}
+            </span>
+          </div>
+
+          <div
+            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md border shadow-sm ${
+              remainingHours > 0
+                ? "border-red-200 dark:border-red-900/50 bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-950/40 dark:to-red-900/20"
+                : "border-green-200 dark:border-green-900/50 bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-950/40 dark:to-green-900/20"
+            }`}
+          >
+            <div
+              className={`flex items-center justify-center w-6 h-6 rounded-full ${
+                remainingHours > 0
+                  ? "bg-red-500/15 text-red-600 dark:text-red-400"
+                  : "bg-green-500/15 text-green-600 dark:text-green-400"
+              }`}
+            >
+              <Hourglass size={12} />
+            </div>
+            <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              {tt("Qoldi", "Ост.")}:
+            </span>
+            <span
+              className={`text-[13px] font-bold whitespace-nowrap ${
+                remainingHours > 0
+                  ? "text-red-600 dark:text-red-400"
+                  : "text-green-600 dark:text-green-400"
+              }`}
+            >
+              {remainingHours} {tt("soat", "ч")}
+            </span>
+          </div>
         </div>
+        <Button
+          mode="add"
+          onClick={handleSave}
+          className="!h-[30px] !py-1 !px-3 !text-[11px] !whitespace-nowrap"
+        />
+        <Button
+          mode="cancel"
+          onClick={() => closeForm(null)}
+          className="!h-[30px] !py-1 !px-3 !text-[11px] !whitespace-nowrap"
+        />
       </div>
-      <div className="mt-3 max-h-[600px] overflow-y-auto border border-mytableheadborder">
+      <div className="mt-3 flex items-center gap-2">
+        <button
+          onClick={() => setActiveTab("all")}
+          className={`flex items-center gap-2 px-4 py-1.5 text-[12px] font-semibold rounded-md border shadow-sm transition ${
+            activeTab === "all"
+              ? "bg-blue-500 text-white border-blue-500 hover:bg-blue-600"
+              : "bg-mybackground text-mytextcolor border-mytableheadborder hover:border-blue-400 hover:text-blue-500"
+          }`}
+        >
+          {tt("Barchasi", "Все")}
+          <span
+            className={`px-1.5 py-[1px] rounded text-[11px] font-bold ${
+              activeTab === "all"
+                ? "bg-white/25 text-white"
+                : "bg-mytablehead text-mytextcolor"
+            }`}
+          >
+            {workersList.length}
+          </span>
+        </button>
+        <button
+          onClick={() => setActiveTab("selected")}
+          className={`flex items-center gap-2 px-4 py-1.5 text-[12px] font-semibold rounded-md border shadow-sm transition ${
+            activeTab === "selected"
+              ? "bg-blue-500 text-white border-blue-500 hover:bg-blue-600"
+              : "bg-mybackground text-mytextcolor border-mytableheadborder hover:border-blue-400 hover:text-blue-500"
+          }`}
+        >
+          {tt("Tanlanganlar", "Выбранные")}
+          <span
+            className={`px-1.5 py-[1px] rounded text-[11px] font-bold ${
+              activeTab === "selected"
+                ? "bg-white/25 text-white"
+                : "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
+            }`}
+          >
+            {attachedWorkersCount}
+          </span>
+        </button>
+      </div>
+      <div className="mt-2 max-h-[600px] overflow-y-auto border border-mytableheadborder">
           <table className="w-full border-collapse">
             <thead className="bg-mytablehead sticky top-0 z-10">
               <tr>
@@ -223,6 +333,11 @@ const EditForm: React.FC<EditFormProps> = ({
             </thead>
             <tbody>
               {workersList
+                .filter((w) =>
+                  activeTab === "selected"
+                    ? workersData.some((e) => e.worker_id === w.id)
+                    : true
+                )
                 .sort((a, b) => {
                   const isAChecked = workersData.some((e) => e.worker_id === a.id);
                   const isBChecked = workersData.some((e) => e.worker_id === b.id);
@@ -252,7 +367,11 @@ const EditForm: React.FC<EditFormProps> = ({
                           onChange={(e) =>
                             handleInputChange(worker.id, Number(e.target.value))
                           }
-                          className={`taskinput_${worker.id} border bg-mybackground border-mytableheadborder text-mytextcolor w-full rounded px-2 py-0.5`}
+                          className={`taskinput_${worker.id} border bg-mybackground text-mytextcolor w-full rounded px-2 py-0.5 ${
+                            find && (!find.task_time || find.task_time <= 0)
+                              ? "border-red-500 border-2 bg-red-50 dark:bg-red-950/40 text-red-600"
+                              : "border-mytableheadborder"
+                          }`}
                         />
                       </td>
                     </tr>

@@ -18,8 +18,13 @@ export type ITask = {
 };
 
 export type ITaskWorker = {
+  id: number;
   worker_id: number;
   fio: string;
   summa: number;
   task_time: number;
+  user?: string;
+  task_date?: string;
+  start_time?: string;
+  end_time?: string;
 };

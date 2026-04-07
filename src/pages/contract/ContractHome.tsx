@@ -389,8 +389,8 @@ function ContractHome() {
 
       {data ? (
         <div className="sticky bottom-0 bg-mybackground z-2 mt-[30px]">
-          <div className="flex flex-col items-center gap-4">
-            <div className="flex gap-1 ml-[420px]">
+          <div className="flex flex-col items-start gap-4">
+            <div className="flex gap-1">
               <div className="flex flex-col items-start gap-y-0.5 min-w-0">
                 <label className="font-[600] text-[8px] truncate whitespace-nowrap">{tt("Hisoblangan summa", "Ҳисобланган сумма")}:</label>
                 <Input readonly v={balance.internal_summa} className="w-[170px] text-[11px] h-7 px-2 py-0" />
