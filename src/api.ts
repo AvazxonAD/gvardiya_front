@@ -5,7 +5,7 @@ import { handleStatus } from "./utils";
 // const isProd = import.meta.env.PROD;
 // const port: any = window.location.port;
 
-export const URL = "https://gvardiya.smartbase.uz/api";
+export const URL = "http://localhost:3009";
 
 export const jwt = localStorage.getItem("token");
 
@@ -599,6 +599,18 @@ export const CreateBatalon = async (value: any, JWT: any) => {
 
   const data = await res.json();
 
+  return { ...data, message: data?.message || handleStatus(res.status) };
+};
+
+export const sendContractToLawyer = async (JWT: any, id: number) => {
+  const res = await fetch(URL + `/contract/${id}/send-lawyer`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+  });
+  const data = await res.json();
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 

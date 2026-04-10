@@ -11,11 +11,12 @@ import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 interface ContTabProps {
   data: any[];
-  handleDelete: (id: string) => void;
-  setActive: Dispatch<SetStateAction<any>>;
+  handleDelete?: (id: string) => void;
+  setActive?: Dispatch<SetStateAction<any>>;
+  hideActions?: boolean;
 }
 
-const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive }) => {
+const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive, hideActions }) => {
   const navigate = useNavigate();
   const [delOpen, setDelOpen] = useState(false);
 
@@ -44,78 +45,112 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive }) => {
       {data ? (
         <>
           <Table
-            tableClassName=""
+            tableClassName="text-[7px]"
             theadClassName="bg-mytablehead sticky z-10 top-[80px] text-mytextcolor"
+            theadStyle={{ fontSize: "9px" }}
             thead={[
               {
                 text: tt("№", "№"),
-                className: "px-2 py-3 text-left w-[120px]",
+                className: "px-[2px] py-[2px] text-left w-[32px]",
               },
               {
                 text: tt("Sana", "Дата"),
-                className: "px-2 py-3 text-center w-[100px]",
+                className: "px-[2px] py-[2px] text-center w-[50px]",
               },
               {
                 text: tt("Buyurtmachi", "Заказчик"),
-                className: "px-2 py-3 text-left w-[350px]",
+                className: "px-[2px] py-[2px] text-left w-[90px]",
               },
               {
                 text: tt("Tadbir manzili", "Место проведения"),
-                className: "px-2 py-3 text-left",
+                className: "px-[2px] py-[2px] text-left w-[70px]",
               },
               {
                 text: tt("Hisoblangan summa", "Ҳисобланган сумма"),
-                className: "px-2 py-3 text-center w-[180px]",
+                className: "px-[2px] py-[2px] text-center w-[62px]",
               },
               {
                 text: tt("Kelib tushgan summa", "Келиб тушган сумма"),
-                className: "px-2 py-3 text-center w-[180px]",
+                className: "px-[2px] py-[2px] text-center w-[62px]",
               },
               {
                 text: tt("Debitor qarzdorlik", "Дебитор қарздорлик"),
-                className: "px-2 py-3 text-center w-[180px]",
+                className: "px-[2px] py-[2px] text-center w-[62px]",
               },
               {
                 text: tt("Rasxod summa", "Расход сумма"),
-                className: "px-2 py-3 text-center w-[180px]",
+                className: "px-[2px] py-[2px] text-center w-[55px]",
               },
               {
                 text: tt("Xodim biriktirish", "Привязанность к сотруднику"),
-                className: "px-2 py-3 text-center w-[180px]",
+                className: "px-[2px] py-[2px] text-center w-[52px]",
               },
               {
-                text: tt("Amallar", "Действия"),
-                className: "px-2 py-3 text-center w-[50px]",
+                text: tt("Boshliq T", "Утв. рук."),
+                className: "px-[2px] py-[2px] text-center w-[52px]",
               },
+              {
+                text: tt("Yurist T", "Утв. юр."),
+                className: "px-[2px] py-[2px] text-center w-[52px]",
+              },
+              {
+                text: tt("Yuristga", "Юристу"),
+                className: "px-[2px] py-[2px] text-center w-[52px]",
+              },
+              ...(!hideActions ? [{
+                text: tt("Amallar", "Действия"),
+                className: "px-[2px] py-[2px] text-center w-[25px]",
+              }] : []),
             ]}
           >
             {data.map((item, index) => (
-              <tr key={index} className="my-[25px] text-mytextcolor cursor-pointer font-[500] hover:text-[#3B7FAF] transition-colors duration-300 border-b border-mytableheadborder">
-                <td className="px-2 py-3 text-[#3B7FAF] border-l border-r text-left" onClick={() => navigate(`/contract/view/${item.id}`)}>
+              <tr key={index} className="my-[25px] text-mytextcolor cursor-pointer font-[400] hover:text-[#3B7FAF] transition-colors duration-300 border-b border-mytableheadborder">
+                <td className="px-[2px] py-[2px] text-[#3B7FAF] border-l border-r text-left" onClick={() => navigate(hideActions ? `/lawyer-contract/view/${item.id}` : `/contract/view/${item.id}`)}>
                   {item.doc_num}
                 </td>
-                <td className="text-center text-inherit border-l border-r">{formatDate(item.doc_date)}</td>
-                <td className="rasxod-tooltip relative border-l border-r px-2 text-left text-inherit">
+                <td className="px-[2px] py-[2px] text-center text-inherit border-l border-r">{formatDate(item.doc_date)}</td>
+                <td className="rasxod-tooltip relative border-l border-r px-1 py-1 text-left text-inherit">
                   {item.organization_name}
                   {renderOrganizationTooltip(item)}
                 </td>
-                <td className="px-2 py-[6px] text-left border-l border-r text-inherit">{item.adress}</td>
-                <td className="px-2 text-right text-inherit border-l border-r">{formatSum(item.result_summa)}</td>
-                <td className="px-2 text-right text-inherit border-l border-r">{formatSum(item.remaining_summa)}</td>
-                <td className={`px-2 text-right text-inherit border-l border-r ${Number(item.remaining_balance) === 0 ? "text-green-500" : Number(item.remaining_balance) > 0 ? "text-blue-500" : "text-red-500"}`}>{formatSum(item.remaining_balance)}</td>
-                <td className="px-2 text-right text-inherit border-l border-r">{formatSum(item.rasxod_summa)}</td>
-                <td className="px-2 text-center border-l border-r">
+                <td className="px-[2px] py-[2px] text-left border-l border-r text-inherit">{item.adress}</td>
+                <td className="px-[2px] py-[2px] text-right text-inherit border-l border-r">{formatSum(item.result_summa)}</td>
+                <td className="px-[2px] py-[2px] text-right text-inherit border-l border-r">{formatSum(item.remaining_summa)}</td>
+                <td className={`px-1 py-1 text-right text-inherit border-l border-r ${Number(item.remaining_balance) === 0 ? "text-green-500" : Number(item.remaining_balance) > 0 ? "text-blue-500" : "text-red-500"}`}>{formatSum(item.remaining_balance)}</td>
+                <td className="px-[2px] py-[2px] text-right text-inherit border-l border-r">{formatSum(item.rasxod_summa)}</td>
+                <td className="px-[2px] py-[2px] text-center border-l border-r">
                   {item.worker_task_status === "Bajarilmagan" ? (
-                    <span className="text-red-500 flex items-center justify-center gap-1">
-                      <FaTimesCircle /> Bajarilmagan
-                    </span>
+                    <span style={{ color: "#ef4444", fontSize: "14px" }} className="flex justify-center">&#10006;</span>
                   ) : (
-                    <span className="text-green-500 flex items-center justify-center gap-1">
-                      <FaCheckCircle /> Bajarilgan
-                    </span>
+                    <span style={{ color: "#22c55e", fontSize: "14px" }} className="flex justify-center">&#10004;</span>
                   )}
                 </td>
-                <ThreeDotMenu id={item.id} setDelOpen={setDelOpen} setActive={setActive} />
+                <td className="px-[2px] py-[2px] text-center border-l border-r">
+                  {item.verification_boss === "success" ? (
+                    <span style={{ color: "#22c55e", fontSize: "14px" }} className="flex justify-center">&#10004;</span>
+                  ) : item.verification_boss === "update" ? (
+                    <span style={{ color: "#eab308", fontSize: "14px" }} className="flex justify-center">&#10004;</span>
+                  ) : (
+                    <span style={{ color: "#ef4444", fontSize: "14px" }} className="flex justify-center">&#10006;</span>
+                  )}
+                </td>
+                <td className="px-[2px] py-[2px] text-center border-l border-r">
+                  {item.verification_lawyer === "success" ? (
+                    <span style={{ color: "#22c55e", fontSize: "14px" }} className="flex justify-center">&#10004;</span>
+                  ) : item.verification_lawyer === "update" ? (
+                    <span style={{ color: "#eab308", fontSize: "14px" }} className="flex justify-center">&#10004;</span>
+                  ) : (
+                    <span style={{ color: "#ef4444", fontSize: "14px" }} className="flex justify-center">&#10006;</span>
+                  )}
+                </td>
+                <td className="px-[2px] py-[2px] text-center border-l border-r">
+                  {item.send_lawyer ? (
+                    <span style={{ color: "#22c55e", fontSize: "14px" }} className="flex justify-center">&#10004;</span>
+                  ) : (
+                    <span style={{ color: "#ef4444", fontSize: "14px" }} className="flex justify-center">&#10006;</span>
+                  )}
+                </td>
+                {!hideActions && <ThreeDotMenu id={item.id} setDelOpen={setDelOpen} setActive={setActive!} />}
               </tr>
             ))}
           </Table>
@@ -168,32 +203,34 @@ export const ThreeDotMenu = ({ id, setDelOpen, setActive }: Props) => {
           <Icon name="more" />
         </button>
         {isOpen && (
-          <div ref={menuRef} className="absolute right-[80px] mt-[110px] w-[170px] bg-mybackground border border-gray-300 rounded-md shadow-lg z-10">
-            <ul className="py-1 text-mytextcolor font-[400] text-[14px]">
-              <li
-                className="px-4 py-[6px]  cursor-pointer"
-                onClick={() => {
-                  navigate("/contract/" + id);
-                }}
+          <div ref={menuRef} className="absolute right-[80px] mt-[110px] w-[180px] bg-mybackground border border-gray-300 rounded-md shadow-lg z-10 p-1 flex flex-col">
+              <button
+                className="w-full px-3 py-2 text-[12px] font-[500] text-mytextcolor hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-left transition"
+                onClick={() => navigate("/contract/" + id)}
               >
                 {tt("Tahrirlash", "Редактировать")}
-              </li>
-              <li
-                className="px-4 py-[6px] cursor-pointer"
+              </button>
+              <button
+                className="w-full px-3 py-2 text-[12px] font-[500] text-mytextcolor hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-left transition"
                 onClick={() => {
                   setDelOpen(true);
                   setActive(id);
                 }}
               >
                 {tt("O'chirish", "Удалить")}
-              </li>
-              <li onClick={() => navigate("/contract/tasks/" + id)} className="px-4 py-[6px] cursor-pointer">
+              </button>
+              <button
+                className="w-full px-3 py-2 text-[12px] font-[500] text-mytextcolor hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-left transition"
+                onClick={() => navigate("/contract/tasks/" + id)}
+              >
                 {tt("Xodim biriktirish", "Прикрепить сотрудника")}
-              </li>
-              <li onClick={() => navigate("/contract/analiz/" + id)} className="px-4 py-[6px] cursor-pointer">
+              </button>
+              <button
+                className="w-full px-3 py-2 text-[12px] font-[500] text-mytextcolor hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-left transition"
+                onClick={() => navigate("/contract/analiz/" + id)}
+              >
                 {tt("Analiz", "Анализ")}
-              </li>
-            </ul>
+              </button>
           </div>
         )}
       </div>

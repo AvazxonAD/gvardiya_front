@@ -17,6 +17,7 @@ export type IUsers = {
     login: string;
     image: string | null;
     region_id: number;
+    type?: "admin" | "lawyer";
     batalon_id?: number;
     batalon?: any;
     created_at: string; // ISO date string

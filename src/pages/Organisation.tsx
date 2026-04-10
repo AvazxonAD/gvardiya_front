@@ -408,6 +408,15 @@ function Organisation() {
         removeAccountNumber={removeAccountNumber}
         removeGazna={removeGazna}
         title={tt("Organizator", "Организатор")}
+        onFill={({ newAccountNumber, ...data }) =>
+          setValue((prev: any) => ({
+            ...prev,
+            ...data,
+            account_numbers: newAccountNumber
+              ? [...prev.account_numbers, newAccountNumber]
+              : prev.account_numbers,
+          }))
+        }
       />
 
       <OrganizationModal
@@ -423,6 +432,15 @@ function Organisation() {
         removeAccountNumber={removeAccountNumber2}
         removeGazna={removeGazna2}
         title={tt("Hamkor korxona", "Партнерское предприятие")}
+        onFill={({ newAccountNumber, ...data }) =>
+          setValue2((prev: any) => ({
+            ...prev,
+            ...data,
+            account_numbers: newAccountNumber
+              ? [...prev.account_numbers, newAccountNumber]
+              : prev.account_numbers,
+          }))
+        }
       />
 
       <Download

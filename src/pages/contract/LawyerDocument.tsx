@@ -2,30 +2,37 @@ import { getContractId, getOrganId, getSpr } from "@/api";
 import { textNum, tt } from "@/utils";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import DocumentForPrint from "./DocumentForPrint";
 import BudgetTable from "./Smeta";
-// import { request } from "@/config/request";
 import BackButton from "@/Components/reusable/BackButton";
 import Button from "@/Components/reusable/button";
 import { useRequest } from "@/hooks/useRequest";
 import { SingleTemplateInterface, templateInterface } from "@/interface";
 import { replacer } from "@/lib/replace";
 import { getFullDate } from "@/lib/utils";
-import { SwitchTemplate } from "@/pageCompoents/SwitchTemplate";
 import { alertt } from "@/Redux/LanguageSlice";
 import DocumentForPrint2 from "./DocumentForPrint2";
+import { EImzo } from "@/lib/eimzo";
+import { URL as API_URL } from "@/api";
+import html2pdf from "html2pdf.js";
 
-const Document = () => {
+interface VerificationInfo {
+  id: number;
+  contract_id: number;
+  user_id: number;
+  file_name: string;
+  signer_name: string;
+  created_at: string;
+}
+
+const LawyerDocument = () => {
   const [templatesData, setTemplatesdata] = React.useState<templateInterface[]>([]);
   const request = useRequest();
-  const [openSwitcher, setOpenSwitcher] = React.useState(false);
   const [singleTemplate, setSingleTemplate] = React.useState<any>(null);
   const [data, setData] = useState<any>(null);
-  const [isSentToLawyer, setIsSentToLawyer] = useState(false);
   const JWT = useSelector((s: any) => s.auth.jwt);
-  // const [versiya, setVersiya] = useState(true);
   const [info, setInfo] = useState({
     title: "",
     doer: "",
@@ -40,18 +47,36 @@ const Document = () => {
   const [organisation, setOrganisation] = useState<any>([]);
   const { id } = useParams();
 
-  //@ts-ignore
-  const [urlParams] = useSearchParams();
-  const template_id = urlParams.get("template_id");
-
   const { account_number_id } = useSelector((state: any) => state.account);
+
+  // E-IMZO state
+  const [signing, setSigning] = useState(false);
+  const [signError, setSignError] = useState("");
+  const [signSuccess, setSignSuccess] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
+  const [verificationInfo, setVerificationInfo] = useState<VerificationInfo | null>(null);
+
+  const documentRef = useRef<HTMLDivElement>(null);
+
+  const loadVerificationInfo = async () => {
+    try {
+      const res = await request.get(`/contract/${id}/verification`);
+      if (res.data.success && res.data.data) {
+        setVerificationInfo(res.data.data);
+      }
+    } catch {}
+  };
 
   const getInfo = async () => {
     const res = await getContractId(JWT, id, account_number_id);
     if (res.success) {
       await getInfoForDoc(res.data);
       setData(res.data);
-      setIsSentToLawyer(res.data.send_lawyer || false);
+      setVerificationStatus(res.data.verification_lawyer || null);
+      if (res.data.verification_lawyer === "success") {
+        loadVerificationInfo();
+      }
+      getContractTemplate(res.data);
       const organ = await getOrganId(JWT, res.data.organization_id);
       setOrganisation(organ.data);
     }
@@ -87,65 +112,26 @@ const Document = () => {
   };
 
   const dispatch = useDispatch();
-  const getAlltemplates = async () => {
+  const getContractTemplate = async (contractData: any) => {
+    if (!contractData?.template_id) return;
     try {
-      const response = await request.get("/template/");
-      if (response.status == 200 || response.status == 201) {
-        let tmplates = response.data.data.map((el: any, idx: number) => ({
-          idx: idx,
-          active: template_id ? el.id == template_id : idx == 0 ? true : false,
-          ...el,
-        }));
-        setTemplatesdata(tmplates);
+      const res = await request.get("/template/" + contractData.template_id);
+      if (res.status == 200 || res.status == 201) {
+        setTemplatesdata([{ idx: 0, active: true, id: contractData.template_id, shablon_name: res.data.data.shablon_name }]);
       }
     } catch (error) {
       console.error(error);
-      dispatch(
-        alertt({
-          //@ts-ignore
-          text: error.message,
-          success: false,
-          open: true,
-        })
-      );
-    }
-  };
-
-  const handleSendToLawyer = async () => {
-    try {
-      const activeTemplate = templatesData.find((el) => el.active === true);
-      if (!activeTemplate) {
-        dispatch(alertt({ text: tt("Avval shablon tanlang", "Сначала выберите шаблон"), success: false, open: true }));
-        return;
-      }
-      const res = await request.patch(`/contract/${id}/send-lawyer`, { template_id: activeTemplate.id });
-      if (res.data.success) {
-        setIsSentToLawyer(true);
-        dispatch(alertt({ text: tt("Yuristga jo'natildi", "Отправлено юристу"), success: true, open: true }));
-      } else {
-        dispatch(alertt({ text: res.data.message || tt("Xatolik", "Ошибка"), success: false, open: true }));
-      }
-    } catch (err: any) {
-      dispatch(alertt({ text: err.message || tt("Xatolik", "Ошибка"), success: false, open: true }));
     }
   };
 
   function formatSectionText(text: string): string {
-    // Split the text by <br> tags
     const paragraphs = text.split("<br>");
-
-    // Process each paragraph
     const formattedParagraphs = paragraphs
-      .filter((p) => p.trim() !== "") // Remove empty paragraphs
+      .filter((p) => p.trim() !== "")
       .map((paragraph) => {
-        // Remove the non-breaking spaces from the beginning
         const cleanParagraph = paragraph.replace(/^(&nbsp;)+/, "");
-
-        // Wrap in span with text-indent
         return `<span style="display: block; text-indent: 1em;">${cleanParagraph}</span>`;
       });
-
-    // Join the paragraphs back together
     return formattedParagraphs.join("");
   }
 
@@ -153,40 +139,22 @@ const Document = () => {
     function replaceBetween(text: string) {
       const start = "«Бажарувчи»";
       const end = "тасдиқланган";
-
       const startIndex = text.indexOf(start);
       const endIndex = text.indexOf(end);
-
       if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
-        return text; // Agar kerakli so‘zlar topilmasa yoki noto‘g‘ri tartibda bo‘lsa, o‘zgartirmay qaytaradi
+        return text;
       }
-
       const before = text.slice(0, startIndex + start.length);
       const after = text.slice(endIndex);
-
       return `${before} ________________________ ${after}`;
     }
 
     function getMonthName(oyRaqami: number) {
       const oylar = [
-        "Январь",
-        "Февраль",
-        "Март",
-        "Апрель",
-        "Май",
-        "Июнь",
-        "Июль",
-        "Август",
-        "Сентябрь",
-        "Октябрь",
-        "Ноябрь",
-        "Декабрь",
+        "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+        "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь",
       ];
-
-      if (oyRaqami < 1 || oyRaqami > 12) {
-        return "Noto‘g‘ri oy raqami";
-      }
-
+      if (oyRaqami < 1 || oyRaqami > 12) return "Noto'g'ri oy raqami";
       return oylar[oyRaqami - 1];
     }
 
@@ -196,16 +164,9 @@ const Document = () => {
         const res = await request.get("/template/" + getActivetmplt.id);
         if (res.status == 200 || res.status == 201) {
           let template: SingleTemplateInterface = res.data.data;
-          // template.main_section=;
-
           let updatedtemplate = replacer(template, data, info, organisation);
 
-          // Format all section texts
-          if (updatedtemplate.section_2) {
-            updatedtemplate.section_2 = formatSectionText(updatedtemplate.section_2);
-          }
-
-          // Format other sections
+          if (updatedtemplate.section_2) updatedtemplate.section_2 = formatSectionText(updatedtemplate.section_2);
           if (updatedtemplate.section_1) {
             updatedtemplate.section_1 = formatSectionText(updatedtemplate.section_1);
             if (updatedtemplate.section_1.includes("${start_month}")) {
@@ -214,38 +175,22 @@ const Document = () => {
               const start_month_str = getMonthName(start_month);
               const end_month_str = getMonthName(end_month);
               const year = new Date(data.start_date).getFullYear();
-
-              // Bold uchun span qo'shamiz
               const start_month_bold = `<span class="font-bold">${year}-йил ${start_month_str}</span>`;
               const end_month_bold = `<span class="font-bold">${end_month_str}</span>`;
-
               updatedtemplate.section_1 = updatedtemplate.section_1.replace("${start_month}", start_month_bold);
               updatedtemplate.section_1 = updatedtemplate.section_1.replace("${end_month}", end_month_bold);
             }
-
             if (print) {
               updatedtemplate.section_1 = replaceBetween(updatedtemplate.section_1);
               data.doc_date = "_____________";
             }
           }
-          if (updatedtemplate.section_3) {
-            updatedtemplate.section_3 = formatSectionText(updatedtemplate.section_3);
-          }
-          if (updatedtemplate.section_4) {
-            updatedtemplate.section_4 = formatSectionText(updatedtemplate.section_4);
-          }
-          if (updatedtemplate.section_5) {
-            updatedtemplate.section_5 = formatSectionText(updatedtemplate.section_5);
-          }
-          if (updatedtemplate.section_6) {
-            updatedtemplate.section_6 = formatSectionText(updatedtemplate.section_6);
-          }
-          if (updatedtemplate.section_7) {
-            updatedtemplate.section_7 = formatSectionText(updatedtemplate.section_7);
-          }
-          if (updatedtemplate.main_section) {
-            updatedtemplate.main_section = formatSectionText(updatedtemplate.main_section);
-          }
+          if (updatedtemplate.section_3) updatedtemplate.section_3 = formatSectionText(updatedtemplate.section_3);
+          if (updatedtemplate.section_4) updatedtemplate.section_4 = formatSectionText(updatedtemplate.section_4);
+          if (updatedtemplate.section_5) updatedtemplate.section_5 = formatSectionText(updatedtemplate.section_5);
+          if (updatedtemplate.section_6) updatedtemplate.section_6 = formatSectionText(updatedtemplate.section_6);
+          if (updatedtemplate.section_7) updatedtemplate.section_7 = formatSectionText(updatedtemplate.section_7);
+          if (updatedtemplate.main_section) updatedtemplate.main_section = formatSectionText(updatedtemplate.main_section);
 
           setSingleTemplate(updatedtemplate);
         }
@@ -256,34 +201,130 @@ const Document = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const contentRef2 = useRef<HTMLDivElement>(null);
 
-  const reactToPrintFn = useReactToPrint({
-    contentRef,
-    // pageStyle: `@page {\ margin: 50px;\ }`,
-  });
+  const reactToPrintFn = useReactToPrint({ contentRef });
+  const reactToPrintFn2 = useReactToPrint({ contentRef: contentRef2 });
 
-  const reactToPrintFn2 = useReactToPrint({
-    contentRef: contentRef2,
-    // pageStyle: `@page {\ margin: 50px;\ }`,
-  });
   const onPrintClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault(); // Prevent default action if needed
-    reactToPrintFn(); // Call the handlePrint function
+    event.preventDefault();
+    reactToPrintFn();
   };
 
   const onPrintClick2 = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault(); // Prevent default action if needed
-    getSingleTemplate(true).then(() => {}); // Call the handlePrint function
+    event.preventDefault();
+    getSingleTemplate(true).then(() => {});
   };
-  // Explicitly cast to UseReactToPrintOptions
+
+  // Shartnomani PDF qilib yaratish
+  const generatePdf = async (): Promise<Blob> => {
+    const element = documentRef.current;
+    if (!element) throw new Error("Hujjat topilmadi");
+
+    // Borderlarni va dividerlarni vaqtincha olib tashlash
+    const sections = element.querySelectorAll<HTMLElement>("section");
+    const dividers = element.querySelectorAll<HTMLElement>(".h-\\[16px\\]");
+    const savedStyles: string[] = [];
+    sections.forEach((s) => {
+      savedStyles.push(s.style.cssText);
+      s.style.border = "none";
+    });
+    dividers.forEach((d) => (d.style.display = "none"));
+
+    const blob: Blob = await html2pdf()
+      .set({
+        margin: [5, 0, 5, 0], // top, left, bottom, right (mm)
+        image: { type: "jpeg", quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true, scrollY: -window.scrollY },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: "css", avoid: ["h1", "h2", "h3"] },
+      })
+      .from(element)
+      .outputPdf("blob");
+
+    // Stillarni qaytarish
+    sections.forEach((s, i) => (s.style.cssText = savedStyles[i]));
+    dividers.forEach((d) => (d.style.display = ""));
+
+    return blob;
+  };
+
+  // E-IMZO bilan tasdiqlash
+  const handleEimzoSign = async () => {
+    setSigning(true);
+    setSignError("");
+    setSignSuccess(false);
+
+    try {
+      // 1. E-IMZO ga ulanish va sertifikatlar ro'yxati
+      await EImzo.connect();
+      const certs = await EImzo.listAllCertificates();
+      if (certs.length === 0) throw new Error("E-IMZO kaliti topilmadi");
+
+      // 2. Birinchi kalitni yuklash (parol oynasi ochiladi)
+      const cert = certs[0];
+      const alias = cert.alias || "";
+      const keyId = await EImzo.loadKey(
+        cert.disk || "", cert.path || "", cert.name || "", alias
+      );
+
+      // 3. E-IMZO sertifikatdan FIO olish
+      const parseCertAlias = (a: string) => {
+        const result: Record<string, string> = {};
+        for (const part of a.split(",")) {
+          const eq = part.indexOf("=");
+          if (eq === -1) continue;
+          result[part.substring(0, eq).trim().toLowerCase()] = part.substring(eq + 1).trim();
+        }
+        return result;
+      };
+      const certFields = parseCertAlias(alias);
+      const signerName = certFields.cn || certFields["1.2.860.3.16.1.1"] || "";
+
+      // 4. Shartnoma ma'lumotlarini imzolash
+      const content = `contract_id:${id}|doc_num:${data.doc_num}|verify:lawyer`;
+      const content64 = btoa(unescape(encodeURIComponent(content)));
+      await EImzo.createPkcs7(content64, keyId);
+
+      // 5. PDF yaratish
+      const pdfBlob = await generatePdf();
+
+      // 6. Backendga PDF va tasdiqlash yuborish
+      const formData = new FormData();
+      formData.append("file", pdfBlob, `contract_${data.doc_num}.pdf`);
+      formData.append("signer_name", signerName);
+
+      const res = await request.patch(`/contract/${id}/verify-lawyer`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (res.data.success) {
+        setSignSuccess(true);
+        setVerificationStatus("success");
+        setVerificationInfo(res.data.data);
+        dispatch(alertt({ text: "Shartnoma muvaffaqiyatli tasdiqlandi!", success: true, open: true }));
+      } else {
+        throw new Error(res.data.message || "Tasdiqlashda xatolik");
+      }
+    } catch (err: any) {
+      const errMsg = String(err.message || err).toLowerCase();
+      if (errMsg.includes("password") || errMsg.includes("padding")) {
+        setSignError("Noto'g'ri parol kiritildi. Qaytadan urinib ko'ring.");
+      } else if (errMsg.includes("aloqa uzildi") || errMsg.includes("ulanib bo'lmadi")) {
+        setSignError("E-IMZO dasturiga ulanib bo'lmadi. Dastur ishga tushirilganligini tekshiring.");
+      } else if (errMsg.includes("cancel")) {
+        setSignError("Bekor qilindi.");
+      } else {
+        setSignError(err.message || "Xatolik yuz berdi");
+      }
+    } finally {
+      setSigning(false);
+    }
+  };
+
   useEffect(() => {
     if (data && organisation) {
       getSingleTemplate();
     }
   }, [templatesData, data, organisation]);
-
-  useEffect(() => {
-    getAlltemplates();
-  }, [template_id]);
 
   useEffect(() => {
     if (account_number_id) {
@@ -313,39 +354,80 @@ const Document = () => {
               singleTemplate={singleTemplate}
             />
           </div>
-          <SwitchTemplate
-            templatesData={templatesData}
-            open={openSwitcher}
-            setOpen={setOpenSwitcher}
-            setTemplatesdata={setTemplatesdata}
-          />
           <div className="h-full  text-[#000000] text-[14px] leading-[19.2px]">
             <div className="flex justify-between items-start">
               <div>
-                <BackButton link="/contract" />
+                <BackButton link="/lawyer-contract" />
               </div>
               <div className="flex gap-2 justify-end mr-16">
-                {!isSentToLawyer ? (
-                  <Button onClick={handleSendToLawyer} mode="clear" text={tt("Yuristga jo'natish", "Отправить юристу")} />
-                ) : (
+                {/* E-IMZO tasdiqlash tugmasi */}
+                {verificationStatus === "success" ? (
                   <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg font-semibold text-sm">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
                     </svg>
-                    {tt("Yuristga jo'natilgan", "Отправлено юристу")}
+                    {tt("Tasdiqlangan", "Утверждено")}
                   </div>
+                ) : (
+                  <button
+                    onClick={handleEimzoSign}
+                    disabled={signing}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#059669] hover:bg-[#047857] disabled:bg-[#6ee7b7] text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    {signing ? (
+                      <>
+                        <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        {tt("Kuting...", "Подождите...")}
+                      </>
+                    ) : (
+                      <>
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 6h2v2h-2V7zm0 4h2v6h-2v-6z" />
+                        </svg>
+                        {tt("E-IMZO bilan tasdiqlash", "Утвердить через E-IMZO")}
+                      </>
+                    )}
+                  </button>
                 )}
                 <Button mode="print" onClick={onPrintClick} />
-                <Button mode="clear" onClick={onPrintClick2} />
-                <Button onClick={() => setOpenSwitcher(true)} mode="clear" text={tt("almashtirish", "замена")} />
               </div>
             </div>
+
+            {/* E-IMZO xatolik xabari */}
+            {signError && (
+              <div className="mx-16 mt-2 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                {signError}
+              </div>
+            )}
+
+            {/* Tasdiqlash ma'lumotlari */}
+            {verificationInfo && (
+              <div className="mx-16 mt-2 px-4 py-3 bg-green-50 border border-green-200 text-green-800 rounded-lg text-sm flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div>
+                    <span className="font-semibold">{tt("Tasdiqlagan", "Утвердил")}:</span>{" "}
+                    {verificationInfo.signer_name}
+                  </div>
+                  <div>
+                    <span className="font-semibold">{tt("Sana", "Дата")}:</span>{" "}
+                    {new Date(verificationInfo.created_at).toLocaleString("uz-UZ")}
+                  </div>
+                </div>
+                <a
+                  href={API_URL?.replace("/api", "") + verificationInfo.file_name}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 py-1 bg-green-600 text-white rounded text-xs font-semibold hover:bg-green-700"
+                >
+                  PDF
+                </a>
+              </div>
+            )}
+
             <div className="mb-[100px] mt-5">
-              <div className="container mx-auto   text-wrap    text-[16px] overfloww my-auto w-[795px] bg-mybackground text-mytextcolor font__times">
+              <div ref={documentRef} className="container mx-auto   text-wrap    text-[14px] overfloww my-auto w-[795px] bg-mybackground text-mytextcolor font__times">
                 <section className="pt-10 pr-[40px] pl-[80px] border border-gray-300">
                   <h1 className="text-center font-bold text-lg mb-1">
-                    {/* Оммавий тадбирни ўтказишда фуқаролар хавфсизлигини таъминлаш
-                  ва жамоат тартибини сақлаш тўғрисида намунавий шартнома */}
                     {singleTemplate?.title}
                   </h1>
 
@@ -365,7 +447,6 @@ const Document = () => {
                     />
                   </div>
 
-                  {/* Bandlar */}
                   <h2
                     dangerouslySetInnerHTML={{
                       __html: singleTemplate?.section_1_title,
@@ -456,7 +537,6 @@ const Document = () => {
                       <p>Банк реквизитлари: {organisation.bank_name}</p>
                       <p>МФО: {organisation.mfo}</p>
                       <p>х/р: {textNum(data.organization_account_number || organisation.account_number, 4)} </p>
-
                       {(organisation.treasury1 || organisation.treasury2) && (
                         <p>
                           {" "}
@@ -486,7 +566,7 @@ const Document = () => {
 
                 <div className="h-[16px] bg-mybackground w-[100%]  "></div>
 
-                <section className="pt-8 pr-[40px] pb-[360px] pl-[80px] border border-gray-300">
+                <section className="pt-8 pr-[40px] pb-[360px] pl-[80px] border border-gray-300" style={{ pageBreakBefore: "always" }}>
                   <div className="flex flex-col justify-end text-lg font-semibold items-end gap-1">
                     <span>{getFullDate(data.doc_date)}</span>
                     <span>{data.doc_num} сонли шартномага илова</span>
@@ -519,4 +599,4 @@ const Document = () => {
   );
 };
 
-export default Document;
+export default LawyerDocument;

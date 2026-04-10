@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from "@/Components/reusable/button";
-import { PlusIcon, Trash2Icon } from "lucide-react";
+import { PlusIcon, Trash2Icon, SearchIcon, Loader2Icon } from "lucide-react";
 import Input from "@/Components/Input";
 import Modal from "@/Components/Modal";
 import { tt } from "@/utils";
+import { formatAccountNumber } from "@/pages/Organisation";
+import { baseUri } from "@/services/api";
 
 interface OrganizationModalProps {
   open: boolean;
@@ -28,6 +30,7 @@ interface OrganizationModalProps {
   removeGazna: (index: number) => void;
   title: string;
   submitButtonText?: string;
+  onFill?: (data: Partial<OrganizationModalProps["value"]> & { newAccountNumber?: string }) => void;
 }
 
 function OrganizationModal({
@@ -44,12 +47,95 @@ function OrganizationModal({
   removeGazna,
   title,
   submitButtonText = "save",
+  onFill,
 }: OrganizationModalProps) {
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState("");
+
+  const handleInnSearch = async () => {
+    const inn = value.str.replace(/\s/g, "");
+    if (inn.length !== 9) {
+      setSearchError(tt("INN 9 ta raqamdan iborat bo'lishi kerak", "ИНН должен состоять из 9 цифр"));
+      return;
+    }
+
+    setSearching(true);
+    setSearchError("");
+
+    try {
+      const token = sessionStorage.getItem("token");
+      const res = await fetch(`${baseUri}/didox/search/${inn}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const result = await res.json();
+
+      if (result.success && result.data) {
+        const d = result.data;
+        const accountNum = d.account || d.bankAccount || "";
+
+        if (onFill) {
+          const formatted = accountNum ? formatAccountNumber(accountNum) : "";
+          const raw = accountNum ? accountNum.replace(/\s/g, "") : "";
+          const alreadyExists = value.account_numbers.some(
+            (num) => num.replace(/\s/g, "") === raw
+          );
+
+          onFill({
+            name: d.fullName || d.name || "",
+            address: d.address || "",
+            boss: d.director || "",
+            mfo: d.mfo || d.bankCode || "",
+            bank_name: d.bank_name || "",
+            newAccountNumber: formatted && !alreadyExists ? formatted : undefined,
+          });
+        }
+      } else {
+        setSearchError(result.message || tt("Tashkilot topilmadi", "Организация не найдена"));
+      }
+    } catch {
+      setSearchError(tt("Qidirishda xatolik", "Ошибка при поиске"));
+    } finally {
+      setSearching(false);
+    }
+  };
+
   return (
     <Modal open={open} w="730px" title={title} closeModal={closeModal}>
       <form onSubmit={handleSubmit}>
         <div className="flex gap-6 w-full">
           <div className="flex gap-3 flex-col w-1/2">
+            <div>
+              <div className="flex gap-2 items-end">
+                <div className="flex-1">
+                  <Input
+                    change={handleChange}
+                    v={value.str}
+                    n="str"
+                    t="text"
+                    label={tt("INN", "ИНН")}
+                    p={tt("INN", "ИНН")}
+                    className="w-full"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleInnSearch}
+                  disabled={searching}
+                  className="mb-[2px] px-3 py-[9px] bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center gap-1 text-sm"
+                >
+                  {searching ? (
+                    <Loader2Icon size={16} className="animate-spin" />
+                  ) : (
+                    <SearchIcon size={16} />
+                  )}
+                </button>
+              </div>
+              {searchError && (
+                <p className="text-red-500 text-xs mt-1">{searchError}</p>
+              )}
+            </div>
             <Input
               t={"text"}
               change={handleChange}
@@ -65,15 +151,6 @@ function OrganizationModal({
               n="address"
               label={tt("Manzil", "Адрес")}
               p={tt("Manzil kiriting", "Введите адрес")}
-              className="w-full"
-            />
-            <Input
-              change={handleChange}
-              v={value.str}
-              n="str"
-              t="text"
-              label={tt("INN", "ИНН")}
-              p={tt("INN", "ИНН")}
               className="w-full"
             />
             <Input
@@ -97,8 +174,8 @@ function OrganizationModal({
               change={handleChange}
               v={value.boss}
               n="boss"
-              label={tt("Rahbar", "Руководитель")}
-              p={tt("Rahbar kiriting", "Введите руководителя")}
+              label={tt("Direktor", "Директор")}
+              p={tt("Direktor kiriting", "Введите директора")}
               className="w-full"
             />
           </div>

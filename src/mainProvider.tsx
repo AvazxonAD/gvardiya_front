@@ -9,6 +9,8 @@ import Batalon from "./pages/Batalon";
 import ContractAnaliz from "./pages/contract/analiz";
 import Contract from "./pages/contract/Contract";
 import ContractHome from "./pages/contract/ContractHome";
+import LawyerContract from "./pages/contract/LawyerContract";
+import LawyerDocument from "./pages/contract/LawyerDocument";
 import BatalonTasks from "./pages/batalon/task/index";
 import BatalonWorkerTasks from "./pages/batalon/worker.tasks/index";
 import ContractPage from "./pages/contract/contractPage";
@@ -73,6 +75,8 @@ const MainProvider = () => {
                     <Route path="tasks/:id" element={<Tasks />} />
                     <Route path=":id" element={<ContractPage />} />
                   </Route>
+                  <Route path="/lawyer-contract" element={<LawyerContract />} />
+                  <Route path="/lawyer-contract/view/:id" element={<LawyerDocument />} />
                   <Route path="/workers" element={<Workers />} />
                   <Route path="/batalon" element={<Batalon />} />
                   <Route path="/organisation" element={<Organisation />} />

@@ -622,6 +622,15 @@ const ContractPage = () => {
         removeAccountNumber={removeAccountNumber}
         removeGazna={removeGazna}
         title={tt("Yangi tashkilot qo'shish", "Добавить новую организацию")}
+        onFill={({ newAccountNumber, ...data }) =>
+          setOrganizationValue((prev) => ({
+            ...prev,
+            ...data,
+            account_numbers: newAccountNumber
+              ? [...prev.account_numbers, newAccountNumber]
+              : prev.account_numbers,
+          }))
+        }
       />
     </div>
   );

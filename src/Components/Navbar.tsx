@@ -41,6 +41,13 @@ function Navbar() {
       icon: ({ ...props }) => <ShartnomaIcon {...props} />,
     },
     {
+      id: 14,
+      name: "Yurist shartnoma",
+      path: "/lawyer-contract",
+      ru: "Договор юриста",
+      icon: ({ ...props }) => <ShartnomaIcon {...props} />,
+    },
+    {
       id: 4,
       name: "F.I.O",
       path: "/workers",
@@ -183,6 +190,10 @@ function Navbar() {
           setActiveSubItem(currentSubItem.name);
         }
       }
+    } else if (locationn.pathname.includes("/lawyer-contract")) {
+      setActiveItem("Yurist shartnoma");
+      setIsSpravichnikOpen(false);
+      setActiveSubItem("");
     } else if (locationn.pathname.includes("/contract")) {
       setActiveItem("Shartnoma");
       setIsSpravichnikOpen(false);

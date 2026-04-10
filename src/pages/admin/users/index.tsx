@@ -14,6 +14,11 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 
+const userTypes = [
+  { id: "admin", name: "Viloyat admin" },
+  { id: "lawyer", name: "Viloyat yurist" },
+];
+
 const UserTable: React.FC = () => {
   const [users, setUsers] = useState<IUsers[]>([]);
   const [regions, setRegions] = useState<{ id: number; name: string }[]>([]);
@@ -79,6 +84,7 @@ const UserTable: React.FC = () => {
       login: "",
       file: null as File | null,
       region_id: "",
+      type: "",
     },
     validationSchema: Yup.object({
       fio: Yup.string().required(tt("FIO kiriting", "Введите ФИО")),
@@ -96,6 +102,9 @@ const UserTable: React.FC = () => {
       region_id: Yup.number().required(
         tt("Hududni tanlang", "Выберите регион")
       ),
+      type: Yup.string()
+        .oneOf(["admin", "lawyer"])
+        .required(tt("Turni tanlang", "Выберите тип")),
     }),
     onSubmit: async (values, { resetForm }) => {
       const formData = new FormData();
@@ -104,6 +113,7 @@ const UserTable: React.FC = () => {
       formData.append("login", values.login);
       if (values.file) formData.append("file", values.file);
       formData.append("region_id", values.region_id.toString());
+      formData.append("type", values.type);
 
       try {
         const response: any = await api.post("admin/user", formData, true);
@@ -142,6 +152,7 @@ const UserTable: React.FC = () => {
     password: string;
     login: string;
     region_id: string | number;
+    type: string;
     file: File | null;
   }
 
@@ -151,6 +162,7 @@ const UserTable: React.FC = () => {
       password: "",
       login: "",
       region_id: "",
+      type: "",
       file: null as File | null,
     },
     validationSchema: Yup.object({
@@ -168,6 +180,9 @@ const UserTable: React.FC = () => {
       region_id: Yup.number().required(
         tt("Hududni tanlang", "Выберите регион")
       ),
+      type: Yup.string()
+        .oneOf(["admin", "lawyer"])
+        .required(tt("Turni tanlang", "Выберите тип")),
     }),
     onSubmit: async (
       values: UserFormValues,
@@ -178,6 +193,7 @@ const UserTable: React.FC = () => {
       formData.append("password", values.password);
       formData.append("login", values.login);
       formData.append("region_id", values.region_id.toString());
+      formData.append("type", values.type);
       if (values.file) formData.append("file", values.file);
 
       try {
@@ -223,6 +239,7 @@ const UserTable: React.FC = () => {
         password: "",
         login: userEdited.login ?? "",
         region_id: userEdited.region_id ?? "",
+        type: userEdited.type ?? "",
         file: null,
       });
     }
@@ -238,6 +255,7 @@ const UserTable: React.FC = () => {
           { text: tt("Rasm", "Фото"), className: "w-[100px]" },
           { text: tt("FIO", "ФИО"), className: "text-left" },
           { text: tt("Viloyat", "Регион"), className: "text-left" },
+          { text: tt("Turi", "Тип"), className: "text-left" },
           { text: tt("Login", "Логин"), className: "text-left" },
           { text: tt("Amallar", "Действия"), className: "w-[150px]" },
         ]}
@@ -287,6 +305,17 @@ const UserTable: React.FC = () => {
               } px-3 font-[600] text-md`}
             >
               {user.name}
+            </td>
+            <td
+              className={`border-b border-l border-r  ${
+                user.image ? "py-1" : "py-3"
+              } px-3 font-[600] text-md`}
+            >
+              {user.type === "admin"
+                ? tt("Viloyat admin", "Администратор")
+                : user.type === "lawyer"
+                ? tt("Viloyat yurist", "Юрист")
+                : "—"}
             </td>
             <td
               className={`border-b border-l border-r  ${
@@ -387,6 +416,23 @@ const UserTable: React.FC = () => {
           </div>
 
           <div className="mb-4">
+            <Select
+              value={formik2.values.type}
+              data={userTypes}
+              onChange={(value: string) =>
+                formik2.setFieldValue("type", value)
+              }
+              label={tt("Turi", "Тип")}
+              p={tt("Turni tanlang", "Выберите тип")}
+              error={
+                formik2.touched?.type ? formik2.errors.type : undefined
+              }
+              up={true}
+              w={false}
+            />
+          </div>
+
+          <div className="mb-4">
             <label className="block text-sm text-mylabelcolor mb-1">{tt("Rasm", "Изображение")} <span className="text-[var(--dash-text-muted,#94a3b8)] text-xs">({tt("ixtiyoriy", "необязательно")})</span></label>
             <label className="flex items-center gap-3 border border-mybordercolor rounded-lg px-4 py-2.5 cursor-pointer hover:border-blue-400 transition">
               <svg className="w-5 h-5 text-mylabelcolor shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -479,6 +525,23 @@ const UserTable: React.FC = () => {
               p={tt("Hudud tanlang", "Выберите регион")}
               error={
                 formik.touched?.region_id ? formik.errors.region_id : undefined
+              }
+              up={true}
+              w={false}
+            />
+          </div>
+
+          <div className="mb-4">
+            <Select
+              value={formik.values.type}
+              data={userTypes}
+              onChange={(value: string) =>
+                formik.setFieldValue("type", value)
+              }
+              label={tt("Turi", "Тип")}
+              p={tt("Turni tanlang", "Выберите тип")}
+              error={
+                formik.touched?.type ? formik.errors.type : undefined
               }
               up={true}
               w={false}
