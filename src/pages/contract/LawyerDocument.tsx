@@ -231,7 +231,7 @@ const LawyerDocument = () => {
 
     const blob: Blob = await html2pdf()
       .set({
-        margin: [5, 0, 5, 0], // top, left, bottom, right (mm)
+        margin: [5, 0, 7, 0], // top, left, bottom, right (mm)
         image: { type: "jpeg", quality: 0.95 },
         html2canvas: { scale: 2, useCORS: true, scrollY: -window.scrollY },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
