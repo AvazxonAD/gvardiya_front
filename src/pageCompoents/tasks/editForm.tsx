@@ -1,5 +1,6 @@
-import { Users, Clock, Hourglass } from "lucide-react";
+import { Users, Clock, Hourglass, UserPlus } from "lucide-react";
 import Input from "@/Components/Input";
+import Modal from "@/Components/Modal";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import Button from "@/Components/reusable/button";
 import { alertt } from "@/Redux/LanguageSlice";
@@ -10,6 +11,17 @@ import { tt } from "@/utils";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useDebounce } from "use-debounce";
+
+const formatAccountNumber = (value: string) => {
+  if (!value) return "";
+  const newValue = value?.replace(/[^\d]/g, "");
+  let formattedValue = "";
+  for (let i = 0; i < newValue?.length; i++) {
+    if (i > 0 && i % 4 === 0) formattedValue += " ";
+    formattedValue += newValue[i];
+  }
+  return formattedValue?.trim();
+};
 
 interface EditFormProps {
   row: ITask;
@@ -49,6 +61,12 @@ const EditForm: React.FC<EditFormProps> = ({
   const [startTime, setStartTime] = useState<string>(contract?.start_time ?? "");
   const [endTime, setEndTime] = useState<string>(contract?.end_time ?? "");
   const [activeTab, setActiveTab] = useState<"all" | "selected">("all");
+  const [addWorkerOpen, setAddWorkerOpen] = useState<boolean>(false);
+  const [newWorker, setNewWorker] = useState<{
+    fio: string;
+    account_number: string;
+    xisob_raqam: string;
+  }>({ fio: "", account_number: "", xisob_raqam: "" });
   const dispatch = useDispatch();
 
   const fetchWorkers = async () => {
@@ -147,6 +165,39 @@ const EditForm: React.FC<EditFormProps> = ({
     });
 
     setWorkersData(changedWorkersData);
+  };
+
+  const handleCreateWorker = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!newWorker.fio?.trim()) {
+      dispatch(
+        alertt({
+          text: tt("F.I.O kiriting", "Введите Ф.И.О"),
+          success: false,
+        })
+      );
+      return;
+    }
+    const payload = {
+      fio: newWorker.fio,
+      account_number: (newWorker.account_number || "").replaceAll(" ", ""),
+      xisob_raqam: (newWorker.xisob_raqam || "").replaceAll(" ", ""),
+      batalon_id: row?.batalon_id || null,
+    };
+    const res: any = await api.post("worker", payload);
+    dispatch(
+      alertt({
+        text: res?.success
+          ? tt("Muvaffaqiyatli bajarildi", "Успешно выполнено")
+          : res?.message || "error",
+        success: !!res?.success,
+      })
+    );
+    if (res?.success) {
+      setAddWorkerOpen(false);
+      setNewWorker({ fio: "", account_number: "", xisob_raqam: "" });
+      fetchWorkers();
+    }
   };
 
   useEffect(() => {}, [workersData]);
@@ -321,6 +372,14 @@ const EditForm: React.FC<EditFormProps> = ({
             {attachedWorkersCount}
           </span>
         </button>
+        <button
+          type="button"
+          onClick={() => setAddWorkerOpen(true)}
+          className="flex items-center gap-1.5 px-4 py-1.5 text-[12px] font-semibold rounded-md border shadow-sm transition bg-green-500 text-white border-green-500 hover:bg-green-600"
+        >
+          <UserPlus size={14} />
+          {tt("Xodim qo'shish", "Добавить сотрудника")}
+        </button>
       </div>
       <div className="mt-2 max-h-[600px] overflow-y-auto border border-mytableheadborder">
           <table className="w-full border-collapse">
@@ -380,6 +439,55 @@ const EditForm: React.FC<EditFormProps> = ({
             </tbody>
           </table>
       </div>
+      <Modal
+        open={addWorkerOpen}
+        closeModal={() => setAddWorkerOpen(false)}
+        title={tt("Xodim qo'shish", "Добавить сотрудника")}
+      >
+        <form onSubmit={handleCreateWorker}>
+          <div className="flex gap-3 flex-col w-full">
+            <Input
+              v={newWorker.fio}
+              change={(e: any) =>
+                setNewWorker({ ...newWorker, fio: e.target.value })
+              }
+              label={tt(
+                "Ism, familya, otasining ismi",
+                "Имя, фамилия, отчество"
+              )}
+              p={tt(
+                "Ism, familya, otasining ismini kiriting",
+                "Введите имя, фамилия и отчество"
+              )}
+            />
+            <Input
+              v={newWorker.account_number}
+              change={(e: any) =>
+                setNewWorker({
+                  ...newWorker,
+                  account_number: formatAccountNumber(e.target.value),
+                })
+              }
+              label={tt("Karta raqam", "Номер карты")}
+              p={tt("Karta raqamini kiriting", "Введите номер карты")}
+            />
+            <Input
+              v={newWorker.xisob_raqam}
+              change={(e: any) =>
+                setNewWorker({
+                  ...newWorker,
+                  xisob_raqam: formatAccountNumber(e.target.value),
+                })
+              }
+              label={tt("Hisob raqam", "Номер счета")}
+              p={tt("Hisob raqamini kiriting", "Введите номер счета")}
+            />
+            <div className="flex justify-end mt-4">
+              <Button mode="save" type="submit" />
+            </div>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
