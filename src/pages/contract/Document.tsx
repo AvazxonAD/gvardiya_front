@@ -513,7 +513,7 @@ const Document = () => {
                     type="button"
                     onClick={() =>
                       viewAndDownloadPdf(
-                        API_URL?.replace("/api", "") + data.file,
+                        API_URL + data.file,
                         `shartnoma_${data?.doc_num || id}.pdf`
                       )
                     }

@@ -402,7 +402,7 @@ const LawyerDocument = () => {
                     type="button"
                     onClick={() =>
                       viewAndDownloadPdf(
-                        API_URL?.replace("/api", "") + data.file,
+                        API_URL + data.file,
                         `shartnoma_${data?.doc_num || id}.pdf`
                       )
                     }
@@ -441,7 +441,7 @@ const LawyerDocument = () => {
                   type="button"
                   onClick={() =>
                     viewAndDownloadPdf(
-                      API_URL?.replace("/api", "") + verificationInfo.file_name,
+                      API_URL + verificationInfo.file_name,
                       `shartnoma_${data?.doc_num || id}.pdf`
                     )
                   }

@@ -168,7 +168,7 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive, hideAc
                         onClick={(e) => {
                           e.stopPropagation();
                           viewAndDownloadPdf(
-                            API_URL?.replace("/api", "") + item.file,
+                            API_URL + item.file,
                             `shartnoma_${item.doc_num || item.id}.pdf`
                           );
                         }}

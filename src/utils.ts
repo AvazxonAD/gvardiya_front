@@ -555,18 +555,27 @@ export function formatDateAll(isoString: string): string {
 }
 
 export async function viewAndDownloadPdf(url: string, fileName: string) {
-  window.open(url, "_blank", "noopener,noreferrer");
   try {
-    const res = await fetch(url);
+    const token = sessionStorage.getItem("token");
+    const res = await fetch(url, {
+      headers: token ? { Authorization: "Bearer " + token } : {},
+    });
+    if (!res.ok) {
+      throw new Error(`PDF yuklanmadi: ${res.status}`);
+    }
     const blob = await res.blob();
     const blobUrl = URL.createObjectURL(blob);
+
+    window.open(blobUrl, "_blank", "noopener,noreferrer");
+
     const a = document.createElement("a");
     a.href = blobUrl;
     a.download = fileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(blobUrl);
+
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
   } catch (e) {
     console.error("Yuklab olishda xatolik:", e);
   }
