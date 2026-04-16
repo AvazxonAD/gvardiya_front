@@ -1,6 +1,6 @@
 import { ITask } from "@/types/task";
-import { tt } from "@/utils";
-import React, { useState } from "react";
+import { formatSum, tt } from "@/utils";
+import React, { useCallback, useState } from "react";
 import TableItem from "./TableItem";
 import Icon from "@/assets/icons";
 
@@ -10,6 +10,43 @@ const Table: React.FC<{ data: ITask[]; getTasks: Function; contract?: any }> = (
   contract,
 }) => {
   const [creatingId, setCreatingId] = useState<number | null>(null);
+  const [workerStats, setWorkerStats] = useState<
+    Record<number, { count: number; hours: number }>
+  >({});
+
+  const updateStats = useCallback(
+    (taskId: number, count: number, hours: number) => {
+      setWorkerStats((prev) => {
+        const cur = prev[taskId];
+        if (cur && cur.count === count && cur.hours === hours) return prev;
+        return { ...prev, [taskId]: { count, hours } };
+      });
+    },
+    []
+  );
+
+  const totals = data.reduce(
+    (acc, row) => {
+      const stats = workerStats[row.id];
+      acc.workerNumber += Number(row.worker_number) || 0;
+      acc.totalHours += (Number(row.worker_number) || 0) * (Number(row.task_time) || 0);
+      acc.summa += Number(row.summa) || 0;
+      acc.remaining += Number(row.remaining_task_time) || 0;
+      if (!row.birgada && stats) {
+        acc.attachedWorkers += stats.count;
+        acc.attachedHours += stats.hours;
+      }
+      return acc;
+    },
+    {
+      workerNumber: 0,
+      totalHours: 0,
+      summa: 0,
+      remaining: 0,
+      attachedWorkers: 0,
+      attachedHours: 0,
+    }
+  );
 
   return (
     <div className="overflow-x-auto my-5">
@@ -52,17 +89,52 @@ const Table: React.FC<{ data: ITask[]; getTasks: Function; contract?: any }> = (
           </tr>
         </thead>
         <tbody className="text-sm font-light">
-          {data.map((row) => (
-            <TableItem
-              row={row}
-              key={row.id}
-              getTasks={getTasks}
-              creatingId={creatingId}
-              setCreatingId={setCreatingId}
-              contract={contract}
-            />
-          ))}
+          {[...data]
+            .sort((a, b) => Number(a.birgada) - Number(b.birgada))
+            .map((row) => (
+              <TableItem
+                row={row}
+                key={row.id}
+                getTasks={getTasks}
+                creatingId={creatingId}
+                setCreatingId={setCreatingId}
+                contract={contract}
+                updateStats={updateStats}
+              />
+            ))}
         </tbody>
+        {data.length > 0 && (
+          <tfoot>
+            <tr className="bg-mytablehead text-mytextcolor font-bold text-sm">
+              <td className="py-3 px-6 text-left border border-mytableheadborder uppercase">
+                {tt("Jami", "Итого")}
+              </td>
+              <td className="py-3 px-6 text-center border border-mytableheadborder"></td>
+              <td className="py-3 px-6 text-center border border-mytableheadborder">
+                {totals.workerNumber}
+              </td>
+              <td className="py-3 px-6 text-center border border-mytableheadborder">
+                {totals.totalHours}
+              </td>
+              <td className="py-3 px-6 text-left border border-mytableheadborder">
+                {formatSum(totals.summa)}
+              </td>
+              <td
+                style={{ color: totals.remaining > 0 ? "red" : "green" }}
+                className="py-3 px-6 text-center border border-mytableheadborder"
+              >
+                {totals.remaining}
+              </td>
+              <td className="py-3 px-6 text-center border border-mytableheadborder">
+                {totals.attachedWorkers}
+              </td>
+              <td className="py-3 px-6 text-center border border-mytableheadborder">
+                {totals.attachedHours}
+              </td>
+              <td className="py-3 px-6 border border-mytableheadborder"></td>
+            </tr>
+          </tfoot>
+        )}
       </table>
     </div>
   );

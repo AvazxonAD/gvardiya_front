@@ -25,12 +25,25 @@ const TableItem = ({
   creatingId,
   setCreatingId,
   contract,
+  updateStats,
 }: any) => {
   const dispatch = useDispatch();
   const [open, setOpen] = useState<boolean>(false);
   const [taskWorkers, setTaskWorkers] = useState<ITaskWorker[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [search] = useDebounce(searchTerm, 400);
+
+  useEffect(() => {
+    if (!updateStats) return;
+    const count = row.birgada ? 0 : taskWorkers.length;
+    const hours = row.birgada
+      ? 0
+      : taskWorkers.reduce(
+          (acc, w: any) => acc + (Number(w.task_time) || 0),
+          0
+        );
+    updateStats(row.id, count, hours);
+  }, [taskWorkers, row.birgada, row.id, updateStats]);
 
   const api = useApi();
 
