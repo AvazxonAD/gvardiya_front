@@ -63,7 +63,13 @@ const MainProvider = () => {
                 </Protected>
               }
             >
-              {Boolean(user.region_id) ? (
+              {user.type === "lawyer" ? (
+                <Fragment>
+                  <Route index={true} element={<LawyerContract />} />
+                  <Route path="/lawyer-contract" element={<LawyerContract />} />
+                  <Route path="/lawyer-contract/view/:id" element={<LawyerDocument />} />
+                </Fragment>
+              ) : Boolean(user.region_id) ? (
                 <Fragment>
                   <Route index={true} element={<RegionDashboard />} />
                   <Route path="/report" element={<Report />} />
@@ -75,8 +81,6 @@ const MainProvider = () => {
                     <Route path="tasks/:id" element={<Tasks />} />
                     <Route path=":id" element={<ContractPage />} />
                   </Route>
-                  <Route path="/lawyer-contract" element={<LawyerContract />} />
-                  <Route path="/lawyer-contract/view/:id" element={<LawyerDocument />} />
                   <Route path="/workers" element={<Workers />} />
                   <Route path="/batalon" element={<Batalon />} />
                   <Route path="/organisation" element={<Organisation />} />

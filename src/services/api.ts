@@ -1,9 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-// const isProd = import.meta.env.PROD;
-// const port: any = window.location.port;
-
-export const baseUri = "http://localhost:3009";
+export const baseUri = import.meta.env.VITE_API_URL;
 
 const useApi = () => {
   const navigate = useNavigate();

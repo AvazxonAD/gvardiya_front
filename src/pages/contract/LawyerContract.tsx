@@ -28,6 +28,7 @@ function LawyerContract() {
     date1: startDate,
     date2: endDate,
   });
+  const [filter, setFilter] = useState<"all" | "verified" | "pending">("all");
 
   useEffect(() => {
     setDates({ date1: startDate, date2: endDate });
@@ -49,11 +50,16 @@ function LawyerContract() {
       "",
       ""
     );
-    const lawyerData = (res.data || []).filter((item: any) => item.send_lawyer);
-    setData(lawyerData);
+    setData(res.data || []);
     setTotalPages(res.meta.pageCount);
-    setAll(lawyerData.length);
+    setAll(res.meta?.total || (res.data || []).length);
   };
+
+  const filteredData = data.filter((item: any) => {
+    if (filter === "verified") return item.verification_lawyer === "success";
+    if (filter === "pending") return item.verification_lawyer !== "success";
+    return true;
+  });
 
   useEffect(() => {
     getInfo(dates);
@@ -80,6 +86,32 @@ function LawyerContract() {
                 p={tt("Ma'lumotlarni qidirish", "Поиск данных")}
                 className="w-full"
               />
+            </div>
+            <div className="flex gap-1">
+              <button
+                onClick={() => setFilter("all")}
+                className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors ${
+                  filter === "all" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                }`}
+              >
+                {tt("Barchasi", "Все")}
+              </button>
+              <button
+                onClick={() => setFilter("verified")}
+                className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors ${
+                  filter === "verified" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                }`}
+              >
+                {tt("Tasdiqlangan", "Утверждено")}
+              </button>
+              <button
+                onClick={() => setFilter("pending")}
+                className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors ${
+                  filter === "pending" ? "bg-yellow-500 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                }`}
+              >
+                {tt("Tasdiqlanmagan", "Не утверждено")}
+              </button>
             </div>
           </div>
 
@@ -114,7 +146,7 @@ function LawyerContract() {
         </div>
 
         <div>
-          <ContTab data={data} hideActions />
+          <ContTab data={filteredData} hideActions isLawyer />
         </div>
       </div>
 

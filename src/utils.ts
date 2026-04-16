@@ -553,3 +553,21 @@ export function formatDateAll(isoString: string): string {
 
   return `${year}-${month}-${day}`;
 }
+
+export async function viewAndDownloadPdf(url: string, fileName: string) {
+  window.open(url, "_blank", "noopener,noreferrer");
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+  } catch (e) {
+    console.error("Yuklab olishda xatolik:", e);
+  }
+}

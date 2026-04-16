@@ -2,10 +2,7 @@
 
 import { handleStatus } from "./utils";
 
-// const isProd = import.meta.env.PROD;
-// const port: any = window.location.port;
-
-export const URL = "http://localhost:3009";
+export const URL = import.meta.env.VITE_API_URL;
 
 export const jwt = localStorage.getItem("token");
 

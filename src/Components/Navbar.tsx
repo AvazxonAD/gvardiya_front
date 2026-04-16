@@ -46,6 +46,7 @@ function Navbar() {
       path: "/lawyer-contract",
       ru: "Договор юриста",
       icon: ({ ...props }) => <ShartnomaIcon {...props} />,
+      isLawyer: true,
     },
     {
       id: 4,
@@ -161,11 +162,13 @@ function Navbar() {
   ];
 
   const { user } = useSelector((state: any) => state.auth);
-  const filteredMenuItems = user.batalon
+  const filteredMenuItems = user.type === "lawyer"
+    ? menuItems.filter((item) => item.isLawyer)
+    : user.batalon
     ? menuItems.filter((item) => item.isBatalon)
     : !user.region_id
     ? menuItems.filter((item) => item.isAdminPath)
-    : menuItems.filter((item) => !item.isAdminPath && !item.isBatalon);
+    : menuItems.filter((item) => !item.isAdminPath && !item.isBatalon && !item.isLawyer);
 
   useEffect(() => {
     const currentPath = locationn.pathname;

@@ -43,6 +43,7 @@ export const initialContract = {
   start_date: "",
   start_time: "",
   summa: 0,
+  template_id: 3,
   dist: false,
   tasks: [
     {

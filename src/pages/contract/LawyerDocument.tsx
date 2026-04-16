@@ -1,8 +1,8 @@
 import { getContractId, getOrganId, getSpr } from "@/api";
-import { textNum, tt } from "@/utils";
+import { textNum, tt, viewAndDownloadPdf } from "@/utils";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import DocumentForPrint from "./DocumentForPrint";
 import BudgetTable from "./Smeta";
@@ -46,6 +46,8 @@ const LawyerDocument = () => {
   });
   const [organisation, setOrganisation] = useState<any>([]);
   const { id } = useParams();
+  const location = useLocation();
+  const shouldGeneratePdf = (location.state as any)?.generatePdf === true;
 
   const { account_number_id } = useSelector((state: any) => state.account);
 
@@ -231,7 +233,7 @@ const LawyerDocument = () => {
 
     const blob: Blob = await html2pdf()
       .set({
-        margin: [5, 0, 7, 0], // top, left, bottom, right (mm)
+        margin: [5, 0, 5, 0], // top, left, bottom, right (mm)
         image: { type: "jpeg", quality: 0.95 },
         html2canvas: { scale: 2, useCORS: true, scrollY: -window.scrollY },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
@@ -282,18 +284,13 @@ const LawyerDocument = () => {
       // 4. Shartnoma ma'lumotlarini imzolash
       const content = `contract_id:${id}|doc_num:${data.doc_num}|verify:lawyer`;
       const content64 = btoa(unescape(encodeURIComponent(content)));
-      await EImzo.createPkcs7(content64, keyId);
+      const sigResult = await EImzo.createPkcs7(content64, keyId);
+      const sigData = sigResult.pkcs7_64;
 
-      // 5. PDF yaratish
-      const pdfBlob = await generatePdf();
-
-      // 6. Backendga PDF va tasdiqlash yuborish
-      const formData = new FormData();
-      formData.append("file", pdfBlob, `contract_${data.doc_num}.pdf`);
-      formData.append("signer_name", signerName);
-
-      const res = await request.patch(`/contract/${id}/verify-lawyer`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      // 5. Backendga signer_name va sig_data yuborish (PDF backendda yangilanadi)
+      const res = await request.patch(`/contract/${id}/verify-lawyer`, {
+        signer_name: signerName,
+        sig_data: sigData,
       });
 
       if (res.data.success) {
@@ -325,6 +322,24 @@ const LawyerDocument = () => {
       getSingleTemplate();
     }
   }, [templatesData, data, organisation]);
+
+  // Har safar sahifa ochilganda avtomatik PDF yaratib saqlash
+  const pdfUploaded = useRef(false);
+  useEffect(() => {
+    if (singleTemplate && data && !pdfUploaded.current && (shouldGeneratePdf || !data.file)) {
+      pdfUploaded.current = true;
+      setTimeout(async () => {
+        try {
+          const blob = await generatePdf();
+          const formData = new FormData();
+          formData.append("file", blob, `contract-${id}.pdf`);
+          await request.patch(`/contract/${id}/upload-pdf`, formData);
+        } catch (e) {
+          console.error("PDF avtomatik yaratishda xatolik:", e);
+        }
+      }, 1000);
+    }
+  }, [singleTemplate, data]);
 
   useEffect(() => {
     if (account_number_id) {
@@ -361,14 +376,7 @@ const LawyerDocument = () => {
               </div>
               <div className="flex gap-2 justify-end mr-16">
                 {/* E-IMZO tasdiqlash tugmasi */}
-                {verificationStatus === "success" ? (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg font-semibold text-sm">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
-                    </svg>
-                    {tt("Tasdiqlangan", "Утверждено")}
-                  </div>
-                ) : (
+                {verificationStatus !== "success" && (
                   <button
                     onClick={handleEimzoSign}
                     disabled={signing}
@@ -389,7 +397,23 @@ const LawyerDocument = () => {
                     )}
                   </button>
                 )}
-                <Button mode="print" onClick={onPrintClick} />
+                {data?.file && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      viewAndDownloadPdf(
+                        API_URL?.replace("/api", "") + data.file,
+                        `shartnoma_${data?.doc_num || id}.pdf`
+                      )
+                    }
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer"
+                  >
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                      <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                    </svg>
+                    {tt("PDF yuklab olish", "Скачать PDF")}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -413,14 +437,18 @@ const LawyerDocument = () => {
                     {new Date(verificationInfo.created_at).toLocaleString("uz-UZ")}
                   </div>
                 </div>
-                <a
-                  href={API_URL?.replace("/api", "") + verificationInfo.file_name}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-3 py-1 bg-green-600 text-white rounded text-xs font-semibold hover:bg-green-700"
+                <button
+                  type="button"
+                  onClick={() =>
+                    viewAndDownloadPdf(
+                      API_URL?.replace("/api", "") + verificationInfo.file_name,
+                      `shartnoma_${data?.doc_num || id}.pdf`
+                    )
+                  }
+                  className="px-3 py-1 bg-green-600 text-white rounded text-xs font-semibold hover:bg-green-700 cursor-pointer"
                 >
                   PDF
-                </a>
+                </button>
               </div>
             )}
 
@@ -526,7 +554,7 @@ const LawyerDocument = () => {
 
                 <div className="h-[16px] bg-mybackground w-[100%]  "></div>
 
-                <section className="pt-8 pr-[40px] pb-[565px] pl-[80px] border border-gray-300">
+                <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300">
                   <h2 className="text-lg font-semibold text-center mb-4">8. Томонларнинг реквизитлари</h2>
                   <div className="flex max-w-[85%]   font-semibold mx-auto justify-between">
                     <div className="max-w-[50%]">
@@ -566,7 +594,7 @@ const LawyerDocument = () => {
 
                 <div className="h-[16px] bg-mybackground w-[100%]  "></div>
 
-                <section className="pt-8 pr-[40px] pb-[360px] pl-[80px] border border-gray-300" style={{ pageBreakBefore: "always" }}>
+                <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300" style={{ pageBreakBefore: "always" }}>
                   <div className="flex flex-col justify-end text-lg font-semibold items-end gap-1">
                     <span>{getFullDate(data.doc_date)}</span>
                     <span>{data.doc_num} сонли шартномага илова</span>

@@ -118,9 +118,21 @@ export async function loadKey(disk: string, path: string, name: string, alias: s
   return data.keyId;
 }
 
-export async function createPkcs7(data64: string, keyId: string, detached?: string): Promise<string> {
+export async function createPkcs7(data64: string, keyId: string, detached?: string): Promise<any> {
   const data = await callFunction("pkcs7", "create_pkcs7", [data64, keyId, detached || ""]);
+  return data;
+}
+
+export async function createPkcs7WithTimestamp(data64: string, keyId: string): Promise<string> {
+  const data = await callFunction("pkcs7", "create_pkcs7", [data64, keyId, "", "1"]);
+  console.log("E-IMZO pkcs7 with timestamp response keys:", Object.keys(data));
   return data.pkcs7_64;
+}
+
+export async function attachTimestamp(signature: string): Promise<string> {
+  const data = await callFunction("pkcs7", "attach_pkcs7_timestamp", [signature]);
+  console.log("E-IMZO timestamp response:", JSON.stringify(data));
+  return data.timeStampTokenB64 || data.pkcs7_64 || data.signature || signature;
 }
 
 export const EImzo = {
@@ -129,4 +141,6 @@ export const EImzo = {
   listAllCertificates,
   loadKey,
   createPkcs7,
+  createPkcs7WithTimestamp,
+  attachTimestamp,
 };

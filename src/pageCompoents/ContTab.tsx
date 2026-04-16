@@ -6,17 +6,19 @@ import { IContract } from "@/types/contract";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DeleteModal from "../Components/DeleteModal";
-import { formatDate, formatSum, textNum, tt } from "../utils";
-import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { formatDate, formatSum, textNum, tt, viewAndDownloadPdf } from "../utils";
+import { FaCheckCircle, FaTimesCircle, FaPencilAlt } from "react-icons/fa";
+import { URL as API_URL } from "@/api";
 
 interface ContTabProps {
   data: any[];
   handleDelete?: (id: string) => void;
   setActive?: Dispatch<SetStateAction<any>>;
   hideActions?: boolean;
+  isLawyer?: boolean;
 }
 
-const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive, hideActions }) => {
+const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive, hideActions, isLawyer }) => {
   const navigate = useNavigate();
   const [delOpen, setDelOpen] = useState(false);
 
@@ -97,6 +99,10 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive, hideAc
                 text: tt("Yuristga", "Юристу"),
                 className: "px-[2px] py-[2px] text-center w-[52px]",
               },
+              ...(isLawyer ? [{
+                text: tt("PDF", "PDF"),
+                className: "px-[2px] py-[2px] text-center w-[40px]",
+              }] : []),
               ...(!hideActions ? [{
                 text: tt("Amallar", "Действия"),
                 className: "px-[2px] py-[2px] text-center w-[25px]",
@@ -129,7 +135,9 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive, hideAc
                   {item.verification_boss === "success" ? (
                     <span style={{ color: "#22c55e", fontSize: "14px" }} className="flex justify-center">&#10004;</span>
                   ) : item.verification_boss === "update" ? (
-                    <span style={{ color: "#eab308", fontSize: "14px" }} className="flex justify-center">&#10004;</span>
+                    <span className="flex justify-center" title={tt("O'zgartirilgan, qayta tasdiqlash kerak", "Изменено, требуется повторное утверждение")}>
+                      <FaPencilAlt style={{ color: "#eab308", fontSize: "12px" }} />
+                    </span>
                   ) : (
                     <span style={{ color: "#ef4444", fontSize: "14px" }} className="flex justify-center">&#10006;</span>
                   )}
@@ -138,7 +146,9 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive, hideAc
                   {item.verification_lawyer === "success" ? (
                     <span style={{ color: "#22c55e", fontSize: "14px" }} className="flex justify-center">&#10004;</span>
                   ) : item.verification_lawyer === "update" ? (
-                    <span style={{ color: "#eab308", fontSize: "14px" }} className="flex justify-center">&#10004;</span>
+                    <span className="flex justify-center" title={tt("O'zgartirilgan, qayta tasdiqlash kerak", "Изменено, требуется повторное утверждение")}>
+                      <FaPencilAlt style={{ color: "#eab308", fontSize: "12px" }} />
+                    </span>
                   ) : (
                     <span style={{ color: "#ef4444", fontSize: "14px" }} className="flex justify-center">&#10006;</span>
                   )}
@@ -150,6 +160,30 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive, hideAc
                     <span style={{ color: "#ef4444", fontSize: "14px" }} className="flex justify-center">&#10006;</span>
                   )}
                 </td>
+                {isLawyer && (
+                  <td className="px-[2px] py-[2px] text-center border-l border-r">
+                    {item.file ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          viewAndDownloadPdf(
+                            API_URL?.replace("/api", "") + item.file,
+                            `shartnoma_${item.doc_num || item.id}.pdf`
+                          );
+                        }}
+                        className="text-blue-500 hover:text-blue-700 cursor-pointer"
+                        title={tt("PDF yuklab olish", "Скачать PDF")}
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="inline">
+                          <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                      </button>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </td>
+                )}
                 {!hideActions && <ThreeDotMenu id={item.id} setDelOpen={setDelOpen} setActive={setActive!} />}
               </tr>
             ))}

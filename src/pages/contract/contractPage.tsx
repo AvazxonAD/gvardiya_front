@@ -51,6 +51,7 @@ const ContractPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [batalons, setBatalons] = useState<IBatalon[]>([]);
   const [bxm, setBxm] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<any[]>([]);
   const divRef = useRef<HTMLDivElement>(null);
   const [organizationValue, setOrganizationValue] = useState({
     name: "",
@@ -95,12 +96,18 @@ const ContractPage = () => {
     if (bxmGet?.success) setBxm(bxmGet.data);
   };
 
+  const getTemplates = async () => {
+    const res = await api.get<any[]>("template");
+    if (res?.success) setTemplates(res.data);
+  };
+
   useEffect(() => {
     if (id) {
       getContract();
       getAllOrgan();
     }
     getBxm();
+    getTemplates();
   }, [id]);
 
   const getOrgans = async () => {
@@ -211,6 +218,7 @@ const ContractPage = () => {
       tasks: newrows,
       dist: addressBox,
       date: dateBox,
+      template_id: contract.template_id || null,
     };
 
     const method = id ? api.update : api.post;
@@ -221,7 +229,7 @@ const ContractPage = () => {
     if (request?.success) {
       dispatch(alertt({ text: request.message, success: true }));
       event?.currentTarget?.reset();
-      navigate(`/contract/view/${id ?? request.data.id}`);
+      navigate(`/contract/view/${id ?? request.data.id}`, { state: { generatePdf: true } });
     } else {
       dispatch(alertt({ text: request?.message, success: false }));
     }
@@ -388,6 +396,28 @@ const ContractPage = () => {
                     }}
                     className="w-full"
                   />
+                </div>
+                <div>
+                  <label className="block text-[#636566] text-[16px] leading-[14.52px] font-[600] mb-2">
+                    {tt("Shablon", "Шаблон")}
+                  </label>
+                  <select
+                    value={contract.template_id || ""}
+                    onChange={(e) =>
+                      setContract((prev: any) => ({
+                        ...prev,
+                        template_id: e.target.value ? +e.target.value : null,
+                      }))
+                    }
+                    className="border rounded-md px-3 py-2 bg-mybackground text-mytextcolor min-w-[180px]"
+                  >
+                    <option value="">{tt("Tanlang", "Выберите")}</option>
+                    {templates.map((t: any) => (
+                      <option key={t.id} value={t.id}>
+                        {t.shablon_name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="flex items-center gap-x-1">
                   <input

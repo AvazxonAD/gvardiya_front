@@ -1,5 +1,5 @@
-import { getContractId, getOrganId, getSpr } from "@/api";
-import { textNum, tt } from "@/utils";
+import { getContractId, getOrganId, getSpr, URL as API_URL } from "@/api";
+import { textNum, tt, viewAndDownloadPdf } from "@/utils";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -16,6 +16,9 @@ import { getFullDate } from "@/lib/utils";
 import { SwitchTemplate } from "@/pageCompoents/SwitchTemplate";
 import { alertt } from "@/Redux/LanguageSlice";
 import DocumentForPrint2 from "./DocumentForPrint2";
+import html2pdf from "html2pdf.js";
+import { useLocation } from "react-router-dom";
+import { EImzo } from "@/lib/eimzo";
 
 const Document = () => {
   const [templatesData, setTemplatesdata] = React.useState<templateInterface[]>([]);
@@ -24,6 +27,13 @@ const Document = () => {
   const [singleTemplate, setSingleTemplate] = React.useState<any>(null);
   const [data, setData] = useState<any>(null);
   const [isSentToLawyer, setIsSentToLawyer] = useState(false);
+  const [didoxSending, setDidoxSending] = useState(false);
+  const [didoxLoginOpen, setDidoxLoginOpen] = useState(false);
+  const [didoxPassword, setDidoxPassword] = useState("");
+  const [didoxLoginLoading, setDidoxLoginLoading] = useState(false);
+  const [didoxSigning, setDidoxSigning] = useState(false);
+  const [didoxPdfModal, setDidoxPdfModal] = useState(false);
+  const [didoxPdfBase64, setDidoxPdfBase64] = useState<string>("");
   const JWT = useSelector((s: any) => s.auth.jwt);
   // const [versiya, setVersiya] = useState(true);
   const [info, setInfo] = useState({
@@ -39,6 +49,9 @@ const Document = () => {
   });
   const [organisation, setOrganisation] = useState<any>([]);
   const { id } = useParams();
+  const location = useLocation();
+  const shouldGeneratePdf = (location.state as any)?.generatePdf === true;
+  const documentRef = useRef<HTMLDivElement>(null);
 
   //@ts-ignore
   const [urlParams] = useSearchParams();
@@ -127,6 +140,123 @@ const Document = () => {
       }
     } catch (err: any) {
       dispatch(alertt({ text: err.message || tt("Xatolik", "Ошибка"), success: false, open: true }));
+    }
+  };
+
+  const handleSendToDidox = async () => {
+    setDidoxSending(true);
+    try {
+      const res = await request.post(`/didox/contract/${id}/send`);
+      if (res.data.success) {
+        dispatch(alertt({ text: tt("Didoxga jo'natildi", "Отправлено в Didox"), success: true, open: true }));
+        await getInfo();
+      } else {
+        dispatch(alertt({ text: res.data.message || tt("Xatolik", "Ошибка"), success: false, open: true }));
+      }
+    } catch (err: any) {
+      if (err.response?.status === 401 || err.response?.data?.message?.includes("login")) {
+        setDidoxLoginOpen(true);
+      } else {
+        dispatch(alertt({ text: err.response?.data?.message || err.message || tt("Xatolik", "Ошибка"), success: false, open: true }));
+      }
+    } finally {
+      setDidoxSending(false);
+    }
+  };
+
+  const handleDidoxLogin = async () => {
+    setDidoxLoginLoading(true);
+    try {
+      const res = await request.post("/didox/login", { password: didoxPassword });
+      if (res.data.success) {
+        setDidoxLoginOpen(false);
+        setDidoxPassword("");
+        dispatch(alertt({ text: tt("Didox ga muvaffaqiyatli kirildi", "Успешный вход в Didox"), success: true, open: true }));
+        // Login bo'lgandan keyin avtomatik qayta yuborish
+        handleSendToDidox();
+      } else {
+        dispatch(alertt({ text: res.data.message || tt("Xatolik", "Ошибка"), success: false, open: true }));
+      }
+    } catch (err: any) {
+      dispatch(alertt({ text: err.response?.data?.message || err.message || tt("Xatolik", "Ошибка"), success: false, open: true }));
+    } finally {
+      setDidoxLoginLoading(false);
+    }
+  };
+
+  // Tasdiqlash — avval PDF ko'rsatish
+  const handleDidoxPreview = async () => {
+    setDidoxSigning(true);
+    try {
+      const docRes = await request.get(`/didox/contract/${id}/pdf`);
+      if (!docRes.data.success) {
+        dispatch(alertt({ text: docRes.data.message || tt("Xatolik", "Ошибка"), success: false, open: true }));
+        return;
+      }
+      const resData = docRes.data.data;
+      let pdfData = typeof resData === "string" ? resData : resData?.file?.data || resData?.data || "";
+      if (typeof pdfData === "string" && pdfData.includes("base64,")) {
+        pdfData = pdfData.split("base64,")[1];
+      }
+      setDidoxPdfBase64(pdfData);
+      setDidoxPdfModal(true);
+    } catch (err: any) {
+      if (err.response?.status === 401 || err.response?.data?.message?.includes("login")) {
+        setDidoxLoginOpen(true);
+      } else {
+        dispatch(alertt({ text: err.response?.data?.message || err.message || String(err), success: false, open: true }));
+      }
+    } finally {
+      setDidoxSigning(false);
+    }
+  };
+
+  // Modal ichidan E-IMZO bilan imzolash (JSON imzolanadi)
+  const handleDidoxSign = async () => {
+    setDidoxSigning(true);
+    try {
+      // 1. Document JSON olish
+      const docRes = await request.get(`/didox/contract/${id}/document`);
+      if (!docRes.data.success) {
+        dispatch(alertt({ text: docRes.data.message || tt("Xatolik", "Ошибка"), success: false, open: true }));
+        return;
+      }
+      const docJson = docRes.data.data;
+
+      // 2. JSON → base64
+      const jsonString = JSON.stringify(docJson);
+      const base64Data = btoa(unescape(encodeURIComponent(jsonString)));
+
+      // 3. E-IMZO bilan imzolash
+      const certs = await EImzo.listAllCertificates();
+      if (!certs || certs.length === 0) {
+        dispatch(alertt({ text: tt("E-IMZO kaliti topilmadi", "Ключ E-IMZO не найден"), success: false, open: true }));
+        return;
+      }
+      const cert = certs[0];
+      const keyId = await EImzo.loadKey(cert.disk, cert.path, cert.name, cert.alias);
+      const eimzoResult = await EImzo.createPkcs7(base64Data, keyId);
+      const pkcs7 = eimzoResult.pkcs7_64;
+
+      // 4. Backend ga pkcs7 yuborish (timestamp + sign backendda)
+      const signRes = await request.post(`/didox/contract/${id}/sign`, { pkcs7 });
+
+      if (signRes.data.success) {
+        dispatch(alertt({ text: tt("Didoxda tasdiqlandi", "Подтверждено в Didox"), success: true, open: true }));
+        setData({ ...data, didox_status: "confirm" });
+        setDidoxPdfModal(false);
+        setDidoxPdfBase64("");
+      } else {
+        dispatch(alertt({ text: signRes.data.message || tt("Xatolik", "Ошибка"), success: false, open: true }));
+      }
+    } catch (err: any) {
+      if (err.response?.status === 401 || err.response?.data?.message?.includes("login")) {
+        setDidoxLoginOpen(true);
+      } else {
+        dispatch(alertt({ text: err.response?.data?.message || err.message || String(err), success: false, open: true }));
+      }
+    } finally {
+      setDidoxSigning(false);
     }
   };
 
@@ -291,6 +421,49 @@ const Document = () => {
     }
   }, [account_number_id]);
 
+  // PDF avtomatik yaratish: file null bo'lsa yoki create/update dan kelgan bo'lsa
+  const pdfUploaded = useRef(false);
+  useEffect(() => {
+    if (singleTemplate && data && !pdfUploaded.current && (shouldGeneratePdf || !data.file)) {
+      pdfUploaded.current = true;
+      setTimeout(async () => {
+        try {
+          const element = documentRef.current;
+          if (!element) return;
+
+          const sections = element.querySelectorAll<HTMLElement>("section");
+          const dividers = element.querySelectorAll<HTMLElement>(".h-\\[16px\\]");
+          const savedStyles: string[] = [];
+          sections.forEach((s) => {
+            savedStyles.push(s.style.cssText);
+            s.style.border = "none";
+          });
+          dividers.forEach((d) => (d.style.display = "none"));
+
+          const blob: Blob = await html2pdf()
+            .set({
+              margin: [5, 0, 5, 0],
+              image: { type: "jpeg", quality: 0.95 },
+              html2canvas: { scale: 2, useCORS: true, scrollY: -window.scrollY },
+              jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+              pagebreak: { mode: "css", avoid: ["h1", "h2", "h3"] },
+            })
+            .from(element)
+            .outputPdf("blob");
+
+          sections.forEach((s, i) => (s.style.cssText = savedStyles[i]));
+          dividers.forEach((d) => (d.style.display = ""));
+
+          const formData = new FormData();
+          formData.append("file", blob, `contract-${id}.pdf`);
+          await request.patch(`/contract/${id}/upload-pdf`, formData);
+        } catch (e) {
+          console.error("PDF avtomatik yaratishda xatolik:", e);
+        }
+      }, 1000);
+    }
+  }, [singleTemplate, data]);
+
   return (
     <>
       {data && info && organisation && (
@@ -335,13 +508,63 @@ const Document = () => {
                     {tt("Yuristga jo'natilgan", "Отправлено юристу")}
                   </div>
                 )}
-                <Button mode="print" onClick={onPrintClick} />
-                <Button mode="clear" onClick={onPrintClick2} />
-                <Button onClick={() => setOpenSwitcher(true)} mode="clear" text={tt("almashtirish", "замена")} />
+                {data?.file && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      viewAndDownloadPdf(
+                        API_URL?.replace("/api", "") + data.file,
+                        `shartnoma_${data?.doc_num || id}.pdf`
+                      )
+                    }
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer"
+                  >
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                      <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                    </svg>
+                    PDF
+                  </button>
+                )}
+                <button
+                  onClick={handleSendToDidox}
+                  disabled={didoxSending || !data?.file}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#F59E0B] hover:bg-[#D97706] disabled:bg-[#FCD34D] text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
+                >
+                  {didoxSending ? (
+                    <>
+                      <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      {tt("Kuting...", "Подождите...")}
+                    </>
+                  ) : (
+                    tt("Didoxga jo'natish", "Отправить в Didox")
+                  )}
+                </button>
+                <button
+                  onClick={handleDidoxPreview}
+                  disabled={didoxSigning || !data?.didox_id}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#059669] hover:bg-[#047857] disabled:bg-[#6ee7b7] text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
+                >
+                  {didoxSigning ? (
+                    <>
+                      <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      {tt("Kuting...", "Подождите...")}
+                    </>
+                  ) : (
+                    tt("Tasdiqlash", "Подтвердить")
+                  )}
+                </button>
+                {data?.didox_status === "confirm" && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg font-semibold text-sm">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                    </svg>
+                    {tt("Didoxda tasdiqlangan", "Подтверждено в Didox")}
+                  </div>
+                )}
               </div>
             </div>
             <div className="mb-[100px] mt-5">
-              <div className="container mx-auto   text-wrap    text-[16px] overfloww my-auto w-[795px] bg-mybackground text-mytextcolor font__times">
+              <div ref={documentRef} className="container mx-auto   text-wrap    text-[16px] overfloww my-auto w-[795px] bg-mybackground text-mytextcolor font__times">
                 <section className="pt-10 pr-[40px] pl-[80px] border border-gray-300">
                   <h1 className="text-center font-bold text-lg mb-1">
                     {/* Оммавий тадбирни ўтказишда фуқаролар хавфсизлигини таъминлаш
@@ -445,7 +668,7 @@ const Document = () => {
 
                 <div className="h-[16px] bg-mybackground w-[100%]  "></div>
 
-                <section className="pt-8 pr-[40px] pb-[565px] pl-[80px] border border-gray-300">
+                <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300">
                   <h2 className="text-lg font-semibold text-center mb-4">8. Томонларнинг реквизитлари</h2>
                   <div className="flex max-w-[85%]   font-semibold mx-auto justify-between">
                     <div className="max-w-[50%]">
@@ -486,7 +709,7 @@ const Document = () => {
 
                 <div className="h-[16px] bg-mybackground w-[100%]  "></div>
 
-                <section className="pt-8 pr-[40px] pb-[360px] pl-[80px] border border-gray-300">
+                <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300" style={{ pageBreakBefore: "always" }}>
                   <div className="flex flex-col justify-end text-lg font-semibold items-end gap-1">
                     <span>{getFullDate(data.doc_date)}</span>
                     <span>{data.doc_num} сонли шартномага илова</span>
@@ -514,6 +737,95 @@ const Document = () => {
             </div>
           </div>
         </>
+      )}
+      {/* Didox PDF Preview Modal */}
+      {didoxPdfModal && didoxPdfBase64 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-[90%] h-[90%] flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h3 className="text-lg font-semibold text-mytextcolor">
+                {tt("Hujjatni ko'rish", "Просмотр документа")}
+              </h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleDidoxSign}
+                  disabled={didoxSigning}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#059669] hover:bg-[#047857] disabled:bg-[#6ee7b7] text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
+                >
+                  {didoxSigning ? (
+                    <>
+                      <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      {tt("Kuting...", "Подождите...")}
+                    </>
+                  ) : (
+                    tt("E-IMZO bilan tasdiqlash", "Подтвердить через E-IMZO")
+                  )}
+                </button>
+                <button
+                  onClick={() => { setDidoxPdfModal(false); setDidoxPdfBase64(""); }}
+                  className="px-4 py-2 border rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  {tt("Yopish", "Закрыть")}
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 p-2">
+              <iframe
+                src={(() => {
+                  const byteCharacters = atob(didoxPdfBase64);
+                  const byteNumbers = new Array(byteCharacters.length);
+                  for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                  }
+                  const blob = new Blob([new Uint8Array(byteNumbers)], { type: "application/pdf" });
+                  return window.URL.createObjectURL(blob);
+                })()}
+                className="w-full h-full rounded"
+                title="PDF Preview"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Didox Login Modal */}
+      {didoxLoginOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-[400px] shadow-xl">
+            <h3 className="text-lg font-semibold mb-4 text-mytextcolor">
+              {tt("Didox ga kirish", "Вход в Didox")}
+            </h3>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1 text-mytextcolor">
+                {tt("Parol", "Пароль")}
+              </label>
+              <input
+                type="password"
+                value={didoxPassword}
+                onChange={(e) => setDidoxPassword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleDidoxLogin()}
+                className="w-full border rounded-md px-3 py-2 bg-mybackground text-mytextcolor"
+                placeholder={tt("Parolni kiriting", "Введите пароль")}
+                autoFocus
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => { setDidoxLoginOpen(false); setDidoxPassword(""); }}
+                className="px-4 py-2 border rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                {tt("Bekor qilish", "Отмена")}
+              </button>
+              <button
+                onClick={handleDidoxLogin}
+                disabled={didoxLoginLoading || !didoxPassword}
+                className="px-4 py-2 bg-[#F59E0B] hover:bg-[#D97706] text-white rounded-md text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {didoxLoginLoading ? tt("Kuting...", "Подождите...") : tt("Kirish", "Войти")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
