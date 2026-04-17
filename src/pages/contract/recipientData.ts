@@ -41,9 +41,15 @@ export const payer = ({
       name: textNum(d.account_number, 4),
     }))?.[0]?.id ?? "";
 
-  // Yangi shartnoma uchun default hisob raqamni set qilish
+  // Yangi shartnoma uchun default hisob raqamni set qilish (edit rejimida emas)
   useEffect(() => {
-    if (contract?.organization_id && data?.length && !contract?.organ_account_number_id && defaultAccount) {
+    if (
+      !contract?.id &&
+      contract?.organization_id &&
+      data?.length &&
+      !contract?.organ_account_number_id &&
+      defaultAccount
+    ) {
       setContract?.({
         ...contract,
         organ_account_number_id: defaultAccount,
