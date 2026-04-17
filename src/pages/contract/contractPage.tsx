@@ -229,7 +229,9 @@ const ContractPage = () => {
     if (request?.success) {
       dispatch(alertt({ text: request.message, success: true }));
       event?.currentTarget?.reset();
-      navigate(`/contract/view/${id ?? request.data.id}`, { state: { generatePdf: true } });
+      const targetId = id ?? request.data.id;
+      localStorage.setItem(`pdf_stale_${targetId}`, "1");
+      navigate(`/contract/view/${targetId}`, { state: { generatePdf: true } });
     } else {
       dispatch(alertt({ text: request?.message, success: false }));
     }

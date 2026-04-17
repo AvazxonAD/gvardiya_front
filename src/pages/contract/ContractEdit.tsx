@@ -242,7 +242,8 @@ const ContractEdit = () => {
     });
     if (resp.success) {
       dispatch(alertt({ text: resp.message, success: true }));
-      navigate(`/contract/view/${id}`);
+      localStorage.setItem(`pdf_stale_${id}`, "1");
+      navigate(`/contract/view/${id}`, { state: { generatePdf: true } });
     } else {
       dispatch(alertt({ text: resp?.error, success: false }));
     }

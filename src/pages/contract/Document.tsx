@@ -52,10 +52,14 @@ const Document = () => {
   const location = useLocation();
   const shouldGeneratePdf = (location.state as any)?.generatePdf === true;
   const documentRef = useRef<HTMLDivElement>(null);
+  const [pdfUploading, setPdfUploading] = useState<boolean>(false);
 
   //@ts-ignore
   const [urlParams] = useSearchParams();
   const template_id = urlParams.get("template_id");
+
+  const pdfStaleKey = `pdf_stale_${id}`;
+  const pdfStale = typeof window !== "undefined" && !!localStorage.getItem(pdfStaleKey);
 
   const { account_number_id } = useSelector((state: any) => state.account);
 
@@ -104,9 +108,18 @@ const Document = () => {
     try {
       const response = await request.get("/template/");
       if (response.status == 200 || response.status == 201) {
-        let tmplates = response.data.data.map((el: any, idx: number) => ({
+        const preferredId = template_id || data?.template_id;
+        const list = response.data.data;
+        const hasPreferred = preferredId
+          ? list.some((el: any) => el.id == preferredId)
+          : false;
+        let tmplates = list.map((el: any, idx: number) => ({
           idx: idx,
-          active: template_id ? el.id == template_id : idx == 0 ? true : false,
+          active: hasPreferred
+            ? el.id == preferredId
+            : idx == 0
+            ? true
+            : false,
           ...el,
         }));
         setTemplatesdata(tmplates);
@@ -412,8 +425,8 @@ const Document = () => {
   }, [templatesData, data, organisation]);
 
   useEffect(() => {
-    getAlltemplates();
-  }, [template_id]);
+    if (data) getAlltemplates();
+  }, [template_id, data?.template_id, data?.id]);
 
   useEffect(() => {
     if (account_number_id) {
@@ -424,8 +437,10 @@ const Document = () => {
   // PDF avtomatik yaratish: file null bo'lsa yoki create/update dan kelgan bo'lsa
   const pdfUploaded = useRef(false);
   useEffect(() => {
-    if (singleTemplate && data && !pdfUploaded.current && (shouldGeneratePdf || !data.file)) {
+    const needRegenerate = shouldGeneratePdf || pdfStale || !data?.file;
+    if (singleTemplate && data && !pdfUploaded.current && needRegenerate) {
       pdfUploaded.current = true;
+      setPdfUploading(true);
       setTimeout(async () => {
         try {
           const element = documentRef.current;
@@ -456,9 +471,16 @@ const Document = () => {
 
           const formData = new FormData();
           formData.append("file", blob, `contract-${id}.pdf`);
-          await request.patch(`/contract/${id}/upload-pdf`, formData);
+          const resp: any = await request.patch(`/contract/${id}/upload-pdf`, formData);
+          if (resp?.data?.success || resp?.status === 200 || resp?.status === 201) {
+            localStorage.removeItem(pdfStaleKey);
+            await getInfo();
+          }
         } catch (e) {
           console.error("PDF avtomatik yaratishda xatolik:", e);
+          pdfUploaded.current = false;
+        } finally {
+          setPdfUploading(false);
         }
       }, 1000);
     }
@@ -508,23 +530,32 @@ const Document = () => {
                     {tt("Yuristga jo'natilgan", "Отправлено юристу")}
                   </div>
                 )}
-                {data?.file && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      viewAndDownloadPdf(
-                        API_URL + data.file,
-                        `shartnoma_${data?.doc_num || id}.pdf`
-                      )
-                    }
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer"
-                  >
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                      <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
-                    </svg>
-                    PDF
-                  </button>
-                )}
+                <button
+                  type="button"
+                  disabled={pdfUploading || pdfStale || !data?.file}
+                  onClick={() =>
+                    data?.file &&
+                    viewAndDownloadPdf(
+                      API_URL + data.file,
+                      `shartnoma_${data?.doc_num || id}.pdf`
+                    )
+                  }
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer"
+                >
+                  {pdfUploading ? (
+                    <>
+                      <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      {tt("PDF tayyorlanmoqda...", "PDF готовится...")}
+                    </>
+                  ) : (
+                    <>
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                      </svg>
+                      PDF
+                    </>
+                  )}
+                </button>
                 <button
                   type="button"
                   onClick={onPrintClick}

@@ -78,7 +78,10 @@ const ContractAdd = () => {
     const resp = await postCont(jwt, formValues, account_number_id);
 
     if (resp.success) {
-      navigate(`/contract/view/${resp?.data?.id}`);
+      localStorage.setItem(`pdf_stale_${resp?.data?.id}`, "1");
+      navigate(`/contract/view/${resp?.data?.id}`, {
+        state: { generatePdf: true },
+      });
 
       dispatch(alertt({ text: resp.message, success: true }));
       event.currentTarget.reset();
