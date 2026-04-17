@@ -97,7 +97,7 @@ const ContractPage = () => {
   };
 
   const getTemplates = async () => {
-    const res = await api.get<any[]>("template");
+    const res = await api.get<any[]>("template/");
     if (res?.success) setTemplates(res.data);
   };
 

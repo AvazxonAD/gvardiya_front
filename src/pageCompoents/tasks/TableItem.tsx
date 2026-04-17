@@ -131,6 +131,14 @@ const TableItem = ({
               )
             : ""}
         </td>
+        <td
+          className="py-3 px-6 text-left font-[400] text-[13px] border border-mytableheadborder text-mytextcolor max-w-[280px]"
+          title={row.comment || ""}
+        >
+          <div className="line-clamp-2 whitespace-pre-wrap break-words">
+            {row.comment || ""}
+          </div>
+        </td>
         <td className="py-3 px-6 border border-mytableheadborder">
           <div className="flex justify-center items-center gap-2 font-[500] text-[14px]">
           {!row.birgada && (

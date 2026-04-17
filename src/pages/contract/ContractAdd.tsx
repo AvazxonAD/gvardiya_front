@@ -37,6 +37,7 @@ const ContractAdd = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [contract, setContract] = useState(initialContract);
   const [errors] = useState<any>({});
+  const [templates, setTemplates] = useState<any[]>([]);
 
   const [dateBox, setDateBox] = useState<boolean>(false);
   const [adressBox, setAdressBox] = useState<boolean>(false);
@@ -70,6 +71,7 @@ const ContractAdd = () => {
       tasks: newrows,
       dist: adressBox,
       date: dateBox,
+      template_id: (contract as any).template_id || null,
     };
 
     // Submit data
@@ -100,6 +102,8 @@ const ContractAdd = () => {
       if (bxm?.success) {
         setBxm(bxm.data as any);
       }
+      const tmp: any = await api.get<any[]>("template/");
+      if (tmp?.success) setTemplates(tmp.data);
     };
 
     fetchData();
@@ -261,6 +265,28 @@ const ContractAdd = () => {
                   }}
                   className="w-full"
                 />
+                <div>
+                  <label className="block text-[#636566] text-[16px] leading-[14.52px] font-[600] mb-2">
+                    {tt("Shablon", "Шаблон")}
+                  </label>
+                  <select
+                    value={(contract as any).template_id || ""}
+                    onChange={(e) =>
+                      setContract((prev: any) => ({
+                        ...prev,
+                        template_id: e.target.value ? +e.target.value : null,
+                      }))
+                    }
+                    className="border rounded-md px-3 py-2 bg-mybackground text-mytextcolor min-w-[180px]"
+                  >
+                    <option value="">{tt("Tanlang", "Выберите")}</option>
+                    {templates.map((t: any) => (
+                      <option key={t.id} value={t.id}>
+                        {t.shablon_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div className="flex items-center gap-x-1">
                   <input
                     checked={adressBox}

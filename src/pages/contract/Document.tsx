@@ -526,6 +526,16 @@ const Document = () => {
                   </button>
                 )}
                 <button
+                  type="button"
+                  onClick={onPrintClick}
+                  className="flex items-center gap-2 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer"
+                >
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z" />
+                  </svg>
+                  {tt("Chop etish", "Печать")}
+                </button>
+                <button
                   onClick={handleSendToDidox}
                   disabled={didoxSending || !data?.file}
                   className="flex items-center gap-2 px-4 py-2 bg-[#F59E0B] hover:bg-[#D97706] disabled:bg-[#FCD34D] text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"

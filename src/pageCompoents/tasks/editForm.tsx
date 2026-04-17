@@ -204,6 +204,14 @@ const EditForm: React.FC<EditFormProps> = ({
 
   return (
     <div className="p-4 bg-mybackground shadow-lg w-full border-[2px]">
+      <div className="mb-3 p-2.5 rounded-md border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30">
+        <div className="text-[11px] font-semibold uppercase text-amber-700 dark:text-amber-400 mb-1">
+          {tt("Izoh", "Комментарий")}
+        </div>
+        <div className="text-[13px] text-mytextcolor whitespace-pre-wrap break-words">
+          {row?.comment || tt("—", "—")}
+        </div>
+      </div>
       <div className="flex items-end gap-2 w-full">
         <div className="w-[130px]">
           <SpecialDatePicker
