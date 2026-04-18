@@ -18,6 +18,69 @@
   border-color: var(--dash-hover-border);
 }
 
+/* Native form controls color scheme — makes <select> dropdowns match theme */
+.light .dashboard-content,
+.light .dash-modal-overlay {
+  color-scheme: light;
+}
+.dark .dashboard-content,
+.dark .dash-modal-overlay,
+.dashboard-content,
+.dash-modal-overlay {
+  color-scheme: dark;
+}
+
+/* Themed form controls used on dashboard */
+.dash-control {
+  background: var(--dash-modal-bg);
+  color: var(--dash-text);
+  border: 1px solid var(--dash-table-border);
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 11px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.dash-control:hover {
+  border-color: var(--dash-hover-border);
+}
+.dash-control:focus {
+  border-color: rgb(59, 130, 246);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+.dash-control option {
+  background: var(--dash-modal-bg);
+  color: var(--dash-text);
+}
+
+.dash-btn {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+.dash-btn-primary {
+  background: rgb(59, 130, 246);
+  color: #fff;
+}
+.dash-btn-primary:hover {
+  background: rgb(37, 99, 235);
+}
+.dash-btn-secondary {
+  background: transparent;
+  color: var(--dash-text-secondary);
+  border: 1px solid var(--dash-modal-border);
+}
+.dash-btn-secondary:hover:not(:disabled) {
+  color: var(--dash-text);
+  border-color: var(--dash-hover-border);
+}
+.dash-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 /* Light theme variables */
 .light .dashboard-content {
   --dash-bg: #f1f5f9;

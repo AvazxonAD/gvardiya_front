@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/Redux/store";
-import useApi from "@/services/api";
+import useApi, { baseUri } from "@/services/api";
 import { ContractItem, ContractsMeta, ContractType } from "../types";
 
 interface ContractsModalProps {
@@ -68,6 +68,25 @@ export default function ContractsModal({ isOpen, onClose, type }: ContractsModal
     return () => document.removeEventListener("keydown", handleEsc);
   }, [isOpen, onClose]);
 
+  const handleExcel = () => {
+    const token = sessionStorage.getItem("token");
+    if (!token) return;
+
+    const url = `${baseUri}/region/dashboard/contracts?from=${startDate}&to=${endDate}&type=${type}&page=1&limit=99999&excel=true`;
+
+    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => res.blob())
+      .then((blob) => {
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.setAttribute("download", `shartnomalar_${type}.xlsx`);
+        link.click();
+        URL.revokeObjectURL(blobUrl);
+      })
+      .catch((err) => console.error("Excel yuklashda xatolik:", err));
+  };
+
   if (!isOpen) return null;
 
   const borderColor = type === "debt" ? "border-l-rose-500" : "border-l-emerald-500";
@@ -91,11 +110,24 @@ export default function ContractsModal({ isOpen, onClose, type }: ContractsModal
               )}
             </div>
           </div>
-          <button onClick={onClose} className="text-[var(--dash-text-secondary)] hover:text-[var(--dash-text)] p-2 rounded-lg transition">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExcel}
+              disabled={loading || contracts.length === 0}
+              className="h-[36px] px-3 bg-emerald-500 rounded-lg text-white text-[12px] font-medium flex items-center gap-1.5 hover:bg-emerald-600 transition disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Excel yuklab olish
+            </button>
+            <button onClick={onClose} className="text-[var(--dash-text-secondary)] hover:text-[var(--dash-text)] p-2 rounded-lg transition">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div className="px-5 py-4 flex-1 flex flex-col overflow-hidden">

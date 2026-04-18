@@ -268,8 +268,8 @@ const BatalonUser: React.FC = () => {
                   className="w-12 h-12 rounded-full mx-auto"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center mx-auto">
-                  <FaUser className="text-gray-500 text-xl" />
+                <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mx-auto">
+                  <FaUser className="text-gray-500 dark:text-gray-400 text-xl" />
                 </div>
               )}
             </td>

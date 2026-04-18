@@ -1,4 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/Redux/store";
+import { baseUri } from "@/services/api";
 import { UserApiData } from "../types";
 
 const formatAmount = (num?: number): string => {
@@ -67,12 +70,32 @@ export default function UsersTable({ usersData, onDetail }: UsersTableProps) {
 
 export function UserModal({ isOpen, onClose, usersData }: { isOpen: boolean; onClose: () => void; usersData: UserApiData[] }) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const { startDate, endDate } = useSelector((state: RootState) => state.defaultDate);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     if (isOpen) document.addEventListener("keydown", handleEsc);
     return () => document.removeEventListener("keydown", handleEsc);
   }, [isOpen, onClose]);
+
+  const handleExcel = () => {
+    const token = sessionStorage.getItem("token");
+    if (!token) return;
+
+    const url = `${baseUri}/region/dashboard/by-user?from=${startDate}&to=${endDate}&excel=true`;
+
+    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => res.blob())
+      .then((blob) => {
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.setAttribute("download", "foydalanuvchilar.xlsx");
+        link.click();
+        URL.revokeObjectURL(blobUrl);
+      })
+      .catch((err) => console.error("Excel yuklashda xatolik:", err));
+  };
 
   if (!isOpen) return null;
 
@@ -94,11 +117,24 @@ export function UserModal({ isOpen, onClose, usersData }: { isOpen: boolean; onC
         <div className="px-5 py-4 flex justify-between items-center rounded-t-2xl shrink-0"
           style={{ background: "var(--dash-modal-header-bg)", borderBottom: "1px solid var(--dash-modal-border)" }}>
           <h3 className="text-lg font-bold text-[var(--dash-text)]">Foydalanuvchilar bo'yicha</h3>
-          <button onClick={onClose} className="text-[var(--dash-text-secondary)] hover:text-[var(--dash-text)] p-2 rounded-lg transition">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExcel}
+              disabled={usersData.length === 0}
+              className="h-[36px] px-3 bg-emerald-500 rounded-lg text-white text-[12px] font-medium flex items-center gap-1.5 hover:bg-emerald-600 transition disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Excel yuklab olish
+            </button>
+            <button onClick={onClose} className="text-[var(--dash-text-secondary)] hover:text-[var(--dash-text)] p-2 rounded-lg transition">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-3 gap-3 px-5 py-4 shrink-0" style={{ borderBottom: "1px solid var(--dash-modal-border)" }}>

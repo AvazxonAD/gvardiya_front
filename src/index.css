@@ -113,6 +113,95 @@ body {
   color: var(--mytextcolor);
 }
 
+/* Global color-scheme so native <select>, <input> popups match app theme */
+body.light {
+  color-scheme: light;
+}
+body.dark {
+  color-scheme: dark;
+}
+
+/* Theme-aware native form controls app-wide */
+body.light select,
+body.light input,
+body.light textarea {
+  background-color: var(--mybackground);
+  color: var(--mytextcolor);
+}
+body.dark select,
+body.dark input,
+body.dark textarea {
+  background-color: var(--mybackground);
+  color: var(--mytextcolor);
+}
+select option {
+  background-color: var(--mybackground);
+  color: var(--mytextcolor);
+}
+
+/* Reusable themed controls for non-dashboard pages */
+.app-control {
+  background: var(--mybackground);
+  color: var(--mytextcolor);
+  border: 1px solid var(--myinputborder);
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.app-control:hover {
+  border-color: var(--mybordercolor);
+}
+.app-control:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+.app-control:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.app-btn {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0.375rem 0.875rem;
+  border-radius: 0.375rem;
+  transition: background-color 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
+}
+.app-btn-primary {
+  background: #3b82f6;
+  color: #fff;
+  border: 1px solid #3b82f6;
+}
+.app-btn-primary:hover:not(:disabled) {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+.app-btn-secondary {
+  background: transparent;
+  color: var(--mytextcolor);
+  border: 1px solid var(--mybordercolor);
+}
+.app-btn-secondary:hover:not(:disabled) {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+.app-btn-ghost {
+  background: transparent;
+  color: var(--mylabelcolor);
+  border: 1px solid transparent;
+}
+.app-btn-ghost:hover:not(:disabled) {
+  color: var(--mytextcolor);
+  background: var(--mybgopacity);
+}
+.app-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -171,7 +260,7 @@ body {
 *::-webkit-scrollbar-thumb {
   background-color: var(--mybackground);
   border-radius: 10px;
-  border: 2px solid whitesmoke;
+  border: 2px solid var(--mybackgroundopacity);
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {

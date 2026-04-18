@@ -120,17 +120,43 @@ export interface BatalonStatsResponse {
   rows: BatalonStatRow[];
 }
 
-// GET /region/dashboard/batalon-workers
-export interface BatalonWorkerRow {
-  batalon_id: number;
-  batalon_name: string;
-  worker_count: number;
+// GET /region/dashboard/organization-debt
+export interface OrganizationDebtRow {
+  organization_id: number;
+  organization_name: string;
+  organization_str?: string;
+  organization_address?: string;
+  contract_count: number;
+  total_summa: number;
+  paid_summa: number;
+  debt_summa: number;
 }
 
-export interface BatalonWorkersResponse {
-  total_workers: number;
+export interface OrgDebtMeta {
+  pageCount: number;
   count: number;
-  rows: BatalonWorkerRow[];
+  total_debt: number;
+  currentPage: number;
+  nextPage: number | null;
+  backPage: number | null;
+}
+
+// GET /region/dashboard/organization-debt-contracts
+export interface OrgDebtContractItem {
+  id: number;
+  doc_num: string;
+  doc_date: string;
+  result_summa: number;
+  organization_name: string;
+  user_name: string;
+  account_number: string | null;
+  paid_summa: number;
+  debt_summa: number;
+}
+
+export interface AccountNumberOption {
+  id: number;
+  account_number: string;
 }
 
 // === Frontend KPI data ===

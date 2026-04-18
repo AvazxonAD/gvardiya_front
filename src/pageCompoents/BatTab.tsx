@@ -34,7 +34,7 @@ const BatTab = ({ data, setActive, edit, handleDelete }: any) => {
               {data.map((person: IBatalon, index: number) => (
                 <tr
                   key={person.id}
-                  className={`${person.birgada ? "bg-[#F1FAFA] dark:bg-mytableheadborder" : ""} cursor-pointer hover:text-[#3B7FAF] text-mytextcolor border-b border-mytableheadborder transition-colors duration-300`}
+                  className={`${person.birgada ? "bg-[#F1FAFA] dark:bg-[#1e293b]" : ""} cursor-pointer hover:bg-[#E5F1F8] dark:hover:bg-[#1e3a5f] hover:text-[#3B7FAF] dark:hover:text-white text-mytextcolor border-b border-mytableheadborder transition-colors duration-300`}
                 >
                   <td className="px-4 py-3">{index + 1}</td>
                   <td className="px-4 py-3">{person.name}</td>

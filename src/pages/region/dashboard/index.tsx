@@ -9,8 +9,8 @@ import AlertCard from "./components/AlertCard";
 import ContractsModal from "./components/ContractsModal";
 import SoldierTasksChart from "./components/SoldierTasksChart";
 import BatalonStatsChart from "./components/BatalonStatsChart";
-import BatalonWorkersChart from "./components/BatalonWorkersChart";
-import { DashboardCountResponse, UserApiData, DistributionResponse, RedWorkersResponse, SoldierTasksResponse, BatalonStatsResponse, BatalonWorkersResponse, KpiData, ContractType } from "./types";
+import OrganizationDebtChart from "./components/OrganizationDebtChart";
+import { DashboardCountResponse, UserApiData, DistributionResponse, RedWorkersResponse, SoldierTasksResponse, BatalonStatsResponse, KpiData, ContractType } from "./types";
 import "./dashboard.css";
 
 export default function RegionDashboard() {
@@ -23,7 +23,6 @@ export default function RegionDashboard() {
   const [redData, setRedData] = useState<RedWorkersResponse | null>(null);
   const [soldierData, setSoldierData] = useState<SoldierTasksResponse | null>(null);
   const [batalonData, setBatalonData] = useState<BatalonStatsResponse | null>(null);
-  const [workersData, setWorkersData] = useState<BatalonWorkersResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   const { startDate, endDate } = useSelector((state: RootState) => state.defaultDate);
@@ -33,14 +32,13 @@ export default function RegionDashboard() {
     try {
       setLoading(true);
 
-      const [countRes, usersRes, distRes, redRes, soldierRes, batalonRes, workersRes] = await Promise.all([
+      const [countRes, usersRes, distRes, redRes, soldierRes, batalonRes] = await Promise.all([
         api.get<DashboardCountResponse>(`region/dashboard/count?from=${startDate}&to=${endDate}`),
         api.get<UserApiData[]>(`region/dashboard/by-user?from=${startDate}&to=${endDate}`),
         api.get<DistributionResponse>(`region/dashboard/distribution?from=${startDate}&to=${endDate}`),
         api.get<RedWorkersResponse>(`region/dashboard/red-border?from=${startDate}&to=${endDate}`),
         api.get<SoldierTasksResponse>(`region/dashboard/soldier-tasks?from=${startDate}&to=${endDate}`),
         api.get<BatalonStatsResponse>(`region/dashboard/batalon-stats?from=${startDate}&to=${endDate}`),
-        api.get<BatalonWorkersResponse>(`region/dashboard/batalon-workers?from=${startDate}&to=${endDate}`),
       ]);
 
       if (countRes?.success) setCountData(countRes.data);
@@ -49,7 +47,6 @@ export default function RegionDashboard() {
       if (redRes?.success) setRedData(redRes.data);
       if (soldierRes?.success) setSoldierData(soldierRes.data);
       if (batalonRes?.success) setBatalonData(batalonRes.data);
-      if (workersRes?.success) setWorkersData(workersRes.data);
     } catch (error) {
       console.error("Dashboard fetch error:", error);
     } finally {
@@ -90,7 +87,7 @@ export default function RegionDashboard() {
             <BatalonStatsChart data={batalonData} />
             <SoldierTasksChart data={soldierData} />
             <StatusChart distData={distData} />
-            <BatalonWorkersChart data={workersData} />
+            <OrganizationDebtChart />
           </div>
 
           <UserModal
