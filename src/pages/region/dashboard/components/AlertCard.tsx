@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { baseUri } from "@/services/api";
+import { authFetch } from "@/services/tokenManager";
 import { RedWorkersResponse } from "../types";
 
 interface AlertCardProps {
@@ -17,18 +18,13 @@ export default function AlertCard({ redData, from, to }: AlertCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleExcel = () => {
-    const token = sessionStorage.getItem("token");
-    if (!token) return;
-
     const url = `${baseUri}/region/dashboard/red-border?from=${from}&to=${to}&excel=true`;
 
     const link = document.createElement("a");
     link.href = url;
     link.setAttribute("download", "qizil_chegara_xodimlar.xlsx");
 
-    fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    authFetch(url)
       .then((res) => res.blob())
       .then((blob) => {
         const blobUrl = URL.createObjectURL(blob);

@@ -2,6 +2,7 @@ import { useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/Redux/store";
 import { baseUri } from "@/services/api";
+import { authFetch } from "@/services/tokenManager";
 import { UserApiData } from "../types";
 
 const formatAmount = (num?: number): string => {
@@ -79,12 +80,9 @@ export function UserModal({ isOpen, onClose, usersData }: { isOpen: boolean; onC
   }, [isOpen, onClose]);
 
   const handleExcel = () => {
-    const token = sessionStorage.getItem("token");
-    if (!token) return;
-
     const url = `${baseUri}/region/dashboard/by-user?from=${startDate}&to=${endDate}&excel=true`;
 
-    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    authFetch(url)
       .then((res) => res.blob())
       .then((blob) => {
         const blobUrl = URL.createObjectURL(blob);

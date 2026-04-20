@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { latinToCyrillic, tt } from "../utils";
+import { clearTokens, revokeRefreshToken } from "@/services/tokenManager";
 function Navbar() {
   const locationn = useLocation();
   const navigate = useNavigate();
@@ -265,10 +266,11 @@ function Navbar() {
   const dispatch = useDispatch();
 
   const handleLogout = async () => {
+    await revokeRefreshToken();
+    clearTokens();
     localStorage.removeItem("account");
     localStorage.removeItem("standartDate");
     localStorage.removeItem("user");
-    sessionStorage.setItem("token", "out");
     dispatch(removeAccountNumber());
     navigate("/");
     location.reload();

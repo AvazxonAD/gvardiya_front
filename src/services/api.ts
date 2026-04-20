@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
+import { authFetch, clearTokens, getAccessToken, getRefreshToken } from "./tokenManager";
 
 export const baseUri = import.meta.env.VITE_API_URL;
 
 const useApi = () => {
   const navigate = useNavigate();
   const handleUnauthorized = () => {
+    clearTokens();
     localStorage.removeItem("user");
-
     navigate("/login");
   };
 
@@ -19,41 +20,27 @@ const useApi = () => {
   type RequestOptions<T> = {
     endpoint: string;
     method?: string;
-    data?: T | FormData; // Data turi JSON yoki FormData bo'lishi mumkin.
+    data?: T | FormData;
     formData?: boolean;
   };
 
   const request = async <T>({ endpoint, method = "GET", data, formData = false }: RequestOptions<T>): Promise<ReturnType<T> | null> => {
-    const headers: HeadersInit = {};
+    const headers: Record<string, string> = {};
 
-    // FormData bo'lmasa Content-Type JSON formatida bo'ladi
-    if (!formData) {
-      headers["Content-Type"] = "application/json";
-    }
+    if (!formData) headers["Content-Type"] = "application/json";
 
-    const loggedUser = sessionStorage.getItem("token");
-    if (!loggedUser) {
+    if (!getAccessToken() && !getRefreshToken()) {
       navigate("/login");
     }
 
-    const token = loggedUser;
+    const options: RequestInit = { method, headers };
 
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
-    const options: RequestInit = {
-      method,
-      headers,
-    };
-
-    // FormData yoki JSON sifatida data qo'shiladi
     if (data) {
       options.body = formData ? (data as FormData) : JSON.stringify(data);
     }
 
     try {
-      const response = await fetch(baseUri + `/${endpoint}`, options);
+      const response = await authFetch(baseUri + `/${endpoint}`, options);
 
       if (response.status === 401) {
         handleUnauthorized();

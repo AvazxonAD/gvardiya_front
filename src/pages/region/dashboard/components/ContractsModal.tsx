@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/Redux/store";
 import useApi, { baseUri } from "@/services/api";
+import { authFetch } from "@/services/tokenManager";
 import { ContractItem, ContractsMeta, ContractType } from "../types";
 
 interface ContractsModalProps {
@@ -69,12 +70,9 @@ export default function ContractsModal({ isOpen, onClose, type }: ContractsModal
   }, [isOpen, onClose]);
 
   const handleExcel = () => {
-    const token = sessionStorage.getItem("token");
-    if (!token) return;
-
     const url = `${baseUri}/region/dashboard/contracts?from=${startDate}&to=${endDate}&type=${type}&page=1&limit=99999&excel=true`;
 
-    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    authFetch(url)
       .then((res) => res.blob())
       .then((blob) => {
         const blobUrl = URL.createObjectURL(blob);

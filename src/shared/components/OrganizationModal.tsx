@@ -6,6 +6,7 @@ import Modal from "@/Components/Modal";
 import { tt } from "@/utils";
 import { formatAccountNumber } from "@/pages/Organisation";
 import { baseUri } from "@/services/api";
+import { authFetch } from "@/services/tokenManager";
 
 interface OrganizationModalProps {
   open: boolean;
@@ -63,12 +64,7 @@ function OrganizationModal({
     setSearchError("");
 
     try {
-      const token = sessionStorage.getItem("token");
-      const res = await fetch(`${baseUri}/didox/search/${inn}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await authFetch(`${baseUri}/didox/search/${inn}`);
       const result = await res.json();
 
       if (result.success && result.data) {

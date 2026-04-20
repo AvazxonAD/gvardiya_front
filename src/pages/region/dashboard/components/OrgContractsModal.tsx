@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import useApi, { baseUri } from "@/services/api";
+import { authFetch } from "@/services/tokenManager";
 import { ContractsMeta, OrgDebtContractItem, OrganizationDebtRow } from "../types";
 
 interface Props {
@@ -57,13 +58,12 @@ export default function OrgContractsModal({ isOpen, onClose, to, accountId, orga
   }, [isOpen, onClose]);
 
   const handleExcel = () => {
-    const token = sessionStorage.getItem("token");
-    if (!token || !organization) return;
+    if (!organization) return;
 
     const qs = buildQs({ excel: "true" });
     const url = `${baseUri}/region/dashboard/organization-debt-contracts?${qs.toString()}`;
 
-    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    authFetch(url)
       .then((r) => r.blob())
       .then((blob) => {
         const blobUrl = URL.createObjectURL(blob);
