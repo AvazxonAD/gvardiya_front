@@ -121,14 +121,14 @@ export const CreateRasxodFio = () => {
         worker_tasks: rasxodRequestdata.map((item) => {
           const s10 = item.summa * 10 / 100;
           const rem = item.summa - s10;
-          const s25 = rem * 0.25;
+          const s25 = item.summa * 0.25;
           const s125 = s25 / 1.25;
           return {
             worker_task_id: item.worker_task_id,
             summa: item.summa,
             summa_10: s10,
             summa_remaining: rem,
-            summa_75: rem * 0.75,
+            summa_65: item.summa * 0.65,
             summa_25: s25,
             summa_1_25: s125,
             summa_25_2: s125 * 0.25,

@@ -34,7 +34,7 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
         { text: tt("Jami (100%)", "Жами (100%)"), className: "w-[100px] text-center" },
         { text: tt("Boshqarma (10%)", "Бошқарма (10%)"), className: "w-[90px] text-center" },
         { text: tt("Qolgan (90%)", "Қолган (90%)"), className: "w-[100px] text-center" },
-        { text: tt("Moddiy baza (75%)", "Моддий база (75%)"), className: "w-[100px] text-center" },
+        { text: tt("Moddiy baza (65%)", "Моддий база (65%)"), className: "w-[100px] text-center" },
         { text: tt("I-II guruh (25%)", "I-II гурух (25%)"), className: "w-[100px] text-center" },
         { text: tt("Shaxsiy tarkib", "Шахсий таркиб"), className: "w-[100px] text-center" },
         { text: tt("Ijtimoiy soliq (25%)", "Ижтимоий солиқ (25%)"), className: "w-[90px] text-center" },
@@ -187,7 +187,7 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
                         <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa)}</td>
                         <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa_10)}</td>
                         <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa_remaining)}</td>
-                        <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa_75)}</td>
+                        <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa_65)}</td>
                         <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa_25)}</td>
                         <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa_1_25)}</td>
                         <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa_25_2)}</td>

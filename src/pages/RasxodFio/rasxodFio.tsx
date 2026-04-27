@@ -224,9 +224,9 @@ export const RasxodFio = () => {
               </div>
               <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
                 <label className="font-[600] text-[8px] truncate whitespace-nowrap">
-                  {tt("Moddiy bazaga (75%)", "Моддий базага (75%)")}:
+                  {tt("Moddiy bazaga (65%)", "Моддий базага (65%)")}:
                 </label>
-                <Input readonly v={rasxodmeta.summa_75} className="text-[11px] h-7 px-2 py-0 w-full" />
+                <Input readonly v={rasxodmeta.summa_65} className="text-[11px] h-7 px-2 py-0 w-full" />
               </div>
               <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
                 <label className="font-[600] text-[8px] truncate whitespace-nowrap">

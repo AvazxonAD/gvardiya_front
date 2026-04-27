@@ -41,7 +41,7 @@ export const updateAuth = async (value: any, JWT: any) => {
 };
 
 export const getWorkers = async (JWT: any, page: any, limet: any, id: any, search: any) => {
-  const res = await fetch(
+  const res = await authFetch(
     URL + `/worker?page=${page}&limit=${limet}${id > 0 ? "&batalon_id=" + id : ""}${search.length > 0 ? "&search=" + search : ""}`,
     {
       method: "GET",
@@ -72,7 +72,7 @@ export const getBatalonWorkers = async (JWT: any, page: any, limet: any, search:
 };
 
 export const getTasks = async (JWT: any, page: any, limet: any, from: any, to: any, search: any, status: any) => {
-  const res = await fetch(
+  const res = await authFetch(
     URL +
       `/batalon/tasks?page=${page}&limit=${limet}&from=${from}&to=${to}${search.length > 0 ? "&search=" + search : ""}${status.length > 0 ? "&status=" + status : ""}`,
     {
@@ -160,7 +160,7 @@ export const deleteCont = async (JWT: any, id: any, account_id: number) => {
 
 export const getSpr = async (JWT: any, path: any, isWorkerTabBatalon?: boolean | null) => {
   let url = URL + `/${path}${path === "batalon" && isWorkerTabBatalon ? "?birgada=false" : ""}`;
-  const res = await fetch(url, {
+  const res = await authFetch(url, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -230,7 +230,7 @@ export const getCont = async (
   const statusParam = status ? `&status=${status}` : "";
   const statusSummaParam = statusSumma ? `&status-summa=${statusSumma}` : "";
   const rasxodStatusParam = rasxodStatus ? `&rasxod-status=${rasxodStatus}` : "";
-  const res = await fetch(
+  const res = await authFetch(
     URL +
       `/contract/?from=${date.date1}&to=${date.date2}&page=${page}&limit=${limet}${search.length > 0 ? "&search=" + search : ""}&account_number_id=${account_number}${batalonParam}${statusParam}${statusSummaParam}${rasxodStatusParam}`,
     {

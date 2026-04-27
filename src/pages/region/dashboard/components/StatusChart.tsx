@@ -28,7 +28,7 @@ export default function StatusChart({ distData }: StatusChartProps) {
   const [hoverInfo, setHoverInfo] = useState<{ label: string; value: number } | null>(null);
 
   const d = distData || {
-    summa_75: 0, summa_75_percent: 0,
+    summa_65: 0, summa_65_percent: 0,
     summa_25: 0, summa_25_percent: 0,
     rasxod_summa: 0, rasxod_summa_percent: 0,
     fio_summa: 0, fio_summa_percent: 0,
@@ -74,13 +74,13 @@ export default function StatusChart({ distData }: StatusChartProps) {
       type: "doughnut",
       data: {
         labels: [
-          `Moddiy bazaga (${d.summa_75_percent}%)`,
+          `Moddiy bazaga (${d.summa_65_percent}%)`,
           `Hamkor tashkilotlar (${d.rasxod_summa_percent}%)`,
           `Xodimlar uchun premiya (${d.summa_25_percent}%)`,
           `Qolgan`,
         ],
         datasets: [{
-          data: [d.summa_75, d.rasxod_summa, d.summa_25, qolgan],
+          data: [d.summa_65, d.rasxod_summa, d.summa_25, qolgan],
           backgroundColor: [
             "rgba(59, 130, 246, 0.85)",
             "rgba(34, 197, 94, 0.85)",

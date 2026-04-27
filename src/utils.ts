@@ -556,10 +556,8 @@ export function formatDateAll(isoString: string): string {
 
 export async function viewAndDownloadPdf(url: string, fileName: string) {
   try {
-    const token = sessionStorage.getItem("token");
-    const res = await fetch(url, {
-      headers: token ? { Authorization: "Bearer " + token } : {},
-    });
+    const { authFetch } = await import("./services/tokenManager");
+    const res = await authFetch(url, {});
     if (!res.ok) {
       throw new Error(`PDF yuklanmadi: ${res.status}`);
     }

@@ -27,8 +27,8 @@ export interface UserApiData {
 export interface DistributionResponse {
   fio_summa: number;
   fio_summa_percent: number;
-  summa_75: number;
-  summa_75_percent: number;
+  summa_65: number;
+  summa_65_percent: number;
   summa_25: number;
   summa_25_percent: number;
   rasxod_summa: number;

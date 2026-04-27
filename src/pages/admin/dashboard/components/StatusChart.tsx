@@ -31,7 +31,7 @@ export default function StatusChart({ distData }: StatusChartProps) {
   const [hoverInfo, setHoverInfo] = useState<{ label: string; value: number } | null>(null);
 
   const d = distData || {
-    summa_75: 0, summa_75_percent: 0,
+    summa_65: 0, summa_65_percent: 0,
     summa_25: 0, summa_25_percent: 0,
     rasxod_summa: 0, rasxod_summa_percent: 0,
     fio_summa: 0, fio_summa_percent: 0,
@@ -77,13 +77,13 @@ export default function StatusChart({ distData }: StatusChartProps) {
       type: "doughnut",
       data: {
         labels: [
-          `Moddiy bazaga (${d.summa_75_percent}%)`,
+          `Moddiy bazaga (${d.summa_65_percent}%)`,
           `Hamkor tashkilotlar (${d.rasxod_summa_percent}%)`,
           `Xodimlar uchun premiya (${d.summa_25_percent}%)`,
           `Qolgan`,
         ],
         datasets: [{
-          data: [d.summa_75, d.rasxod_summa, d.summa_25, qolgan],
+          data: [d.summa_65, d.rasxod_summa, d.summa_25, qolgan],
           backgroundColor: [
             "rgba(59, 130, 246, 0.85)",
             "rgba(34, 197, 94, 0.85)",
@@ -201,11 +201,11 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
 
   const totals = data.reduce((acc, r) => ({
     jami_kirim: acc.jami_kirim + (r.jami_kirim || 0),
-    summa_75: acc.summa_75 + (r.summa_75 || 0),
+    summa_65: acc.summa_65 + (r.summa_65 || 0),
     summa_25: acc.summa_25 + (r.summa_25 || 0),
     rasxod_summa: acc.rasxod_summa + (r.rasxod_summa || 0),
     all_rasxod: acc.all_rasxod + (r.all_rasxod || 0),
-  }), { jami_kirim: 0, summa_75: 0, summa_25: 0, rasxod_summa: 0, all_rasxod: 0 });
+  }), { jami_kirim: 0, summa_65: 0, summa_25: 0, rasxod_summa: 0, all_rasxod: 0 });
 
   return (
     <div ref={overlayRef} className="dash-modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4"
@@ -227,7 +227,7 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
         <div className="grid grid-cols-5 gap-3 px-5 py-3 shrink-0" style={{ borderBottom: "1px solid var(--dash-modal-border)" }}>
           {[
             { label: "Jami kirim", value: totals.jami_kirim, color: "" },
-            { label: "Moddiy baza (75%)", value: totals.summa_75, color: "text-blue-400" },
+            { label: "Moddiy baza (65%)", value: totals.summa_65, color: "text-blue-400" },
             { label: "Hamkor tashkilotlar", value: totals.rasxod_summa, color: "text-emerald-500" },
             { label: "Xodimlar premiyasi (25%)", value: totals.summa_25, color: "text-amber-500" },
             { label: "Qolgan", value: totals.jami_kirim - totals.all_rasxod, color: "text-red-500" },
@@ -253,7 +253,7 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                     <th className="px-4 py-3 font-semibold">№</th>
                     <th className="px-4 py-3 font-semibold min-w-[180px]">Viloyat</th>
                     <th className="px-4 py-3 font-semibold text-right min-w-[120px]">Jami kirim</th>
-                    <th className="px-4 py-3 font-semibold text-right min-w-[140px]">Moddiy baza (75%)</th>
+                    <th className="px-4 py-3 font-semibold text-right min-w-[140px]">Moddiy baza (65%)</th>
                     <th className="px-4 py-3 font-semibold text-right min-w-[140px]">Hamkor tashkilotlar</th>
                     <th className="px-4 py-3 font-semibold text-right min-w-[150px]">Xodimlar premiyasi (25%)</th>
                     <th className="px-4 py-3 font-semibold text-right min-w-[120px]">Jami tarqatilgan</th>
@@ -267,7 +267,7 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                       <td className="px-4 py-3 text-[var(--dash-text-muted)]">{i + 1}</td>
                       <td className="px-4 py-3 font-medium text-[var(--dash-text)]">{r.region_name}</td>
                       <td className="px-4 py-3 text-right text-[var(--dash-text)]">{formatFull(r.jami_kirim)}</td>
-                      <td className="px-4 py-3 text-right text-blue-400">{formatFull(r.summa_75)}</td>
+                      <td className="px-4 py-3 text-right text-blue-400">{formatFull(r.summa_65)}</td>
                       <td className="px-4 py-3 text-right text-emerald-500">{formatFull(r.rasxod_summa)}</td>
                       <td className="px-4 py-3 text-right text-amber-500">{formatFull(r.summa_25)}</td>
                       <td className="px-4 py-3 text-right text-[var(--dash-text-secondary)]">{formatFull(r.all_rasxod)}</td>

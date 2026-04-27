@@ -14,7 +14,7 @@ const tablehead = [
   { name: tt("Jami (100%)", "Жами (100%)"), className: "text-right" },
   { name: tt("Boshqarma (10%)", "Бошқарма (10%)"), className: "text-right" },
   { name: tt("Qolgan (90%)", "Қолган (90%)"), className: "text-right" },
-  { name: tt("Moddiy baza (75%)", "Моддий база (75%)"), className: "text-right" },
+  { name: tt("Moddiy baza (65%)", "Моддий база (65%)"), className: "text-right" },
   { name: tt("I-II guruh (25%)", "I-II гурух (25%)"), className: "text-right" },
   { name: tt("Shaxsiy tarkib", "Шахсий таркиб"), className: "text-right" },
   { name: tt("Ijtimoiy soliq (25%)", "Ижтимоий солиқ (25%)"), className: "text-right" },
@@ -55,7 +55,7 @@ export const RasxodcreateTableFio = ({
     let total_summa_10 = 0;
     let total_summa_remaining = 0;
     let task_time = 0;
-    let summa_75 = 0
+    let summa_65 = 0
     let summa_25 = 0
     let summa_1_25 = 0
     let summa_25_2 = 0
@@ -65,8 +65,8 @@ export const RasxodcreateTableFio = ({
     data?.forEach((task) => {
       const s10 = task.saved && task.summa_10 != null ? task.summa_10 : task.summa * summa_10_percent / 100;
       const rem = task.saved && task.summa_remaining != null ? task.summa_remaining : task.summa - s10;
-      const s75 = task.saved && task.summa_75 != null ? task.summa_75 : rem * 0.75;
-      const s25 = task.saved && task.summa_25 != null ? task.summa_25 : rem * 0.25;
+      const s65 = task.saved && task.summa_65 != null ? task.summa_65 : task.summa * 0.65;
+      const s25 = task.saved && task.summa_25 != null ? task.summa_25 : task.summa * 0.25;
       const s125 = task.saved && task.summa_1_25 != null ? task.summa_1_25 : s25 / 1.25;
       const s252 = task.saved && task.summa_25_2 != null ? task.summa_25_2 : s125 * 0.25;
       const s12 = task.saved && task.summa_12 != null ? task.summa_12 : s125 * 0.12;
@@ -75,7 +75,7 @@ export const RasxodcreateTableFio = ({
       totalSumma += task.summa;
       total_summa_10 += s10;
       total_summa_remaining += rem;
-      summa_75 += s75;
+      summa_65 += s65;
       summa_25 += s25;
       summa_1_25 += s125;
       summa_25_2 += s252;
@@ -88,7 +88,7 @@ export const RasxodcreateTableFio = ({
       total_summa_10,
       total_summa_remaining,
       task_time,
-      summa_75,
+      summa_65,
       summa_25,
       summa_1_25,
       summa_25_2,
@@ -136,8 +136,8 @@ export const RasxodcreateTableFio = ({
                     // Saved items use DB values, new items calculate with percent
                     const s10 = item.saved && item.summa_10 != null ? item.summa_10 : item.summa * summa_10_percent / 100;
                     const rem = item.saved && item.summa_remaining != null ? item.summa_remaining : item.summa - s10;
-                    const s75 = item.saved && item.summa_75 != null ? item.summa_75 : rem * 0.75;
-                    const s25 = item.saved && item.summa_25 != null ? item.summa_25 : rem * 0.25;
+                    const s65 = item.saved && item.summa_65 != null ? item.summa_65 : item.summa * 0.65;
+                    const s25 = item.saved && item.summa_25 != null ? item.summa_25 : item.summa * 0.25;
                     const s125 = item.saved && item.summa_1_25 != null ? item.summa_1_25 : s25 / 1.25;
                     const s252 = item.saved && item.summa_25_2 != null ? item.summa_25_2 : s125 * 0.25;
                     const s12 = item.saved && item.summa_12 != null ? item.summa_12 : s125 * 0.12;
@@ -160,7 +160,7 @@ export const RasxodcreateTableFio = ({
                       <td className={`${c} text-right`}>{formatNum(item.summa)}</td>
                       <td className={`${c} text-right`}>{formatNum(r(s10))}</td>
                       <td className={`${c} text-right`}>{formatNum(r(rem))}</td>
-                      <td className={`${c} text-right`}>{formatNum(r(s75))}</td>
+                      <td className={`${c} text-right`}>{formatNum(r(s65))}</td>
                       <td className={`${c} text-right`}>{formatNum(r(s25))}</td>
                       <td className={`${c} text-right`}>{formatNum(r(s125))}</td>
                       <td className={`${c} text-right`}>{formatNum(r(s252))}</td>
@@ -182,7 +182,7 @@ export const RasxodcreateTableFio = ({
                   <td className={`${c} text-right`}>{formatNum(total.totalSumma)}</td>
                   <td className={`${c} text-right`}>{formatNum(total.total_summa_10)}</td>
                   <td className={`${c} text-right`}>{formatNum(total.total_summa_remaining)}</td>
-                  <td className={`${c} text-right`}>{formatNum(total.summa_75)}</td>
+                  <td className={`${c} text-right`}>{formatNum(total.summa_65)}</td>
                   <td className={`${c} text-right`}>{formatNum(total.summa_25)}</td>
                   <td className={`${c} text-right`}>{formatNum(total.summa_1_25)}</td>
                   <td className={`${c} text-right`}>{formatNum(total.summa_25_2)}</td>
