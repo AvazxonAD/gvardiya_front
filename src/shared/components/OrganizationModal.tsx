@@ -64,7 +64,7 @@ function OrganizationModal({
     setSearchError("");
 
     try {
-      const res = await authFetch(`${baseUri}/didox/search/${inn}`);
+      const res = await authFetch(`${baseUri}/org/search/${inn}`);
       const result = await res.json();
 
       if (result.success && result.data) {
@@ -79,9 +79,9 @@ function OrganizationModal({
           );
 
           onFill({
-            name: d.fullName || d.name || "",
+            name: d.name || d.fullName || "",
             address: d.address || "",
-            boss: d.director || "",
+            boss: d.boss || d.director || "",
             mfo: d.mfo || d.bankCode || "",
             bank_name: d.bank_name || "",
             newAccountNumber: formatted && !alreadyExists ? formatted : undefined,

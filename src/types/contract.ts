@@ -54,7 +54,7 @@ export type IContract = {
   remaining_balance: number;
   remaining_summa: number;
   verification_boss: "wait" | "success" | "update" | null;
-  verification_lawyer: "wait" | "success" | "update" | null;
+  verification_lawyer: "wait" | "success" | "update" | "rejected" | null;
   send_lawyer: boolean;
   worker_task_status: string;
   rasxod_summa: number;

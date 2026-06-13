@@ -82,12 +82,20 @@ const UserTable: React.FC = () => {
       fio: "",
       password: "",
       login: "",
+      pinfl: "",
       file: null as File | null,
       region_id: "",
       type: "",
     },
     validationSchema: Yup.object({
       fio: Yup.string().required(tt("FIO kiriting", "Введите ФИО")),
+      pinfl: Yup.string().matches(/^\d{14}$/, {
+        message: tt(
+          "PINFL 14 ta raqamdan iborat bo'lishi kerak",
+          "ПИНФЛ должен состоять из 14 цифр"
+        ),
+        excludeEmptyString: true,
+      }),
       password: Yup.string()
         .min(
           3,
@@ -111,6 +119,7 @@ const UserTable: React.FC = () => {
       formData.append("fio", values.fio);
       formData.append("password", values.password);
       formData.append("login", values.login);
+      formData.append("pinfl", values.pinfl);
       if (values.file) formData.append("file", values.file);
       formData.append("region_id", values.region_id.toString());
       formData.append("type", values.type);
@@ -151,6 +160,7 @@ const UserTable: React.FC = () => {
     fio: string;
     password: string;
     login: string;
+    pinfl: string;
     region_id: string | number;
     type: string;
     file: File | null;
@@ -161,12 +171,20 @@ const UserTable: React.FC = () => {
       fio: "",
       password: "",
       login: "",
+      pinfl: "",
       region_id: "",
       type: "",
       file: null as File | null,
     },
     validationSchema: Yup.object({
       fio: Yup.string().required(tt("FIO kiriting", "Введите ФИО")),
+      pinfl: Yup.string().matches(/^\d{14}$/, {
+        message: tt(
+          "PINFL 14 ta raqamdan iborat bo'lishi kerak",
+          "ПИНФЛ должен состоять из 14 цифр"
+        ),
+        excludeEmptyString: true,
+      }),
       password: Yup.string()
         .min(
           3,
@@ -192,6 +210,7 @@ const UserTable: React.FC = () => {
       formData.append("fio", values.fio);
       formData.append("password", values.password);
       formData.append("login", values.login);
+      formData.append("pinfl", values.pinfl);
       formData.append("region_id", values.region_id.toString());
       formData.append("type", values.type);
       if (values.file) formData.append("file", values.file);
@@ -238,6 +257,7 @@ const UserTable: React.FC = () => {
         fio: userEdited.fio ?? "",
         password: "",
         login: userEdited.login ?? "",
+        pinfl: userEdited.pinfl ?? "",
         region_id: userEdited.region_id ?? "",
         type: userEdited.type ?? "",
         file: null,
@@ -257,6 +277,7 @@ const UserTable: React.FC = () => {
           { text: tt("Viloyat", "Регион"), className: "text-left" },
           { text: tt("Turi", "Тип"), className: "text-left" },
           { text: tt("Login", "Логин"), className: "text-left" },
+          { text: tt("PINFL", "ПИНФЛ"), className: "text-left" },
           { text: tt("Amallar", "Действия"), className: "w-[150px]" },
         ]}
       >
@@ -327,6 +348,13 @@ const UserTable: React.FC = () => {
             <td
               className={`border-b border-l border-r  ${
                 user.image ? "py-1" : "py-3"
+              } px-3 font-[600] text-md`}
+            >
+              {user.pinfl || "—"}
+            </td>
+            <td
+              className={`border-b border-l border-r  ${
+                user.image ? "py-1" : "py-3"
               } px-3 font-[600] text-md text-center`}
             >
               <div className="flex justify-center">
@@ -378,6 +406,17 @@ const UserTable: React.FC = () => {
               change={formik2.handleChange}
               blur={formik2.handleBlur}
               error={formik2.touched?.login ? formik2.errors?.login : undefined}
+              className="w-full"
+            />
+          </div>
+          <div className="mb-4 w-full">
+            <Input
+              n="pinfl"
+              label={tt("PINFL", "ПИНФЛ")}
+              v={formik2.values.pinfl}
+              change={formik2.handleChange}
+              blur={formik2.handleBlur}
+              error={formik2.touched?.pinfl ? formik2.errors?.pinfl : undefined}
               className="w-full"
             />
           </div>
@@ -510,6 +549,18 @@ const UserTable: React.FC = () => {
               change={formik.handleChange}
               blur={formik.handleBlur}
               error={formik.touched?.login ? formik.errors?.login : undefined}
+              className="w-full"
+            />
+          </div>
+
+          <div className="mb-4 w-full">
+            <Input
+              n="pinfl"
+              label={tt("PINFL", "ПИНФЛ")}
+              v={formik.values.pinfl}
+              change={formik.handleChange}
+              blur={formik.handleBlur}
+              error={formik.touched?.pinfl ? formik.errors?.pinfl : undefined}
               className="w-full"
             />
           </div>

@@ -578,3 +578,11 @@ export async function viewAndDownloadPdf(url: string, fileName: string) {
     console.error("Yuklab olishda xatolik:", e);
   }
 }
+
+// Sana-vaqtni "kun.oy.yil soat:daqiqa:soniya" (03.06.2026 11:52:17) formatida qaytaradi
+export const formatDateTime = (d: string | Date): string => {
+  const date = new Date(d);
+  if (isNaN(date.getTime())) return "";
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(date.getDate())}.${p(date.getMonth() + 1)}.${date.getFullYear()} ${p(date.getHours())}:${p(date.getMinutes())}:${p(date.getSeconds())}`;
+};

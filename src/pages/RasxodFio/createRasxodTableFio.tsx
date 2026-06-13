@@ -8,18 +8,18 @@ import { TableItem } from "../rasxod/rasxodcreateTable";
 const tablehead = [
   { name: tt("Shartnoma №", "№ контракта"), className: "text-left" },
   { name: tt("Sana", "Дата"), className: "text-left" },
-  { name: tt("Tashkilot", "Организация"), className: "text-left" },
+  { name: tt("Tashkilot", "Организация"), className: "text-left w-[170px] max-w-[170px]" },
   { name: tt("FIO", "ФИО"), className: "text-left" },
   { name: tt("Vaqt", "Время"), className: "text-center" },
-  { name: tt("Jami (100%)", "Жами (100%)"), className: "text-right" },
-  { name: tt("Boshqarma (10%)", "Бошқарма (10%)"), className: "text-right" },
-  { name: tt("Qolgan (90%)", "Қолган (90%)"), className: "text-right" },
-  { name: tt("Moddiy baza (65%)", "Моддий база (65%)"), className: "text-right" },
-  { name: tt("I-II guruh (25%)", "I-II гурух (25%)"), className: "text-right" },
-  { name: tt("Shaxsiy tarkib", "Шахсий таркиб"), className: "text-right" },
-  { name: tt("Ijtimoiy soliq (25%)", "Ижтимоий солиқ (25%)"), className: "text-right" },
-  { name: tt("Daromad solig’i (12%)", "Даромад солиғи (12%)"), className: "text-right" },
-  { name: tt("Kartaga o’tkazildi", "Картага ўтказилди"), className: "text-right" },
+  { name: tt("Jami (100%)", "Жами (100%)"), className: "text-right min-w-[110px]" },
+  { name: tt("Boshqarma (10%)", "Бошқарма (10%)"), className: "text-right min-w-[110px]" },
+  { name: tt("Qolgan (90%)", "Қолган (90%)"), className: "text-right min-w-[110px]" },
+  { name: tt("Moddiy baza (65%)", "Моддий база (65%)"), className: "text-right min-w-[110px]" },
+  { name: tt("I-II guruh (25%)", "I-II гурух (25%)"), className: "text-right min-w-[110px]" },
+  { name: tt("Shaxsiy tarkib", "Шахсий таркиб"), className: "text-right min-w-[110px]" },
+  { name: tt("Ijtimoiy soliq (25%)", "Ижтимоий солиқ (25%)"), className: "text-right min-w-[110px]" },
+  { name: tt("Daromad solig’i (12%)", "Даромад солиғи (12%)"), className: "text-right min-w-[110px]" },
+  { name: tt("Kartaga o’tkazildi", "Картага ўтказилди"), className: "text-right min-w-[110px]" },
 ];
 
 interface Props {
@@ -146,8 +146,8 @@ export const RasxodcreateTableFio = ({
                     return (<>
                       <td className={`${c} text-left`}>{item.contract_doc_num}</td>
                       <td className={`${c} text-left`}>{newdate(item.contract_doc_date)}</td>
-                      <td className={`${c} text-left relative group cursor-pointer`}>
-                        {item.organization_name}
+                      <td className={`${c} text-left relative group cursor-pointer max-w-[170px]`}>
+                        <p className="truncate">{item.organization_name}</p>
                         <div className="hidden group-hover:block absolute left-[100px] -mt-4 w-[220px] shadow-lg z-10 rounded-md bg-mybackground border border-mytableheadborder text-mytextcolor p-2 text-[10px]">
                           <p>{item.organization_name}</p>
                           <p>{tt("Hisob", "Счет")}: {textNum(item.organization_account_number, 4)}</p>
@@ -157,15 +157,15 @@ export const RasxodcreateTableFio = ({
                       </td>
                       <td className={`${c} text-left`}>{item.fio}</td>
                       <td className={`${c} text-center`}>{item.task_time}</td>
-                      <td className={`${c} text-right`}>{formatNum(item.summa)}</td>
-                      <td className={`${c} text-right`}>{formatNum(r(s10))}</td>
-                      <td className={`${c} text-right`}>{formatNum(r(rem))}</td>
-                      <td className={`${c} text-right`}>{formatNum(r(s65))}</td>
-                      <td className={`${c} text-right`}>{formatNum(r(s25))}</td>
-                      <td className={`${c} text-right`}>{formatNum(r(s125))}</td>
-                      <td className={`${c} text-right`}>{formatNum(r(s252))}</td>
-                      <td className={`${c} text-right`}>{formatNum(r(s12))}</td>
-                      <td className={`${c} text-right`}>{formatNum(r(ws))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(item.summa)}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s10))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(rem))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s65))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s25))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s125))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s252))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s12))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(ws))}</td>
                     </>);
                   })()}
                 </tr>
@@ -177,17 +177,17 @@ export const RasxodcreateTableFio = ({
               const c = "px-2 py-1 border border-mytableheadborder font-semibold";
               return (
                 <tr className="bg-mytablehead">
-                  <td colSpan={4} className={`${c} text-right`}>{tt("Jami", "Итого")}</td>
+                  <td colSpan={4} className={`${c} text-right whitespace-nowrap`}>{tt("Jami", "Итого")}</td>
                   <td className={`${c} text-center`}>{formatNum(total.task_time)}</td>
-                  <td className={`${c} text-right`}>{formatNum(total.totalSumma)}</td>
-                  <td className={`${c} text-right`}>{formatNum(total.total_summa_10)}</td>
-                  <td className={`${c} text-right`}>{formatNum(total.total_summa_remaining)}</td>
-                  <td className={`${c} text-right`}>{formatNum(total.summa_65)}</td>
-                  <td className={`${c} text-right`}>{formatNum(total.summa_25)}</td>
-                  <td className={`${c} text-right`}>{formatNum(total.summa_1_25)}</td>
-                  <td className={`${c} text-right`}>{formatNum(total.summa_25_2)}</td>
-                  <td className={`${c} text-right`}>{formatNum(total.summa_12)}</td>
-                  <td className={`${c} text-right`}>{formatNum(total.worker_summa)}</td>
+                  <td className={`${c} text-right whitespace-nowrap`}>{formatNum(total.totalSumma)}</td>
+                  <td className={`${c} text-right whitespace-nowrap`}>{formatNum(total.total_summa_10)}</td>
+                  <td className={`${c} text-right whitespace-nowrap`}>{formatNum(total.total_summa_remaining)}</td>
+                  <td className={`${c} text-right whitespace-nowrap`}>{formatNum(total.summa_65)}</td>
+                  <td className={`${c} text-right whitespace-nowrap`}>{formatNum(total.summa_25)}</td>
+                  <td className={`${c} text-right whitespace-nowrap`}>{formatNum(total.summa_1_25)}</td>
+                  <td className={`${c} text-right whitespace-nowrap`}>{formatNum(total.summa_25_2)}</td>
+                  <td className={`${c} text-right whitespace-nowrap`}>{formatNum(total.summa_12)}</td>
+                  <td className={`${c} text-right whitespace-nowrap`}>{formatNum(total.worker_summa)}</td>
                 </tr>
               );
             })()}

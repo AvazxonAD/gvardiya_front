@@ -1,8 +1,8 @@
 import { getContractId, getOrganId, getSpr } from "@/api";
-import { textNum, tt, viewAndDownloadPdf } from "@/utils";
+import { formatDateTime, textNum, tt, viewAndDownloadPdf } from "@/utils";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import DocumentForPrint from "./DocumentForPrint";
 import BudgetTable from "./Smeta";
@@ -14,9 +14,11 @@ import { replacer } from "@/lib/replace";
 import { getFullDate } from "@/lib/utils";
 import { alertt } from "@/Redux/LanguageSlice";
 import DocumentForPrint2 from "./DocumentForPrint2";
-import { EImzo } from "@/lib/eimzo";
+import { EImzo, type EimzoCertificate } from "@/lib/eimzo";
 import { URL as API_URL } from "@/api";
 import html2pdf from "html2pdf.js";
+import VerificationHistoryModal from "./VerificationHistoryModal";
+import CertSelectModal from "./CertSelectModal";
 
 interface VerificationInfo {
   id: number;
@@ -24,8 +26,14 @@ interface VerificationInfo {
   user_id: number;
   file_name: string;
   signer_name: string;
+  user_type?: string | null;
   created_at: string;
 }
+
+const SIGNER_TYPE_LABEL: Record<string, { uz: string; ru: string }> = {
+  admin: { uz: "Boshliq", ru: "Начальник" },
+  lawyer: { uz: "Yurist", ru: "Юрист" },
+};
 
 const LawyerDocument = () => {
   const [templatesData, setTemplatesdata] = React.useState<templateInterface[]>([]);
@@ -47,6 +55,7 @@ const LawyerDocument = () => {
   const [organisation, setOrganisation] = useState<any>([]);
   const { id } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const shouldGeneratePdf = (location.state as any)?.generatePdf === true;
 
   const { account_number_id } = useSelector((state: any) => state.account);
@@ -56,15 +65,43 @@ const LawyerDocument = () => {
   const [signError, setSignError] = useState("");
   const [signSuccess, setSignSuccess] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
-  const [verificationInfo, setVerificationInfo] = useState<VerificationInfo | null>(null);
+  // Yurist va boshliq imzolari alohida — har biri o'z yozuvi bilan ko'rsatiladi
+  const [verificationInfo, setVerificationInfo] = useState<VerificationInfo[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  // Bir nechta E-IMZO kaliti bo'lsa tanlash oynasi
+  const [certModalOpen, setCertModalOpen] = useState(false);
+  const [certList, setCertList] = useState<EimzoCertificate[]>([]);
+
+  // Rad qilish (yurist sabab yozib rad qiladi)
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejecting, setRejecting] = useState(false);
+  const [rejectionInfo, setRejectionInfo] = useState<{
+    reason: string;
+    created_at?: string;
+  } | null>(null);
 
   const documentRef = useRef<HTMLDivElement>(null);
 
   const loadVerificationInfo = async () => {
     try {
       const res = await request.get(`/contract/${id}/verification`);
-      if (res.data.success && res.data.data) {
+      if (res.data.success && Array.isArray(res.data.data)) {
         setVerificationInfo(res.data.data);
+      }
+    } catch {}
+  };
+
+  // Tarixdan eng so'nggi rad qilish yozuvini olish (sababi bilan)
+  const loadRejectionInfo = async () => {
+    try {
+      const res = await request.get(`/contract/${id}/verification/history`);
+      if (res.data.success && Array.isArray(res.data.data)) {
+        const rejected = res.data.data.find((it: any) => it.status === "rejected");
+        if (rejected) {
+          setRejectionInfo({ reason: rejected.reason || "", created_at: rejected.created_at });
+        }
       }
     } catch {}
   };
@@ -75,8 +112,11 @@ const LawyerDocument = () => {
       await getInfoForDoc(res.data);
       setData(res.data);
       setVerificationStatus(res.data.verification_lawyer || null);
-      if (res.data.verification_lawyer === "success") {
+      if (res.data.verification_lawyer === "success" || res.data.verification_boss === "success") {
         loadVerificationInfo();
+      }
+      if (res.data.verification_lawyer === "rejected") {
+        loadRejectionInfo();
       }
       getContractTemplate(res.data);
       const organ = await getOrganId(JWT, res.data.organization_id);
@@ -249,71 +289,125 @@ const LawyerDocument = () => {
     return blob;
   };
 
-  // E-IMZO bilan tasdiqlash
+  const handleSignError = (err: any) => {
+    const errMsg = String(err.message || err).toLowerCase();
+    if (errMsg.includes("password") || errMsg.includes("padding")) {
+      setSignError("Noto'g'ri parol kiritildi. Qaytadan urinib ko'ring.");
+    } else if (errMsg.includes("aloqa uzildi") || errMsg.includes("ulanib bo'lmadi")) {
+      setSignError("E-IMZO dasturiga ulanib bo'lmadi. Dastur ishga tushirilganligini tekshiring.");
+    } else if (errMsg.includes("cancel")) {
+      setSignError("Bekor qilindi.");
+    } else {
+      setSignError(err.message || "Xatolik yuz berdi");
+    }
+  };
+
+  // Tanlangan kalit bilan imzolash — E-IMZO aynan shu kalit uchun parol so'raydi
+  const signWithCert = async (cert: EimzoCertificate) => {
+    setCertModalOpen(false);
+    setSigning(true);
+    setSignError("");
+
+    try {
+      // 1. Shartnoma ma'lumotlarini usb_manager orqali imzolash (parol oynasi shu yerda ochiladi)
+      const content = `contract_id:${id}|doc_num:${data.doc_num}|verify:lawyer`;
+      const content64 = btoa(unescape(encodeURIComponent(content)));
+      const sigResult = await EImzo.sign(content64, cert);
+
+      // 2. Backendga signer_name va sig_data yuborish (PDF backendda yangilanadi)
+      const res = await request.patch(`/contract/${id}/verify-lawyer`, {
+        signer_name: sigResult.signer_name,
+        sig_data: sigResult.pkcs7_64,
+      });
+
+      if (res.data.success) {
+        setSignSuccess(true);
+        setVerificationStatus("success");
+        setVerificationInfo(Array.isArray(res.data.data) ? res.data.data : []);
+        regenerateAfterSign.current = true;
+        dispatch(alertt({ text: "Shartnoma muvaffaqiyatli tasdiqlandi!", success: true, open: true }));
+      } else {
+        throw new Error(res.data.message || "Tasdiqlashda xatolik");
+      }
+    } catch (err: any) {
+      handleSignError(err);
+    } finally {
+      setSigning(false);
+    }
+  };
+
+  // E-IMZO bilan tasdiqlash: kalit bitta bo'lsa to'g'ridan-to'g'ri imzolanadi,
+  // bir nechta bo'lsa foydalanuvchi tanlash oynasidan kalitni belgilaydi
   const handleEimzoSign = async () => {
     setSigning(true);
     setSignError("");
     setSignSuccess(false);
 
     try {
-      // 1. E-IMZO ga ulanish va sertifikatlar ro'yxati
-      await EImzo.connect();
-      const certs = await EImzo.listAllCertificates();
+      // 1. usb_manager orqali E-IMZO holatini tekshirish
+      const status = await EImzo.getStatus();
+      if (!status.running) {
+        throw new Error(
+          status.installed
+            ? "E-IMZO dasturi ishga tushmagan. Uni oching va qaytadan urinib ko'ring."
+            : "E-IMZO dasturi o'rnatilmagan.",
+        );
+      }
+      if (!status.hasKey) throw new Error("E-IMZO kaliti topilmadi");
+
+      // 2. Kalitlar ro'yxati
+      const certs = await EImzo.listCertificates();
       if (certs.length === 0) throw new Error("E-IMZO kaliti topilmadi");
 
-      // 2. Birinchi kalitni yuklash (parol oynasi ochiladi)
-      const cert = certs[0];
-      const alias = cert.alias || "";
-      const keyId = await EImzo.loadKey(
-        cert.disk || "", cert.path || "", cert.name || "", alias
-      );
-
-      // 3. E-IMZO sertifikatdan FIO olish
-      const parseCertAlias = (a: string) => {
-        const result: Record<string, string> = {};
-        for (const part of a.split(",")) {
-          const eq = part.indexOf("=");
-          if (eq === -1) continue;
-          result[part.substring(0, eq).trim().toLowerCase()] = part.substring(eq + 1).trim();
-        }
-        return result;
-      };
-      const certFields = parseCertAlias(alias);
-      const signerName = certFields.cn || certFields["1.2.860.3.16.1.1"] || "";
-
-      // 4. Shartnoma ma'lumotlarini imzolash
-      const content = `contract_id:${id}|doc_num:${data.doc_num}|verify:lawyer`;
-      const content64 = btoa(unescape(encodeURIComponent(content)));
-      const sigResult = await EImzo.createPkcs7(content64, keyId);
-      const sigData = sigResult.pkcs7_64;
-
-      // 5. Backendga signer_name va sig_data yuborish (PDF backendda yangilanadi)
-      const res = await request.patch(`/contract/${id}/verify-lawyer`, {
-        signer_name: signerName,
-        sig_data: sigData,
-      });
-
-      if (res.data.success) {
-        setSignSuccess(true);
-        setVerificationStatus("success");
-        setVerificationInfo(res.data.data);
-        dispatch(alertt({ text: "Shartnoma muvaffaqiyatli tasdiqlandi!", success: true, open: true }));
+      if (certs.length === 1) {
+        await signWithCert(certs[0]);
       } else {
-        throw new Error(res.data.message || "Tasdiqlashda xatolik");
+        setCertList(certs);
+        setCertModalOpen(true);
+        setSigning(false);
       }
     } catch (err: any) {
-      const errMsg = String(err.message || err).toLowerCase();
-      if (errMsg.includes("password") || errMsg.includes("padding")) {
-        setSignError("Noto'g'ri parol kiritildi. Qaytadan urinib ko'ring.");
-      } else if (errMsg.includes("aloqa uzildi") || errMsg.includes("ulanib bo'lmadi")) {
-        setSignError("E-IMZO dasturiga ulanib bo'lmadi. Dastur ishga tushirilganligini tekshiring.");
-      } else if (errMsg.includes("cancel")) {
-        setSignError("Bekor qilindi.");
-      } else {
-        setSignError(err.message || "Xatolik yuz berdi");
-      }
-    } finally {
+      handleSignError(err);
       setSigning(false);
+    }
+  };
+
+  // Yurist rad qiladi — sabab majburiy
+  const handleReject = async () => {
+    const reason = rejectReason.trim();
+    if (!reason) {
+      dispatch(
+        alertt({
+          text: tt("Rad qilish sababini kiriting!", "Укажите причину отказа!"),
+          success: false,
+        })
+      );
+      return;
+    }
+
+    setRejecting(true);
+    try {
+      const res = await request.patch(`/contract/${id}/reject-lawyer`, { reason });
+      if (res.data.success) {
+        setRejectOpen(false);
+        setRejectReason("");
+        dispatch(
+          alertt({ text: tt("Shartnoma rad qilindi", "Договор отклонён"), success: true })
+        );
+        // Rad qilingan shartnoma yuristdan chiqib ketadi — ro'yxatga qaytamiz
+        navigate("/lawyer-contract");
+      } else {
+        throw new Error(res.data.message || "Xatolik");
+      }
+    } catch (err: any) {
+      dispatch(
+        alertt({
+          text: err?.response?.data?.message || err.message || "Xatolik yuz berdi",
+          success: false,
+        })
+      );
+    } finally {
+      setRejecting(false);
     }
   };
 
@@ -325,21 +419,46 @@ const LawyerDocument = () => {
 
   // Har safar sahifa ochilganda avtomatik PDF yaratib saqlash
   const pdfUploaded = useRef(false);
+  const regenerateAfterSign = useRef(false);
+
+  const uploadPdfToServer = async () => {
+    const blob = await generatePdf();
+    const formData = new FormData();
+    formData.append("file", blob, `contract-${id}.pdf`);
+    const res = await request.patch(`/contract/${id}/upload-pdf`, formData);
+    return res?.data?.data?.file as string | undefined;
+  };
+
   useEffect(() => {
     if (singleTemplate && data && !pdfUploaded.current && (shouldGeneratePdf || !data.file)) {
       pdfUploaded.current = true;
       setTimeout(async () => {
         try {
-          const blob = await generatePdf();
-          const formData = new FormData();
-          formData.append("file", blob, `contract-${id}.pdf`);
-          await request.patch(`/contract/${id}/upload-pdf`, formData);
+          await uploadPdfToServer();
         } catch (e) {
           console.error("PDF avtomatik yaratishda xatolik:", e);
         }
       }, 1000);
     }
   }, [singleTemplate, data]);
+
+  // Tasdiqlangandan keyin yangi PDF (tasdiqlash belgilari bilan) yaratib server'ga yuklash
+  useEffect(() => {
+    if (verificationInfo.length === 0 || !regenerateAfterSign.current) return;
+    regenerateAfterSign.current = false;
+    setTimeout(async () => {
+      try {
+        const newFile = await uploadPdfToServer();
+        if (newFile) {
+          setData((prev: any) => (prev ? { ...prev, file: newFile } : prev));
+          // Tasdiqlash banneridagi "PDF" tugmasi ham aynan shu (belgili) faylni bersin
+          setVerificationInfo((prev) => prev.map((v) => ({ ...v, file_name: newFile })));
+        }
+      } catch (e) {
+        console.error("Tasdiqlangan PDF yaratishda xatolik:", e);
+      }
+    }, 500);
+  }, [verificationInfo]);
 
   useEffect(() => {
     if (account_number_id) {
@@ -397,6 +516,20 @@ const LawyerDocument = () => {
                     )}
                   </button>
                 )}
+                {/* Rad qilish tugmasi — tasdiqlanmagan va hali rad qilinmagan bo'lsa */}
+                {verificationStatus !== "success" && verificationStatus !== "rejected" && (
+                  <button
+                    type="button"
+                    onClick={() => setRejectOpen(true)}
+                    disabled={rejecting}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#dc2626] hover:bg-[#b91c1c] disabled:bg-[#fca5a5] text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                      <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z" />
+                    </svg>
+                    {tt("Rad qilish", "Отклонить")}
+                  </button>
+                )}
                 {data?.file && (
                   <button
                     type="button"
@@ -414,6 +547,16 @@ const LawyerDocument = () => {
                     {tt("PDF yuklab olish", "Скачать PDF")}
                   </button>
                 )}
+                <button
+                  type="button"
+                  onClick={() => setHistoryOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer"
+                >
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M13 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-7-7V3zm-1 5v5l4.25 2.52.75-1.23-3.5-2.07V8H12z" />
+                  </svg>
+                  {tt("Tarix", "История")}
+                </button>
               </div>
             </div>
 
@@ -424,31 +567,26 @@ const LawyerDocument = () => {
               </div>
             )}
 
-            {/* Tasdiqlash ma'lumotlari */}
-            {verificationInfo && (
-              <div className="mx-16 mt-2 px-4 py-3 bg-green-50 border border-green-200 text-green-800 rounded-lg text-sm flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div>
-                    <span className="font-semibold">{tt("Tasdiqlagan", "Утвердил")}:</span>{" "}
-                    {verificationInfo.signer_name}
-                  </div>
-                  <div>
-                    <span className="font-semibold">{tt("Sana", "Дата")}:</span>{" "}
-                    {new Date(verificationInfo.created_at).toLocaleString("uz-UZ")}
-                  </div>
+            {/* Rad qilingan holat — sababi bilan */}
+            {verificationStatus === "rejected" && rejectionInfo && (
+              <div className="mx-16 mt-2 px-4 py-3 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
+                <div className="flex items-center gap-2 font-semibold">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="text-red-600">
+                    <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z" />
+                  </svg>
+                  {tt("Shartnoma yurist tomonidan rad qilingan", "Договор отклонён юристом")}
+                  {rejectionInfo.created_at && (
+                    <span className="font-normal text-red-600">
+                      — {formatDateTime(rejectionInfo.created_at)}
+                    </span>
+                  )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() =>
-                    viewAndDownloadPdf(
-                      API_URL + verificationInfo.file_name,
-                      `shartnoma_${data?.doc_num || id}.pdf`
-                    )
-                  }
-                  className="px-3 py-1 bg-green-600 text-white rounded text-xs font-semibold hover:bg-green-700 cursor-pointer"
-                >
-                  PDF
-                </button>
+                {rejectionInfo.reason && (
+                  <div className="mt-1">
+                    <span className="font-semibold">{tt("Sabab", "Причина")}:</span>{" "}
+                    {rejectionInfo.reason}
+                  </div>
+                )}
               </div>
             )}
 
@@ -617,11 +755,116 @@ const LawyerDocument = () => {
                       <span className="block mt-5">______________________________</span>
                     </div>
                   </div>
+
+                  {verificationInfo.length > 0 && (
+                    <div className="mt-10 flex justify-end">
+                      <div className="flex flex-row flex-wrap justify-end gap-2">
+                        {verificationInfo.map((v) => (
+                          <div key={v.id} className="inline-flex items-center gap-2 px-3 py-2 border border-green-400 bg-green-50 rounded-md text-[12px] text-green-800">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="text-green-600">
+                              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.41 14.42L7.17 12l1.41-1.41 2.01 2.01 5.04-5.04 1.41 1.42-6.46 6.44z" />
+                            </svg>
+                            <div className="flex flex-col leading-tight">
+                              <span className="font-semibold">
+                                {v.signer_name}
+                                {v.user_type && SIGNER_TYPE_LABEL[v.user_type] && (
+                                  <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold rounded bg-blue-100 text-blue-700">
+                                    {tt(
+                                      SIGNER_TYPE_LABEL[v.user_type].uz,
+                                      SIGNER_TYPE_LABEL[v.user_type].ru,
+                                    )}
+                                  </span>
+                                )}
+                              </span>
+                              <span className="text-[10px] text-green-700">
+                                {tt("E-IMZO bilan tasdiqlandi", "Утверждено E-IMZO")}: {formatDateTime(v.created_at)}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </section>
               </div>
             </div>
           </div>
         </>
+      )}
+      <VerificationHistoryModal
+        contractId={id || ""}
+        docNum={data?.doc_num}
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+      />
+
+      {/* E-IMZO kalitini tanlash oynasi (bir nechta kalit bo'lsa) */}
+      <CertSelectModal
+        open={certModalOpen}
+        certs={certList}
+        onSelect={signWithCert}
+        onClose={() => setCertModalOpen(false)}
+      />
+
+      {/* Rad qilish sababi modali */}
+      {rejectOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          onClick={() => setRejectOpen(false)}
+        >
+          <div
+            className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-semibold">
+                {tt("Shartnomani rad qilish", "Отклонить договор")}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setRejectOpen(false)}
+                className="text-gray-500 hover:text-gray-900 dark:hover:text-white text-2xl leading-none cursor-pointer"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="p-6">
+              <label className="block text-sm font-semibold mb-2">
+                {tt("Rad qilish sababi", "Причина отказа")}
+              </label>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                maxLength={1000}
+                rows={4}
+                placeholder={tt("Sababni yozing...", "Укажите причину...")}
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-3 text-sm bg-white dark:bg-gray-800 outline-none focus:border-gray-500 resize-none"
+              />
+            </div>
+
+            <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setRejectOpen(false)}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-lg text-sm font-semibold cursor-pointer"
+              >
+                {tt("Bekor qilish", "Отмена")}
+              </button>
+              <button
+                type="button"
+                onClick={handleReject}
+                disabled={rejecting || !rejectReason.trim()}
+                className="flex items-center gap-2 px-4 py-2 bg-[#dc2626] hover:bg-[#b91c1c] disabled:bg-[#fca5a5] text-white rounded-lg text-sm font-semibold transition-colors cursor-pointer disabled:cursor-not-allowed"
+              >
+                {rejecting && (
+                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                )}
+                {tt("Rad qilish", "Отклонить")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

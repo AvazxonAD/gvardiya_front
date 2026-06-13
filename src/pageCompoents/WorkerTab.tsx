@@ -10,6 +10,7 @@ interface IWorker {
   account_number: string;
   xisob_raqam: string;
   batalon_name: string;
+  is_muddatli_harbiy?: boolean;
 }
 
 const WorkerTab = ({
@@ -60,6 +61,9 @@ const WorkerTab = ({
                 <th className="px-4 py-3 text-center w-[200px]">
                   {tt("Batalon", "Батальон")}
                 </th>
+                <th className="px-4 py-3 text-center w-[150px]">
+                  {tt("Muddatli harbiy", "Срочная служба")}
+                </th>
                 <th className="px-4 py-3 text-right w-[120px]">
                   {tt("Amallar", "Действия")}
                 </th>
@@ -81,6 +85,9 @@ const WorkerTab = ({
                   </td>
                   <td className="px-4 py-3 text-center truncate">
                     {person.batalon_name}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    {person.is_muddatli_harbiy ? tt("Ha", "Да") : tt("Yo'q", "Нет")}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end space-x-4">

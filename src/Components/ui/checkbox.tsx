@@ -8,6 +8,7 @@ interface Props {
 export const Checkbox = ({ label, checked, handleChange, deleted }: Props) => {
   return (
     <button
+      type="button"
       onClick={() => handleChange()}
       className="flex items-center gap-[12px]">
       <div

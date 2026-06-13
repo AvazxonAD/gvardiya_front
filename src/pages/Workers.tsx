@@ -18,6 +18,7 @@ import { tt } from "../utils";
 
 import Download from "@/Components/Download";
 import Button from "@/Components/reusable/button";
+import { Checkbox } from "@/Components/ui/checkbox";
 import useFullHeight from "@/hooks/useFullHeight";
 import useApi from "@/services/api";
 import { IWorker } from "@/types/worker";
@@ -60,12 +61,14 @@ function Workers() {
     batalon_id: 0,
     account_number: "",
     xisob_raqam: "",
+    is_muddatli_harbiy: false,
   });
   const [open2, setOpen2] = useState(false);
   const [value2, setValue2] = useState<any>({
     fio: "",
     batalon_id: 0,
     account_number: "",
+    is_muddatli_harbiy: false,
   });
   const [searchingText] = useDebounce(search, 500);
   const getInfo = async () => {
@@ -151,6 +154,7 @@ function Workers() {
         batalon_id: 0,
         account_number: "",
         xisob_raqam: "",
+        is_muddatli_harbiy: false,
       });
     } else {
       dispatch(
@@ -219,6 +223,7 @@ function Workers() {
         account_number: formatAccountNumber(res?.data?.account_number),
         xisob_raqam: formatAccountNumber(res?.data.xisob_raqam),
         batalon_id: batalon ? batalon.id : 0,
+        is_muddatli_harbiy: !!res.data.is_muddatli_harbiy,
       });
       setActive(e);
       setOpen2(true);
@@ -370,6 +375,19 @@ function Workers() {
               label={tt("Batalon nomi", "Наименование батальона")}
               p={tt("Batalon nomini tanlang", "Выберите название батальона")}
             />
+            <Checkbox
+              label={tt(
+                "Muddatli harbiy xizmatchi",
+                "Военнослужащий срочной службы"
+              )}
+              checked={!!value.is_muddatli_harbiy}
+              handleChange={() =>
+                setValue({
+                  ...value,
+                  is_muddatli_harbiy: !value.is_muddatli_harbiy,
+                })
+              }
+            />
             <div className="flex justify-end mt-4">
               <Button mode="save" type="submit" />
             </div>
@@ -432,6 +450,19 @@ function Workers() {
                 className="!w-full"
               />
             )}
+            <Checkbox
+              label={tt(
+                "Muddatli harbiy xizmatchi",
+                "Военнослужащий срочной службы"
+              )}
+              checked={!!value2.is_muddatli_harbiy}
+              handleChange={() =>
+                setValue2({
+                  ...value2,
+                  is_muddatli_harbiy: !value2.is_muddatli_harbiy,
+                })
+              }
+            />
             <div className="flex justify-end mt-4">
               <Button mode="save" type="submit" />
             </div>

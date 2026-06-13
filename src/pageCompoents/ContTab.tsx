@@ -149,6 +149,8 @@ const ContTab: React.FC<ContTabProps> = ({ data, handleDelete, setActive, hideAc
                     <span className="flex justify-center" title={tt("O'zgartirilgan, qayta tasdiqlash kerak", "Изменено, требуется повторное утверждение")}>
                       <FaPencilAlt style={{ color: "#eab308", fontSize: "12px" }} />
                     </span>
+                  ) : item.verification_lawyer === "rejected" ? (
+                    <span style={{ color: "#ef4444", fontSize: "14px" }} className="flex justify-center" title={tt("Yurist rad qilgan", "Отклонено юристом")}>&#9888;</span>
                   ) : (
                     <span style={{ color: "#ef4444", fontSize: "14px" }} className="flex justify-center">&#10006;</span>
                   )}

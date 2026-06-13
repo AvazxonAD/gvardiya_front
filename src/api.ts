@@ -19,7 +19,31 @@ export const loginAuth = async (login: any, password: any) => {
   const data = await res.json();
   if (data.success) {
     const access = data.data.accessToken || data.data.token;
-    setTokens(access, data.data.refreshToken, data.data.refreshExpiresAt);
+    // requires_eimzo javobida token bo'lmaydi — 2-bosqichda beriladi
+    if (access) {
+      setTokens(access, data.data.refreshToken, data.data.refreshExpiresAt);
+    }
+  }
+
+  return { ...data, message: data?.message || handleStatus(res.status) };
+};
+
+// Login 2-bosqich: E-IMZO imzosini yuborib token olish
+export const loginEimzoAuth = async (login_token: string, pkcs7_64: string) => {
+  const res = await authFetch(URL + "/auth/eimzo", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ login_token, pkcs7_64 }),
+  });
+
+  const data = await res.json();
+  if (data.success) {
+    const access = data.data.accessToken || data.data.token;
+    if (access) {
+      setTokens(access, data.data.refreshToken, data.data.refreshExpiresAt);
+    }
   }
 
   return { ...data, message: data?.message || handleStatus(res.status) };

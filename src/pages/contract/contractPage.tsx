@@ -3,7 +3,7 @@ import Input from "@/Components/Input";
 import Modal from "@/Components/Modal";
 import Paginatsiya from "@/Components/Paginatsiya";
 import Button from "@/Components/reusable/button";
-import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
+import { DateInput } from "@/Components/ui/date-input";
 import useFullHeight from "@/hooks/useFullHeight";
 import OrganTAb from "@/pageCompoents/OrganTAb";
 import { alertt } from "@/Redux/LanguageSlice";
@@ -350,7 +350,7 @@ const ContractPage = () => {
                   />
                 </div>
 
-                <SpecialDatePicker
+                <DateInput
                   label={tt("Shartnoma sanasi", "Дата контракта")}
                   name="doc_date"
                   defaultValue={contract.doc_date}
@@ -374,7 +374,7 @@ const ContractPage = () => {
                     className="w-full"
                   />
                 </div>
-                <SpecialDatePicker
+                <DateInput
                   label={tt("Amal qilish muddati", "Срок действия")}
                   name="period"
                   defaultValue={contract.period}
@@ -458,7 +458,7 @@ const ContractPage = () => {
             <div className="flex-col w-1/2 items-start gap-x-5 bg-mybackground rounded-md">
               <div className="flex flex-col gap-5">
                 <div className="grid grid-cols-[4fr_3fr] gap-x-5">
-                  <SpecialDatePicker
+                  <DateInput
                     label={tt("Boshlanish sana", "Дата начала")}
                     name="start_date"
                     defaultValue={contract.start_date?.slice(0, 10)}
@@ -477,7 +477,7 @@ const ContractPage = () => {
                   />
                 </div>
                 <div className="grid grid-cols-[4fr_3fr] gap-x-5">
-                  <SpecialDatePicker
+                  <DateInput
                     label={tt("Tugash sana", "Дата начала")}
                     defaultValue={contract.end_date?.slice(0, 10)}
                     name="end_date"

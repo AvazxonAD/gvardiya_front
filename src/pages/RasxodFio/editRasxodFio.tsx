@@ -66,6 +66,7 @@ export const EditRasxodFio = () => {
 
   const [rasxodfromdate, setRasxodFromDate] = useState<string>("");
   const [rasxodtodate, setRasxodToDate] = useState<string>("");
+  const [tableSearch, setTableSearch] = useState<string>("");
 
   const [rasxodRequestdata, setRasxodRequestData] = useState<
     RasxodFioTaskInterface[]
@@ -80,6 +81,22 @@ export const EditRasxodFio = () => {
   const filtereddata: RasxodFioTaskInterface[] = rasxodRequestdata?.filter(
     (item) => selectedO?.id == item.batalon_id
   );
+
+  // Jadval uchun frontda qidiruv: shartnoma №, tashkilot, FIO bo'yicha
+  const searchText = tableSearch.trim().toLowerCase();
+  const searchCyr = latinToCyrillic(tableSearch.trim()).toLowerCase();
+  const searchedData = searchText
+    ? filtereddata.filter((item) => {
+        const fields = [
+          String(item.contract_doc_num ?? ""),
+          item.organization_name ?? "",
+          item.fio ?? "",
+        ].map((f) => f.toLowerCase());
+        return fields.some(
+          (f) => f.includes(searchText) || f.includes(searchCyr)
+        );
+      })
+    : filtereddata;
 
   const getUstama = async () => {
     try {
@@ -615,6 +632,20 @@ export const EditRasxodFio = () => {
       </div>
 
       <div className="flex justify-end my-[50px] items-center gap-[40px]">
+        <div className="w-[280px]">
+          <Input
+            v={tableSearch}
+            change={(e: ChangeEvent<HTMLInputElement>) =>
+              setTableSearch(e.target.value)
+            }
+            search={true}
+            p={tt(
+              "Shartnoma №, tashkilot, FIO",
+              "№ контракта, организация, ФИО"
+            )}
+            className="w-full"
+          />
+        </div>
         <SpecialDatePicker
           label={tt("dan", latinToCyrillic("dan"))}
           ru={"от"}
@@ -637,7 +668,7 @@ export const EditRasxodFio = () => {
       </div>
       <RasxodcreateTableFio
         ustamaData={ustamaData}
-        data={filtereddata}
+        data={searchedData}
         setRasxodRequestData={setRasxodRequestData}
         summa_10_percent={10}
       />

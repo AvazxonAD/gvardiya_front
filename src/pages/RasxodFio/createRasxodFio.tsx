@@ -75,6 +75,7 @@ export const CreateRasxodFio = () => {
   const [rasxodRequestdata, setRasxodRequestData] = useState<
     RasxodFioTaskInterface[]
   >([]);
+  const [tableSearch, setTableSearch] = useState<string>("");
   const [calculatedSum, setCalculatedSum] = useState<number>();
   const [ustamaData, setUstama] = React.useState<UstamaInterFaceEdited[]>([]);
   const dispatch = useDispatch();
@@ -307,6 +308,22 @@ export const CreateRasxodFio = () => {
   const handleOpisanieChange = (e: ChangeEvent<HTMLTextAreaElement>) =>
     setOpisanie(e.target.value);
 
+  // Jadval uchun frontda qidiruv: shartnoma №, tashkilot, FIO bo'yicha
+  const searchText = tableSearch.trim().toLowerCase();
+  const searchCyr = latinToCyrillic(tableSearch.trim()).toLowerCase();
+  const filteredRasxodData = searchText
+    ? rasxodRequestdata.filter((item) => {
+        const fields = [
+          String(item.contract_doc_num ?? ""),
+          item.organization_name ?? "",
+          item.fio ?? "",
+        ].map((f) => f.toLowerCase());
+        return fields.some(
+          (f) => f.includes(searchText) || f.includes(searchCyr)
+        );
+      })
+    : rasxodRequestdata;
+
   return (
     <div className="relative">
       {screenLoader && <ScreenLoader />}
@@ -447,6 +464,20 @@ export const CreateRasxodFio = () => {
       </div>
 
       <div className="flex justify-end my-[50px] items-center gap-[40px]">
+        <div className="w-[280px]">
+          <Input
+            v={tableSearch}
+            change={(e: ChangeEvent<HTMLInputElement>) =>
+              setTableSearch(e.target.value)
+            }
+            search={true}
+            p={tt(
+              "Shartnoma №, tashkilot, FIO",
+              "№ контракта, организация, ФИО"
+            )}
+            className="w-full"
+          />
+        </div>
         <SpecialDatePicker
           label={tt("dan", latinToCyrillic("dan"))}
           ru={"от"}
@@ -469,7 +500,7 @@ export const CreateRasxodFio = () => {
       </div>
       <RasxodcreateTableFio
         ustamaData={ustamaData}
-        data={rasxodRequestdata}
+        data={filteredRasxodData}
         setRasxodRequestData={setRasxodRequestData}
         summa_10_percent={10}
       />
