@@ -126,6 +126,25 @@ const ViewTemplate = () => {
                 />
               </div>
             </section>
+
+            {/* Qo'shimcha (Kafolat xati) — mavjud bo'lsa, alohida sahifa preview */}
+            {singleTemplate?.qoshimcha?.length > 0 && (
+              <>
+                <div className="h-[16px] bg-mybackground w-[100%]  "></div>
+                <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300">
+                  {singleTemplate?.qoshimcha_title && (
+                    <h1 className="text-center text-lg mb-6 font-bold">
+                      {singleTemplate.qoshimcha_title}
+                    </h1>
+                  )}
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: singleTemplate.qoshimcha.join("<br>"),
+                    }}
+                  />
+                </section>
+              </>
+            )}
           </div>
         </div>
       </div>

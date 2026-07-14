@@ -33,6 +33,8 @@ const AddTemplate: React.FC = () => {
       section_6: "",
       section_7_title: "",
       section_7: "",
+      qoshimcha_title: "",
+      qoshimcha: "",
     },
     validationSchema: Yup.object({
       shablon_name: Yup.mixed().required(
@@ -131,7 +133,23 @@ const AddTemplate: React.FC = () => {
     }),
     onSubmit: async (values) => {
       try {
-        const response: any = await api.post("template", values);
+        // Backend section maydonlarini massiv (TEXT[]) kutadi — har qatorni
+        // alohida element qilamiz. Bu editTemplate'dagi join("\n") ning teskarisi.
+        const toArr = (v: string) => (v ? String(v).split("\n") : []);
+        const payload = {
+          ...values,
+          main_section: toArr(values.main_section),
+          section_1: toArr(values.section_1),
+          section_2: toArr(values.section_2),
+          section_3: toArr(values.section_3),
+          section_4: toArr(values.section_4),
+          section_5: toArr(values.section_5),
+          section_6: toArr(values.section_6),
+          section_7: toArr(values.section_7),
+          qoshimcha_title: values.qoshimcha_title?.trim() || null,
+          qoshimcha: values.qoshimcha?.trim() ? toArr(values.qoshimcha) : null,
+        };
+        const response: any = await api.post("template", payload);
         if (response?.success) {
           dispatch(
             alertt({
@@ -353,6 +371,51 @@ const AddTemplate: React.FC = () => {
           </div>
         </div>
       ))}
+
+      {/* Qo'shimcha (Kafolat xati) — ixtiyoriy. Smetadan keyin alohida sahifa
+          bo'lib chiqadi. Bo'sh qoldirilsa, hujjatda bu sahifa ko'rinmaydi. */}
+      <div className="pt-4 mt-4 border-t border-gray-300">
+        <h2 className="font-bold mb-3">
+          {tt(
+            `Qo'shimcha sahifa (ixtiyoriy) — Kafolat xati`,
+            `Дополнительная страница (необязательно) — Гарантийное письмо`
+          )}
+        </h2>
+        <div className="mb-3">
+          <label htmlFor="qoshimcha_title" className="block font-medium mb-1">
+            {tt(`Qo'shimcha sarlavhasi`, `Заголовок дополнения`)}
+          </label>
+          <input
+            id="qoshimcha_title"
+            name="qoshimcha_title"
+            type="text"
+            placeholder="КАФОЛАТ ХАТИ"
+            className="w-full bg-mybackground border border-gray-300 rounded p-2"
+            value={formik.values.qoshimcha_title}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+        </div>
+        <div>
+          <label htmlFor="qoshimcha" className="block font-medium mb-1">
+            {tt(`Qo'shimcha matni`, `Текст дополнения`)}
+          </label>
+          <textarea
+            id="qoshimcha"
+            name="qoshimcha"
+            rows={8}
+            placeholder={tt(
+              `Har bir xatboshi yangi qatorda. Placeholderlar: \${client.name}, \${doc_date}, \${contract_number}`,
+              `Каждый абзац с новой строки. Плейсхолдеры: \${client.name}, \${doc_date}, \${contract_number}`
+            )}
+            className="outline-none bg-mybackground w-full border border-gray-300 rounded p-2"
+            value={formik.values.qoshimcha}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+        </div>
+      </div>
+
       <div>
         <Button mode="add" type="submit" />
       </div>

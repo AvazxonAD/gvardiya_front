@@ -18,6 +18,8 @@ export interface SingleTemplateInterface {
   section_6_title: string;
   section_7: string[];
   section_7_title: string;
+  qoshimcha_title?: string;
+  qoshimcha?: string[];
 }
 export interface SingleTemplateInterReplaced {
   id: number;
@@ -39,6 +41,8 @@ export interface SingleTemplateInterReplaced {
   section_6_title: string;
   section_7: string;
   section_7_title: string;
+  qoshimcha_title?: string;
+  qoshimcha?: string;
 }
 
 export interface Task {

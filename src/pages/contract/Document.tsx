@@ -539,6 +539,9 @@ const Document = () => {
           if (updatedtemplate.main_section) {
             updatedtemplate.main_section = formatSectionText(updatedtemplate.main_section);
           }
+          if (updatedtemplate.qoshimcha) {
+            updatedtemplate.qoshimcha = formatSectionText(updatedtemplate.qoshimcha);
+          }
 
           setSingleTemplate(updatedtemplate);
         }
@@ -1082,6 +1085,26 @@ const Document = () => {
                     </div>
                   )}
                 </section>
+
+                {/* Qo'shimcha (Kafolat xati) — shablonda mavjud bo'lsa, smetadan
+                    keyin alohida sahifa. Eski shablonlarda bo'lmaydi (qoshimcha bo'sh). */}
+                {singleTemplate?.qoshimcha && (
+                  <>
+                    <div className="h-[16px] bg-mybackground w-[100%]  "></div>
+                    <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300" style={{ pageBreakBefore: "always" }}>
+                      {singleTemplate?.qoshimcha_title && (
+                        <h1 className="text-center text-lg mt-[30px] mb-[50px] font-bold">
+                          {singleTemplate.qoshimcha_title}
+                        </h1>
+                      )}
+
+                      <div
+                        className="mb-6 text-justify"
+                        dangerouslySetInnerHTML={{ __html: singleTemplate.qoshimcha }}
+                      />
+                    </section>
+                  </>
+                )}
               </div>
             </div>
           </div>

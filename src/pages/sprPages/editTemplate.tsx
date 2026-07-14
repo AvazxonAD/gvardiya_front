@@ -35,6 +35,8 @@ const EditTemplate: React.FC = () => {
       section_6: "",
       section_7_title: "",
       section_7: "",
+      qoshimcha_title: "",
+      qoshimcha: "",
     },
     validationSchema: Yup.object({
       shablon_name: Yup.mixed().required(
@@ -133,9 +135,25 @@ const EditTemplate: React.FC = () => {
     }),
     onSubmit: async (values) => {
       try {
+        // Backend section maydonlarini massiv (TEXT[]) kutadi — har qatorni
+        // alohida element qilamiz (yuklashdagi join("\n") ning teskarisi).
+        const toArr = (v: string) => (v ? String(v).split("\n") : []);
+        const payload = {
+          ...values,
+          main_section: toArr(values.main_section),
+          section_1: toArr(values.section_1),
+          section_2: toArr(values.section_2),
+          section_3: toArr(values.section_3),
+          section_4: toArr(values.section_4),
+          section_5: toArr(values.section_5),
+          section_6: toArr(values.section_6),
+          section_7: toArr(values.section_7),
+          qoshimcha_title: values.qoshimcha_title?.trim() || null,
+          qoshimcha: values.qoshimcha?.trim() ? toArr(values.qoshimcha) : null,
+        };
         const response: any = await api.update(
           `template/${id}?edit=true`,
-          values
+          payload
         );
         if (response?.success) {
           dispatch(
@@ -184,13 +202,16 @@ const EditTemplate: React.FC = () => {
           delete response.data.id;
           const test = {
             ...response.data,
-            section_1: response.data.section_1?.join("\n"),
-            section_2: response.data.section_2?.join("\n"),
-            section_3: response.data.section_3?.join("\n"),
-            section_4: response.data.section_4?.join("\n"),
-            section_5: response.data.section_5?.join("\n"),
-            section_6: response.data.section_6?.join("\n"),
-            section_7: response.data.section_7?.join("\n"),
+            main_section: response.data.main_section?.join("\n") ?? "",
+            section_1: response.data.section_1?.join("\n") ?? "",
+            section_2: response.data.section_2?.join("\n") ?? "",
+            section_3: response.data.section_3?.join("\n") ?? "",
+            section_4: response.data.section_4?.join("\n") ?? "",
+            section_5: response.data.section_5?.join("\n") ?? "",
+            section_6: response.data.section_6?.join("\n") ?? "",
+            section_7: response.data.section_7?.join("\n") ?? "",
+            qoshimcha_title: response.data.qoshimcha_title ?? "",
+            qoshimcha: response.data.qoshimcha?.join("\n") ?? "",
           };
 
           formik.setValues(test);
@@ -417,6 +438,50 @@ const EditTemplate: React.FC = () => {
           </div>
         </div>
       ))}
+
+      {/* Qo'shimcha (Kafolat xati) — ixtiyoriy. Smetadan keyin alohida sahifa
+          bo'lib chiqadi. Bo'sh qoldirilsa, hujjatda bu sahifa ko'rinmaydi. */}
+      <div className="pt-4 mt-4 border-t border-gray-300">
+        <h2 className="font-bold mb-3">
+          {tt(
+            `Qo'shimcha sahifa (ixtiyoriy) — Kafolat xati`,
+            `Дополнительная страница (необязательно) — Гарантийное письмо`
+          )}
+        </h2>
+        <div className="mb-3">
+          <label htmlFor="qoshimcha_title" className="block font-medium mb-1">
+            {tt(`Qo'shimcha sarlavhasi`, `Заголовок дополнения`)}
+          </label>
+          <input
+            id="qoshimcha_title"
+            name="qoshimcha_title"
+            type="text"
+            placeholder="КАФОЛАТ ХАТИ"
+            className="w-full bg-mybackground border border-gray-300 rounded p-2"
+            value={formik.values.qoshimcha_title}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+        </div>
+        <div>
+          <label htmlFor="qoshimcha" className="block font-medium mb-1">
+            {tt(`Qo'shimcha matni`, `Текст дополнения`)}
+          </label>
+          <textarea
+            id="qoshimcha"
+            name="qoshimcha"
+            rows={8}
+            placeholder={tt(
+              `Har bir xatboshi yangi qatorda. Placeholderlar: \${client.name}, \${doc_date}, \${contract_number}`,
+              `Каждый абзац с новой строки. Плейсхолдеры: \${client.name}, \${doc_date}, \${contract_number}`
+            )}
+            className="w-full bg-mybackground border border-gray-300 rounded p-2"
+            value={formik.values.qoshimcha}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+        </div>
+      </div>
 
       <div>
         <Button mode="edit" type="submit" />

@@ -201,6 +201,22 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                     </div>
                   </div>
                 </section>
+
+                {/* Qo'shimcha (Kafolat xati) — shablonda mavjud bo'lsa, alohida sahifa */}
+                {singleTemplate?.qoshimcha && (
+                  <section className=" mt-[1000px] ">
+                    {singleTemplate?.qoshimcha_title && (
+                      <h1 className="text-center text-lg mt-[30px] mb-[50px] font-bold">
+                        {singleTemplate.qoshimcha_title}
+                      </h1>
+                    )}
+
+                    <div
+                      className="mb-6 text-justify"
+                      dangerouslySetInnerHTML={{ __html: singleTemplate.qoshimcha }}
+                    />
+                  </section>
+                )}
               </div>
             </div>
           </>
