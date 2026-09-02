@@ -119,7 +119,7 @@ function OrganizationModal({
                   type="button"
                   onClick={handleInnSearch}
                   disabled={searching}
-                  className="mb-[2px] px-3 py-[9px] bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center gap-1 text-sm"
+                  className="mb-[2px] px-3 py-[9px] bg-primary text-primary-foreground rounded-md hover:bg-primary disabled:opacity-50 flex items-center gap-1 text-sm"
                 >
                   {searching ? (
                     <Loader2Icon size={16} className="animate-spin" />
@@ -129,7 +129,7 @@ function OrganizationModal({
                 </button>
               </div>
               {searchError && (
-                <p className="text-red-500 text-xs mt-1">{searchError}</p>
+                <p className="text-destructive text-xs mt-1">{searchError}</p>
               )}
             </div>
             <Input
@@ -178,7 +178,7 @@ function OrganizationModal({
           <div className="flex gap-3 flex-col w-1/2">
             {/* Account numbers section */}
             <div className="mb-3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 {tt("Hisob raqami", "Счет номер")}
               </label>
               {value.account_numbers.map((accountNumber, index) => (
@@ -197,7 +197,7 @@ function OrganizationModal({
                   <button
                     type="button"
                     onClick={() => removeAccountNumber(index)}
-                    className="ml-2 text-red-500"
+                    className="ml-2 text-destructive"
                   >
                     <Trash2Icon />
                   </button>
@@ -206,7 +206,7 @@ function OrganizationModal({
               <button
                 type="button"
                 onClick={addAccountNumber}
-                className="w-full py-2 border border-gray-300 rounded-md text-center text-sm flex items-center justify-center gap-2"
+                className="w-full py-2 border border-border rounded-md text-center text-sm flex items-center justify-center gap-2"
               >
                 <PlusIcon size={16} /> {tt("Qo'shish", "Добавить")}
               </button>
@@ -214,7 +214,7 @@ function OrganizationModal({
 
             {/* Gazna numbers section */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 {tt("Hisob raqami g'azna", "Счет номер казначейства")}
               </label>
               {value.gazna_numbers.map((gazna, index) => (
@@ -236,7 +236,7 @@ function OrganizationModal({
                   <button
                     type="button"
                     onClick={() => removeGazna(index)}
-                    className="ml-2 text-red-500"
+                    className="ml-2 text-destructive"
                   >
                     <Trash2Icon />
                   </button>
@@ -245,7 +245,7 @@ function OrganizationModal({
               <button
                 type="button"
                 onClick={addGazna}
-                className="w-full py-2 border border-gray-300 rounded-md text-center text-sm flex items-center justify-center gap-2"
+                className="w-full py-2 border border-border rounded-md text-center text-sm flex items-center justify-center gap-2"
               >
                 <PlusIcon size={16} /> {tt("Qo'shish", "Добавить")}
               </button>

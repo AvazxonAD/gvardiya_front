@@ -1,4 +1,3 @@
-import Icon from "@/assets/icons";
 import DeleteModal from "@/Components/DeleteModal";
 import { useRequest } from "@/hooks/useRequest";
 import { RasxodInterface } from "@/interface";
@@ -6,7 +5,9 @@ import { alertt } from "@/Redux/LanguageSlice";
 import { formatDate, formatNum, textNum, tt } from "@/utils";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { Award, FileSpreadsheet, Pencil, Trash2 } from "lucide-react";
+import { Button } from "@/ui";
 import Table, { ITheadItem } from "../../Components/reusable/table/Table"; // Assuming Table is in the same directory
 import { getExcel } from "@/api";
 import ScreenLoader from "@/Components/ScreenLoader";
@@ -26,6 +27,7 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source
   const { account_number_id } = useSelector((state: any) => state.account);
   const JWT = useSelector((s: any) => s.auth.jwt);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const tableHeaders: ITheadItem[] = [
     {
@@ -163,57 +165,77 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source
 
   return (
     <>
-      <Table theadClassName="sticky top-[80px] z-[30] bg-mybackground" thead={tableHeaders}>
-        {data.map((item, index) => (
-          <tr key={index} className="border-b border-mytableheadborder transition-colors">
-            <td className="py-3 px-6 border-l border-r text-center">{item.doc_num}</td>
-            <td className="py-3 px-6 border-l border-r text-center">{formatDate(item.doc_date)}</td>
-            <td className="py-3 px-6 relative group border-l border-r cursor-pointer">
+      <Table thead={tableHeaders}>
+        {data.map((item) => (
+          <tr key={item.id}>
+            <td className="text-center tabular-nums">{item.doc_num}</td>
+            <td className="whitespace-nowrap text-center tabular-nums">
+              {formatDate(item.doc_date)}
+            </td>
+            <td className="group relative cursor-default">
               {item.batalon_name}
-              <div className="hidden group-hover:block -mt-8 ms-16 absolute z-10 bg-mybackground border rounded-md p-3 shadow-lg w-[250px]">
-                <h2>
-                  {tt("Nomi", "Название")}: {item.batalon_name}
-                </h2>
-                <h2>
-                  {tt("Manzil", "Адрес")}: {item.batalon_address}
-                </h2>
-                <h2>
-                  {tt("INN", "ИНН")}: {textNum(item.batalon_str, 3)}
-                </h2>
-                <h2>
-                  {tt("Hisob raqam", "Номер счета")}: {textNum(item.batalon_account_number, 4)}
-                </h2>
+              <div className="pointer-events-none absolute left-4 top-full z-30 hidden w-[260px] rounded-md border border-border bg-popover p-3 text-[12px] text-popover-foreground shadow-lg group-hover:block">
+                <p>{tt("Nomi", "Название")}: {item.batalon_name}</p>
+                <p>{tt("Manzil", "Адрес")}: {item.batalon_address}</p>
+                <p>{tt("INN", "ИНН")}: {textNum(item.batalon_str, 3)}</p>
+                <p>{tt("Hisob raqam", "Номер счета")}: {textNum(item.batalon_account_number, 4)}</p>
               </div>
             </td>
-            <td className="py-3 px-6 border-l border-r text-center">{item.opisanie || ""}</td>
-            <td className="py-3 px-6 text-right border-l border-r">{formatNum(item.summa)}</td>
-            <td className="py-3 px-15 border-l border-r flex justify-center gap-2">
-              {source === "fio" && (
-                <button onClick={() => handleExcelDownload(item)} className="text-blue-500">
-                  {tt("Taqsimot", "Тақсимот")}
-                </button>
-              )}
-              {source !== "fio" && (
-                <button onClick={() => handleExcelDownloadRasxod(item)} className="text-blue-500">
-                  {tt("Taqsimot", "Тақсимот")}
-                </button>
-              )}
-              {source === "fio" && (
-                <button onClick={() => handleExcelDownload2(item)} className="text-blue-500">
-                  {tt("Premiya", "Премия")}
-                </button>
-              )}
-              <Link to={`${item.id}`}>
-                <Icon name="edit" />
-              </Link>
-              <button
-                onClick={() => {
-                  setActiveDeleteModal(true);
-                  setActiveId(item.id);
-                }}
-              >
-                <Icon name="delete" />
-              </button>
+            <td className="text-muted-foreground">{item.opisanie || ""}</td>
+            <td className="whitespace-nowrap text-right font-medium tabular-nums">
+              {formatNum(item.summa)}
+            </td>
+            <td>
+              {/* Jadval aylanuvchi qutida — ochiluvchi menyu kesilib qolardi,
+                  shuning uchun amallar bevosita tugma sifatida turadi */}
+              <div className="flex items-center justify-center gap-0.5">
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  title={tt("Taqsimot", "Тақсимот")}
+                  aria-label={tt("Taqsimot", "Тақсимот")}
+                  onClick={() =>
+                    source === "fio"
+                      ? handleExcelDownload(item)
+                      : handleExcelDownloadRasxod(item)
+                  }
+                >
+                  <FileSpreadsheet />
+                </Button>
+                {source === "fio" && (
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    title={tt("Premiya", "Премия")}
+                    aria-label={tt("Premiya", "Премия")}
+                    onClick={() => handleExcelDownload2(item)}
+                  >
+                    <Award />
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  title={tt("Tahrirlash", "Редактировать")}
+                  aria-label={tt("Tahrirlash", "Редактировать")}
+                  onClick={() => navigate(`${item.id}`)}
+                >
+                  <Pencil />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  title={tt("O'chirish", "Удалить")}
+                  aria-label={tt("O'chirish", "Удалить")}
+                  className="hover:bg-destructive/10 hover:text-destructive"
+                  onClick={() => {
+                    setActiveDeleteModal(true);
+                    setActiveId(item.id);
+                  }}
+                >
+                  <Trash2 />
+                </Button>
+              </div>
             </td>
           </tr>
         ))}

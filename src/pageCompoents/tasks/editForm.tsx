@@ -1,8 +1,15 @@
-import { Users, Clock, Hourglass, UserPlus } from "lucide-react";
-import Input from "@/Components/Input";
-import Modal from "@/Components/Modal";
+import { Users, Clock, Hourglass, UserPlus, Search, X, Save } from "lucide-react";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
-import Button from "@/Components/reusable/button";
+import {
+  Badge,
+  Button,
+  DataTable,
+  EmptyState,
+  Field,
+  Input,
+  Modal,
+  type TableColumn,
+} from "@/ui";
 import { alertt } from "@/Redux/LanguageSlice";
 import useApi from "@/services/api";
 import { ITask } from "@/types/task";
@@ -138,8 +145,6 @@ const EditForm: React.FC<EditFormProps> = ({
 
   const attachedWorkersCount = workersData?.filter((task) => task)?.length || 0;
 
-  // Calculate total required hours and assigned hours
-  const totalRequiredHours = (row?.task_time || 0) * (row?.worker_number || 0);
   const assignedHours = workersData?.reduce((sum, w) => sum + (w.task_time || 0), 0) || 0;
   const remainingHours = (row?.remaining_task_time || 0) - assignedHours;
 
@@ -180,8 +185,8 @@ const EditForm: React.FC<EditFormProps> = ({
     }
     const payload = {
       fio: newWorker.fio,
-      account_number: (newWorker.account_number || "").replaceAll(" ", ""),
-      xisob_raqam: (newWorker.xisob_raqam || "").replaceAll(" ", ""),
+      account_number: (newWorker.account_number || "").replace(/ /g, ""),
+      xisob_raqam: (newWorker.xisob_raqam || "").replace(/ /g, ""),
       batalon_id: row?.batalon_id || null,
     };
     const res: any = await api.post("worker", payload);
@@ -202,302 +207,317 @@ const EditForm: React.FC<EditFormProps> = ({
 
   useEffect(() => {}, [workersData]);
 
+  /* -- Xodimlar jadvali ------------------------------------------- */
+  const visibleWorkers = workersList
+    .filter((w) =>
+      activeTab === "selected"
+        ? workersData.some((e) => e.worker_id === w.id)
+        : true
+    )
+    .sort((a, b) => {
+      const aChecked = workersData.some((e) => e.worker_id === a.id);
+      const bChecked = workersData.some((e) => e.worker_id === b.id);
+      return aChecked === bChecked ? 0 : aChecked ? -1 : 1;
+    });
+
+  const workerColumns: TableColumn<IWorker>[] = [
+    {
+      key: "check",
+      header: "",
+      align: "center",
+      width: "44px",
+      cell: (w) => (
+        <input
+          type="checkbox"
+          checked={workersData.some((e) => e.worker_id === w.id)}
+          onChange={() => handleCheck(w.id)}
+          aria-label={w.fio}
+          className="size-4 cursor-pointer accent-primary"
+        />
+      ),
+    },
+    {
+      key: "fio",
+      header: tt("F.I.O", "Ф.И.О"),
+      cell: (w) => {
+        const checked = workersData.some((e) => e.worker_id === w.id);
+        return (
+          <span className={checked ? "font-medium text-primary" : ""}>
+            {w.fio}
+          </span>
+        );
+      },
+    },
+    {
+      key: "time",
+      header: tt("Topshiriq vaqti", "Время задачи"),
+      width: "160px",
+      cell: (w) => {
+        const find = workersData.find((e) => e.worker_id === w.id);
+        // Tanlangan xodimga soat kiritilmagan bo'lsa - xato holati
+        const invalid = Boolean(find) && (!find!.task_time || find!.task_time <= 0);
+        return (
+          <Input
+            type="number"
+            inputSize="sm"
+            aria-invalid={invalid}
+            value={find && find.task_time >= 0 ? find.task_time : ""}
+            onChange={(e) => handleInputChange(w.id, Number(e.target.value))}
+            className={`taskinput_${w.id} tabular-nums`}
+          />
+        );
+      },
+    },
+  ];
+
   return (
-    <div className="p-4 bg-mybackground shadow-lg w-full border-[2px]">
-      <div className="mb-3 p-2.5 rounded-md border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30">
-        <div className="text-[11px] font-semibold uppercase text-amber-700 dark:text-amber-400 mb-1">
+    <div className="w-full border-y border-border bg-card p-4 shadow-inner">
+      {/* Izoh */}
+      <div className="mb-3 rounded-md border border-warning/30 bg-warning/10 p-2.5">
+        <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-warning">
           {tt("Izoh", "Комментарий")}
         </div>
-        <div className="text-[13px] text-mytextcolor whitespace-pre-wrap break-words">
-          {row?.comment || tt("—", "—")}
+        <div className="whitespace-pre-wrap break-words text-[13px] text-foreground">
+          {row?.comment || "—"}
         </div>
       </div>
-      <div className="flex items-end gap-2 w-full">
-        <div className="w-[130px]">
+
+      {/* Boshqaruv qatori */}
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="w-[140px]">
           <SpecialDatePicker
             label={tt("Sana", "Дата")}
             defaultValue={taskDate}
             onChange={(date) => setTaskDate(date)}
           />
         </div>
-        <div className="w-[90px] ml-16">
+        <Field label={tt("Boshlanish", "Начало")} className="w-[92px]">
           <Input
-            label={tt("Boshlanish", "Начало")}
-            v={startTime}
-            change={(e: any) => setStartTime(e.target.value)}
-            t="text"
-            p="00:00"
+            inputSize="sm"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            placeholder="00:00"
           />
-        </div>
-        <div className="w-[90px]">
+        </Field>
+        <Field label={tt("Tugash", "Конец")} className="w-[92px]">
           <Input
-            label={tt("Tugash", "Конец")}
-            v={endTime}
-            change={(e: any) => setEndTime(e.target.value)}
-            t="text"
-            p="00:00"
+            inputSize="sm"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+            placeholder="00:00"
           />
-        </div>
-        <div className="w-[65px]">
+        </Field>
+        <Field label={tt("Soat", "Часы")} className="w-[76px]">
           <Input
-            label={tt("Soat", "Часы")}
-            t="number"
-            defaultValue={row?.task_time}
+            type="number"
+            inputSize="sm"
             value={TaskTimeForAll && TaskTimeForAll > 0 ? TaskTimeForAll : ""}
-            change={(e: any) => setTaskTimeForAll(+e.target.value)}
+            onChange={(e) => setTaskTimeForAll(+e.target.value)}
+            className="tabular-nums"
+          />
+        </Field>
+        <Button size="sm" onClick={() => setAllWorkersTaskTime()}>
+          {tt("Qo'llash", "Применить")}
+        </Button>
+
+        <Input
+          inputSize="sm"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder={tt("Qidiruv...", "Поиск...")}
+          startIcon={<Search />}
+          className="w-[240px]"
+          endIcon={
+            searchTerm ? (
+              <button
+                type="button"
+                onClick={() => setSearchTerm("")}
+                aria-label={tt("Tozalash", "Очистить")}
+                className="rounded p-0.5 transition-colors hover:text-foreground"
+              >
+                <X />
+              </button>
+            ) : undefined
+          }
+        />
+
+        {/* Hisoblagichlar */}
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          <Chip
+            icon={Users}
+            tone="primary"
+            label={tt("Xodimlar", "Сотр.")}
+            value={attachedWorkersCount}
+          />
+          <Chip
+            icon={Clock}
+            tone={remainingHours > 0 ? "warning" : "success"}
+            label={tt("Biriktirilgan soat", "Прикр. часы")}
+            value={assignedHours}
+          />
+          <Chip
+            icon={Hourglass}
+            tone={remainingHours > 0 ? "danger" : "success"}
+            label={tt("Qoldi", "Ост.")}
+            value={`${remainingHours} ${tt("soat", "ч")}`}
           />
         </div>
-        <Button text={tt("Qo'llash", "Применить")} onClick={() => setAllWorkersTaskTime()} />
-        <div className="w-[280px]">
-          <Input
-            p={tt("Qidiruv...", "Поиск...")}
-            v={searchTerm}
-            change={(e: any) => setSearchTerm(e.target.value)}
-            removeValue={() => setSearchTerm("")}
-            search
-          />
-        </div>
-        <div className="ml-auto flex items-stretch gap-2">
-          <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-blue-200 dark:border-blue-900/50 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/40 dark:to-blue-900/20 shadow-sm">
-            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400">
-              <Users size={12} />
-            </div>
-            <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
-              {tt("Xodimlar", "Сотр.")}:
-            </span>
-            <span className="text-[13px] font-bold text-blue-600 dark:text-blue-400">
-              {attachedWorkersCount}
-            </span>
-          </div>
 
-          <div
-            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md border shadow-sm ${
-              remainingHours > 0
-                ? "border-amber-200 dark:border-amber-900/50 bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-950/40 dark:to-amber-900/20"
-                : "border-green-200 dark:border-green-900/50 bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-950/40 dark:to-green-900/20"
-            }`}
-          >
-            <div
-              className={`flex items-center justify-center w-6 h-6 rounded-full ${
-                remainingHours > 0
-                  ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
-                  : "bg-green-500/15 text-green-600 dark:text-green-400"
-              }`}
-            >
-              <Clock size={12} />
-            </div>
-            <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
-              {tt("Biriktirilgan soat", "Прикр. часы")}:
-            </span>
-            <span
-              className={`text-[13px] font-bold ${
-                remainingHours > 0
-                  ? "text-amber-600 dark:text-amber-400"
-                  : "text-green-600 dark:text-green-400"
-              }`}
-            >
-              {assignedHours}
-            </span>
-          </div>
-
-          <div
-            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md border shadow-sm ${
-              remainingHours > 0
-                ? "border-red-200 dark:border-red-900/50 bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-950/40 dark:to-red-900/20"
-                : "border-green-200 dark:border-green-900/50 bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-950/40 dark:to-green-900/20"
-            }`}
-          >
-            <div
-              className={`flex items-center justify-center w-6 h-6 rounded-full ${
-                remainingHours > 0
-                  ? "bg-red-500/15 text-red-600 dark:text-red-400"
-                  : "bg-green-500/15 text-green-600 dark:text-green-400"
-              }`}
-            >
-              <Hourglass size={12} />
-            </div>
-            <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
-              {tt("Qoldi", "Ост.")}:
-            </span>
-            <span
-              className={`text-[13px] font-bold whitespace-nowrap ${
-                remainingHours > 0
-                  ? "text-red-600 dark:text-red-400"
-                  : "text-green-600 dark:text-green-400"
-              }`}
-            >
-              {remainingHours} {tt("soat", "ч")}
-            </span>
-          </div>
-        </div>
-        <Button
-          mode="add"
-          onClick={handleSave}
-          className="!h-[30px] !py-1 !px-3 !text-[11px] !whitespace-nowrap"
-        />
-        <Button
-          mode="cancel"
-          onClick={() => closeForm(null)}
-          className="!h-[30px] !py-1 !px-3 !text-[11px] !whitespace-nowrap"
-        />
+        <Button size="sm" onClick={handleSave}>
+          <Save />
+          {tt("Saqlash", "Сохранить")}
+        </Button>
+        <Button size="sm" variant="secondary" onClick={() => closeForm(null)}>
+          {tt("Bekor qilish", "Отмена")}
+        </Button>
       </div>
-      <div className="mt-3 flex items-center gap-2">
-        <button
+
+      {/* Tablar */}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <Button
+          size="sm"
+          variant={activeTab === "all" ? "primary" : "secondary"}
           onClick={() => setActiveTab("all")}
-          className={`flex items-center gap-2 px-4 py-1.5 text-[12px] font-semibold rounded-md border shadow-sm transition ${
-            activeTab === "all"
-              ? "bg-blue-500 text-white border-blue-500 hover:bg-blue-600"
-              : "bg-mybackground text-mytextcolor border-mytableheadborder hover:border-blue-400 hover:text-blue-500"
-          }`}
         >
           {tt("Barchasi", "Все")}
-          <span
-            className={`px-1.5 py-[1px] rounded text-[11px] font-bold ${
-              activeTab === "all"
-                ? "bg-white/25 text-white"
-                : "bg-mytablehead text-mytextcolor"
-            }`}
-          >
+          <Badge tone={activeTab === "all" ? "solid" : "neutral"}>
             {workersList.length}
-          </span>
-        </button>
-        <button
+          </Badge>
+        </Button>
+        <Button
+          size="sm"
+          variant={activeTab === "selected" ? "primary" : "secondary"}
           onClick={() => setActiveTab("selected")}
-          className={`flex items-center gap-2 px-4 py-1.5 text-[12px] font-semibold rounded-md border shadow-sm transition ${
-            activeTab === "selected"
-              ? "bg-blue-500 text-white border-blue-500 hover:bg-blue-600"
-              : "bg-mybackground text-mytextcolor border-mytableheadborder hover:border-blue-400 hover:text-blue-500"
-          }`}
         >
           {tt("Tanlanganlar", "Выбранные")}
-          <span
-            className={`px-1.5 py-[1px] rounded text-[11px] font-bold ${
-              activeTab === "selected"
-                ? "bg-white/25 text-white"
-                : "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
-            }`}
-          >
+          <Badge tone={activeTab === "selected" ? "solid" : "primary"}>
             {attachedWorkersCount}
-          </span>
-        </button>
-        <button
-          type="button"
+          </Badge>
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
           onClick={() => setAddWorkerOpen(true)}
-          className="flex items-center gap-1.5 px-4 py-1.5 text-[12px] font-semibold rounded-md border shadow-sm transition bg-green-500 text-white border-green-500 hover:bg-green-600"
+          className="border-success/30 bg-success/10 text-success hover:bg-success/15"
         >
-          <UserPlus size={14} />
+          <UserPlus />
           {tt("Xodim qo'shish", "Добавить сотрудника")}
-        </button>
+        </Button>
       </div>
-      <div className="mt-2 max-h-[600px] overflow-y-auto border border-mytableheadborder">
-          <table className="w-full border-collapse">
-            <thead className="bg-mytablehead sticky top-0 z-10">
-              <tr>
-                <th className="py-2 px-3 text-left text-mytextcolor text-[13px] border border-mytableheadborder w-[40px]"></th>
-                <th className="py-2 px-3 text-left text-mytextcolor text-[13px] border border-mytableheadborder">{tt("F.I.O", "Ф.И.О")}</th>
-                <th className="py-2 px-3 text-left text-mytextcolor text-[13px] border border-mytableheadborder w-[150px]">{tt("Topshiriq vaqti", "Время задачи")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {workersList
-                .filter((w) =>
-                  activeTab === "selected"
-                    ? workersData.some((e) => e.worker_id === w.id)
-                    : true
-                )
-                .sort((a, b) => {
-                  const isAChecked = workersData.some((e) => e.worker_id === a.id);
-                  const isBChecked = workersData.some((e) => e.worker_id === b.id);
-                  return isAChecked === isBChecked ? 0 : isAChecked ? -1 : 1;
-                })
-                .map((worker, ind) => {
-                  const find = workersData.find((e) => e.worker_id === worker.id);
-                  return (
-                    <tr key={ind} className="text-mytextcolor">
-                      <td className="py-1.5 px-3 border border-mytableheadborder text-center">
-                        <input
-                          type="checkbox"
-                          checked={Boolean(find)}
-                          onChange={() => handleCheck(worker.id)}
-                          className="w-4 h-4"
-                        />
-                      </td>
-                      <td className="py-1.5 px-3 border border-mytableheadborder text-[14px]">
-                        <span style={{ color: Boolean(find) ? "#3B7FAF" : "" }}>
-                          {worker.fio}
-                        </span>
-                      </td>
-                      <td className="py-1.5 px-3 border border-mytableheadborder">
-                        <input
-                          type="number"
-                          value={find && find.task_time >= 0 ? find.task_time : ""}
-                          onChange={(e) =>
-                            handleInputChange(worker.id, Number(e.target.value))
-                          }
-                          className={`taskinput_${worker.id} border bg-mybackground text-mytextcolor w-full rounded px-2 py-0.5 ${
-                            find && (!find.task_time || find.task_time <= 0)
-                              ? "border-red-500 border-2 bg-red-50 dark:bg-red-950/40 text-red-600"
-                              : "border-mytableheadborder"
-                          }`}
-                        />
-                      </td>
-                    </tr>
-                  );
-                })}
-            </tbody>
-          </table>
+
+      {/* Xodimlar ro'yxati */}
+      <div className="mt-2 overflow-hidden rounded-lg border border-border">
+        <DataTable
+          columns={workerColumns}
+          rows={visibleWorkers}
+          keyOf={(w) => w.id}
+          maxHeight={600}
+          empty={
+            <EmptyState
+              icon={Users}
+              title={
+                activeTab === "selected"
+                  ? tt("Xodim tanlanmagan", "Сотрудники не выбраны")
+                  : tt("Xodim topilmadi", "Сотрудники не найдены")
+              }
+            />
+          }
+        />
       </div>
+
+      {/* Yangi xodim qo'shish */}
       <Modal
         open={addWorkerOpen}
-        closeModal={() => setAddWorkerOpen(false)}
+        onClose={() => setAddWorkerOpen(false)}
         title={tt("Xodim qo'shish", "Добавить сотрудника")}
+        dismissOnOverlay={false}
       >
-        <form onSubmit={handleCreateWorker}>
-          <div className="flex gap-3 flex-col w-full">
+        <form onSubmit={handleCreateWorker} className="flex flex-col gap-3">
+          <Field
+            label={tt("Ism, familya, otasining ismi", "Имя, фамилия, отчество")}
+            required
+          >
             <Input
-              v={newWorker.fio}
-              change={(e: any) =>
+              value={newWorker.fio}
+              onChange={(e) =>
                 setNewWorker({ ...newWorker, fio: e.target.value })
               }
-              label={tt(
-                "Ism, familya, otasining ismi",
-                "Имя, фамилия, отчество"
-              )}
-              p={tt(
+              placeholder={tt(
                 "Ism, familya, otasining ismini kiriting",
                 "Введите имя, фамилия и отчество"
               )}
             />
+          </Field>
+          <Field label={tt("Karta raqam", "Номер карты")}>
             <Input
-              v={newWorker.account_number}
-              change={(e: any) =>
+              value={newWorker.account_number}
+              onChange={(e) =>
                 setNewWorker({
                   ...newWorker,
                   account_number: formatAccountNumber(e.target.value),
                 })
               }
-              label={tt("Karta raqam", "Номер карты")}
-              p={tt("Karta raqamini kiriting", "Введите номер карты")}
+              placeholder={tt("Karta raqamini kiriting", "Введите номер карты")}
+              className="tabular-nums"
             />
+          </Field>
+          <Field label={tt("Hisob raqam", "Номер счета")}>
             <Input
-              v={newWorker.xisob_raqam}
-              change={(e: any) =>
+              value={newWorker.xisob_raqam}
+              onChange={(e) =>
                 setNewWorker({
                   ...newWorker,
                   xisob_raqam: formatAccountNumber(e.target.value),
                 })
               }
-              label={tt("Hisob raqam", "Номер счета")}
-              p={tt("Hisob raqamini kiriting", "Введите номер счета")}
+              placeholder={tt("Hisob raqamini kiriting", "Введите номер счета")}
+              className="tabular-nums"
             />
-            <div className="flex justify-end mt-4">
-              <Button mode="save" type="submit" />
-            </div>
+          </Field>
+          <div className="mt-1 flex justify-end">
+            <Button type="submit">
+              <Save />
+              {tt("Saqlash", "Сохранить")}
+            </Button>
           </div>
         </form>
       </Modal>
     </div>
   );
 };
+
+/** Boshqaruv qatoridagi kichik hisoblagich */
+function Chip({
+  icon: Icon,
+  tone,
+  label,
+  value,
+}: {
+  icon: typeof Users;
+  tone: "primary" | "warning" | "danger" | "success";
+  label: string;
+  value: React.ReactNode;
+}) {
+  const TONES = {
+    primary: "border-primary/25 bg-primary/10 text-primary",
+    warning: "border-warning/30 bg-warning/10 text-warning",
+    danger: "border-destructive/25 bg-destructive/10 text-destructive",
+    success: "border-success/25 bg-success/10 text-success",
+  } as const;
+
+  return (
+    <div
+      className={`flex items-center gap-2 rounded-md border px-2.5 py-1.5 ${TONES[tone]}`}
+    >
+      <Icon className="size-3.5 shrink-0" />
+      <span className="whitespace-nowrap text-[10px] font-medium text-muted-foreground">
+        {label}:
+      </span>
+      <span className="whitespace-nowrap text-[13px] font-semibold tabular-nums">
+        {value}
+      </span>
+    </div>
+  );
+}
 
 export default EditForm;

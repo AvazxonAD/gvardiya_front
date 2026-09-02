@@ -1,10 +1,8 @@
-import Icon from "@/assets/icons";
 import DeleteModal from "@/Components/DeleteModal";
 import Input from "@/Components/Input";
 import Modal from "@/Components/Modal";
 import Paginatsiya from "@/Components/Paginatsiya";
 import Button from "@/Components/reusable/button";
-import useFullHeight from "@/hooks/useFullHeight";
 import { alertt } from "@/Redux/LanguageSlice";
 import useApi from "@/services/api";
 import { IDeduction } from "@/types/deduction";
@@ -12,6 +10,13 @@ import { FormEvent, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import Table, { ITheadItem } from "../../Components/reusable/table/Table"; // Assuming Table is in the same directory
 import { tt } from "../../utils";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Button as UIButton,
+  ListCard,
+  Toolbar,
+  ToolbarSpacer,
+} from "@/ui";
 
 type IDeductionState = {
   meta?: {
@@ -123,38 +128,42 @@ function Deduction() {
     }
   };
 
-  const height = useFullHeight();
-  const fullHeight =
-    typeof height === "string" ? `calc(${height} - 190px)` : height - 190;
-  const tbHeight =
-    typeof height === "string" ? `calc(${height} - 250px)` : height - 250;
-
   return (
-    <div>
-      <div style={{ minHeight: fullHeight }}>
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-mytextcolor text-[20px] leading-[24.2px] font-[500]">
-            {tt("Ushlanma", "Удержание")}
-          </h1>
-          <Button mode="add" onClick={() => setAdd(true)} />
-        </div>
+    <div className="flex min-w-0 flex-col gap-3">
+      <h1 className="text-[16px] font-semibold text-foreground">
+        {tt("Ushlanma", "Удержание")}
+      </h1>
 
-        <Table
-          tableStyle={{
-            maxHeight: tbHeight,
-            overflowY: "auto",
-          }}
-          theadClassName="bg-mytablehead sticky z-10 -top-1 text-mytextcolor"
-          thead={tableHeaders}
-        >
+      <ListCard
+        toolbar={
+          <Toolbar>
+            <ToolbarSpacer />
+            <UIButton size="sm" onClick={() => setAdd(true)}>
+              <Plus />
+              {tt("Qo'shish", "Добавить")}
+            </UIButton>
+          </Toolbar>
+        }
+        footer={
+          <Paginatsiya
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={data?.meta?.pageCount}
+            limet={limit}
+            setLimet={setLimit}
+            count={data?.meta?.count}
+          />
+        }
+      >
+        <Table thead={tableHeaders}>
           {data?.data?.map((item, index) => (
             <tr
               key={item.id}
               className={`${
                 index % 2 === 0
-                  ? "bg-white dark:bg-mybackground"
-                  : "bg-[#F4FAFD] dark:bg-mybackground"
-              } hover:text-[#3B7FAF] cursor-pointer transition-colors duration-300 text-mytextcolor border-b border-mytableheadborder`}
+                  ? "bg-card dark:bg-card"
+                  : "bg-muted dark:bg-card"
+              } hover:text-primary cursor-pointer transition-colors duration-300 text-foreground border-b border-border`}
             >
               <td className="px-4 py-3 text-inherit text-left">
                 {(currentPage - 1) * limit + index + 1}
@@ -165,41 +174,35 @@ function Deduction() {
               <td className="px-4 py-3 text-inherit text-center">
                 {item.percent}%
               </td>
-              <td className="px-4 py-3 text-right">
-                <div className="flex justify-end space-x-4">
-                  <button
+              <td>
+                <div className="flex items-center justify-center gap-0.5">
+                  <UIButton
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label={tt("Tahrirlash", "Редактировать")}
                     onClick={() => {
                       setValue(item.name);
                       setValue2(String(item.percent));
                       setOpen2(item.id);
                     }}
-                    className="hover:opacity-80 transition-opacity"
                   >
-                    <Icon name="edit" />
-                  </button>
-                  <button
+                    <Pencil />
+                  </UIButton>
+                  <UIButton
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label={tt("O'chirish", "Удалить")}
+                    className="hover:bg-destructive/10 hover:text-destructive"
                     onClick={() => setOpen(item.id)}
-                    className="hover:opacity-80 transition-opacity"
                   >
-                    <Icon name="delete" />
-                  </button>
+                    <Trash2 />
+                  </UIButton>
                 </div>
               </td>
             </tr>
           ))}
         </Table>
-      </div>
-
-      <div>
-        <Paginatsiya
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          totalPages={data?.meta?.pageCount}
-          limet={limit}
-          setLimet={setLimit}
-          count={data?.meta?.count}
-        />
-      </div>
+      </ListCard>
 
       <DeleteModal
         open={Boolean(open)}

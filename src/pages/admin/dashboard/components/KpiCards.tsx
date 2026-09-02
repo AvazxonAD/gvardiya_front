@@ -11,7 +11,7 @@ interface KpiCardProps {
 
 const formatAmount = (num?: number): string => {
   if (!num && num !== 0) return "0";
-  return num.toLocaleString("ru-RU");
+  return Number(num).toLocaleString("ru-RU");
 };
 
 function KpiCard({ title, count, amount, borderColor, icon, onDetail }: KpiCardProps) {
@@ -36,7 +36,7 @@ function KpiCard({ title, count, amount, borderColor, icon, onDetail }: KpiCardP
         <div className="opacity-30">
           {icon}
         </div>
-        <button onClick={onDetail} className="text-[10px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 border border-blue-400/40 hover:border-blue-300/60 rounded-md px-2.5 py-1 transition">
+        <button onClick={onDetail} className="text-[10px] text-primary hover:text-primary font-medium flex items-center gap-1 border border-primary/30/40 hover:border-primary/30/60 rounded-md px-2.5 py-1 transition">
           Batafsil
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
@@ -53,10 +53,10 @@ export default function KpiCards({ data, onDetail }: { data: KpiData; onDetail: 
       title: "Jami shartnomalar",
       count: data.all.count,
       amount: data.all.summa,
-      borderColor: "border-l-emerald-500",
+      borderColor: "border-l-success",
       onDetail: () => onDetail("all"),
       icon: (
-        <svg className="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-10 h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       ),
@@ -65,10 +65,10 @@ export default function KpiCards({ data, onDetail }: { data: KpiData; onDetail: 
       title: "Puli to'lab berilgan shartnomalar",
       count: data.paid.count,
       amount: data.paid.summa,
-      borderColor: "border-l-emerald-500",
+      borderColor: "border-l-success",
       onDetail: () => onDetail("paid"),
       icon: (
-        <svg className="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-10 h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),

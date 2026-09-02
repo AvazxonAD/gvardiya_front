@@ -11,8 +11,8 @@ interface DiagramProps {
 export const Diagram: React.FC<DiagramProps> = ({ data, title = "Batalonlar" }) => {
 
     return (
-        <div className="w-full border border-mybordercolor rounded-lg p-6">
-            <h2 className="text-white text-xl font-semibold mb-4">{title}</h2>
+        <div className="w-full border border-border rounded-lg p-6">
+            <h2 className="text-primary-foreground text-xl font-semibold mb-4">{title}</h2>
             <div className="flex items-center gap-x-3 w-full">
                 {/* Legend */}
                 <div className="w-1/2 max-h-[310px] overflow-y-auto">
@@ -20,10 +20,10 @@ export const Diagram: React.FC<DiagramProps> = ({ data, title = "Batalonlar" }) 
                         {data.map((item) => (
                             <div key={item.id} className="flex items-center gap-2">
                                 <div
-                                    className="w-4 h-4 rounded-full shadow-md border cursor-pointer"
+                                    className="w-4 h-4 rounded-none shadow-md border cursor-pointer"
                                     style={{ backgroundColor: item.color }}
                                 />
-                                <span className=" text-sm cursor-pointer">{item.region_name}</span>
+                                <span className="text-sm cursor-pointer">{item.region_name}</span>
                             </div>
                         ))}
                     </div>

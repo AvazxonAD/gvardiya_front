@@ -10,7 +10,7 @@ interface Props {
 }
 
 const formatNum = (num: number): string => {
-  return num.toLocaleString("ru-RU");
+  return Number(num).toLocaleString("ru-RU");
 };
 
 const COLORS = [
@@ -178,39 +178,39 @@ export default function BatalonStatsChart({ data }: Props) {
             <div className="p-2.5 space-y-2">
               <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
                 <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Xodimlar soni</p>
-                <p className="text-[16px] font-bold text-amber-500">{selectedRow.worker_count.toLocaleString()}</p>
+                <p className="text-[16px] font-bold text-warning">{selectedRow.worker_count.toLocaleString()}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-1.5">
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
                   <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Umumiy summa</p>
-                  <p className="text-[13px] font-bold text-indigo-500">{formatNum(selectedRow.total_summa)}</p>
+                  <p className="text-[13px] font-bold text-primary">{formatNum(selectedRow.total_summa)}</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
                   <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Summa ulushi</p>
-                  <p className="text-[13px] font-bold text-indigo-400">{selectedRow.summa_percent}%</p>
+                  <p className="text-[13px] font-bold text-primary">{selectedRow.summa_percent}%</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
                   <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Umumiy soat</p>
-                  <p className="text-[13px] font-bold text-sky-500">{selectedRow.total_time.toLocaleString()}</p>
+                  <p className="text-[13px] font-bold text-primary">{selectedRow.total_time.toLocaleString()}</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
                   <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Soat ulushi</p>
-                  <p className="text-[13px] font-bold text-sky-400">{selectedRow.time_percent}%</p>
+                  <p className="text-[13px] font-bold text-primary">{selectedRow.time_percent}%</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
                   <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Tadbirlar soni</p>
-                  <p className="text-[13px] font-bold text-emerald-500">{selectedRow.task_count.toLocaleString()}</p>
+                  <p className="text-[13px] font-bold text-success">{selectedRow.task_count.toLocaleString()}</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
                   <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Tadbirlar ulushi</p>
-                  <p className="text-[13px] font-bold text-emerald-400">{selectedRow.task_percent}%</p>
+                  <p className="text-[13px] font-bold text-success">{selectedRow.task_percent}%</p>
                 </div>
               </div>
 
               <button
                 onClick={() => setSelectedRow(null)}
-                className="w-full py-2 rounded-lg text-[12px] font-medium text-white bg-indigo-500 hover:bg-indigo-600 transition"
+                className="w-full py-2 rounded-lg text-[12px] font-medium text-primary-foreground bg-primary hover:bg-primary transition"
               >
                 Yopish
               </button>

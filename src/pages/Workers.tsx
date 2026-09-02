@@ -19,7 +19,6 @@ import { tt } from "../utils";
 import Download from "@/Components/Download";
 import Button from "@/Components/reusable/button";
 import { Checkbox } from "@/Components/ui/checkbox";
-import useFullHeight from "@/hooks/useFullHeight";
 import useApi from "@/services/api";
 import { IWorker } from "@/types/worker";
 import { useReactToPrint } from "react-to-print";
@@ -27,6 +26,13 @@ import { useDebounce } from "use-debounce";
 import Select from "../Components/Select";
 import { alertt } from "../Redux/LanguageSlice";
 import FIOForPrint from "./workers/FioForPrint";
+import { FileSpreadsheet, Plus, Printer, RotateCcw } from "lucide-react";
+import {
+  Button as UIButton,
+  ListCard,
+  Toolbar,
+  ToolbarSpacer,
+} from "@/ui";
 
 const formatAccountNumber = (value: string) => {
   if (!value) return "";
@@ -254,25 +260,23 @@ function Workers() {
     }
   }, [forPdf]);
 
-  const height = useFullHeight();
-  const fullHeight =
-    typeof height === "string" ? `calc(${height} - 190px)` : height - 190;
 
   return (
-    <div className="flex flex-col">
-      <div className=" hidden">
+    <div className="flex min-w-0 flex-col gap-3">
+      <div className="hidden">
         <FIOForPrint ref={fioRef} data={forPdf} />
       </div>
-      <div style={{ minHeight: fullHeight }}>
-        <div className="flex justify-between items-center mb-5">
-          <div className="flex items-center gap-4">
-            <div className="w-[250px]">
+
+      <ListCard
+        toolbar={
+          <Toolbar>
+            <div className="w-full sm:w-64">
               <Input
                 v={search}
                 change={(e: any) => setSearch(e.target.value)}
                 search={true}
                 p={tt("Ismlar bo’yicha qidiruv", "Поиск по имени")}
-                className="w-full"
+                className="h-9 w-full"
               />
             </div>
 
@@ -281,32 +285,53 @@ function Workers() {
               def
               value={searchId}
               onChange={(e: any) => handleSearchByBatalon(e)}
-              p={tt("Batalon orqali qidiring", "Выберите название батальона")}
+              p={tt("Batalon orqali qidiring", "Выберите батальон")}
+              w={240}
             />
 
-            <Button
-              mode="clear"
+            <UIButton
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 setSearch("");
                 setSearchID(0);
               }}
-            />
-          </div>
-          <div className="flex gap-4">
-            <Button mode="print" onClick={onPrintClick} />
-            <Button
-              mode="download"
-              onClick={() => setDownOpen(true)}
-              text={tt("Excel", "Экcель")}
-            />
-            <Button
-              mode="download"
-              onClick={() => setDownOpen2(true)}
-              text={tt("Shablon yuklash", "Экcель")}
-            />
-            <Button mode="add" onClick={() => setOpen(true)} />
-          </div>
-        </div>
+            >
+              <RotateCcw />
+              {tt("Tozalash", "Очистить")}
+            </UIButton>
+
+            <ToolbarSpacer />
+
+            <UIButton variant="secondary" size="sm" onClick={onPrintClick}>
+              <Printer />
+              {tt("Chop etish", "Печать")}
+            </UIButton>
+            <UIButton variant="secondary" size="sm" onClick={() => setDownOpen(true)}>
+              <FileSpreadsheet />
+              Excel
+            </UIButton>
+            <UIButton variant="secondary" size="sm" onClick={() => setDownOpen2(true)}>
+              <FileSpreadsheet />
+              {tt("Shablon", "Шаблон")}
+            </UIButton>
+            <UIButton size="sm" onClick={() => setOpen(true)}>
+              <Plus />
+              {tt("Qo'shish", "Добавить")}
+            </UIButton>
+          </Toolbar>
+        }
+        footer={
+          <Paginatsiya
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+            currentPage={currentPage}
+            limet={limet}
+            setLimet={setLimet}
+            count={all}
+          />
+        }
+      >
         <WorkerTab
           setActive={setActive}
           handleDelete={handleDelete}
@@ -315,17 +340,8 @@ function Workers() {
           data={data}
           edit={edit}
         />
-      </div>
-      <div className="">
-        <Paginatsiya
-          totalPages={totalPages}
-          setCurrentPage={setCurrentPage}
-          currentPage={currentPage}
-          limet={limet}
-          setLimet={setLimet}
-          count={all}
-        />
-      </div>
+      </ListCard>
+
       <Modal
         open={open}
         closeModal={closeModal}

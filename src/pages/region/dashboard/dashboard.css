@@ -4,7 +4,7 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--dash-glass-border);
-  border-radius: 1rem;
+  border-radius: 0;
   box-shadow: 0 4px 30px var(--dash-shadow);
   transition:
     transform 0.3s ease,
@@ -35,7 +35,7 @@
   background: var(--dash-modal-bg);
   color: var(--dash-text);
   border: 1px solid var(--dash-table-border);
-  border-radius: 0.375rem;
+  border-radius: 0;
   padding: 0.25rem 0.5rem;
   font-size: 11px;
   outline: none;
@@ -57,7 +57,7 @@
   font-size: 11px;
   font-weight: 500;
   padding: 0.25rem 0.75rem;
-  border-radius: 0.375rem;
+  border-radius: 0;
   transition: background-color 0.15s ease, opacity 0.15s ease;
 }
 .dash-btn-primary {
@@ -81,54 +81,37 @@
   cursor: not-allowed;
 }
 
-/* Light theme variables */
-.light .dashboard-content {
-  --dash-bg: #f1f5f9;
-  --dash-glass-bg: rgba(255, 255, 255, 0.7);
-  --dash-glass-border: rgba(0, 0, 0, 0.08);
-  --dash-shadow: rgba(0, 0, 0, 0.05);
-  --dash-hover-shadow: rgba(59, 130, 246, 0.1);
-  --dash-hover-border: rgba(59, 130, 246, 0.3);
-  --dash-text: #0f172a;
-  --dash-text-secondary: #64748b;
-  --dash-text-muted: #94a3b8;
-  --dash-card-bg: rgba(255, 255, 255, 0.8);
-  --dash-tooltip-bg: rgba(255, 255, 255, 0.95);
-  --dash-tooltip-border: #cbd5e1;
-  --dash-tooltip-text: #0f172a;
-  --dash-modal-overlay: rgba(0, 0, 0, 0.4);
-  --dash-modal-bg: #ffffff;
-  --dash-modal-border: #e2e8f0;
-  --dash-modal-header-bg: #f8fafc;
-  --dash-table-row-alt: rgba(248, 250, 252, 0.5);
-  --dash-table-header-bg: #f1f5f9;
-  --dash-table-border: #e2e8f0;
+/* Yangi dizayn tokenlariga bog'lash — dashboard endi ilovaning qolgan
+   qismi bilan bir xil palitradan foydalanadi. O'zgaruvchi nomlari saqlandi,
+   shuning uchun komponentlarga tegilmadi. */
+.dashboard-content {
+  --dash-bg: hsl(var(--background));
+  --dash-glass-bg: hsl(var(--card));
+  --dash-glass-border: hsl(var(--border));
+  --dash-shadow: hsl(var(--shadow-color) / 0.06);
+  --dash-hover-shadow: hsl(var(--primary) / 0.12);
+  --dash-hover-border: hsl(var(--primary) / 0.35);
+  --dash-text: hsl(var(--foreground));
+  --dash-text-secondary: hsl(var(--muted-foreground));
+  --dash-text-muted: hsl(var(--muted-foreground) / 0.75);
+  --dash-card-bg: hsl(var(--card));
+  --dash-region-fill-start: hsl(var(--primary) / 0.25);
+  --dash-region-fill-end: hsl(var(--primary) / 0.45);
+  --dash-region-stroke: hsl(var(--primary));
+  --dash-region-hover: hsl(var(--primary) / 0.55);
+  --dash-region-label: hsl(var(--foreground));
+  --dash-tooltip-bg: hsl(var(--popover));
+  --dash-tooltip-border: hsl(var(--border));
+  --dash-tooltip-text: hsl(var(--popover-foreground));
+  --dash-modal-overlay: hsl(var(--foreground) / 0.4);
+  --dash-modal-bg: hsl(var(--card));
+  --dash-modal-border: hsl(var(--border));
+  --dash-modal-header-bg: hsl(var(--muted) / 0.5);
+  --dash-table-row-alt: hsl(var(--muted) / 0.35);
+  --dash-table-header-bg: hsl(var(--muted) / 0.6);
+  --dash-table-border: hsl(var(--border));
 }
 
-/* Dark theme variables */
-.dark .dashboard-content,
-.dashboard-content {
-  --dash-bg: #020617;
-  --dash-glass-bg: rgba(30, 41, 59, 0.4);
-  --dash-glass-border: rgba(255, 255, 255, 0.08);
-  --dash-shadow: rgba(0, 0, 0, 0.1);
-  --dash-hover-shadow: rgba(56, 189, 248, 0.1);
-  --dash-hover-border: rgba(56, 189, 248, 0.3);
-  --dash-text: #f8fafc;
-  --dash-text-secondary: #94a3b8;
-  --dash-text-muted: #64748b;
-  --dash-card-bg: rgba(30, 41, 59, 0.4);
-  --dash-tooltip-bg: rgba(15, 23, 42, 0.95);
-  --dash-tooltip-border: #475569;
-  --dash-tooltip-text: #f8fafc;
-  --dash-modal-overlay: rgba(2, 6, 23, 0.8);
-  --dash-modal-bg: #0f172a;
-  --dash-modal-border: #334155;
-  --dash-modal-header-bg: rgba(30, 41, 59, 0.5);
-  --dash-table-row-alt: rgba(30, 41, 59, 0.3);
-  --dash-table-header-bg: #1e293b;
-  --dash-table-border: rgba(51, 65, 85, 0.5);
-}
 
 /* Modal overlay */
 .dash-modal-overlay {
@@ -145,7 +128,7 @@
 }
 .dashboard-content ::-webkit-scrollbar-thumb {
   background: var(--dash-text-muted);
-  border-radius: 4px;
+  border-radius: 0;
 }
 
 /* Region map SVG styling */

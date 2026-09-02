@@ -12,7 +12,7 @@ interface AlertCardProps {
 
 const formatAmount = (num?: number): string => {
   if (!num && num !== 0) return "0";
-  return num.toLocaleString("ru-RU");
+  return Number(num).toLocaleString("ru-RU");
 };
 
 export default function AlertCard({ redData, from, to, regionId }: AlertCardProps) {
@@ -64,7 +64,7 @@ export default function AlertCard({ redData, from, to, regionId }: AlertCardProp
         <div className="flex gap-[8px]">
           <button
             onClick={() => setModalOpen(true)}
-            className="flex-1 h-[36px] bg-transparent border border-emerald-500 rounded-lg text-emerald-500 text-[12px] font-medium flex items-center justify-center gap-1.5 hover:bg-emerald-500/10 transition-all"
+            className="flex-1 h-[36px] bg-transparent border border-success/30 rounded-lg text-success text-[12px] font-medium flex items-center justify-center gap-1.5 hover:bg-success/10 transition-all"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -74,7 +74,7 @@ export default function AlertCard({ redData, from, to, regionId }: AlertCardProp
           </button>
           <button
             onClick={handleExcel}
-            className="flex-1 h-[36px] bg-emerald-500 rounded-lg text-white text-[12px] font-medium flex items-center justify-center gap-1.5 hover:bg-emerald-600 transition-all"
+            className="flex-1 h-[36px] bg-success rounded-lg text-primary-foreground text-[12px] font-medium flex items-center justify-center gap-1.5 hover:bg-success transition-all"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -142,8 +142,8 @@ function RedWorkersModal({
         {/* Table */}
         <div className="px-5 py-4 overflow-y-auto flex-1">
           <div className="overflow-auto rounded-xl max-h-[60vh]" style={{ border: "1px solid var(--dash-table-border)" }}>
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead className="sticky top-0 z-10" style={{ background: "var(--dash-table-header-bg)", borderBottom: "1px solid var(--dash-table-border)" }}>
+            <table className="table-grid w-full text-left text-sm whitespace-nowrap">
+              <thead className="sticky top-0 z-10" style={{ background: "var(--dash-table-header-bg)" }}>
                 <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
                   <th className="px-4 py-3 font-semibold w-[50px]">№</th>
                   <th className="px-4 py-3 font-semibold min-w-[250px]">Xodim ismi</th>
@@ -162,7 +162,7 @@ function RedWorkersModal({
                   <tr key={w.worker_id} className="transition hover:opacity-80"
                     style={{
                       background: i % 2 === 1 ? "var(--dash-table-row-alt)" : "transparent",
-                      borderBottom: "1px solid var(--dash-table-border)",
+                     
                     }}>
                     <td className="px-4 py-3 text-[var(--dash-text-muted)]">{i + 1}</td>
                     <td className="px-4 py-3 font-medium text-[var(--dash-text)]">{w.worker_name}</td>
@@ -172,7 +172,7 @@ function RedWorkersModal({
                     <td className="px-4 py-3 text-[var(--dash-text-secondary)]">{w.region_name}</td>
                     <td className="px-4 py-3 text-right text-rose-500 font-semibold">{formatAmount(w.summa)}</td>
                     <td className="px-4 py-3 text-right text-[var(--dash-text-secondary)]">{formatAmount(w.average)}</td>
-                    <td className="px-4 py-3 text-right text-amber-500">{formatAmount(w.threshold)}</td>
+                    <td className="px-4 py-3 text-right text-warning">{formatAmount(w.threshold)}</td>
                     <td className="px-4 py-3 text-center">
                       <span className="px-2 py-1 rounded text-[11px] border bg-rose-500/20 text-rose-500 border-rose-500/30 font-bold">
                         ×{w.times_average}
@@ -188,7 +188,7 @@ function RedWorkersModal({
         {/* Footer */}
         <div className="px-5 py-3 flex justify-end shrink-0" style={{ borderTop: "1px solid var(--dash-modal-border)" }}>
           <button onClick={onExcel}
-            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-[12px] font-medium rounded-lg transition flex items-center gap-1.5">
+            className="px-4 py-2 bg-success hover:bg-success text-primary-foreground text-[12px] font-medium rounded-lg transition flex items-center gap-1.5">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>

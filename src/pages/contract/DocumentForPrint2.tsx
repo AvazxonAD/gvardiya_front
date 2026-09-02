@@ -1,9 +1,13 @@
 import { textNum } from "@/utils";
 import React from "react";
 import BudgetTable from "./Smeta";
+import EimzoBadges from "./EimzoBadges";
 
 const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
-  ({ data, info, organisation, singleTemplate, getFullDate }, ref) => {
+  (
+    { data, info, organisation, singleTemplate, getFullDate, verificationInfo },
+    ref
+  ) => {
     return (
       <>
         {data && info && organisation && (
@@ -203,7 +207,7 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                 </section>
 
                 {/* Qo'shimcha (Kafolat xati) — shablonda mavjud bo'lsa, alohida sahifa */}
-                {singleTemplate?.qoshimcha && (
+                {singleTemplate?.qoshimcha ? (
                   <section className=" mt-[1000px] ">
                     {singleTemplate?.qoshimcha_title && (
                       <h1 className="text-center text-lg mt-[30px] mb-[50px] font-bold">
@@ -215,7 +219,12 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                       className="mb-6 text-justify"
                       dangerouslySetInnerHTML={{ __html: singleTemplate.qoshimcha }}
                     />
+
+                    {/* Imzo hujjatning eng oxirida */}
+                    <EimzoBadges items={verificationInfo} />
                   </section>
+                ) : (
+                  <EimzoBadges items={verificationInfo} />
                 )}
               </div>
             </div>

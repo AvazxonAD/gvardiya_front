@@ -43,9 +43,9 @@ const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full border-none">
+        <table className="table-grid min-w-full">
           <thead>
-            <tr className="bg-mytablehead border border-mytableheadborder text-mytextcolor uppercase text-sm leading-normal">
+            <tr className="bg-muted/60 border-b border-border text-foreground uppercase text-sm leading-normal">
               <th className="py-3 px-6 text-left">Shartnoma raqami</th>
               <th className="py-3 px-6 text-center">
                 {tt("Topshiriq vaqti", "Время задачи")}

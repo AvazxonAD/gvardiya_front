@@ -163,13 +163,13 @@ const EditForm: React.FC<EditFormProps> = ({
   });
 
   return (
-    <div className="p-4 bg-mybackground shadow-lg w-full border-[2px]">
+    <div className="p-4 bg-card shadow-lg w-full border-[2px]">
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center w-1/2">
           <div className="w-full me-5">
             <Input
               p={tt("Ismlar bo'yicha qidiriuv", "Поиск по именам")}
-              className="border border-gray-300 rounded px-3 py-2 w-full"
+              className="border border-border rounded px-3 py-2 w-full"
               v={searchTerm}
               change={(e: any) => setSearchTerm(e.target.value)}
               removeValue={() => setSearchTerm("")}
@@ -184,7 +184,7 @@ const EditForm: React.FC<EditFormProps> = ({
           </div>
         </div>
         <div className="w-1/2 flex justify-between items-center">
-          <p className="block ms-5 text-[#636566] text-[16px]">
+          <p className="block ms-5 text-muted-foreground text-[16px]">
             {tt(
               `Jami ${workers?.meta.count} ta xodimdan ${attachedWorkersCount} ta biriktirilgan`,
               `Всего из ${workers?.meta.count} сотрудников назначено ${attachedWorkersCount}`
@@ -194,7 +194,7 @@ const EditForm: React.FC<EditFormProps> = ({
           <div className="flex gap-3 items-center">
             <Input
               p={tt("Topshiriq vaqti", "Время задачи")}
-              className="border border-gray-300 rounded px-3 py-2 w-full"
+              className="border border-border rounded px-3 py-2 w-full"
               t="number"
               defaultValue={row?.task_time}
               value={TaskTimeForAll && TaskTimeForAll > 0 ? TaskTimeForAll : ""}
@@ -235,14 +235,14 @@ const EditForm: React.FC<EditFormProps> = ({
                     style={{
                       color: Boolean(find) ? "#3B7FAF" : "",
                     }}
-                    className={`font-[400] text-mytextcolor`}
+                    className={`font-[400] text-foreground`}
                   >
                     {worker.fio}
                   </span>
                 </div>
 
                 <div className="ms-2 flex items-center gap-2 w-[300px]">
-                  <h3 className="text-mytextcolor w-full">
+                  <h3 className="text-foreground w-full">
                     {tt("Topshiriq vaqti", "Время задачи")}:
                   </h3>
                   <input
@@ -251,7 +251,7 @@ const EditForm: React.FC<EditFormProps> = ({
                     onChange={(e) =>
                       handleInputChange(worker.id, Number(e.target.value))
                     }
-                    className={`taskinput_${worker.id} border bg-mybackground border-gray-300 text-mytextcolor w-[100px] rounded px-2 py-1`}
+                    className={`taskinput_${worker.id} border bg-card border-border text-foreground w-[100px] rounded px-2 py-1`}
                   />
                 </div>
               </div>
@@ -260,7 +260,7 @@ const EditForm: React.FC<EditFormProps> = ({
       </div>
 
       {/* Pagination */}
-      {/* <div className=" mt-[30px]">
+      {/* <div className="mt-[30px]">
         <Paginatsiya
           currentPage={page}
           setCurrentPage={setPage}

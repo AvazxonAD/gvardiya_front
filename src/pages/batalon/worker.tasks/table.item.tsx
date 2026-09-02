@@ -92,30 +92,30 @@ const TableItem = ({
     <>
       {showModal && selectedTask && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-mybackground p-6 rounded-2xl shadow-2xl w-[400px] animate-scale-in">
-            <h2 className="text-xl font-semibold text-center text-blue-700 dark:text-blue-400 mb-6 border-b pb-3">
+          <div className="bg-card dark:bg-card p-6 rounded-2xl shadow-2xl w-[400px] animate-scale-in">
+            <h2 className="text-xl font-semibold text-center text-primary mb-6 border-b pb-3">
               Shartnoma tafsilotlari
             </h2>
 
-            <div className="space-y-3 text-gray-700 dark:text-gray-300 text-[15px]">
-              <div className="border-l-4 border-blue-500 pl-3">
+            <div className="space-y-3 text-foreground text-[15px]">
+              <div className="border-l-4 border-primary/30 pl-3">
                 <strong className="font-bold">Shartnoma raqami:</strong>{" "}
                 {selectedTask.contract_info?.doc_num}
               </div>
-              <div className="border-l-4 border-blue-500 pl-3">
+              <div className="border-l-4 border-primary/30 pl-3">
                 <strong className="font-bold">Hamkor tashkilot:</strong>{" "}
                 {selectedTask.contract_info?.organization}
               </div>
-              <div className="border-l-4 border-blue-500 pl-3">
+              <div className="border-l-4 border-primary/30 pl-3">
                 <strong className="font-bold">Manzil:</strong>{" "}
                 {selectedTask.contract_info?.adress}
               </div>
-              <div className="border-l-4 border-green-500 pl-3">
+              <div className="border-l-4 border-success/30 pl-3">
                 <strong className="font-bold">Tadbir boshlanish vaqti:</strong>{" "}
                 {selectedTask.contract_info?.start_date}{" "}
                 {selectedTask.contract_info?.start_time}
               </div>
-              <div className="border-l-4 border-red-500 pl-3">
+              <div className="border-l-4 border-destructive/30 pl-3">
                 <strong className="font-bold">Tadbir tugash vaqti:</strong>{" "}
                 {selectedTask.contract_info?.end_date}{" "}
                 {selectedTask.contract_info?.end_time}
@@ -124,7 +124,7 @@ const TableItem = ({
 
             <div className="mt-6 flex justify-center">
               <button
-                className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition duration-200"
+                className="px-6 py-2 rounded-none bg-primary text-primary-foreground hover:bg-primary transition duration-200"
                 onClick={() => {
                   setShowModal(false);
                   setSelectedTask(null);
@@ -138,9 +138,9 @@ const TableItem = ({
       )}
 
       <React.Fragment>
-        <tr className="border-b border-mytableheadborder text-mytextcolor">
+        <tr className="border-b border-border text-foreground">
           <td
-            className="px-4 py-3 text-center text-blue-600 cursor-pointer hover:font-semibold transition"
+            className="px-4 py-3 text-center text-primary cursor-pointer hover:font-semibold transition"
             onClick={() => {
               setSelectedTask(row);
               setShowModal(true);
@@ -155,21 +155,24 @@ const TableItem = ({
             {row.worker_number}
           </td>
           <td className="py-3 px-6 text-center font-[500] text-[14px]">
-            {Math.round(row.worker_number * row.task_time * 100) / 100}
+            {/* Maydonlar matn yoki bo'sh bo'lishi mumkin — NaN chiqmasin */}
+            {Math.round(
+              (Number(row.worker_number) || 0) * (Number(row.task_time) || 0) * 100
+            ) / 100}
           </td>
           <td
-            style={{ color: row.remaining_task_time > 0 ? "red" : "green" }}
+            style={{ color: Number(row.remaining_task_time) > 0 ? "hsl(var(--destructive))" : "hsl(var(--success))" }}
             className={`py-3 px-6 text-left font-[500] text-[14px]`}
           >
             <div className="flex items-center gap-2 justify-center">
               <p>{row.remaining_task_time}</p>
               {row.remaining_task_time === 0 && !row.birgada && (
-                <div style={{ color: "green" }}>
+                <div style={{ color: "hsl(var(--success))" }}>
                   <CheckCircle2 />
                 </div>
               )}
               {row.remaining_task_time > 0 && !row.birgada && (
-                <div style={{ color: "red" }}>
+                <div style={{ color: "hsl(var(--destructive))" }}>
                   <XCircle />
                 </div>
               )}
@@ -204,7 +207,7 @@ const TableItem = ({
                 </button>
                 <button
                   onClick={() => handleEditClick(row.id)}
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-primary hover:text-primary"
                 >
                   <Icon name="pencil" />
                 </button>
@@ -215,7 +218,7 @@ const TableItem = ({
         {editingId === row.id && (
           <tr className="w-full">
             <td colSpan={12}>
-              <div className="transition duration-500 ease-in-out transform translate-y-0 bg-gray-100 dark:bg-mytablehead w-full">
+              <div className="transition duration-500 ease-in-out transform translate-y-0 bg-muted dark:bg-muted/60 w-full">
                 <EditForm
                   type="edit"
                   row={row}
@@ -230,7 +233,7 @@ const TableItem = ({
         {creatingId === row.id && (
           <tr className="w-full">
             <td colSpan={12}>
-              <div className="transition duration-500 ease-in-out transform translate-y-0 bg-gray-100 dark:bg-mytablehead w-full">
+              <div className="transition duration-500 ease-in-out transform translate-y-0 bg-muted dark:bg-muted/60 w-full">
                 <EditForm
                   type="create"
                   row={row}
@@ -252,7 +255,7 @@ const TableItem = ({
             <div className="w-[400px] mb-4">
               <Input
                 p={tt("Ismlar bo'yicha qidiriuv", "Поиск по именам")}
-                className="border border-gray-300 rounded px-3 py-2 w-full"
+                className="border border-border rounded px-3 py-2 w-full"
                 v={searchTerm}
                 change={(e: any) => setSearchTerm(e.target.value)}
                 removeValue={() => setSearchTerm("")}
@@ -261,19 +264,19 @@ const TableItem = ({
             </div>
             <Table
               thead={[
-                { text: "№", className: "border text-center w-[50px]" },
-                { text: tt("F.I.O", "Ф.И.О"), className: "border text-left" },
+                { text: "№", className: "text-center w-[50px]" },
+                { text: tt("F.I.O", "Ф.И.О"), className: "text-left" },
                 {
                   text: tt("Topshiriq vaqti", "Время задачи"),
-                  className: "border text-left",
+                  className: "text-left",
                 },
                 {
                   text: tt("Foydalanuvchi", "Фойдаланувчи"),
-                  className: "border text-left",
+                  className: "text-left",
                 },
                 {
                   text: tt("Amallar", "Действия"),
-                  className: "border text-center w-[100px]",
+                  className: "text-center w-[100px]",
                 },
               ]}
             >
@@ -281,7 +284,7 @@ const TableItem = ({
                 return (
                   <tr
                     key={ind}
-                    className="hover:text-[#3B7FAF] text-mytextcolor"
+                    className="hover:text-primary text-foreground"
                   >
                     <td className="border py-3 px-6 text-center font-[500] text-[14px]">
                       {ind + 1}
@@ -289,13 +292,13 @@ const TableItem = ({
                     <td className="border py-3 px-6 text-left font-[500] text-[14px]">
                       {e.fio}
                     </td>
-                    <td className="border py-3 px-6 text-left  font-[500] text-[14px]">
+                    <td className="border py-3 px-6 text-left font-[500] text-[14px]">
                       {e.task_time}
                     </td>
-                    <td className="border py-3 px-6 text-left  font-[500] text-[14px]">
+                    <td className="border py-3 px-6 text-left font-[500] text-[14px]">
                       {e.user}
                     </td>
-                    <td className="border py-3 px-6 text-center  font-[500] text-[14px]">
+                    <td className="border py-3 px-6 text-center font-[500] text-[14px]">
                       <button onClick={() => handleDelete(e.worker_id, row.id)}>
                         <Icon name="delete" />
                       </button>

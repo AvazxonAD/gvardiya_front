@@ -187,11 +187,30 @@ export const latinToCyrillic = (latin: string): string => {
   return result;
 };
 
-export function formatSum(value?: number): string {
-  if (value === 0) return "0";
-  if (!value) return "";
+/**
+ * Backend summani ikki xil ko'rinishda yuboradi:
+ *   - sof son yoki "12345.67" kabi matn;
+ *   - `returnStringSumma` orqali allaqachon formatlangan "12 345,67".
+ * Ikkinchisiga `Number()` qo'llansa NaN chiqadi va katakcha bo'sh qoladi —
+ * shu sabab bo'shliq/vergul olib tashlanib, keyin songa o'giriladi.
+ */
+export function toNumber(value?: number | string | null): number {
+  if (typeof value === "number") return value;
+  if (value === null || value === undefined) return NaN;
+  const raw = String(value).replace(/[\s\u00A0\u202F]/g, "");
+  if (raw === "") return NaN;
+  // Vergul — kasr ajratgichi
+  return Number(raw.replace(",", "."));
+}
+
+export function formatSum(value?: number | string | null): string {
+  // Bo'sh qiymatda ilgarigidek bo'sh matn qaytariladi
+  if (value === null || value === undefined || value === "") return "";
+  const num = toNumber(value);
+  if (!Number.isFinite(num)) return "";
+  if (num === 0) return "0";
   // Ikkita kasr raqamiga ega bo'lishi uchun toFixed qo'llaniladi
-  const [integerPart, decimalPart] = value.toFixed(2).split(".");
+  const [integerPart, decimalPart] = num.toFixed(2).split(".");
 
   // Integer qismni minglik bo'shliqlar bilan ajratish
   const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
@@ -290,19 +309,21 @@ export const tt = (text: string, ru: string) => {
   return type == "2" ? ru : type == "0" ? text : latinToCyrillic(text);
 };
 
-export function textNum(text: string, number: number): string {
-  if (text) {
+export function textNum(text: string | number | null | undefined, number: number): string {
+  // Hisob raqam/INN ba'zan son bo'lib keladi — `.slice` ishlamay qolardi
+  const str = text == null ? "" : String(text);
+  if (str) {
     let result = "";
 
     // Iterate through the text in chunks of `number`
-    for (let i = 0; i < text.length; i += number) {
-      result += text.slice(i, i + number) + " ";
+    for (let i = 0; i < str.length; i += number) {
+      result += str.slice(i, i + number) + " ";
     }
 
     // Trim the extra space at the end and return
     return result.trim();
   } else {
-    return text;
+    return str;
   }
 }
 
@@ -321,17 +342,23 @@ export function textNum(text: string, number: number): string {
 //     return number;
 //   }
 // }
-export function formatNum(num: number, disableFixed?: boolean) {
-  if (num === 0) return "0"; // Explicitly return "0" for input 0
-  if (num) {
-    if (isNaN(num)) {
+export function formatNum(
+  num?: number | string | null,
+  disableFixed?: boolean
+) {
+  // `formatSum` dagi kabi — kiruvchi qiymat matn bo'lishi mumkin
+  if (num === null || num === undefined || num === "") return "";
+  const value = toNumber(num);
+  if (value === 0) return "0"; // Explicitly return "0" for input 0
+  if (value) {
+    if (!Number.isFinite(value)) {
       return "";
     }
 
     // Raqamni ikkiga bo'lamiz: butun va kasr qism
     const number = disableFixed
-      ? num.toString().split(".")
-      : num?.toFixed(2).split(".");
+      ? value.toString().split(".")
+      : value.toFixed(2).split(".");
     const [integerPart, fractionalPart] = number;
     // Butun qismini mingliklarga ajratish
     const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
@@ -345,7 +372,10 @@ export function formatNum(num: number, disableFixed?: boolean) {
 export function formatDate(dateStr?: string): string {
   try {
     if (!dateStr) return "";
-    const [year, month, day] = dateStr.split("-");
+    // Javob "2026-08-03" ham, ISO "2026-08-03T00:00:00.000Z" ham bo'lishi
+    // mumkin. Ilgari ikkinchisida "03T00:00:00.000Z.08.2026" chiqardi.
+    const [year, month, day] = String(dateStr).slice(0, 10).split("-");
+    if (!year || !month || !day) return String(dateStr);
     return `${day}.${month}.${year}`;
   } catch {
     return "";

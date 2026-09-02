@@ -26,9 +26,9 @@ const MonthlyPercentageChart = ({ data }: Props) => {
   ];
 
   return (
-    <div className="w-full border bg-mybackground shadow-sm p-6 rounded-lg">
+    <div className="w-full border bg-card shadow-sm p-6 rounded-lg">
       <div className="mb-10">
-        <h2 className="text-lg font-medium text-mytextcolor">
+        <h2 className="text-lg font-medium text-foreground">
           {tt("Oylar kesimi bo'yicha", "Разрез по месяцам")}
         </h2>
       </div>
@@ -59,17 +59,17 @@ const MonthlyPercentageChart = ({ data }: Props) => {
                 {/* Progress Box Container */}
                 <div className="w-[50px] h-64 flex flex-col items-center justify-end">
                   {/* Fixed Percentage Display */}
-                  <div title={originalMonthKey} className="cursor-pointer text-xs text-mytextcolor">
+                  <div title={originalMonthKey} className="cursor-pointer text-xs text-foreground">
                     {percent}%
                   </div>
                   {/* Progress Bar */}
                   <div
                     title={originalMonthKey}
-                    className="cursor-pointer w-full bg-blue-500 rounded"
+                    className="cursor-pointer w-full bg-primary rounded"
                     style={{ height: `${percent + 1}%` }}
                   />
                 </div>
-                <div title={originalMonthKey} className="cursor-pointer mt-2 text-md text-mytextcolor whitespace-nowrap">
+                <div title={originalMonthKey} className="cursor-pointer mt-2 text-md text-foreground whitespace-nowrap">
                   {monthNames[monthIndex]} {/* Show the real month name */}
                 </div>
               </div>

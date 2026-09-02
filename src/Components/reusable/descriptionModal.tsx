@@ -4,7 +4,7 @@ import Modal from "../Modal"
 export const ModalText = ({ label, value }: { label: string, value: string }) => {
     return (
         <div className="w-full flex justify-between items-center gap-3 mb-3">
-            <h2 className="w-[25%] block text-right text-mytextcolor">{label}</h2>
+            <h2 className="w-[25%] block text-right text-foreground">{label}</h2>
             <div className="w-[75%]">
                 <Input className="w-full" v={value} />
             </div>
@@ -27,7 +27,7 @@ const DescriptionModal = ({ closeModal, open, title, items }: Props) => {
             closeModal={closeModal}
             title={title}
             w="80%"
-            className="bg-[#ECF3F7] dark:bg-mybackground"
+            className="bg-muted dark:bg-card"
         >
             {
                 <div className="flex gap-3">

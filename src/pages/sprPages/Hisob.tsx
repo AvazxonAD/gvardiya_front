@@ -7,6 +7,8 @@ import Modal from "../../Components/Modal";
 import HisobTab from "../../pageCompoents/HisobTab";
 import { alertt } from "../../Redux/LanguageSlice";
 import { tt } from "../../utils";
+import { Plus } from "lucide-react";
+import { Button as UIButton, ListCard, Toolbar, ToolbarSpacer } from "@/ui";
 
 // Bu funksiya foydalanuvchi kiritayotgan raqamlarni 3 belgidan keyin bo'sh joy qo'yib formatlaydi
 const formatAccountNumber = (value: string) => {
@@ -40,7 +42,9 @@ function Hisob() {
 
   const getInfoID = async () => {
     const res = await getSpr(JWT, "account/" + active);
-    setValue(formatAccountNumber(res.data.account_number)); // Avvaldan kelgan raqamni formatlash
+    // Javob kutilgan shaklda bo'lmasligi mumkin — sahifa shu sababli
+    // yiqilib qolmasligi kerak.
+    setValue(formatAccountNumber(res?.data?.account_number ?? ""));
   };
 
   useEffect(() => {
@@ -142,14 +146,24 @@ function Hisob() {
   }, [open2])
 
   return (
-    <div className="flex flex-col w-full">
-      <div className="flex justify-between mb-6">
-        <h1 className="text-mytextcolor text-[20px] leading-[24.2px] font-[500]">
+    <div className="flex min-w-0 flex-col gap-3">
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-[16px] font-semibold text-foreground">
           {tt("Hisob Raqami", "Номер Счета")}
         </h1>
-        <Button mode="add" onClick={() => setOpen2(true)} />
       </div>
 
+      <ListCard
+        toolbar={
+          <Toolbar>
+            <ToolbarSpacer />
+            <UIButton size="sm" onClick={() => setOpen2(true)}>
+              <Plus />
+              {tt("Qo'shish", "Добавить")}
+            </UIButton>
+          </Toolbar>
+        }
+      >
       <HisobTab
         handleDelete={handleDelete}
         setActive={setActive}
@@ -176,6 +190,7 @@ function Hisob() {
           </div>
         </form>
       </HisobTab>
+      </ListCard>
 
       <Modal
         closeModal={() => {

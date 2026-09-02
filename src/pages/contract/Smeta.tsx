@@ -2,10 +2,10 @@ import { formatNum, latinToCyrillic } from "@/utils";
 
 const BudgetTable = ({ data }: any) => {
   return (
-    <div className="overflow-x-auto text-[10px] leading-3 text-mytextcolor">
-      <table className="max-w-full border ">
+    <div className="overflow-x-auto text-[10px] leading-3 text-foreground">
+      <table className="max-w-full border">
         <thead>
-          <tr className="border border-mytableheadborder">
+          <tr className="border-b border-border">
             <th className="border text-center py-1 w-[120px]">
               {latinToCyrillic("Tadbir o'tadigan joy nomi")}
             </th>
@@ -14,7 +14,7 @@ const BudgetTable = ({ data }: any) => {
                 {latinToCyrillic("Tadbir o'tadigan sanasi")}
               </th>
             )}
-            <th className="border text-center  py-1">
+            <th className="border text-center py-1">
               Жалб этиладиган шахсий таркиб ваколатли давлат идоралари ёки
               органлар номи
             </th>
@@ -30,7 +30,7 @@ const BudgetTable = ({ data }: any) => {
             <th className="border text-center py-1">
               {latinToCyrillic("Jami hisoblangan (3*4*5)")}
             </th>
-            <th className="border text-center py-1  w-[70px]">
+            <th className="border text-center py-1 w-[70px]">
               {latinToCyrillic("     Chegirma    ")}
             </th>
             <th className="border text-center py-1">
@@ -39,7 +39,7 @@ const BudgetTable = ({ data }: any) => {
           </tr>
         </thead>
         <tbody className="text-[10px]">
-          <tr className="border border-mytableheadborder">
+          <tr className="border-b border-border">
             <td className="border text-center py-1">1</td>
             <td className="border text-center py-1">2</td>
             <td className="border text-center py-1">3</td>
@@ -83,7 +83,7 @@ const BudgetTable = ({ data }: any) => {
                 </td>
               </tr>
             ))}
-          <tr className="border border-mytableheadborder font-[600]">
+          <tr className="border-b border-border font-[600]">
             <td colSpan={data.date ? 3 : 2} className="border text-center py-1">
               {latinToCyrillic("Jami")}
             </td>
@@ -104,7 +104,7 @@ const BudgetTable = ({ data }: any) => {
               {/* {data.discount ? data.discount : "_"} */}
               {data.discount ? formatNum(data?.discount_money, true) : "_"}
             </td>
-            <td className="border text-center  py-1">
+            <td className="border text-center py-1">
               {formatNum(data.result_summa, true)}
             </td>
           </tr>

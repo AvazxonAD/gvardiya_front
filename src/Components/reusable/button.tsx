@@ -1,19 +1,44 @@
-import Icon from "@/assets/icons";
-import { tt } from "@/utils";
 import { CSSProperties, MouseEventHandler } from "react";
+import {
+  ArrowLeft,
+  Download,
+  Pencil,
+  Plus,
+  Printer,
+  RotateCcw,
+  Save,
+  Trash2,
+} from "lucide-react";
+
+import { tt } from "@/utils";
+import { Button as UIButton } from "@/ui";
+import { cn } from "@/lib/utils";
+
+/**
+ * Loyihaning eski tugmasi — endi yangi dizayn tizimidagi `ui/Button` ustidagi
+ * ingichka qatlam.
+ *
+ * Props interfeysi ataylab o'zgarmadi: 40 ga yaqin sahifa shu `mode`/`status`
+ * nomlari bilan chaqiradi. Faqat ko'rinish yangilandi — ilgari har bir holat
+ * uchun qotirilgan ranglar (`#3B7FAF`, `#F23D53`, `#63ADC5` …) yozilgan edi,
+ * endi mavzu tokenlari ishlaydi, shu sabab qorong'i rejim ham o'zi to'g'ri
+ * bo'ladi.
+ */
+
+type Mode =
+  | "add"
+  | "save"
+  | "edit"
+  | "back"
+  | "download"
+  | "delete"
+  | "print"
+  | "back2"
+  | "clear"
+  | "cancel";
 
 type Props = {
-  mode?:
-    | "add"
-    | "save"
-    | "edit"
-    | "back"
-    | "download"
-    | "delete"
-    | "print"
-    | "back2"
-    | "clear"
-    | "cancel";
+  mode?: Mode;
   status?: "bajarildi" | "bajarilmadi";
   text?: string;
   onClick?: MouseEventHandler<HTMLButtonElement>;
@@ -22,6 +47,59 @@ type Props = {
   style?: CSSProperties;
   className?: string;
 };
+
+/** Har bir holat uchun ko'rinish */
+const VARIANT: Record<Mode, "primary" | "secondary" | "destructive" | "ghost"> =
+  {
+    add: "primary",
+    save: "primary",
+    edit: "primary",
+    back: "secondary",
+    back2: "secondary",
+    cancel: "secondary",
+    download: "secondary",
+    print: "secondary",
+    clear: "ghost",
+    delete: "destructive",
+  };
+
+const ICON: Partial<Record<Mode, typeof Plus>> = {
+  add: Plus,
+  save: Save,
+  edit: Pencil,
+  back: ArrowLeft,
+  back2: ArrowLeft,
+  download: Download,
+  print: Printer,
+  clear: RotateCcw,
+  delete: Trash2,
+};
+
+function label(mode?: Mode) {
+  switch (mode) {
+    case "add":
+      return tt("Qo'shish", "Добавить");
+    case "save":
+      return tt("Saqlash", "Сохранить");
+    case "edit":
+      return tt("Tahrirlash", "Редактировать");
+    case "back":
+    case "back2":
+      return tt("Orqaga", "Назад");
+    case "download":
+      return tt("Yuklash", "Загрузить");
+    case "delete":
+      return tt("O'chirish", "Удалить");
+    case "print":
+      return tt("Chop etish", "Печать");
+    case "clear":
+      return tt("Tozalash", "Очистить");
+    case "cancel":
+      return tt("Bekor qilish", "Отмена");
+    default:
+      return "";
+  }
+}
 
 function Button({
   mode,
@@ -32,133 +110,34 @@ function Button({
   type,
   style,
   className,
+  children,
   ...props
 }: Props & React.ComponentPropsWithoutRef<"button">) {
-  const buttonTextColor = `${
-    mode
-      ? mode === "back" || mode === "cancel"
-        ? "dark:text-white text-black dark:fill-white fill-black"
-        : mode === "clear"
-        ? "text-gray-600 fill-gray-600"
-        : "text-white dark:text-black fill-white dark:fill-black"
-      : status === "bajarildi"
-      ? "text-green-700 fill-green-700"
+  const Icon = mode ? ICON[mode] : undefined;
+
+  // `status` — bu tugma emas, holat belgisi. Yumshoq fon bilan ko'rsatiladi.
+  const statusClass =
+    status === "bajarildi"
+      ? "border border-success/30 bg-success/10 text-success hover:bg-success/15"
       : status === "bajarilmadi"
-      ? "text-red-600 fill-red-600"
-      : "text-white dark:text-black fill-white dark:fill-black"
-  }`;
-
-  const buttonTextHoverColor = `${
-    status === "bajarildi" || status === "bajarilmadi"
-      ? ""
-      : mode === "download"
-      ? "hover:text-sky-400 dark:hover:text-white hover:fill-sky-400 dark:hover:fill-white"
-      : mode === "back2"
-      ? "hover:text-blue-600 dark:hover:text-white hover:fill-blue-600 dark:hover:fill-white"
-      : mode === "delete"
-      ? "hover:text-red-600 dark:hover:text-red-600 hover:fill-red-600 dark:hover:fill-red-600"
-      : mode === "print"
-      ? "hover:text-sky-400 dark:hover:text-white hover:fill-sky-400 dark:hover:fill-white"
-      : mode === "clear"
-      ? "hover:text-gray-600 hover:fill-gray-600"
-      : mode === "back" || mode === "cancel"
-      ? "dark:hover:text-white dark:hover:fill-white"
-      : "hover:text-blue-600 dark:hover:text-[#3B7FAF] hover:fill-blue-600 dark:hover:fill-[#3B7FAF]"
-  }`;
-
-  const borderColor = `${
-    mode === "back" || mode === "cancel"
-      ? "border-[#D9D9D9] dark:border-white hover:border-[#323232] dark:hover:border-white"
-      : mode === "download" || mode === "print"
-      ? "border-[#579BB1]"
-      : status === "bajarildi"
-      ? "border-[#E7F8F2]"
-      : status === "bajarilmadi"
-      ? "border-[#FFCBD1]"
-      : mode === "delete"
-      ? "border-[#F23D53]"
-      : mode === "clear"
-      ? "border-[#ECF3F7]"
-      : "border-[#3B7FAF]"
-  }`;
-
-  const bg = `${
-    mode === "back" || mode === "cancel"
-      ? "bg-white dark:bg-[#121A31]"
-      : mode === "download" || mode === "print"
-      ? "bg-[#63ADC5]"
-      : status === "bajarildi"
-      ? "bg-[#E7F8F2]"
-      : status === "bajarilmadi"
-      ? "bg-[#FFCBD1]"
-      : mode === "delete"
-      ? "bg-[#F23D53]"
-      : mode === "clear"
-      ? "bg-[#ECF3F7]"
-      : "bg-[#3B7FAF]"
-  }`;
-
-  const hoverBg = `${
-    mode === "back" ||
-    mode === "cancel" ||
-    status === "bajarildi" ||
-    status === "bajarilmadi"
-      ? ""
-      : mode === "clear"
-      ? bg
-      : "hover:bg-inherit"
-  }`;
-
-  let buttonClassName = `${
-    width ? `w-[${width}px]` : ""
-  }   h-[37px] transition-all duration-300  rounded-[6px] py-[15px] px-[20px] text-[13px] font-[500] flex justify-center items-center gap-2 leading-[16.94px]`;
+      ? "border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/15"
+      : "";
 
   return (
-    <button
-      style={style}
+    <UIButton
+      // Ilgari `w-[${width}px]` yozilardi — Tailwind bunday sinfni ishlab
+      // chiqmaydi, shuning uchun kenglik hech qachon qo'llanmagan. Inline
+      // uslub bilan endi haqiqatan ishlaydi.
+      style={width ? { width: `${width}px`, ...style } : style}
       type={type}
       onClick={onClick}
-      className={`
-        ${buttonTextColor} 
-        ${buttonTextHoverColor}
-        border ${borderColor}
-        ${bg} ${hoverBg}
-        ${buttonClassName} ${className ? className : ""}`}
+      variant={status ? "ghost" : mode ? VARIANT[mode] : "primary"}
+      className={cn(statusClass, className)}
       {...props}
     >
-      {mode === "download" ? (
-        <Icon name="download" />
-      ) : mode === "print" ? (
-        <Icon name="print" />
-      ) : mode === "clear" ? (
-        <Icon name="change" />
-      ) : mode === "back" ? (
-        <Icon name="back" />
-      ) : (
-        <></>
-      )}
-      {text
-        ? text
-        : mode === "add"
-        ? "+ " + tt("Qo'shish", "Добавить")
-        : mode === "save"
-        ? tt("Saqlash", "Сохранить")
-        : mode === "edit"
-        ? tt("Tahrirlash", "Редактировать")
-        : mode === "back" || mode === "back2"
-        ? tt("Orqaga", "Назад")
-        : mode === "download"
-        ? tt("Yuklash", "Загрузить")
-        : mode === "delete"
-        ? tt("O'chirish", "Удалить")
-        : mode === "print"
-        ? tt("Chop etish", "Печать")
-        : mode === "clear"
-        ? tt("Tozalash", "Очистить")
-        : mode === "cancel"
-        ? tt("Bekor qilish", "Отмена")
-        : ""}
-    </button>
+      {Icon && !status && <Icon />}
+      {text || children || label(mode)}
+    </UIButton>
   );
 }
 

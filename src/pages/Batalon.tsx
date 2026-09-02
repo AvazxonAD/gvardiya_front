@@ -9,6 +9,13 @@ import ChangeSelect from "../pageCompoents/ChangeSelect";
 import { alertt } from "../Redux/LanguageSlice";
 import { latinToCyrillic, tt } from "../utils";
 import { formatAccountNumber } from "./Organisation";
+import { Plus } from "lucide-react";
+import {
+  Button as UIButton,
+  ListCard,
+  Toolbar,
+  ToolbarSpacer,
+} from "@/ui";
 
 function Batalon() {
   const [data, setData] = useState([]);
@@ -171,17 +178,25 @@ function Batalon() {
   };
 
   return (
-    <div className="flex flex-col w-full">
-      <div className="flex justify-end items-center ">
-        <Button mode="add" onClick={() => setOpen(true)} />
-      </div>
-
-      <BatTab
-        data={data}
-        edit={edit}
-        handleDelete={handleDelete}
-        setActive={setActive}
-      />
+    <div className="flex min-w-0 flex-col gap-3">
+      <ListCard
+        toolbar={
+          <Toolbar>
+            <ToolbarSpacer />
+            <UIButton size="sm" onClick={() => setOpen(true)}>
+              <Plus />
+              {tt("Qo'shish", "Добавить")}
+            </UIButton>
+          </Toolbar>
+        }
+      >
+        <BatTab
+          data={data}
+          edit={edit}
+          handleDelete={handleDelete}
+          setActive={setActive}
+        />
+      </ListCard>
 
       <Modal
         open={open}
@@ -242,7 +257,7 @@ function Batalon() {
             </div>
           </div>
           <div className="flex flex-col mt-2 gap-2">
-            <span className="text-[12px]  leading-[14.52px] font-[600] text-[#636566]">
+            <span className="text-[12px] leading-[14.52px] font-[600] text-muted-foreground">
               {tt("Batalon tanlang", "Выберите батальон")}
             </span>
             <ChangeSelect
@@ -314,7 +329,7 @@ function Batalon() {
             </div>
           </div>
           <div className="flex flex-col mt-2 gap-2">
-            <span className="text-[12px]  leading-[14.52px] font-[600] text-[#636566]">
+            <span className="text-[12px] leading-[14.52px] font-[600] text-muted-foreground">
               {tt("Batalon tanlang", "Выберите батальон")}
             </span>
             <ChangeSelect

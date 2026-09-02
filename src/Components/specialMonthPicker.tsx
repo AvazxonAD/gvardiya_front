@@ -102,7 +102,7 @@ export function SpecialMonthPicker({
             <Label
               className={cn(
                 "font-bold text-xs",
-                error && !selectedDate ? "text-[#F23D53]" : "text-[#636566]"
+                error && !selectedDate ? "text-destructive" : "text-muted-foreground"
               )}>
               {tt(label, ru ?? "")}
             </Label>
@@ -111,9 +111,9 @@ export function SpecialMonthPicker({
             type="button"
             variant="outline"
             className={cn(
-              " w-full text-mytextcolor border-mynavactiveborder bg-mycalendarbg max-w-full justify-start text-left font-normal h-10",
+              " w-full text-foreground border-primary bg-card max-w-full justify-start text-left font-normal h-10",
               !selectedDate && "text-muted-foreground",
-              error && !selectedDate ? "border-[#F23D53]" : ""
+              error && !selectedDate ? "border-destructive" : ""
             )}>
             {selectedDate ? (
               `${
@@ -166,7 +166,7 @@ export function SpecialMonthPicker({
       </PopoverContent>
 
       {error && !selectedDate && (
-        <div className="text-[12px] leading-[14.52px] font-[600] flex justify-start items-end text-[#F23D53]">
+        <div className="text-[12px] leading-[14.52px] font-[600] flex justify-start items-end text-destructive">
           {error}
         </div>
       )}

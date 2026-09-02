@@ -149,8 +149,8 @@ const CustomDateInput: React.FC<CustomDateInputProps> = ({
             isFirstDate
           )
         }
-        className={`w-[32px] h-[32px] text-sm rounded-[999px] font-[600] text-[20px] text-center leading-[24px] transition-all duration-300 hover:bg-[#323232] hover:text-[#FFFFFF] ${
-          day === selectedDay ? "bg-[#323232] text-white" : "text-[#636363]"
+        className={`w-[32px] h-[32px] text-sm rounded-none font-[600] text-[20px] text-center leading-[24px] transition-all duration-300 hover:bg-foreground hover:text-background ${
+          day === selectedDay ? "bg-foreground text-background" : "text-muted-foreground"
         }`}
         disabled={day === null}>
         {day !== null ? day : ""}
@@ -179,16 +179,16 @@ const CustomDateInput: React.FC<CustomDateInputProps> = ({
         {label && (
           <span
             className={` ${
-              error ? "text-[#F23D53]" : "text-[#636566]"
+              error ? "text-destructive" : "text-muted-foreground"
             }  text-[12px]  leading-[14.52px] font-[600] `}>
             {label}
           </span>
         )}
         <div
           onClick={handleInputClick}
-          className="flex gap-2 bg-white dark:bg-mybackground border text-[14px] items-center rounded-[6px] py-[8px] px-[10px] max-w-[300px] border-[#D9D9D9] dark:border-mybordercolor leading-[16.94px] text-[#636566] dark:text-mytextcolor placeholder:text-[#BEBBBB] focus:border-[#636566] focus:outline-none">
+          className="flex gap-2 bg-card dark:bg-card border text-[14px] items-center rounded-none py-[8px] px-[10px] max-w-[300px] border-border dark:border-border leading-[16.94px] text-muted-foreground dark:text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none">
           <Icon name="calendar" />
-          <span className="text-[#636363]">
+          <span className="text-muted-foreground">
             {(date1Selected && formattedDate) || initialDate
               ? formattedDate
               : "Muddatni tanlang"}
@@ -198,7 +198,7 @@ const CustomDateInput: React.FC<CustomDateInputProps> = ({
 
       {isOpen && (
         <div
-          className={`absolute left-1/2 transform -translate-x-1/2 z-10 mt-2 bg-white dark:bg-mybackground border border-gray-300 dark:border-mybordercolor rounded-md shadow-lg ${
+          className={`absolute left-1/2 transform -translate-x-1/2 z-10 mt-2 bg-card dark:bg-card border border-border dark:border-border rounded-md shadow-lg ${
             double ? "w-[550px]" : "w-[300px]"
           }`}
           style={{ boxShadow: "0.5px 0.5px 10px 0px #00000026" }}>
@@ -208,17 +208,17 @@ const CustomDateInput: React.FC<CustomDateInputProps> = ({
                 <button
                   type="button"
                   onClick={() => handlePrevMonth(true)}
-                  className="text-gray-500 hover:text-gray-700">
+                  className="text-muted-foreground hover:text-foreground">
                   &lt;
                 </button>
-                <span className="font-semibold text-[#636363]">
+                <span className="font-semibold text-muted-foreground">
                   {uzbekMonths[currentDate1.getMonth()]}{" "}
                   {currentDate1.getFullYear()}
                 </span>
                 <button
                   type="button"
                   onClick={() => handleNextMonth(true)}
-                  className="text-gray-500 hover:text-gray-700">
+                  className="text-muted-foreground hover:text-foreground">
                   &gt;
                 </button>
               </div>
@@ -238,17 +238,17 @@ const CustomDateInput: React.FC<CustomDateInputProps> = ({
                   <button
                     type="button"
                     onClick={() => handlePrevMonth(false)}
-                    className="text-gray-500 hover:text-gray-700">
+                    className="text-muted-foreground hover:text-foreground">
                     &lt;
                   </button>
-                  <span className="font-semibold text-[#636363]">
+                  <span className="font-semibold text-muted-foreground">
                     {uzbekMonths[currentDate2.getMonth()]}{" "}
                     {currentDate2.getFullYear()}
                   </span>
                   <button
                     type="button"
                     onClick={() => handleNextMonth(false)}
-                    className="text-gray-500 hover:text-gray-700">
+                    className="text-muted-foreground hover:text-foreground">
                     &gt;
                   </button>
                 </div>

@@ -1,79 +1,91 @@
-import Icon from "@/assets/icons";
-import useFullHeight from "@/hooks/useFullHeight";
-import { IBatalon } from "@/types/batalon";
 import { useState } from "react";
-import DeleteModal from "../Components/DeleteModal";
-import { textNum, tt } from "../utils";
+import { Pencil, Shield, Trash2 } from "lucide-react";
 
+import Table from "@/Components/reusable/table/Table";
+import DeleteModal from "../Components/DeleteModal";
+import { IBatalon } from "@/types/batalon";
+import { textNum, tt } from "../utils";
+import { cn } from "@/lib/utils";
+import { Badge, Button, EmptyState } from "@/ui";
+
+/** Batalonlar va brigadalar jadvali */
 const BatTab = ({ data, setActive, edit, handleDelete }: any) => {
   const [delOpen, setDelOpen] = useState(false);
 
-  const height = useFullHeight();
-  const fullHeight =
-    typeof height === "string" ? `calc(${height} - 250px)` : height - 250;
-
   return (
     <>
-      {data ? (
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-mytablehead text-mytextcolor text-[14px] leading-[16.94px] rounded-t-[6px] border-b border-mytableheadborder sticky -top-1">
-              <tr>
-                <th className="px-4 py-3 text-left w-[100px]">{tt("№", "№")}</th>
-                <th className="px-4 py-3 text-left w-[200px]">{tt("Nomi", "Название")}</th>
-                <th className="px-4 py-3 text-left w-[200px]">{tt("Batalon / Birgada", "Батальон / Биргада")}</th>
-                <th className="px-4 py-3 text-left w-[400px]">{tt("Manzil", "Адрес")}</th>
-                <th className="px-4 py-3 text-left w-[200px]">{tt("INN", "ИНН")}</th>
-                <th className="px-4 py-3 text-left w-[300px]">{tt("Bank Nomi", "Название банка")}</th>
-                <th className="px-4 py-3 text-left w-[100px]">{tt("MFO", "МФО")}</th>
-                <th className="px-4 py-3 text-left w-[200px]">{tt("Hisob raqami", "Номер счета")}</th>
-                <th className="px-4 py-3 text-center w-[120px]">{tt("Amallar", "Действия")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((person: IBatalon, index: number) => (
-                <tr
-                  key={person.id}
-                  className={`${person.birgada ? "bg-[#F1FAFA] dark:bg-[#1e293b]" : ""} cursor-pointer hover:bg-[#E5F1F8] dark:hover:bg-[#1e3a5f] hover:text-[#3B7FAF] dark:hover:text-white text-mytextcolor border-b border-mytableheadborder transition-colors duration-300`}
-                >
-                  <td className="px-4 py-3">{index + 1}</td>
-                  <td className="px-4 py-3">{person.name}</td>
-                  <td className="px-4 py-3">
-                    {person.birgada ? tt("Brigada", "Бригада") : tt("Batalon", "Батальон")}
-                  </td>
-                  <td className="px-4 py-3">{person.address}</td>
-                  <td className="px-4 py-3">{textNum(person.str, 3)}</td>
-                  <td className="px-4 py-3">{person.bank_name}</td>
-                  <td className="px-4 py-3">{person.mfo}</td>
-                  <td className="px-4 py-3">{person.account_number}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-center space-x-4">
-                      <button onClick={() => edit(person.id)} className="hover:opacity-80">
-                        <Icon name="edit" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setDelOpen(true);
-                          setActive(person.id);
-                        }}
-                        className="hover:opacity-80"
-                      >
-                        <Icon name="delete" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div
-          style={{ height: fullHeight }}
-          className="w-full text-[#323232] font-[500] text-[20px] flex justify-center items-center bg-[#F4FAFD] rounded-lg"
+      {data && data.length ? (
+        <Table
+          thead={[
+            { text: "№", className: "w-[44px]" },
+            { text: tt("Nomi", "Название"), className: "whitespace-normal leading-[1.15]" },
+            { text: tt("Turi", "Тип"), className: "w-[88px] whitespace-normal leading-[1.15]" },
+            { text: tt("Manzil", "Адрес"), className: "whitespace-normal leading-[1.15]" },
+            { text: "INN", className: "w-[92px]" },
+            { text: tt("Bank nomi", "Название банка"), className: "whitespace-normal leading-[1.15]" },
+            { text: "MFO", className: "w-[58px]" },
+            { text: tt("Hisob raqami", "Номер счета"), className: "w-[124px] whitespace-normal leading-[1.15]" },
+            { text: tt("Amallar", "Действия"), className: "w-[66px] text-center" },
+          ]}
         >
-          {tt("Malumot yo'q", "Нет ссылки")}
-        </div>
+          {data.map((person: IBatalon, index: number) => (
+            <tr
+              key={person.id}
+              // Brigada qatorlari ohang bilan ajratiladi
+              className={cn(person.birgada && "bg-primary/[0.04]")}
+            >
+              <td className="text-muted-foreground tabular-nums">{index + 1}</td>
+              <td className="font-medium">{person.name}</td>
+              <td>
+                {person.birgada ? (
+                  <Badge tone="brand">{tt("Brigada", "Бригада")}</Badge>
+                ) : (
+                  <Badge tone="neutral">{tt("Batalon", "Батальон")}</Badge>
+                )}
+              </td>
+              <td className="text-muted-foreground">{person.address}</td>
+              <td className="tabular-nums">{textNum(person.str, 3)}</td>
+              <td className="text-muted-foreground">{person.bank_name}</td>
+              <td className="tabular-nums">{person.mfo}</td>
+              <td className="tabular-nums">{person.account_number}</td>
+              <td>
+                <div className="flex items-center justify-center gap-0.5">
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    title={tt("Tahrirlash", "Редактировать")}
+                    aria-label={tt("Tahrirlash", "Редактировать")}
+                    onClick={() => edit(person.id)}
+                  >
+                    <Pencil />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    title={tt("O'chirish", "Удалить")}
+                    aria-label={tt("O'chirish", "Удалить")}
+                    className="hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => {
+                      setDelOpen(true);
+                      setActive(person.id);
+                    }}
+                  >
+                    <Trash2 />
+                  </Button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </Table>
+      ) : (
+        <EmptyState
+          icon={Shield}
+          title={tt("Ma'lumot yo'q", "Нет данных")}
+          description={tt(
+            "Hozircha batalon yoki brigada qo'shilmagan",
+            "Батальоны или бригады пока не добавлены"
+          )}
+        />
       )}
 
       <DeleteModal

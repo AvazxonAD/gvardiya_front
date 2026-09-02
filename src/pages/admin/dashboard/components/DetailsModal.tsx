@@ -13,7 +13,7 @@ const tableData = [
     tarqatilgan: "1,025,000,000",
     qoldiq: "3,075,000,000",
     status: "Muvaffaqiyatli",
-    statusClass: "bg-emerald-500/20 text-emerald-500 border-emerald-500/30",
+    statusClass: "bg-success/20 text-success border-success/30/30",
   },
   {
     name: "Hududiy Boshqarmalar",
@@ -22,7 +22,7 @@ const tableData = [
     tarqatilgan: "1,625,000,000",
     qoldiq: "4,875,000,000",
     status: "Jarayonda",
-    statusClass: "bg-amber-500/20 text-amber-500 border-amber-500/30",
+    statusClass: "bg-warning/20 text-warning border-warning/30/30",
   },
   {
     name: "Maxsus Tadbirlar",
@@ -31,7 +31,7 @@ const tableData = [
     tarqatilgan: "375,000,000",
     qoldiq: "1,125,000,000",
     status: "Tasdiqlashda",
-    statusClass: "bg-blue-500/20 text-blue-500 border-blue-500/30",
+    statusClass: "bg-primary/20 text-primary border-primary/30/30",
   },
 ];
 
@@ -72,7 +72,7 @@ export default function DetailsModal({ isOpen, onClose }: DetailsModalProps) {
           }}
         >
           <h3 className="text-xl font-bold flex items-center text-[var(--dash-text)]">
-            <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -94,8 +94,8 @@ export default function DetailsModal({ isOpen, onClose }: DetailsModalProps) {
 
         <div className="p-6 overflow-y-auto">
           <div className="overflow-x-auto rounded-xl" style={{ border: "1px solid var(--dash-table-border)" }}>
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead style={{ background: "var(--dash-table-header-bg)", borderBottom: "1px solid var(--dash-table-border)" }}>
+            <table className="table-grid w-full text-left text-sm whitespace-nowrap">
+              <thead style={{ background: "var(--dash-table-header-bg)" }}>
                 <tr className="text-[var(--dash-text-secondary)] uppercase">
                   <th className="px-6 py-4 font-semibold">Yo'nalish / Bo'lim</th>
                   <th className="px-6 py-4 font-semibold">Hisoblangan (SUM)</th>
@@ -112,13 +112,13 @@ export default function DetailsModal({ isOpen, onClose }: DetailsModalProps) {
                     className="transition hover:opacity-80"
                     style={{
                       background: i % 2 === 1 ? "var(--dash-table-row-alt)" : "transparent",
-                      borderBottom: "1px solid var(--dash-table-border)",
+                     
                     }}
                   >
                     <td className="px-6 py-4 font-medium text-[var(--dash-text)]">{row.name}</td>
                     <td className="px-6 py-4 text-[var(--dash-text-secondary)]">{row.hisoblangan}</td>
-                    <td className="px-6 py-4 text-emerald-500">{row.kelib}</td>
-                    <td className="px-6 py-4 text-indigo-500">{row.tarqatilgan}</td>
+                    <td className="px-6 py-4 text-success">{row.kelib}</td>
+                    <td className="px-6 py-4 text-primary">{row.tarqatilgan}</td>
                     <td className="px-6 py-4 text-rose-500">{row.qoldiq}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded text-xs border ${row.statusClass}`}>
@@ -131,7 +131,7 @@ export default function DetailsModal({ isOpen, onClose }: DetailsModalProps) {
             </table>
           </div>
           <div className="mt-6 flex justify-end">
-            <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition">
+            <button className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-lg transition">
               Hisobotni yuklash
             </button>
           </div>

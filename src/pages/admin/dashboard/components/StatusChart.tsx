@@ -15,12 +15,12 @@ const formatNum = (num?: number): string => {
   if (!num && num !== 0) return "0";
   if (num >= 1000000000) return (num / 1000000000).toFixed(1) + " Mlrd";
   if (num >= 1000000) return (num / 1000000).toFixed(0) + " mln";
-  return num.toLocaleString();
+  return Number(num).toLocaleString("ru-RU");
 };
 
 const formatFull = (num?: number): string => {
   if (!num && num !== 0) return "0";
-  return num.toLocaleString("ru-RU");
+  return Number(num).toLocaleString("ru-RU");
 };
 
 export default function StatusChart({ distData }: StatusChartProps) {
@@ -142,7 +142,7 @@ export default function StatusChart({ distData }: StatusChartProps) {
           </h2>
           <button
             onClick={() => setModalOpen(true)}
-            className="text-[10px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 border border-blue-400/40 hover:border-blue-300/60 rounded-md px-2.5 py-1 transition"
+            className="text-[10px] text-primary hover:text-primary font-medium flex items-center gap-1 border border-primary/30/40 hover:border-primary/30/60 rounded-md px-2.5 py-1 transition"
           >
             Batafsil
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -227,10 +227,10 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
         <div className="grid grid-cols-5 gap-3 px-5 py-3 shrink-0" style={{ borderBottom: "1px solid var(--dash-modal-border)" }}>
           {[
             { label: "Jami kirim", value: totals.jami_kirim, color: "" },
-            { label: "Moddiy baza (65%)", value: totals.summa_65, color: "text-blue-400" },
-            { label: "Hamkor tashkilotlar", value: totals.rasxod_summa, color: "text-emerald-500" },
-            { label: "Xodimlar premiyasi (25%)", value: totals.summa_25, color: "text-amber-500" },
-            { label: "Qolgan", value: totals.jami_kirim - totals.all_rasxod, color: "text-red-500" },
+            { label: "Moddiy baza (65%)", value: totals.summa_65, color: "text-primary" },
+            { label: "Hamkor tashkilotlar", value: totals.rasxod_summa, color: "text-success" },
+            { label: "Xodimlar premiyasi (25%)", value: totals.summa_25, color: "text-warning" },
+            { label: "Qolgan", value: totals.jami_kirim - totals.all_rasxod, color: "text-destructive" },
           ].map((c, i) => (
             <div key={i} className="rounded-lg p-2.5" style={{ background: "var(--dash-table-row-alt)" }}>
               <p className="text-[10px] text-[var(--dash-text-muted)] uppercase tracking-wider">{c.label}</p>
@@ -243,12 +243,12 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
         <div className="px-5 py-4 overflow-y-auto flex-1">
           {loading ? (
             <div className="flex justify-center py-10">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary/30" />
             </div>
           ) : (
             <div className="overflow-auto rounded-xl max-h-[50vh]" style={{ border: "1px solid var(--dash-table-border)" }}>
-              <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead className="sticky top-0 z-10" style={{ background: "var(--dash-table-header-bg)", borderBottom: "1px solid var(--dash-table-border)" }}>
+              <table className="table-grid w-full text-left text-sm whitespace-nowrap">
+                <thead className="sticky top-0 z-10" style={{ background: "var(--dash-table-header-bg)" }}>
                   <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
                     <th className="px-4 py-3 font-semibold">№</th>
                     <th className="px-4 py-3 font-semibold min-w-[180px]">Viloyat</th>
@@ -263,15 +263,15 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                 <tbody>
                   {data.map((r, i) => (
                     <tr key={r.region_id} className="transition hover:opacity-80"
-                      style={{ background: i % 2 === 1 ? "var(--dash-table-row-alt)" : "transparent", borderBottom: "1px solid var(--dash-table-border)" }}>
+                      style={{ background: i % 2 === 1 ? "var(--dash-table-row-alt)" : "transparent" }}>
                       <td className="px-4 py-3 text-[var(--dash-text-muted)]">{i + 1}</td>
                       <td className="px-4 py-3 font-medium text-[var(--dash-text)]">{r.region_name}</td>
                       <td className="px-4 py-3 text-right text-[var(--dash-text)]">{formatFull(r.jami_kirim)}</td>
-                      <td className="px-4 py-3 text-right text-blue-400">{formatFull(r.summa_65)}</td>
-                      <td className="px-4 py-3 text-right text-emerald-500">{formatFull(r.rasxod_summa)}</td>
-                      <td className="px-4 py-3 text-right text-amber-500">{formatFull(r.summa_25)}</td>
+                      <td className="px-4 py-3 text-right text-primary">{formatFull(r.summa_65)}</td>
+                      <td className="px-4 py-3 text-right text-success">{formatFull(r.rasxod_summa)}</td>
+                      <td className="px-4 py-3 text-right text-warning">{formatFull(r.summa_25)}</td>
                       <td className="px-4 py-3 text-right text-[var(--dash-text-secondary)]">{formatFull(r.all_rasxod)}</td>
-                      <td className="px-4 py-3 text-right text-red-500">{formatFull((r.jami_kirim || 0) - (r.all_rasxod || 0))}</td>
+                      <td className="px-4 py-3 text-right text-destructive">{formatFull((r.jami_kirim || 0) - (r.all_rasxod || 0))}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -281,7 +281,7 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
         </div>
 
         <div className="px-5 py-3 flex justify-end shrink-0" style={{ borderTop: "1px solid var(--dash-modal-border)" }}>
-          <button onClick={onClose} className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-[12px] font-medium rounded-lg transition">
+          <button onClick={onClose} className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground text-[12px] font-medium rounded-lg transition">
             Yopish
           </button>
         </div>

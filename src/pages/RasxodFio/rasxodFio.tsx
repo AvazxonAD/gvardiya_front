@@ -1,20 +1,30 @@
-import Input from "@/Components/Input";
 import Paginatsiya from "@/Components/Paginatsiya";
-import Button from "@/Components/reusable/button";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
-import useFullHeight from "@/hooks/useFullHeight";
 import { useRequest } from "@/hooks/useRequest";
 import { IRasxodFio, RasxodInterface } from "@/interface";
 import { RasxodFIOTable } from "@/pageCompoents/rasxod/rasxodFioTable";
 import { alertt } from "@/Redux/LanguageSlice";
 import { RootState } from "@/Redux/store";
 import useApi from "@/services/api";
-import { tt } from "@/utils";
+import { formatSum, tt } from "@/utils";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import RasxodFioForPrint from "./print";
+import {
+  FileSpreadsheet,
+  Plus,
+  Printer,
+} from "lucide-react";
+import {
+  Button as UIButton,
+  ListCard,
+  SummaryRow,
+  SummaryTile,
+  Toolbar,
+  ToolbarSpacer,
+} from "@/ui";
 
 export const RasxodFio = () => {
   const { startDate, endDate } = useSelector((state: RootState) => state.defaultDate);
@@ -120,16 +130,11 @@ export const RasxodFio = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  // Sana oralig'i o'zgarganda ro'yxat o'zi yangilanadi
   React.useEffect(() => {
     getRasxod();
-  }, [limet, currentPage]);
+  }, [limet, currentPage, search.fromDate, search.toDate]);
 
-  const handleDownload = () => {
-    getRasxod();
-  };
-
-  const height = useFullHeight();
-  const fullHeight = typeof height === "string" ? `calc(${height} - 2303px)` : height - 230;
   const api = useApi();
   const navigate = useNavigate();
 
@@ -153,127 +158,94 @@ export const RasxodFio = () => {
     }
   }, [forPdf]);
 
-  return (
-    <div>
-      <div style={{ minHeight: fullHeight }}>
-        {forPdf?.data && (
-          <div className=" hidden">
-            <RasxodFioForPrint ref={fioRef} data={forPdf.data} fromDate={search.fromDate} endDate={search.toDate} />
-          </div>
-        )}
-        <div>
-          <div className="flex -mt-5 sticky py-5 -top-1 z-[30] bg-mybackground items-center  justify-between">
-            <div className="flex items-center gap-x-[40px]">
-              <div className="flex items-center">
-                <SpecialDatePicker
-                  defaultValue={search.fromDate}
-                  onChange={(val) =>
-                    setSearch({
-                      ...search,
-                      fromDate: val,
-                    })
-                  }
-                />
-                <h2 className="ms-4 me-8 font-[600]">{tt("dan", "с")}</h2>
-                <SpecialDatePicker
-                  defaultValue={search.toDate}
-                  onChange={(val) =>
-                    setSearch({
-                      ...search,
-                      toDate: val,
-                    })
-                  }
-                />
-                <h2 className="ms-4 me-8 font-[600]">{tt("gacha", "до")}</h2>
-              </div>
-              <div className="">
-                <Button mode="download" onClick={handleDownload} />
-              </div>
-              <div className="flex ms-5 gap-[10px]">
-                <Button mode="print" onClick={onPrintClick} />
-                <Button mode="download" onClick={handleDownloadExel} text={tt("Excel", "Экcель")} />
-                <Button mode="download" onClick={handleUmumiyHisobot} text={tt("Umumiy hisobot", "Умумий ҳисобот")} />
-                <Button mode="add" onClick={() => navigate("/rasxod-workers/create")} />
-              </div>
-            </div>
-          </div>
-          <RasxodFIOTable data={rasxoddata} getAllFn={getRasxod} source="fio" />
-        </div>
-      </div>
+  const TILES: { label: string; key: keyof typeof rasxodmeta; tone?: "primary" | "success" }[] = [
+    { label: tt("Jami (100%)", "Всего (100%)"), key: "summa", tone: "primary" },
+    { label: tt("Boshqarma uchun (10%)", "Для управления (10%)"), key: "summa_10" },
+    { label: tt("Qolgan jami (90%)", "Остаток всего (90%)"), key: "summa_remaining" },
+    { label: tt("Moddiy bazaga (65%)", "На материальную базу (65%)"), key: "summa_65" },
+    { label: tt("I va II guruh xarajatlari (25%)", "Расходы I и II группы (25%)"), key: "summa_25" },
+    { label: tt("Shaxsiy tarkibga taqsimlandi", "Распределено личному составу"), key: "summa_1_25" },
+    { label: tt("Yagona ijtimoiy soliq (25%)", "Единый социальный налог (25%)"), key: "summa_25_2" },
+    { label: tt("Daromad solig'i (12%)", "Налог на доходы (12%)"), key: "summa_12" },
+    { label: tt("Plastik kartaga o'tkazildi", "Перечислено на пластиковую карту"), key: "worker_summa", tone: "success" },
+  ];
 
-      {rasxoddata && rasxodmeta ? (
-        <div className="sticky bottom-0 z-[30] bg-mybackground">
-          {/* Total summary */}
-          <div className="mt-3 pt-2 flex items-center justify-between">
-            <div className="flex items-center gap-x-1">
-              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
-                <label className="font-[600] text-[8px] truncate whitespace-nowrap">{tt("Jami (100%)", "Жами (100%)")}:</label>
-                <Input readonly v={rasxodmeta.summa} className="text-[11px] h-7 px-2 py-0 w-full" />
-              </div>
-              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
-                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
-                  {tt("Boshqarma uchun (10%)", "Бошқарма учун (10%)")}:
-                </label>
-                <Input readonly v={rasxodmeta.summa_10} className="text-[11px] h-7 px-2 py-0 w-full" />
-              </div>
-              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
-                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
-                  {tt("Qolgan jami (90%)", "Қолган жами (90%)")}:
-                </label>
-                <Input readonly v={rasxodmeta.summa_remaining} className="text-[11px] h-7 px-2 py-0 w-full" />
-              </div>
-              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
-                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
-                  {tt("Moddiy bazaga (65%)", "Моддий базага (65%)")}:
-                </label>
-                <Input readonly v={rasxodmeta.summa_65} className="text-[11px] h-7 px-2 py-0 w-full" />
-              </div>
-              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
-                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
-                  {tt("I va II guruh xarajatlari uchun (25%)", "I ва II гурух харажатлари учун (25%)")}:
-                </label>
-                <Input readonly v={rasxodmeta.summa_25} className="text-[11px] h-7 px-2 py-0 w-full" />
-              </div>
-              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
-                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
-                  {tt("Shaxsiy tarkibga taqsimlandi", "Шахсий таркибга таксимланди")}:
-                </label>
-                <Input readonly v={rasxodmeta.summa_1_25} className="text-[11px] h-7 px-2 py-0 w-full" />
-              </div>
-              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
-                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
-                  {tt("Yagona ijtimoiy soliq (25%)", "Ягона ижтимоий солик (25%)")}:
-                </label>
-                <Input readonly v={rasxodmeta.summa_25_2} className="text-[11px] h-7 px-2 py-0 w-full" />
-              </div>
-              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
-                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
-                  {tt("Daromad solig'i (12%)", "Даромад солиғи (12%)")}:
-                </label>
-                <Input readonly v={rasxodmeta.summa_12} className="text-[11px] h-7 px-2 py-0 w-full" />
-              </div>
-              <div className="flex flex-col items-start gap-y-0.5 flex-1 min-w-0">
-                <label className="font-[600] text-[8px] truncate whitespace-nowrap">
-                  {tt("Bank plastik kartasiga o'tkazib berildi", "Банк пластик картасига ўтказиб берилди")}:
-                </label>
-                <Input readonly v={rasxodmeta.worker_summa} className="text-[11px] h-7 px-2 py-0 w-full" />
-              </div>
-            </div>
-          </div>
-          <div className="">
-            <Paginatsiya
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              totalPages={rasxodmeta?.pageCount}
-              limet={limet}
-              setLimet={setLimet}
-              count={rasxodmeta?.count}
-            />
-          </div>
+  return (
+    <div className="flex min-w-0 flex-col gap-3">
+      {forPdf?.data && (
+        <div className="hidden">
+          <RasxodFioForPrint
+            ref={fioRef}
+            data={forPdf.data}
+            fromDate={search.fromDate}
+            endDate={search.toDate}
+          />
         </div>
-      ) : (
-        <></>
       )}
+
+      <ListCard
+        toolbar={
+          <Toolbar>
+            <div className="flex items-center gap-1.5">
+              <SpecialDatePicker
+                defaultValue={search.fromDate}
+                onChange={(val) => setSearch({ ...search, fromDate: val })}
+              />
+              <span className="text-muted-foreground">—</span>
+              <SpecialDatePicker
+                defaultValue={search.toDate}
+                onChange={(val) => setSearch({ ...search, toDate: val })}
+              />
+            </div>
+
+            <ToolbarSpacer />
+
+            <UIButton variant="secondary" size="sm" onClick={onPrintClick}>
+              <Printer />
+              {tt("Chop etish", "Печать")}
+            </UIButton>
+            <UIButton variant="secondary" size="sm" onClick={handleDownloadExel}>
+              <FileSpreadsheet />
+              Excel
+            </UIButton>
+            <UIButton variant="secondary" size="sm" onClick={handleUmumiyHisobot}>
+              <FileSpreadsheet />
+              {tt("Umumiy hisobot", "Общий отчёт")}
+            </UIButton>
+            <UIButton size="sm" onClick={() => navigate("/rasxod-workers/create")}>
+              <Plus />
+              {tt("Qo'shish", "Добавить")}
+            </UIButton>
+          </Toolbar>
+        }
+        footer={
+          rasxoddata && rasxodmeta ? (
+            <>
+              <SummaryRow className="lg:grid-cols-3 xl:grid-cols-5">
+                {TILES.map((t) => (
+                  <SummaryTile
+                    key={String(t.key)}
+                    label={t.label}
+                    tone={t.tone}
+                    value={formatSum((rasxodmeta as any)[t.key] ?? 0)}
+                  />
+                ))}
+              </SummaryRow>
+
+              <Paginatsiya
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                totalPages={rasxodmeta?.pageCount}
+                limet={limet}
+                setLimet={setLimet}
+                count={rasxodmeta?.count}
+              />
+            </>
+          ) : null
+        }
+      >
+        <RasxodFIOTable data={rasxoddata} getAllFn={getRasxod} source="fio" />
+      </ListCard>
     </div>
   );
 };

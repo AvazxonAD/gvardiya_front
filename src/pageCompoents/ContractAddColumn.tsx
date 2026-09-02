@@ -137,7 +137,7 @@ const ContractAddColumn = ({
             })
           }
           type="button"
-          className="text-red-500 w-6 h-6"
+          className="text-destructive w-6 h-6"
         >
           <TrashIcon />
         </button>

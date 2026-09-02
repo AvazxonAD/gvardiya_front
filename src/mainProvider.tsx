@@ -4,7 +4,6 @@ import { Fragment } from "react/jsx-runtime";
 import Protected from "./Components/Protected";
 import ErrorPage from "./pages/404";
 import UserTable from "./pages/admin/users";
-import BatalonUser from "./pages/region/users";
 import Batalon from "./pages/Batalon";
 import ContractAnaliz from "./pages/contract/analiz";
 import Contract from "./pages/contract/Contract";
@@ -16,7 +15,7 @@ import BatalonWorkerTasks from "./pages/batalon/worker.tasks/index";
 import ContractPage from "./pages/contract/contractPage";
 import Document from "./pages/contract/Document";
 import Home from "./pages/Home";
-import Login from "./pages/Login";
+import Login from "./pages/auth/Login";
 import Organisation from "./pages/Organisation";
 import Prixod, { RenderPrixod } from "./pages/prixod";
 import CreatePrixod from "./pages/prixod/create";
@@ -29,9 +28,9 @@ import { CreateRasxodFio } from "./pages/RasxodFio/createRasxodFio";
 import { EditRasxodFio } from "./pages/RasxodFio/editRasxodFio";
 import { RasxodFio } from "./pages/RasxodFio/rasxodFio";
 import AdminDashboard from "./pages/admin/dashboard";
-import RegionDashboard from "./pages/region/dashboard";
+import RegionDashboard from "./pages/dashboard/RegionDashboard";
 import Report from "./pages/Report";
-import Root from "./pages/Root";
+import AppShell from "./layout/AppShell";
 import Spravichnik from "./pages/Spravichnik";
 import Bank from "./pages/sprPages/Bank";
 import Bxm from "./pages/sprPages/Bxm";
@@ -44,12 +43,13 @@ import Tashkilot from "./pages/sprPages/Tashkilot";
 import Tasks from "./pages/Task";
 import Workers from "./pages/Workers";
 import BatalonWorkers from "./pages/batalon/worker";
+import VideoLessons from "./pages/video-lessons";
+import AdminVideoLessons from "./pages/admin/video-lessons";
 
 const MainProvider = () => {
   const { user } = useSelector((state: any) => state.auth);
   const token = useSelector((state: any) => state.auth.jwt);
 
-  console.log(user.region_id);
   return (
     <BrowserRouter>
       <Routes>
@@ -59,7 +59,7 @@ const MainProvider = () => {
               path="/"
               element={
                 <Protected>
-                  <Root />
+                  <AppShell />
                 </Protected>
               }
             >
@@ -69,10 +69,23 @@ const MainProvider = () => {
                   <Route path="/lawyer-contract" element={<LawyerContract />} />
                   <Route path="/lawyer-contract/view/:id" element={<LawyerDocument />} />
                 </Fragment>
+              ) : Boolean(user.batalon) ? (
+                <Fragment>
+                  {/* Batalon uchun bosh sahifa — `getHomePathForUser` ham
+                      shu yerga yo'naltiradi */}
+                  <Route index={true} element={<BatalonTasks />} />
+                  <Route path="/batalon/workers" element={<BatalonWorkers />} />
+                  <Route path="/batalon/tasks" element={<BatalonTasks />} />
+                  <Route
+                    path="/batalon/worker/tasks/:id"
+                    element={<BatalonWorkerTasks />}
+                  />
+                </Fragment>
               ) : Boolean(user.region_id) ? (
                 <Fragment>
                   <Route index={true} element={<RegionDashboard />} />
                   <Route path="/report" element={<Report />} />
+                  <Route path="/video-lessons" element={<VideoLessons />} />
                   <Route path="/contract" element={<Contract />}>
                     <Route path="" element={<ContractHome />} />
                     <Route path="add" element={<ContractPage />} />
@@ -109,16 +122,6 @@ const MainProvider = () => {
                     <Route path="create" element={<CreateRasxodFio />} />
                     <Route path=":id" element={<EditRasxodFio />} />
                   </Route>
-                  {/* <Route path="/batalon/users" element={<BatalonUser />} /> */}
-                </Fragment>
-              ) : Boolean(user.batalon) ? (
-                <Fragment>
-                  <Route path="/batalon/workers" element={<BatalonWorkers />} />
-                  <Route path="/batalon/tasks" element={<BatalonTasks />} />
-                  <Route
-                    path="/batalon/worker/tasks/:id"
-                    element={<BatalonWorkerTasks />}
-                  />
                 </Fragment>
               ) : (
                 <Fragment>
@@ -126,6 +129,7 @@ const MainProvider = () => {
                   <Route index={true} element={<Home />} />
                   <Route path="/dashboard" element={<AdminDashboard />} />
                   <Route path="/report" element={<Report />} />
+                  <Route path="/video-lessons" element={<AdminVideoLessons />} />
                 </Fragment>
               )}
             </Route>

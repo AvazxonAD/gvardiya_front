@@ -197,7 +197,7 @@ function Login() {
       <div className="w-[50%] bg-[#121212] h-full flex justify-center items-center">
         <div className="flex flex-col">
           <img
-            className="w-[240px] h-[240px] mx-auto rounded-[999px] mb-2"
+            className="w-[240px] h-[240px] mx-auto rounded-none mb-2"
             src={Logo}
             alt="logo"
           />
@@ -217,7 +217,7 @@ function Login() {
                   name="login"
                   onChange={handleChange}
                   placeholder={tt("Login kiriting", "Введите логин")}
-                  className="border border-[#BEBBBB] text-[#BEBBBB] pl-2 bg-inherit w-[300px] h-[41px] rounded-[6px] placeholder:text-[#636566] text-[12px] leading-[14.52px]"
+                  className="border border-[#BEBBBB] text-[#BEBBBB] pl-2 bg-inherit w-[300px] h-[41px] rounded-none placeholder:text-[#636566] text-[12px] leading-[14.52px]"
                 />
               </div>
               <div className="flex flex-col gap-2 mb-6 relative">
@@ -230,7 +230,7 @@ function Login() {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder={tt("Parol kiriting", "Введите пароль")}
-                  className="border border-[#BEBBBB] text-[#BEBBBB] pl-2 bg-inherit w-[300px] h-[41px] rounded-[6px] placeholder:text-[#636566] text-[12px] leading-[14.52px]"
+                  className="border border-[#BEBBBB] text-[#BEBBBB] pl-2 bg-inherit w-[300px] h-[41px] rounded-none placeholder:text-[#636566] text-[12px] leading-[14.52px]"
                 />
                 <button
                   type="button"
@@ -242,7 +242,7 @@ function Login() {
               </div>
 
               <button
-                className="w-[300px] text-white text-[14px] leading-[16.94px] font-[600] flex justify-center items-center rounded-[8px] bg-[#C18B2F] h-[33px] hover:bg-white border border-[#C18B2F] hover:text-[#C18B2F] transition-all duration-300"
+                className="w-[300px] text-white text-[14px] leading-[16.94px] font-[600] flex justify-center items-center rounded-none bg-[#C18B2F] h-[33px] hover:bg-card border border-[#C18B2F] hover:text-[#C18B2F] transition-all duration-300"
                 type="submit"
               >
                 {tt("Kirish", "Введение")}
@@ -278,7 +278,7 @@ function Login() {
                     type="button"
                     disabled={c.expired || signing}
                     onClick={() => setSelectedCert(c)}
-                    className={`text-left border rounded-[6px] px-3 py-2 transition-all duration-200 ${
+                    className={`text-left border rounded-none px-3 py-2 transition-all duration-200 ${
                       selectedCert?.alias === c.alias
                         ? "border-[#C18B2F] bg-[#C18B2F]/10"
                         : "border-[#3a3a3a] hover:border-[#BEBBBB]"
@@ -290,7 +290,7 @@ function Login() {
                     <span className="block text-[#8a8a8a] text-[11px]">
                       {tt("Amal qilish muddati", "Срок действия")}: {c.validTo}
                       {c.expired && (
-                        <span className="text-red-400 ml-2">
+                        <span className="text-destructive ml-2">
                           {tt("muddati o'tgan", "истёк")}
                         </span>
                       )}
@@ -301,7 +301,7 @@ function Login() {
 
               {eimzoError && (
                 <div className="flex flex-col gap-2 mb-4">
-                  <span className="text-red-400 text-[12px]">{eimzoError}</span>
+                  <span className="text-destructive text-[12px]">{eimzoError}</span>
                   <button
                     type="button"
                     onClick={() => loadCertificates(eimzoStep.bridge)}
@@ -316,7 +316,7 @@ function Login() {
                 type="button"
                 onClick={confirmEimzo}
                 disabled={!selectedCert || signing || certsLoading}
-                className="w-full text-white text-[14px] leading-[16.94px] font-[600] flex justify-center items-center rounded-[8px] bg-[#C18B2F] h-[37px] hover:bg-white border border-[#C18B2F] hover:text-[#C18B2F] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#C18B2F] disabled:hover:text-white"
+                className="w-full text-white text-[14px] leading-[16.94px] font-[600] flex justify-center items-center rounded-none bg-[#C18B2F] h-[37px] hover:bg-card border border-[#C18B2F] hover:text-[#C18B2F] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#C18B2F] disabled:hover:text-white"
               >
                 {signing
                   ? tt("Imzolanmoqda...", "Подписывается...")
@@ -326,7 +326,7 @@ function Login() {
                 type="button"
                 onClick={cancelEimzo}
                 disabled={signing}
-                className="w-full mt-2 text-[#BEBBBB] text-[13px] font-[600] flex justify-center items-center rounded-[8px] h-[33px] border border-[#3a3a3a] hover:border-[#BEBBBB] transition-all duration-300"
+                className="w-full mt-2 text-[#BEBBBB] text-[13px] font-[600] flex justify-center items-center rounded-none h-[33px] border border-[#3a3a3a] hover:border-[#BEBBBB] transition-all duration-300"
               >
                 {tt("Orqaga", "Назад")}
               </button>

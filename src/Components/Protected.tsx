@@ -1,40 +1,36 @@
 /** @format */
 
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 
-import { useDispatch, useSelector } from "react-redux";
-import { giveUserData, putJwt } from "../Redux/apiSlice";
-
+/**
+ * Tizimga kirmagan foydalanuvchini login sahifasiga qaytaradi.
+ *
+ * Ilgari bu komponent unmount bo'lganda `giveUserData(localStorage'dagi
+ * qiymat)` dispatch qilardi. Bu ikki jihatdan zarar edi:
+ *   1. localStorage bo'sh bo'lsa store'dagi tirik foydalanuvchini
+ *      o'chirib yuborardi (region_id yo'qolib, viloyat foydalanuvchisi
+ *      admin ko'rinishiga tushib qolardi);
+ *   2. `window.onbeforeunload` har renderda qayta biriktirilardi.
+ * Ikkalasi ham olib tashlandi — saqlash endi `Utilsprovider` zimmasida.
+ */
 const Protected = ({ children }: { children: React.ReactNode }) => {
-	const navigate = useNavigate();
-	const token = useSelector((s: any) => s.auth.jwt);
-	useEffect(() => {
-		if (!token || token === "out") {
-			navigate("/login");
-		}
-	}, [navigate]);
-	const dispatch = useDispatch();
+  const token = useSelector((s: any) => s.auth.jwt);
+  const hasToken = Boolean(token) && token !== "out";
 
-	useEffect(() => {
-		const jsonData = localStorage.getItem("user");
-		const datas = !jsonData ? {} : JSON.parse(jsonData);
+  // Boshqa tabda chiqib ketilsa bu tab ham login sahifasiga qaytadi
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "user" && e.newValue === null) location.reload();
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
-		if (!jsonData) navigate("/login");
-		return () => {
-			dispatch(putJwt(token));
-			dispatch(giveUserData(datas));
-		};
-	}, []);
+  if (!hasToken) return <Navigate to="/login" replace />;
 
-	window.onbeforeunload = function (e: any) {
-		if (typeof e == "undefined") {
-			e = window.event;
-		}
-
-		dispatch(putJwt(sessionStorage.getItem("token")));
-	};
-	return <>{children}</>;
+  return <>{children}</>;
 };
 
 export default Protected;

@@ -29,12 +29,12 @@ function Alert() {
 
   // Alert container styles based on success or error
   const alertStyles = success
-    ? "bg-green-400" // Green for success
-    : "bg-red-400"; // Red for error
+    ? "bg-success" // Green for success
+    : "bg-destructive"; // Red for error
 
   return (
     <div
-      className={`absolute bottom-6 right-6 p-3 cursor-pointer flex-col text-white border rounded-lg shadow-md z-[100] transition-all duration-300 ${alertStyles}`}
+      className={`absolute bottom-6 right-6 p-3 cursor-pointer flex-col text-primary-foreground border rounded-lg shadow-md z-[100] transition-all duration-300 ${alertStyles}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -42,7 +42,7 @@ function Alert() {
         <div className="flex flex-col">
           <div>{text}</div>
         </div>
-        <button onClick={() => dispatch(setClose())} className="text-white">
+        <button onClick={() => dispatch(setClose())} className="text-primary-foreground">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -56,7 +56,7 @@ function Alert() {
       </div>
       <div className="pt-2 rounded-b-lg">
         <div
-          className="h-[4px] w-full bg-white"
+          className="h-[4px] w-full bg-card"
           style={{
             width: `${progress}%`,
             transition: hovered ? "none" : "width 0.4s linear",

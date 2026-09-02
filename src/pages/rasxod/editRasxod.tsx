@@ -16,13 +16,13 @@ import RasxodModal from "./modal";
 import { RasxodcreateTable } from "./rasxodcreateTable";
 
 const SimpleText = ({ txt }: { txt: string }) => (
-  <h3 className="opacity-[0.7] dark:opacity-[1] text-mytextcolor font-[600]">
+  <h3 className="opacity-[0.7] dark:opacity-[1] text-foreground font-[600]">
     {txt}
   </h3>
 );
 
 const OrganizationTD = ({ txt }: { txt: string }) => (
-  <td className="border px-3 py-3 text-left text-mytextcolor font-[500] text-[14px]">
+  <td className="border px-3 py-3 text-left text-foreground font-[500] text-[14px]">
     {txt}
   </td>
 );
@@ -96,7 +96,7 @@ export const EditRasxod = () => {
             //   treasury2: data.batalon_treasury2,
           });
 
-          const regenerated = data.tasks.map((item) => {
+          const regenerated = (data.tasks ?? []).map((item) => {
             return {
               ...item,
               saved: true,
@@ -307,7 +307,7 @@ export const EditRasxod = () => {
         <div className="m-0 p-0">
           <BackButton />
         </div>
-        <h1 className=" font-[700] text-[20px] block ms-8">
+        <h1 className="font-[700] text-[20px] block ms-8">
           {tt(
             "Chiqim hujjatini tahrirlash",
             "Редактирование расходного документа"
@@ -337,7 +337,7 @@ export const EditRasxod = () => {
       </div>
       {/* organization  */}
       <div className="flex mt-5">
-        <div className="border w-1/2 p-3 ">
+        <div className="border w-1/2 p-3">
           <SimpleText
             txt={tt("Qabul qiluvchi ma’lumotlari", "Информация о получателе")}
           />
@@ -364,8 +364,8 @@ export const EditRasxod = () => {
               <tr
                 key={ind}
                 className={`cursor-pointer ${selectedO?.id === o.id
-                  ? "bg-[#f3f4f6] dark:bg-mytableheadborder"
-                  : "bg-mybackground"
+                  ? "bg-muted dark:bg-muted/60border"
+                  : "bg-card"
                   }`}
                 onClick={() => {
                   setSelectedO(o);
@@ -382,7 +382,7 @@ export const EditRasxod = () => {
             ))}
           </RasxodModal>
         </div>
-        <div className="border w-1/2 p-3 bg-mybackground">
+        <div className="border w-1/2 p-3 bg-card">
           <SimpleText
             txt={tt("Тo'lovchi ma’lumotlari", "Информация о плательщике")}
           />
@@ -414,7 +414,7 @@ export const EditRasxod = () => {
               />
             </div>
             <textarea
-              className="w-full text-red-600 bg-mybackground uppercase border outline-none resize-none row-span-4 px-2 py-1 rounded-[5px]"
+              className="w-full text-destructive bg-card uppercase border outline-none resize-none row-span-4 px-2 py-1 rounded-none"
               placeholder="..."
               readOnly
               value={calculatedSum ? numberToWords(calculatedSum) : ""}
@@ -427,7 +427,7 @@ export const EditRasxod = () => {
         <h3 className="font-[600]">{tt("Tavsif", "Описание")}</h3>
         <textarea
           placeholder=""
-          className="border w-full mt-3 p-3 bg-mybackground outline-[grey] dark:outline-none"
+          className="border w-full mt-3 p-3 bg-card outline-[grey] dark:outline-none"
           onChange={handleOpisanieChange}
           value={opisanie ?? ""}
         ></textarea>
@@ -449,7 +449,7 @@ export const EditRasxod = () => {
         <Button
           text="Ishga tushirish"
           type="button"
-          className="text-white hover:!bg-white hover:!text-[#297157] border-[#297157] !h-10 !bg-[#297157] !mt-[20px]"
+          className="!h-10 !mt-[20px] border-success !bg-success text-success-foreground hover:!bg-success/90"
           onClick={() => getRasxodRequest()}
         />
       </div>

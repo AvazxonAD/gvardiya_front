@@ -1,240 +1,304 @@
-import { ModalText } from "@/Components/reusable/descriptionModal";
-import Table from "@/Components/reusable/table/Table";
+import React from "react";
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+
 import { IContractAnaliz } from "@/types/contract";
 import { formatDate, formatSum, tt } from "@/utils";
-import React from "react";
-import Input from "../../Components/Input";
-// import { useSelector } from "react-redux";
+import { DataTable, EmptyState, type TableColumn } from "@/ui";
 
 type Props = {
   data: IContractAnaliz;
 };
 
+const sum = (v?: number | string) => formatSum(Number(v ?? 0)) || "0";
+
+/** Chap ustunda yorliq, o'ngda qiymat — o'qish uchun mo'ljallangan qator */
+function InfoRow({
+  label,
+  value,
+  strong,
+}: {
+  label: string;
+  value: React.ReactNode;
+  /** Yakuniy summalar uchun kuchaytirilgan ko'rinish */
+  strong?: boolean;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 border-b border-border/60 py-2 last:border-b-0">
+      <span className="shrink-0 text-[13px] text-muted-foreground">{label}</span>
+      <span
+        className={
+          strong
+            ? "text-right text-[14px] font-semibold tabular-nums text-foreground"
+            : "text-right text-[13px] font-medium tabular-nums text-foreground"
+        }
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+/** Sarlavha + jadval + o'ng tomonda yakuniy summa */
+function Section<T>({
+  title,
+  icon: Icon,
+  columns,
+  rows,
+  keyOf,
+  total,
+  totalLabel,
+  emptyTitle,
+}: {
+  title: string;
+  icon: LucideIcon;
+  columns: TableColumn<T>[];
+  rows: T[];
+  keyOf: (row: T, index: number) => string | number;
+  total: React.ReactNode;
+  totalLabel: string;
+  emptyTitle: string;
+}) {
+  return (
+    <section className="flex min-w-0 flex-col">
+      <h3 className="mb-2 flex items-center gap-2 text-[14px] font-semibold text-foreground">
+        <Icon className="size-4 shrink-0 text-muted-foreground" />
+        {title}
+      </h3>
+
+      <div className="overflow-hidden rounded-lg border border-border">
+        <DataTable
+          columns={columns}
+          rows={rows}
+          keyOf={keyOf}
+          stickyHeader={false}
+          empty={<EmptyState title={emptyTitle} className="py-8" />}
+        />
+
+        <div className="flex items-baseline justify-end gap-3 border-t border-border bg-muted/30 px-3 py-2.5">
+          <span className="text-[12px] text-muted-foreground">{totalLabel}</span>
+          <span className="text-[14px] font-semibold tabular-nums text-foreground">
+            {total}
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const AnalizView = React.forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
-  // const { user } = useSelector((state: any) => state.auth);
+  // Javob to'liq bo'lmasligi mumkin — bo'sh obyekt bilan himoyalanamiz
+  const contract: any = (data as any)?.contract ?? {};
+  const prixods = Array.isArray(data?.prixods) ? data.prixods : [];
+  const rasxods = Array.isArray(data?.rasxods) ? data.rasxods : [];
+  const rasxodFios = Array.isArray(data?.rasxod_fios) ? data.rasxod_fios : [];
+
+  const numCol = {
+    key: "n",
+    header: "№",
+    align: "center" as const,
+    width: "72px",
+  };
+
+  const prixodColumns: TableColumn<(typeof prixods)[number]>[] = [
+    { ...numCol, cell: (r) => <span className="tabular-nums">{r.prixod_doc_num}</span> },
+    {
+      key: "date",
+      header: tt("Sanasi", "Дата"),
+      width: "110px",
+      cell: (r) => (
+        <span className="tabular-nums text-muted-foreground">
+          {formatDate(r.prixod_date)}
+        </span>
+      ),
+    },
+    {
+      key: "org",
+      header: tt("Tashkilot", "Организация"),
+      cell: (r) => <span className="font-medium">{r.organization_name || "—"}</span>,
+    },
+    {
+      key: "summa",
+      header: tt("Summa", "Сумма"),
+      align: "right",
+      width: "140px",
+      cell: (r) => (
+        <span className="tabular-nums font-medium">{sum(r.prixod_summa)}</span>
+      ),
+    },
+  ];
+
+  const rasxodColumns: TableColumn<(typeof rasxods)[number]>[] = [
+    { ...numCol, cell: (r) => <span className="tabular-nums">{r.doc_num}</span> },
+    {
+      key: "date",
+      header: tt("Sanasi", "Дата"),
+      width: "110px",
+      cell: (r) => (
+        <span className="tabular-nums text-muted-foreground">
+          {formatDate(r.rasxod_date)}
+        </span>
+      ),
+    },
+    {
+      key: "brigade",
+      header: tt("Birgada №", "Бригада №"),
+      cell: (r) => (
+        <span className="font-medium tabular-nums">
+          {r.batalon_account_number || "—"}
+        </span>
+      ),
+    },
+    {
+      key: "summa",
+      header: tt("Summa", "Сумма"),
+      align: "right",
+      width: "140px",
+      cell: (r) => (
+        <span className="tabular-nums font-medium">{sum(r.result_summa)}</span>
+      ),
+    },
+  ];
+
+  const fioColumns: TableColumn<(typeof rasxodFios)[number]>[] = [
+    { ...numCol, cell: (r) => <span className="tabular-nums">{r.doc_num}</span> },
+    {
+      key: "date",
+      header: tt("Sanasi", "Дата"),
+      width: "110px",
+      cell: (r) => (
+        <span className="tabular-nums text-muted-foreground">
+          {formatDate(r.rasxod_date)}
+        </span>
+      ),
+    },
+    {
+      key: "batalon",
+      header: tt("Batalon", "Батальон"),
+      align: "center",
+      width: "130px",
+      hideOnMobile: true,
+      cell: (r) => <span className="tabular-nums">{r.batalon || "—"}</span>,
+    },
+    {
+      key: "fio",
+      header: tt("FIO", "ФИО"),
+      cell: (r) => <span className="font-medium">{r.fio || "—"}</span>,
+    },
+    {
+      key: "time",
+      header: tt("Tadbir vaqti", "Время мероприятия"),
+      align: "center",
+      width: "130px",
+      hideOnMobile: true,
+      cell: (r) => <span className="tabular-nums">{r.task_time ?? 0}</span>,
+    },
+    {
+      key: "summa",
+      header: tt("Summa", "Сумма"),
+      align: "right",
+      width: "140px",
+      cell: (r) => <span className="tabular-nums font-medium">{sum(r.summa)}</span>,
+    },
+  ];
 
   return (
-    <div ref={ref}>
-      <div className="bg-mybackground mt-5 px-5 flex gap-6">
-        {/* Left Column */}
-        <div className="w-1/2">
-          <ModalText
+    <div ref={ref} className="flex flex-col gap-6 p-4 sm:p-5">
+      {/* ═══ Shartnoma ko'rsatkichlari ═══════════════════════════════ */}
+      <div className="grid gap-x-10 md:grid-cols-2">
+        <div>
+          <InfoRow
             label={tt("Shartnoma raqam", "Номер договора")}
-            value={data.contract.doc_num}
+            value={contract.doc_num || "—"}
           />
-          <ModalText
+          <InfoRow
             label={tt("Shartnoma sanasi", "Дата договора")}
-            value={formatDate(data.contract.doc_date)}
+            value={contract.doc_date ? formatDate(contract.doc_date) : "—"}
           />
-          <ModalText
+          <InfoRow
             label={tt("Tadbir manzili", "Адрес мероприятия")}
-            value={data.contract.adress}
+            value={contract.adress || "—"}
           />
-          <ModalText
+          <InfoRow
             label={tt("Xodimlar soni", "Количество сотрудников")}
-            value={`${data.contract.all_worker_number} ${tt("ta", "шт.")}`}
+            value={`${contract.all_worker_number ?? 0} ${tt("ta", "шт.")}`}
           />
-          <ModalText
+          <InfoRow
             label={tt("Umumiy tadbir vaqti", "Общее время мероприятия")}
-            value={`${data.contract.all_task_time} ${tt("soat", "часов")}`}
+            value={`${contract.all_task_time ?? 0} ${tt("soat", "часов")}`}
           />
-          <ModalText
+          <InfoRow
             label={tt("Umumiy xizmat vaqti", "Общее время обслуживания")}
-            value={`${data.contract.all_task_time * data.contract.all_worker_number} ${tt("soat", "часов")}`}
+            value={`${
+              (contract.all_task_time ?? 0) * (contract.all_worker_number ?? 0)
+            } ${tt("soat", "часов")}`}
           />
         </div>
 
-        {/* Right Column */}
-        <div className="w-1/2">
-          <ModalText
+        <div>
+          <InfoRow
             label={tt("Umumiy", "Общая")}
-            value={formatSum(data.contract.result_summa)}
+            value={sum(contract.result_summa)}
+            strong
           />
-          <ModalText
-            label={tt("Chegirma", "Скидки")}
-            value={formatSum(data.contract.discount_money)}
+          <InfoRow
+            label={tt("Chegirma", "Скидка")}
+            value={sum(contract.discount_money)}
           />
-          <ModalText
-            label={tt("Debet", "Дебет")}
-            value={formatSum(data.contract.debit)}
+          <InfoRow label={tt("Debet", "Дебет")} value={sum(contract.debit)} />
+          <InfoRow label={tt("Kredit", "Кредит")} value={sum(contract.kridit)} />
+          <InfoRow
+            label={tt("Rasxod", "Расход")}
+            value={sum(contract.rasxod_summa)}
           />
-          <ModalText
-            label={tt("Kredit", "Кредит")}
-            value={formatSum(data.contract.kridit)}
-          />
-          <ModalText
-            label={tt("Rasxod", "Плот")}
-            value={formatSum(data.contract.rasxod_summa)}
-          />
-          <ModalText
-            label={tt("Qoldiq", "Салдо")}
-            value={formatSum(data.contract.remaining_summa)}
+          <InfoRow
+            label={tt("Qoldiq", "Сальдо")}
+            value={sum(contract.remaining_summa)}
+            strong
           />
         </div>
       </div>
 
-      {/* Tables Section */}
-      <div className="w-full flex-col gap-6 mt-10 px-2">
-        {/* Kirim va Chiqim yonma-yon */}
-        <div className="w-full flex flex-col lg:flex-row gap-6">
-          {/* Kirim */}
-          <div className="w-full lg:w-1/2">
-            <h2 className="mb-3 font-[700] text-mytextcolor">
-              {tt("Kirim", "Приход")}
-            </h2>
-            <Table
-              thead={[
-                { text: "№", className: "py-[7px] w-[20%] px-[5px]" },
-                {
-                  text: tt("Sanasi", "Дата"),
-                  className: "py-[7px] text-left px-[5px] capitalize",
-                },
-                {
-                  text: tt("Tashkilot", "Ташкилот"),
-                  className: "py-[7px] text-left px-[5px] capitalize",
-                },
-                {
-                  text: tt("Summa", "Сумма"),
-                  className: "py-[7px] text-left px-[5px] capitalize",
-                },
-              ]}
-            >
-              {data.prixods.map((p, index) => (
-                <tr
-                  key={index}
-                  className="border-b border-l border-r border-mytableheadborder"
-                >
-                  <td className="py-[7px] text-center font-[500]">
-                    {p.prixod_doc_num}
-                  </td>
-                  <td className="py-[7px] px-[5px] font-[500]">
-                    {formatDate(p.prixod_date)}
-                  </td>
-                  <td className="py-[7px] px-[5px] font-[500]">
-                    {p.organization_name}
-                  </td>
-                  <td className="py-[7px] px-[5px] font-[500]">
-                    {formatSum(p.prixod_summa)}
-                  </td>
-                </tr>
-              ))}
-            </Table>
-            <div className="w-full flex justify-end mt-2">
-              <div className="w-[180px]">
-                <Input v={formatSum(Number(data.contract.debit))} className="w-full text-right" />
-              </div>
-            </div>
-          </div>
+      {/* ═══ Kirim va Chiqim — yonma-yon ═════════════════════════════ */}
+      <div className="grid min-w-0 gap-5 lg:grid-cols-2">
+        <Section
+          title={tt("Kirim", "Приход")}
+          icon={ArrowDownLeft}
+          columns={prixodColumns}
+          rows={prixods}
+          keyOf={(_r, i) => i}
+          total={sum(contract.debit)}
+          totalLabel={tt("Jami", "Итого")}
+          emptyTitle={tt("Kirim yo'q", "Приходов нет")}
+        />
 
-          {/* Chiqim */}
-          <div className="w-full lg:w-1/2">
-            <h2 className="mb-3 font-[700] text-mytextcolor">
-              {tt("Chiqim", "Расход")}
-            </h2>
-            <Table
-              thead={[
-                { text: "№", className: "py-[7px] w-[20%] px-[5px]" },
-                {
-                  text: tt("Sanasi", "Дата"),
-                  className: "py-[7px] text-left px-[5px] capitalize",
-                },
-                {
-                  text: tt("Birgada №", "Биргада №"),
-                  className: "py-[7px] text-left px-[5px] capitalize",
-                },
-                {
-                  text: tt("Summa", "Сумма"),
-                  className: "py-[7px] text-left px-[5px] capitalize",
-                },
-              ]}
-            >
-              {data.rasxods.map((p, index) => (
-                <tr
-                  key={index}
-                  className="border-b border-l border-r border-mytableheadborder"
-                >
-                  <td className="py-[7px] text-center font-[500]">{p.doc_num}</td>
-                  <td className="py-[7px] px-[5px] font-[500]">
-                    {formatDate(p.rasxod_date)}
-                  </td>
-                  <td className="py-[7px] px-[5px] font-[500]">
-                    {p.batalon_account_number}
-                  </td>
-                  <td className="py-[7px] px-[5px] font-[500]">
-                    {formatSum(Number(p.result_summa))}
-                  </td>
-                </tr>
-              ))}
-              <tr>
-                <td colSpan={4}>
-                  <div className="w-full flex justify-end mt-2">
-                    <div className="w-[180px]">
-                      <Input v={formatSum(Number(data.contract.rasxod))} className="w-full text-right" />
-                    </div>
-                  </div>
-                </td>
-              </tr>
-
-            </Table>
-          </div>
-        </div>
-
-        {/* Chiqim FIO pastda */}
-        <div className="w-full mt-10">
-          <h2 className="mb-3 font-[700] text-mytextcolor">
-            {tt("Chiqim FIO", "Расход ФИО")}
-          </h2>
-          <Table
-            thead={[
-              { text: "№", className: "py-[7px] w-[20%] px-[5px]" },
-              {
-                text: tt("Sanasi", "Дата"),
-                className: "py-[7px] text-left px-[5px] capitalize",
-              },
-              {
-                text: tt("Batalon", "Баталон"),
-                className: "py-[7px] text-center px-[5px] capitalize",
-              },
-              {
-                text: tt("FIO", "ФИО"),
-                className: "py-[7px] text-center px-[5px] capitalize",
-              },
-              {
-                text: tt("Tadbir vaqti", "Время события"),
-                className: "py-[7px] text-center px-[5px] capitalize",
-              },
-              {
-                text: tt("Summa", "Сумма"),
-                className: "py-[7px] text-center px-[5px] capitalize",
-              },
-            ]}
-          >
-            {data.rasxod_fios.map((p, index) => (
-              <tr
-                key={index}
-                className="border-b border-l border-r border-mytableheadborder"
-              >
-                <td className="py-[7px] text-center font-[500]">{p.doc_num}</td>
-                <td className="py-[7px] px-[5px] font-[500]">
-                  {formatDate(p.rasxod_date)}
-                </td>
-                <td className="py-[7px] px-[5px] font-[500] text-center">{p.batalon}</td>
-                <td className="py-[7px] px-[5px] font-[500] text-center">{p.fio}</td>
-                <td className="py-[7px] px-[5px] font-[500] text-center">{p.task_time}</td>
-                <td className="py-[7px] px-[5px] font-[500] text-center">
-                  {formatSum(Number(p.summa))}
-                </td>
-              </tr>
-            ))}
-          </Table>
-          <div className="w-full flex justify-end mt-2">
-            <div className="w-[180px]">
-              <Input v={formatSum(Number(data.contract.rasxod_fio))} className="w-full text-right" />
-            </div>
-          </div>
-        </div>
+        <Section
+          title={tt("Chiqim", "Расход")}
+          icon={ArrowUpRight}
+          columns={rasxodColumns}
+          rows={rasxods}
+          keyOf={(_r, i) => i}
+          total={sum(contract.rasxod)}
+          totalLabel={tt("Jami", "Итого")}
+          emptyTitle={tt("Chiqim yo'q", "Расходов нет")}
+        />
       </div>
 
+      {/* ═══ Chiqim FIO ══════════════════════════════════════════════ */}
+      <Section
+        title={tt("Chiqim FIO", "Расход ФИО")}
+        icon={Users}
+        columns={fioColumns}
+        rows={rasxodFios}
+        keyOf={(_r, i) => i}
+        total={sum(contract.rasxod_fio)}
+        totalLabel={tt("Jami", "Итого")}
+        emptyTitle={tt("Xodimlar bo'yicha chiqim yo'q", "Расходов по сотрудникам нет")}
+      />
     </div>
   );
 });

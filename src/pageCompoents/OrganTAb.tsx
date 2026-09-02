@@ -1,13 +1,15 @@
 /** @format */
 
-import Icon from "@/assets/icons";
-import DescriptionModal from "@/Components/reusable/descriptionModal";
-import useFullHeight from "@/hooks/useFullHeight";
-import { IOrganization } from "@/types/organization";
 import { useState } from "react";
-import DeleteModal from "../Components/DeleteModal";
-import { textNum, tt } from "../utils";
+import { Building2, Pencil, Trash2 } from "lucide-react";
 
+import Table from "@/Components/reusable/table/Table";
+import DeleteModal from "../Components/DeleteModal";
+import { IOrganization } from "@/types/organization";
+import { textNum, tt } from "../utils";
+import { Button, EmptyState } from "@/ui";
+
+/** Tashkilotlar jadvali */
 const OrganTAb = ({
   data,
   handleDelete,
@@ -19,158 +21,118 @@ const OrganTAb = ({
 }: any) => {
   const [delOpen, setDelOpen] = useState(false);
 
-  // Calculate starting index based on the current page
-  const getRowNumber = (index: number) => {
-    return (page - 1) * itemsPerPage + index + 1;
-  };
+  const rowNumber = (index: number) => (page - 1) * itemsPerPage + index + 1;
 
-  const height = useFullHeight();
-  const fullHeight =
-    typeof height === "string" ? `calc(${height} - 250px)` : height - 250;
-  const [activeItem, setActiveItem] = useState<IOrganization>();
+  if (!data || data.length === 0) {
+    return (
+      <>
+        <EmptyState
+          icon={Building2}
+          title={tt("Ma'lumot yo'q", "Нет данных")}
+          description={tt(
+            "Qidiruv shartlariga mos tashkilot topilmadi",
+            "Организаций по условиям поиска не найдено"
+          )}
+        />
+        <DeleteModal
+          open={delOpen}
+          deletee={handleDelete}
+          closeModal={() => setDelOpen(false)}
+        />
+      </>
+    );
+  }
 
   return (
     <>
-      <div
-        className="overflow-x-auto rounded-t-[6px] text-[14px] leading-[16.94px] hide__scrollbar"
-        style={{
-          maxHeight: fullHeight,
-          overflowY: "auto",
-        }}
+      <Table
+        thead={[
+          { text: "№", className: "w-[44px]" },
+          { text: tt("Nomi", "Название"), className: "whitespace-normal leading-[1.15]" },
+          { text: tt("Manzil", "Адрес"), className: "whitespace-normal leading-[1.15]" },
+          { text: "INN", className: "w-[92px]" },
+          { text: tt("Bank nomi", "Название банка"), className: "whitespace-normal leading-[1.15]" },
+          { text: "MFO", className: "w-[58px]" },
+          { text: tt("Rahbar", "Руководитель"), className: "whitespace-normal leading-[1.15]" },
+          { text: tt("Hisob raqami", "Номер счета"), className: "w-[124px] whitespace-normal leading-[1.15]" },
+          {
+            text: tt("Hisob raqami (g'azna)", "Номер счета (казна)"),
+            className: "w-[124px] whitespace-normal leading-[1.15]",
+          },
+          ...(!variant
+            ? [{ text: tt("Amallar", "Действия"), className: "w-[66px] text-center" }]
+            : []),
+        ]}
       >
-        <table className="min-w-full">
-          <thead className="bg-mytablehead sticky z-10 -top-1 text-mytextcolor text-[14px] leading-[16.94px] rounded-t-[6px] border-b border-mytableheadborder">
-            <tr>
-              <th className="px-4 py-3 text-left w-[100px]">{tt("№", "№")}</th>
-              <th className="px-4 py-3 text-left w-[400px]">
-                {tt("Name", "Название")}
-              </th>
-              <th className="px-4 py-3 text-left w-[400px]">
-                {tt("Adress", "Адрес")}
-              </th>
-              <th className="px-4 py-3 text-left w-[200px]">
-                {tt("INN", "ИНН")}
-              </th>
-              <th className="px-4 py-3 text-left w-[200px]">
-                {tt("Bank Nomi", "Название банка")}
-              </th>
-              <th className="px-4 py-3 text-left w-[200px]">
-                {tt("MFO", "МФО")}
-              </th>
-              <th className="px-4 py-3 text-left w-[200px]">
-                {tt("Rahbar", "Руководитель")}
-              </th>
-              <th className="px-4 py-3 text-left w-[200px]">
-                {tt("Hisob raqami", "Номер счета")}
-              </th>
-              <th className="px-4 py-3 text-left w-[200px]">
-                {tt("Hisob raqami g'azna", "Номер счета казна")}
-              </th>
-              {!variant && (
-                <th className="px-4 py-3 text-center w-[120px]">
-                  {tt("Amallar", "Действия")}
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((person: IOrganization, index: number) => (
-              <tr
-                onClick={() => {
-                  if (variant) {
-                    setActive(person.id);
-                  }
-                }}
-                key={person.id}
-                className={`${index % 2 === 0
-                  ? "bg-white dark:bg-mybackground"
-                  : "bg-[#F4FAFD] dark:bg-mybackground"
-                  } cursor-pointer hover:text-[#3B7FAF] transition-colors duration-300 text-mytextcolor border-b border-mytableheadborder`}
-              >
-                <td className="px-4 py-3  text-inherit ">
-                  {getRowNumber(index)}{" "}
-                </td>
-                <td
-                  onClick={() => setActiveItem(person)}
-                  className="px-4 py-3 text-inherit "
-                >
-                  {person.name}
-                </td>
-                <td className="px-4 py-3 text-inherit  max-w-[124px] truncate">
-                  {person.address}
-                </td>
-                <td className="px-4 py-3 text-inherit  max-w-[70px] truncate">
-                  {textNum(person.str, 3)}
-                </td>
-                <td className="px-4 py-3 text-inherit  max-w-[70px] truncate">
-                  {person.bank_name}
-                </td>
-                <td className="px-4 py-3 text-inherit  max-w-[70px] truncate">
-                  {person.mfo}
-                </td>
-                <td className="px-4 py-3 text-inherit  max-w-[150px] truncate">
-                  {person.boss}
-                </td>
-                <td className="px-4 py-3 text-inherit  max-w-[70px] truncate">
-                  {person.account_numbers?.map((num) => (
-                    <div key={num.account_number}>{num.account_number}</div>
-                  ))}
-                </td>
-                <td className="px-4 py-3 text-inherit  max-w-[70px] truncate">
-                  {person.gazna_numbers?.map((num) => (
-                    <div key={num.gazna_number}>{num.gazna_number}</div>
-                  ))}
-                </td>
-                {!variant && (
-                  <td className="px-3 py-3 ">
-                    <div className="flex justify-center space-x-2">
-                      <button onClick={() => openEdit(person.id)}>
-                        <Icon name="edit" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setDelOpen(true);
-                          setActive(person.id);
-                        }}
-                      >
-                        <Icon name="delete" />
-                      </button>
-                    </div>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+        {data.map((person: IOrganization, index: number) => (
+          <tr
+            key={person.id}
+            onClick={variant ? () => setActive(person.id) : undefined}
+            className={variant ? "cursor-pointer" : undefined}
+          >
+            <td className="text-muted-foreground tabular-nums">
+              {rowNumber(index)}
+            </td>
+            <td className="font-medium">{person.name}</td>
+            <td className="text-muted-foreground">
+              {person.address}
+            </td>
+            <td className="tabular-nums">{textNum(person.str, 3)}</td>
+            <td className="text-muted-foreground">{person.bank_name}</td>
+            <td className="tabular-nums">{person.mfo}</td>
+            <td className="text-muted-foreground">{person.boss}</td>
+            <td className="tabular-nums">
+              {person.account_numbers?.map((n) => (
+                <div key={n.account_number}>{textNum(n.account_number, 4)}</div>
+              ))}
+            </td>
+            <td className="tabular-nums">
+              {person.gazna_numbers?.map((n) => (
+                <div key={n.gazna_number}>{textNum(n.gazna_number, 4)}</div>
+              ))}
+            </td>
+
+            {!variant && (
+              <td>
+                <div className="flex items-center justify-center gap-0.5">
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    title={tt("Tahrirlash", "Редактировать")}
+                    aria-label={tt("Tahrirlash", "Редактировать")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openEdit(person.id);
+                    }}
+                  >
+                    <Pencil />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    title={tt("O'chirish", "Удалить")}
+                    aria-label={tt("O'chirish", "Удалить")}
+                    className="hover:bg-destructive/10 hover:text-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDelOpen(true);
+                      setActive(person.id);
+                    }}
+                  >
+                    <Trash2 />
+                  </Button>
+                </div>
+              </td>
+            )}
+          </tr>
+        ))}
+      </Table>
 
       <DeleteModal
         open={delOpen}
         deletee={handleDelete}
-        closeModal={() => {
-          setDelOpen(false);
-        }}
+        closeModal={() => setDelOpen(false)}
       />
-      {/* {activeItem ? (
-        <DescriptionModal
-          open={Boolean(activeItem)}
-          closeModal={() => setActiveItem(undefined)}
-          title={activeItem.name + " " + tt("ma'lumotlari", "информация")}
-          items={[
-            [
-              { text: tt("Manzil", "Адрес"), value: activeItem.address },
-              { text: tt("INN", "ИНН"), value: textNum(activeItem.str, 3) },
-              {
-                text: tt("Bank nomi", "Название банка"),
-                value: activeItem.bank_name,
-              },
-              { text: tt("MFO", "МФО"), value: activeItem.mfo },
-            ],
-          ]}
-        />
-      ) : (
-        <></>
-      )} */}
     </>
   );
 };

@@ -8,8 +8,12 @@ export function cn(...inputs: ClassValue[]) {
 export const getFullDate = (promptdate: string) => {
   const regex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/
 
-  if (regex.test(promptdate)) {
-    const date = new Date(promptdate);
+  // Sana ISO ko'rinishida ham kelishi mumkin ("2026-08-03T00:00:00.000Z") —
+  // ilgari bunday holatda xom matn chiqib qolardi.
+  const value = String(promptdate ?? "").slice(0, 10);
+
+  if (regex.test(value)) {
+    const date = new Date(value);
     const day = date.getDate().toString().padStart(2, "0"); // "05"
     let month = (date.getMonth() + 1).toString().padStart(2, "0"); // "01"
     const year = date.getFullYear().toString(); // "2024"

@@ -1,36 +1,50 @@
-import { tt } from "../utils";
-import Button from "./reusable/button";
+import { AlertTriangle } from "lucide-react";
 
+import { tt } from "../utils";
+import { Button, Modal } from "@/ui";
+
+/**
+ * O'chirishni tasdiqlash oynasi — yangi dizayn tizimidagi `Modal` ustida.
+ * Props interfeysi o'zgarmadi (`open`, `closeModal`, `deletee`).
+ */
 function DeleteModal({ closeModal, open, deletee }: any) {
   return (
-    <>
-      {open && (
-        <div className="fixed inset-0 bg-[#00000066]  flex items-center justify-center z-50">
-          <div className="bg-mybackground rounded-[6px]  w-[512px] h-[212px] text-mytextcolor shadow-[0.5px_0.5px_4px_0px_#00000026] flex justify-center items-center">
-
-            <div className="w-[70%] mx-auto ">
-              <h1 className="text-mytextcolor leading-[19.36px] text-center mb-6 font-[600]">
-                {tt(
-                  "Siz mutlaqo ishonchingiz komilmi?",
-                  "Вы абсолютно уверены?"
-                )}
-              </h1>
-
-              <div className="flex  items-center gap-5 justify-center">
-                <Button mode="cancel" onClick={closeModal} />
-                <Button
-                  mode="delete"
-                  onClick={() => {
-                    deletee();
-                    closeModal();
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+    <Modal
+      open={open}
+      onClose={closeModal}
+      size="sm"
+      footer={
+        <div className="flex w-full justify-end gap-2">
+          <Button variant="secondary" onClick={closeModal}>
+            {tt("Bekor qilish", "Отмена")}
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              deletee();
+              closeModal();
+            }}
+          >
+            {tt("O'chirish", "Удалить")}
+          </Button>
         </div>
-      )}
-    </>
+      }
+    >
+      <div className="flex flex-col items-center gap-3 py-2 text-center">
+        <span className="flex size-11 items-center justify-center rounded-none bg-destructive/10 text-destructive">
+          <AlertTriangle className="size-5" />
+        </span>
+        <h2 className="text-[15px] font-semibold text-foreground">
+          {tt("Siz mutlaqo ishonchingiz komilmi?", "Вы абсолютно уверены?")}
+        </h2>
+        <p className="max-w-xs text-[13px] text-muted-foreground">
+          {tt(
+            "Bu amalni ortga qaytarib bo'lmaydi.",
+            "Это действие нельзя отменить."
+          )}
+        </p>
+      </div>
+    </Modal>
   );
 }
 

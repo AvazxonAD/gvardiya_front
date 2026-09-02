@@ -74,7 +74,7 @@ export default function RegionDashboard() {
     <div className="dashboard-content flex flex-col gap-[10px]">
       {loading && !countData ? (
         <div className="flex items-center justify-center h-[400px]">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500" />
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary/30" />
         </div>
       ) : (
         <>

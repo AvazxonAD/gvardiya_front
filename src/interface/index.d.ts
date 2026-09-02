@@ -109,7 +109,17 @@ export interface RasxodInterface {
   batalon_bank_name: string;
   batalon_mfo: string;
   batalon_account_number: string;
-  summa: number;
+  // Summalar backenddan son ham, formatlangan matn ham bo'lib kelishi mumkin
+  summa: number | string;
+  // Chiqim F.I.O taqsimoti ustunlari
+  summa_10?: number | string;
+  summa_remaining?: number | string;
+  summa_65?: number | string;
+  summa_25?: number | string;
+  summa_1_25?: number | string;
+  summa_25_2?: number | string;
+  summa_12?: number | string;
+  worker_summa?: number | string;
 }
 
 export interface RasxodPaginationMetaInterface {

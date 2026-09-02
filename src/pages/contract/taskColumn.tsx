@@ -150,7 +150,7 @@ const TaskColumn = ({
       )}
       {adressBox && (
         <div className="!w-[200px]">
-          {/* <p className="text-[#636566] text-[12px]  leading-[14.52px] font-[600]">Tadbir manzili</p>
+          {/* <p className="text-muted-foreground text-[12px] leading-[14.52px] font-[600]">Tadbir manzili</p>
               <ReadingInput
                 onChange={(txt: string) => handleChangeTask("address", e.id, txt)}
                 val={e.address}
@@ -168,7 +168,7 @@ const TaskColumn = ({
         </div>
       )}
       <div className="!w-[200px]">
-        {/* <p className="text-[#636566] text-[12px]  leading-[14.52px] font-[600]">Tadbir manzili</p>
+        {/* <p className="text-muted-foreground text-[12px] leading-[14.52px] font-[600]">Tadbir manzili</p>
               <ReadingInput
                 onChange={(txt: string) => handleChangeTask("address", e.id, txt)}
                 val={e.address}
@@ -189,7 +189,7 @@ const TaskColumn = ({
         <span></span>
         <button
           type="button"
-          className="w-6 h-6 text-red-500"
+          className="w-6 h-6 text-destructive"
           onClick={() => {
             const filteredTasks = contract?.tasks?.filter(
               (task) => task.unique_id !== e.unique_id

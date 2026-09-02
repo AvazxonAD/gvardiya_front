@@ -598,14 +598,14 @@ export const Plus = () => {
       xmlns="http://www.w3.org/2000/svg">
       <path
         d="M10 4.1665V15.8332"
-        className="stroke-myiconcolor"
+        className="stroke-muted-foreground"
         strokeWidth={2}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
         d="M4.16699 10H15.8337"
-        className="stroke-myiconcolor"
+        className="stroke-muted-foreground"
         strokeWidth={2}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -624,7 +624,7 @@ export const RasxodFioIcon = () => {
       xmlns="http://www.w3.org/2000/svg">
       <path
         d="M23 20.9167V19.1111C23 18.1534 22.5522 17.2349 21.7552 16.5577C20.9582 15.8805 19.8772 15.5 18.75 15.5H10.25C9.12283 15.5 8.04183 15.8805 7.2448 16.5577C6.44777 17.2349 6 18.1534 6 19.1111V20.9167"
-        // className="stroke-myiconcolor"
+        // className="stroke-muted-foreground"
         stroke="currentColor"
         strokeWidth={2}
         strokeLinecap="round"
@@ -632,7 +632,7 @@ export const RasxodFioIcon = () => {
       />
       <path
         d="M15 11.1667C17.2091 11.1667 19 9.22657 19 6.83333C19 4.4401 17.2091 2.5 15 2.5C12.7909 2.5 11 4.4401 11 6.83333C11 9.22657 12.7909 11.1667 15 11.1667Z"
-        // className="stroke-myiconcolor"
+        // className="stroke-muted-foreground"
         stroke="currentColor"
         strokeWidth={2}
         strokeLinecap="round"
@@ -641,7 +641,7 @@ export const RasxodFioIcon = () => {
       <g clipPath="url(#clip0_1068_599)">
         <path
           d="M29.3334 20.625L23.0001 27.5521L19.6667 23.9063L14.6667 29.375"
-          // className="stroke-myiconcolor"
+          // className="stroke-muted-foreground"
           stroke="currentColor"
           strokeWidth="1.5"
           strokeLinecap="round"
@@ -649,7 +649,7 @@ export const RasxodFioIcon = () => {
         />
         <path
           d="M25.3333 20.625H29.3333V25"
-          // className="stroke-myiconcolor"
+          // className="stroke-muted-foreground"
           stroke="currentColor"
           strokeWidth="1.5"
           strokeLinecap="round"

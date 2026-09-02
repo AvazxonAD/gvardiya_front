@@ -13,7 +13,7 @@ export default function DateRangePicker({ from, to, onChange }: DateRangePickerP
           type="date"
           value={from}
           onChange={(e) => onChange(e.target.value, to)}
-          className="bg-[var(--dash-glass-bg)] border border-[var(--dash-glass-border)] rounded-lg text-[var(--dash-text)] px-3 py-1.5 text-[13px] font-medium outline-none focus:border-blue-500 transition"
+          className="bg-[var(--dash-glass-bg)] border border-[var(--dash-glass-border)] rounded-lg text-[var(--dash-text)] px-3 py-1.5 text-[13px] font-medium outline-none focus:border-primary/30 transition"
         />
       </div>
       <div className="flex items-center gap-2">
@@ -22,7 +22,7 @@ export default function DateRangePicker({ from, to, onChange }: DateRangePickerP
           type="date"
           value={to}
           onChange={(e) => onChange(from, e.target.value)}
-          className="bg-[var(--dash-glass-bg)] border border-[var(--dash-glass-border)] rounded-lg text-[var(--dash-text)] px-3 py-1.5 text-[13px] font-medium outline-none focus:border-blue-500 transition"
+          className="bg-[var(--dash-glass-bg)] border border-[var(--dash-glass-border)] rounded-lg text-[var(--dash-text)] px-3 py-1.5 text-[13px] font-medium outline-none focus:border-primary/30 transition"
         />
       </div>
     </div>

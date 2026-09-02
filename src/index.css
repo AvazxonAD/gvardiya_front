@@ -2,160 +2,346 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* ══════════════════════════════════════════════════════════════════
+   TADBIR-HISOB — DESIGN TOKENS
 
-body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Inter", sans-serif;
-  font-optical-sizing: auto;
-}
+   Bitta manba. Komponentlar faqat token o'qiydi, dark rejim esa
+   faqat token qiymatini almashtiradi — `.dark .component { ... }`
+   ko'rinishidagi override qoidalari YOZILMAYDI.
+
+   Ranglar HSL kanallari sifatida saqlanadi (`221 83% 53%`), chunki
+   Tailwind `hsl(var(--x) / <alpha-value>)` orqali `bg-primary/10`
+   kabi shaffoflik modifikatorlarini shundagina qo'llay oladi.
+   ══════════════════════════════════════════════════════════════════ */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    /* Rasmiy hujjat uslubi: to'rtburchak burchaklar.
+       Butun radius shkalasi (`tailwind.config.js` -> borderRadius)
+       shu bitta o'zgaruvchidan kelib chiqadi — qaytarish uchun
+       yagona qiymatni o'zgartirish kifoya. */
+    --radius: 0rem;
+
+    /* Sirtlar */
+    --background: 210 40% 98%; /* slate-50  — sahifa foni */
+    --foreground: 222 47% 11%; /* slate-900 — asosiy matn */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --popover-foreground: 222 47% 11%;
 
-    /* start my color */
-    --mybackground: #ffffff;
-    --mybackgroundopacity: #eeeded;
-    --mybordercolor: #d9d9d9;
-    --myiconcolor: #000000;
-    --mylabelcolor: #636566;
-    --mytextcolor: #000000;
-    --mylogocolor: #383838;
-    --mynavactive: #ecf3f7;
-    --mynavactiveborder: #323232;
-    --mysecondarytext: #16275c;
-    --mycalendarbg: #fff;
-    --myinputborder: #d9d9d9;
+    /* Asosiy harakat rangi */
+    --primary: 221 83% 53%; /* blue-600  */
+    --primary-hover: 224 76% 48%; /* blue-700  */
+    --primary-foreground: 0 0% 100%;
 
-    /* table & button */
-    --mytablehead: #f4fafd;
-    --mytableheadborder: #3b7faf66;
+    /* Brend — Gvardiya oltini. Faqat aksent: logotip, ajratilgan
+       sarlavha, faol holat chizig'i. Katta yuzalarga qo'llanmaydi. */
+    --brand: 38 61% 47%;
+    --brand-foreground: 0 0% 100%;
+
+    /* Neytral qatlamlar */
+    --secondary: 210 40% 96%; /* slate-100 */
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%; /* slate-500 */
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+
+    /* Holat ranglari */
+    --destructive: 0 72% 51%; /* red-600   */
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 71% 40%; /* green-600 */
+    --success-foreground: 0 0% 100%;
+    --warning: 32 95% 44%; /* amber-600 */
+    --warning-foreground: 0 0% 100%;
+
+    /* Chegara va fokus */
+    --border: 214 32% 91%; /* slate-200 */
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+    --shadow-color: 222 47% 11%;
+
+    /* Yon panel */
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 215 25% 27%;
+    --sidebar-accent: 221 83% 53%;
+    --sidebar-accent-foreground: 224 76% 48%;
+    --sidebar-border: 214 32% 91%;
+
+    /* Diagrammalar — ohangi bo'yicha ajralib turadigan 5 ta rang */
+    --chart-1: 221 83% 53%;
+    --chart-2: 160 84% 39%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 262 83% 58%;
+    --chart-5: 199 89% 48%;
+    --chart-6: 340 82% 55%;
+    --chart-7: 173 80% 36%;
+    --chart-8: 25 95% 53%;
+    --chart-9: 291 64% 52%;
+    --chart-10: 217 19% 45%;
   }
 
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    /* start my color */
-    --mybackground: #020a21;
-    --mybackgroundopacity: #000;
-    --mybordercolor: #3b7faf;
-    --myiconcolor: #fff;
-    --mylabelcolor: #3b7faf;
-    --mytextcolor: #ffffff;
-    --mylogocolor: #ffffff;
-    --mynavactive: #16275c;
-    --mynavactiveborder: #00a1d5;
+    /* Sirtlar — slate oilasi, neytral qora emas */
+    --background: 222 47% 11%; /* slate-900 */
+    --foreground: 213 27% 84%; /* slate-200 */
+    --card: 217 33% 17%; /* slate-800 */
+    --card-foreground: 213 27% 84%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 213 27% 84%;
 
-    --mysecondarytext: #fff;
-    --mycalendarbg: #0d1735;
-    --myinputborder: #3b7faf;
+    --primary: 217 91% 60%; /* blue-500  */
+    --primary-hover: 213 94% 68%; /* blue-400  */
+    --primary-foreground: 0 0% 100%;
 
-    /* table & button  */
-    --mytablehead: #030b22;
-    --mytableheadborder: #64748b;
+    --brand: 38 54% 61%; /* och oltin */
+    --brand-foreground: 222 47% 11%;
+
+    --secondary: 215 25% 27%; /* slate-700 */
+    --secondary-foreground: 213 27% 84%;
+    --muted: 215 25% 27%;
+    --muted-foreground: 215 20% 65%; /* slate-400 */
+    --accent: 215 25% 27%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 63%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 69% 48%;
+    --success-foreground: 222 47% 11%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 222 47% 11%;
+
+    --border: 215 25% 27%;
+    --input: 215 25% 27%;
+    --ring: 217 91% 60%;
+    --shadow-color: 222 60% 4%;
+
+    --sidebar: 217 33% 17%;
+    --sidebar-foreground: 215 20% 72%;
+    --sidebar-accent: 217 91% 60%;
+    --sidebar-accent-foreground: 213 94% 78%;
+    --sidebar-border: 215 25% 27%;
+
+    --chart-1: 217 91% 60%;
+    --chart-2: 158 64% 52%;
+    --chart-3: 38 92% 58%;
+    --chart-4: 258 90% 70%;
+    --chart-5: 199 89% 58%;
+    --chart-6: 340 82% 66%;
+    --chart-7: 172 66% 50%;
+    --chart-8: 27 96% 61%;
+    --chart-9: 291 70% 68%;
+    --chart-10: 215 20% 65%;
   }
 }
 
-body {
-  color: var(--mytextcolor);
+/* ══════════════════════════════════════════════════════════════════
+   LEGACY TOKENLAR
+
+   Bu palitra endi HECH QAYERDA ishlatilmaydi — barcha `bg-mybackground`,
+   `text-mytextcolor` kabi sinflar yuqoridagi dizayn tokenlariga
+   ko'chirildi (qiymatlar aynan bir xil bo'lgani uchun ko'rinish
+   o'zgarmadi). Faqat tashqi/eski uchinchi tomon kodi uchun saqlanmoqda
+   va xavfsiz o'chirilishi mumkin.
+   ══════════════════════════════════════════════════════════════════ */
+@layer base {
+  :root {
+    --mybackground: #ffffff;
+    --mybackgroundopacity: #f8fafc;
+    --mybordercolor: #e2e8f0;
+    --myiconcolor: #334155;
+    --mylabelcolor: #64748b;
+    --mytextcolor: #0f172a;
+    --mylogocolor: #0f172a;
+    --mynavactive: #eff6ff;
+    --mynavactiveborder: #2563eb;
+    --mysecondarytext: #0f172a;
+    --mycalendarbg: #ffffff;
+    --myinputborder: #e2e8f0;
+    --mytablehead: #f8fafc;
+    --mytableheadborder: #e2e8f0;
+  }
+
+  .dark {
+    --mybackground: #1e293b;
+    --mybackgroundopacity: #0f172a;
+    --mybordercolor: #334155;
+    --myiconcolor: #cbd5e1;
+    --mylabelcolor: #94a3b8;
+    --mytextcolor: #e2e8f0;
+    --mylogocolor: #f1f5f9;
+    --mynavactive: rgba(59, 130, 246, 0.14);
+    --mynavactiveborder: #3b82f6;
+    --mysecondarytext: #e2e8f0;
+    --mycalendarbg: #1e293b;
+    --myinputborder: #334155;
+    --mytablehead: #0f172a;
+    --mytableheadborder: #334155;
+  }
 }
 
-/* Global color-scheme so native <select>, <input> popups match app theme */
-body.light {
-  color-scheme: light;
-}
-body.dark {
-  color-scheme: dark;
+/* ══════════════════════════════════════════════════════════════════
+   ASOS
+   ══════════════════════════════════════════════════════════════════ */
+@layer base {
+  * {
+    @apply border-border;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Native <select>/<input> ochiladigan oynalari mavzuga mos bo'lsin */
+  :root {
+    color-scheme: light;
+  }
+  .dark {
+    color-scheme: dark;
+  }
+
+  /* Yagona fokus halqasi — klaviatura bilan yurganda ko'rinadi */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Raqamli input'da g'ildirak qiymatni o'zgartirmasin */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
 }
 
-/* Theme-aware native form controls app-wide */
-body.light select,
-body.light input,
-body.light textarea {
-  background-color: var(--mybackground);
-  color: var(--mytextcolor);
-}
-body.dark select,
-body.dark input,
-body.dark textarea {
-  background-color: var(--mybackground);
-  color: var(--mytextcolor);
-}
-select option {
-  background-color: var(--mybackground);
-  color: var(--mytextcolor);
+/* ══════════════════════════════════════════════════════════════════
+   SKROLL
+   ══════════════════════════════════════════════════════════════════ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
 }
 
-/* Reusable themed controls for non-dashboard pages */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border));
+  border-radius: 0;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--muted-foreground) / 0.5);
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Skrollni butunlay yashirish kerak bo'lgan joylar uchun */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   HARAKATNI KAMAYTIRISH
+   ══════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ESKI SAHIFALAR UCHUN QOLDIRILGAN YORDAMCHI SINFLAR
+   (bosma shakllar va hali ko'chirilmagan ekranlar shularga tayanadi)
+   ══════════════════════════════════════════════════════════════════ */
+.overfloww {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.overfloww::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+.hide__scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide__scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.font-baltic {
+  font-family: "BlitcaUzbek";
+  src: url("/fonts/BALTUZB.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.font__times {
+  font-family: "Times New Roman", Times, serif;
+}
+
+/* Eski ekranlardagi mavzuga moslashuvchi boshqaruvlar */
 .app-control {
-  background: var(--mybackground);
-  color: var(--mytextcolor);
-  border: 1px solid var(--myinputborder);
-  border-radius: 0.375rem;
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--input));
+  border-radius: max(0px, calc(var(--radius) - 2px));
   padding: 0.375rem 0.625rem;
   font-size: 13px;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .app-control:hover {
-  border-color: var(--mybordercolor);
+  border-color: hsl(var(--muted-foreground) / 0.5);
 }
 .app-control:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.25);
 }
 .app-control:disabled {
   opacity: 0.5;
@@ -166,109 +352,169 @@ select option {
   font-size: 13px;
   font-weight: 500;
   padding: 0.375rem 0.875rem;
-  border-radius: 0.375rem;
-  transition: background-color 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
+  border-radius: max(0px, calc(var(--radius) - 2px));
+  transition: background-color 0.15s ease, opacity 0.15s ease,
+    border-color 0.15s ease;
   cursor: pointer;
 }
 .app-btn-primary {
-  background: #3b82f6;
-  color: #fff;
-  border: 1px solid #3b82f6;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: 1px solid hsl(var(--primary));
 }
 .app-btn-primary:hover:not(:disabled) {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: hsl(var(--primary-hover));
+  border-color: hsl(var(--primary-hover));
 }
 .app-btn-secondary {
   background: transparent;
-  color: var(--mytextcolor);
-  border: 1px solid var(--mybordercolor);
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
 }
 .app-btn-secondary:hover:not(:disabled) {
-  border-color: #3b82f6;
-  color: #3b82f6;
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary));
 }
 .app-btn-ghost {
   background: transparent;
-  color: var(--mylabelcolor);
+  color: hsl(var(--muted-foreground));
   border: 1px solid transparent;
 }
 .app-btn-ghost:hover:not(:disabled) {
-  color: var(--mytextcolor);
-  background: var(--mybgopacity);
+  color: hsl(var(--foreground));
+  background: hsl(var(--accent));
 }
 .app-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
-@layer base {
-  * {
-    @apply border-border;
+/* ══════════════════════════════════════════════════════════════════
+   DARK REJIM UCHUN ZAXIRA QATLAM
+
+   Eski sahifalarda status "chip"lari `bg-green-100 text-green-800`
+   ko'rinishida yozilgan va ularda `dark:` varianti yo'q — qorong'i
+   fonda och rangli dog' bo'lib qolardi. Quyidagi qoidalar faqat
+   elementda ANIQ `dark:bg-`/`dark:text-` sinfi BO'LMAGANDA ishlaydi,
+   ya'ni qo'lda yozilgan variant har doim ustun turadi.
+   Yangi komponentlar bu qatlamga tegmaydi.
+   ══════════════════════════════════════════════════════════════════ */
+@layer utilities {
+  .dark :is(.bg-blue-50, .bg-blue-100):not([class*="dark:bg-"]) {
+    background-color: rgb(59 130 246 / 0.16);
+  }
+  .dark :is(.bg-sky-50, .bg-sky-100):not([class*="dark:bg-"]) {
+    background-color: rgb(56 189 248 / 0.16);
+  }
+  .dark :is(.bg-emerald-50, .bg-emerald-100):not([class*="dark:bg-"]) {
+    background-color: rgb(52 211 153 / 0.16);
+  }
+  .dark :is(.bg-green-50, .bg-green-100):not([class*="dark:bg-"]) {
+    background-color: rgb(74 222 128 / 0.16);
+  }
+  .dark :is(.bg-amber-50, .bg-amber-100):not([class*="dark:bg-"]) {
+    background-color: rgb(251 191 36 / 0.16);
+  }
+  .dark :is(.bg-yellow-50, .bg-yellow-100):not([class*="dark:bg-"]) {
+    background-color: rgb(250 204 21 / 0.16);
+  }
+  .dark :is(.bg-red-50, .bg-red-100):not([class*="dark:bg-"]) {
+    background-color: rgb(248 113 113 / 0.16);
+  }
+  .dark :is(.bg-rose-50, .bg-rose-100):not([class*="dark:bg-"]) {
+    background-color: rgb(251 113 133 / 0.16);
+  }
+  .dark
+    :is(.bg-slate-50, .bg-slate-100, .bg-gray-50, .bg-gray-100):not(
+      [class*="dark:bg-"]
+    ) {
+    background-color: rgb(255 255 255 / 0.06);
   }
 
-  body {
-    @apply bg-background text-foreground;
+  .dark
+    :is(.text-blue-700, .text-blue-800, .text-blue-900):not(
+      [class*="dark:text-"]
+    ) {
+    color: rgb(147 197 253);
+  }
+  .dark
+    :is(.text-emerald-700, .text-emerald-800, .text-emerald-900):not(
+      [class*="dark:text-"]
+    ) {
+    color: rgb(110 231 183);
+  }
+  .dark
+    :is(.text-green-700, .text-green-800, .text-green-900):not(
+      [class*="dark:text-"]
+    ) {
+    color: rgb(134 239 172);
+  }
+  .dark
+    :is(.text-amber-700, .text-amber-800, .text-amber-900):not(
+      [class*="dark:text-"]
+    ) {
+    color: rgb(252 211 77);
+  }
+  .dark
+    :is(.text-red-700, .text-red-800, .text-red-900):not(
+      [class*="dark:text-"]
+    ) {
+    color: rgb(252 165 165);
+  }
+  .dark
+    :is(.text-rose-700, .text-rose-800, .text-rose-900):not(
+      [class*="dark:text-"]
+    ) {
+    color: rgb(253 164 175);
+  }
+  .dark
+    :is(.text-gray-500, .text-gray-600, .text-gray-700, .text-slate-600, .text-slate-700):not(
+      [class*="dark:text-"]
+    ) {
+    color: rgb(148 163 184);
+  }
+
+  .dark
+    :is(
+      .border-slate-200,
+      .border-slate-300,
+      .border-gray-200,
+      .border-gray-300
+    ):not([class*="dark:border-"]) {
+    border-color: rgb(255 255 255 / 0.12);
+  }
+
+  .dark :is(.bg-white):not([class*="dark:bg-"]) {
+    background-color: hsl(var(--card));
   }
 }
 
-.overfloww {
-  overflow-y: auto;
-  /* Vertikal skroll */
-  overflow-x: hidden;
-  /* Gorizontal skrollni yashirish */
-}
+/* ══════════════════════════════════════════════════════════════════
+   Excel uslubidagi jadval to'ri.
 
-/* Scrollni yashirish uchun */
-.overfloww::-webkit-scrollbar {
-  width: 0;
-  /* Scroll kengligini 0 ga o'rnating */
-  background: transparent;
-  /* Backgroundni shaffof qiling */
-}
-
-.font-baltic {
-  font-family: "BlitcaUzbek";
-  src: url("/fonts/BALTUZB.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-.font__times{
-  font-family: 'Times New Roman', Times, serif;
-}
-
-.hide__scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-*::-webkit-scrollbar {
-  width: 10px;
-  /* Width of the vertical scrollbar */
-  height: 10px;
-  /* Height of the horizontal scrollbar */
-}
-
-/* Background of the scrollbar track */
-*::-webkit-scrollbar-track {
-  background: var(--mytableheadborder);
-  border-radius: 10px;
-}
-
-/* Style for the scrollbar thumb (the draggable part) */
-*::-webkit-scrollbar-thumb {
-  background-color: var(--mybackground);
-  border-radius: 10px;
-  border: 2px solid var(--mybackgroundopacity);
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator {
-  position: absolute;
-  right: 10px;
-  /* O'ng tomoniga joylashtirish */
-  top: 50%;
-  transform: translateY(-50%);
-  /* Vertikal markazlash */
-  cursor: pointer;
+   `border-collapse` emas, `border-separate` ishlatiladi: yopishqoq
+   sarlavhada birinchisi chegarani "yo'qotib" qo'yadi — brauzer uni
+   jadval bilan birga aylantirib yuboradi. `border-separate` da esa
+   chegara katakning o'ziga tegishli bo'lgani uchun joyida qoladi.
+   Ikki marta chiziq chiqmasligi uchun har bir katakda faqat o'ng va
+   past chegara bor; chap chegara birinchi ustunga, yuqorigisi esa
+   sarlavhaga beriladi.
+   ══════════════════════════════════════════════════════════════════ */
+@layer components {
+  .table-grid {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .table-grid th,
+  .table-grid td {
+    border-right: 1px solid hsl(var(--border));
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  .table-grid tr > th:first-child,
+  .table-grid tr > td:first-child {
+    border-left: 1px solid hsl(var(--border));
+  }
+  .table-grid > thead > tr > th {
+    border-top: 1px solid hsl(var(--border));
+  }
 }

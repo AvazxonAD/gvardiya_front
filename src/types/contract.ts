@@ -33,6 +33,10 @@ export type IContractForm = {
   summa: number;
   dist: boolean;
   date: boolean;
+  /** Shartnoma shabloni — `contractPage` uni o'qiydi va yozadi */
+  template_id?: number | null;
+  /** Tanlangan hisob raqami */
+  account_number_id?: number;
   tasks: IFormTask[];
 };
 

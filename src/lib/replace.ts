@@ -23,7 +23,7 @@ export const replacer = (
     if (typeof template[key] === "string") {
       //@ts-ignore
 
-      newtemplate[key] = template[key].replaceAll("${contract_number}", data.doc_num);
+      newtemplate[key] = String(template[key] ?? "").replaceAll("${contract_number}", data.doc_num);
       newtemplate[key] = newtemplate[key].replaceAll("${doc_date}", getFullDate(data.doc_date));
       newtemplate[key] = newtemplate[key].replaceAll("${ijrochi}", fontBold(info.doer));
       newtemplate[key] = newtemplate[key].replaceAll("${client.name}", fontBold(organisation.name));
@@ -43,7 +43,9 @@ export const replacer = (
 
       newtemplate[key] = template[key]
         .map((item: string) => {
-          let newtext = item
+          // Massiv elementi har doim ham matn bo'lmaydi — `replaceAll`
+          // shunda yiqilardi va butun shartnoma sahifasi ochilmasdi.
+          let newtext = String(item ?? "")
             //@ts-ignore
             .replaceAll("${contract_number}", data.doc_num)
             .replaceAll("${doc_date}", getFullDate(data.doc_date))

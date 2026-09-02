@@ -17,13 +17,13 @@ import Recipient from "./recipient";
 import { RootState } from "@/Redux/store";
 
 const SimpleText = ({ txt }: { txt: string }) => (
-  <h3 className="opacity-[0.7] dark:opacity-[1] font-[600] text-mytextcolor">
+  <h3 className="opacity-[0.7] dark:opacity-[1] font-[600] text-foreground">
     {txt}
   </h3>
 );
 
 const OrganizationTD = ({ txt }: { txt: string }) => (
-  <td className="border px-3 py-3 text-left text-mytextcolor font-[500] text-[14px]">
+  <td className="border px-3 py-3 text-left text-foreground font-[500] text-[14px]">
     {txt}
   </td>
 );
@@ -265,7 +265,7 @@ const CreatePrixod = () => {
         <div className="m-0 p-0">
           <BackButton />
         </div>
-        <h1 className="font-[700] text-mytextcolor text-[20px] block ms-8">
+        <h1 className="font-[700] text-foreground text-[20px] block ms-8">
           {pathname.includes("/create")
             ? tt("Hujjat yaratish", "Создать документ")
             : tt("Hujjat tahrirlash", "Редактировать документ")}
@@ -302,7 +302,7 @@ const CreatePrixod = () => {
             ))}
           </div>
         </div>
-        <div className="border w-1/2 p-3 bg-mybackground">
+        <div className="border w-1/2 p-3 bg-card">
           <SimpleText
             txt={tt("To'lovchi tafsilotlari", "Данные плательщика")}
           />
@@ -337,9 +337,9 @@ const CreatePrixod = () => {
                 // style={{
                 //     background: (selectedO?.id ?? currentPrixod?.organization_id) === o.id ? "#f3f4f6" : "white"
                 // }}
-                className={`cursor-pointer text-mytextcolor ${(selectedO?.id ?? currentPrixod?.organization_id) === o.id
-                  ? "bg-[#f3f4f6] dark:bg-mytableheadborder"
-                  : "bg-mybackground"
+                className={`cursor-pointer text-foreground ${(selectedO?.id ?? currentPrixod?.organization_id) === o.id
+                  ? "bg-muted dark:bg-muted/60border"
+                  : "bg-card"
                   }`}
                 onClick={() => {
                   setSelectedO(o);
@@ -373,7 +373,7 @@ const CreatePrixod = () => {
               />
             </div>
             <textarea
-              className="w-full text-red-600 bg-mybackground uppercase border outline-none resize-none row-span-4 px-2 py-1 rounded-[5px]"
+              className="w-full text-destructive bg-card uppercase border outline-none resize-none row-span-4 px-2 py-1 rounded-none"
               placeholder="..."
               readOnly
               value={numberToWords(sum)}
@@ -448,8 +448,8 @@ const CreatePrixod = () => {
                 <tr
                   key={ind}
                   className={`cursor-pointer ${c.id === selectedC?.id
-                    ? "bg-[#f3f4f6] dark:bg-mytableheadborder"
-                    : "bg-mybackground"
+                    ? "bg-muted dark:bg-muted/60border"
+                    : "bg-card"
                     }`}
                   onClick={() => {
                     setSelectedC(c);
@@ -484,7 +484,7 @@ const CreatePrixod = () => {
         <h3 className="font-[600]">{tt("Tavsif", "Описание")}</h3>
         <textarea
           placeholder=""
-          className="border w-full mt-3 bg-mybackground p-3 outline-[grey] dark:outline-none"
+          className="border w-full mt-3 bg-card p-3 outline-[grey] dark:outline-none"
           onChange={handleOpisanieChange}
           value={opisanie ?? currentPrixod?.opisanie ?? ""}
         ></textarea>

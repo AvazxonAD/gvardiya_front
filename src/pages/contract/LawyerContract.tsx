@@ -6,10 +6,16 @@ import { getCont } from "../../api";
 import ContTab from "../../pageCompoents/ContTab";
 import { tt } from "../../utils";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
-import Button from "@/Components/reusable/button";
 import { RootState } from "@/Redux/store";
-import useFullHeight from "@/hooks/useFullHeight";
 import { useDebounce } from "use-debounce";
+import { RotateCcw } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Button as UIButton,
+  ListCard,
+  Toolbar,
+  ToolbarSpacer,
+} from "@/ui";
 
 function LawyerContract() {
   const { startDate, endDate } = useSelector(
@@ -61,109 +67,96 @@ function LawyerContract() {
     return true;
   });
 
+  // Filtrlar o'zgarishi bilan ro'yxat o'zi yangilanadi
   useEffect(() => {
     getInfo(dates);
-  }, [currentPage, limet, searchText, account_id]);
+  }, [currentPage, limet, searchText, account_id, dates.date1, dates.date2]);
 
-  const handleDownload = () => {
-    getInfo(dates);
-  };
 
-  const height = useFullHeight();
-  const fullHeight =
-    typeof height === "string" ? `calc(${height} - 230px)` : height - 230;
+  const FILTERS: { id: "all" | "verified" | "pending"; label: string }[] = [
+    { id: "all", label: tt("Barchasi", "Все") },
+    { id: "verified", label: tt("Tasdiqlangan", "Утверждено") },
+    { id: "pending", label: tt("Tasdiqlanmagan", "Не утверждено") },
+  ];
 
   return (
-    <div className="flex flex-col w-full">
-      <div style={{ minHeight: fullHeight }}>
-        <div className="-mt-5 sticky py-5 -top-1 z-[30] bg-mybackground flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className="w-[200px]">
+    <div className="flex min-w-0 flex-col gap-3">
+      <ListCard
+        toolbar={
+          <Toolbar>
+            <div className="w-full sm:w-64">
               <Input
                 v={value}
                 change={(e: any) => setValue(e.target.value)}
                 search={true}
                 p={tt("Ma'lumotlarni qidirish", "Поиск данных")}
-                className="w-full"
+                className="h-9 w-full"
               />
             </div>
-            <div className="flex gap-1">
-              <button
-                onClick={() => setFilter("all")}
-                className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors ${
-                  filter === "all" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
-                }`}
-              >
-                {tt("Barchasi", "Все")}
-              </button>
-              <button
-                onClick={() => setFilter("verified")}
-                className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors ${
-                  filter === "verified" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
-                }`}
-              >
-                {tt("Tasdiqlangan", "Утверждено")}
-              </button>
-              <button
-                onClick={() => setFilter("pending")}
-                className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors ${
-                  filter === "pending" ? "bg-yellow-500 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
-                }`}
-              >
-                {tt("Tasdiqlanmagan", "Не утверждено")}
-              </button>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-1">
-            <div className="flex gap-1 items-center">
+            {/* Segmentli filtr — bosilgan band ta'kidlanadi */}
+            <div className="inline-flex rounded-md border border-border bg-muted/40 p-0.5">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setFilter(f.id)}
+                  aria-pressed={filter === f.id}
+                  className={cn(
+                    "rounded-none px-3 py-1.5 text-[13px] font-medium transition-colors",
+                    filter === f.id
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-1.5">
               <SpecialDatePicker
                 defaultValue={dates.date1}
                 onChange={(e) => setDates({ ...dates, date1: e })}
               />
+              <span className="text-muted-foreground">—</span>
               <SpecialDatePicker
                 defaultValue={dates.date2}
                 onChange={(e) => setDates({ ...dates, date2: e })}
               />
-              <Button mode="download" onClick={handleDownload} className="!px-2" />
             </div>
-            <Button
-              mode="clear"
+
+            <ToolbarSpacer />
+
+            <UIButton
+              variant="ghost"
+              size="sm"
               onClick={async () => {
-                setDates({
-                  date1: startDate,
-                  date2: endDate,
-                });
+                setDates({ date1: startDate, date2: endDate });
                 setValue("");
-                getInfo({
-                  date1: startDate,
-                  date2: endDate,
-                });
+                getInfo({ date1: startDate, date2: endDate });
               }}
-              className="!px-2"
+            >
+              <RotateCcw />
+              {tt("Tozalash", "Очистить")}
+            </UIButton>
+          </Toolbar>
+        }
+        footer={
+          data ? (
+            <Paginatsiya
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+              limet={limet}
+              setLimet={setLimet}
+              count={all}
             />
-          </div>
-        </div>
-
-        <div>
-          <ContTab data={filteredData} hideActions isLawyer />
-        </div>
-      </div>
-
-      {data ? (
-        <div className="sticky bottom-0 bg-mybackground z-2 mt-[30px]">
-          <Paginatsiya
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            totalPages={totalPages}
-            limet={limet}
-            setLimet={setLimet}
-            count={all}
-          />
-        </div>
-      ) : (
-        <></>
-      )}
+          ) : null
+        }
+      >
+        <ContTab data={filteredData} hideActions isLawyer />
+      </ListCard>
     </div>
   );
 }

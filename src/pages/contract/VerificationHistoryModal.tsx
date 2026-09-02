@@ -33,26 +33,26 @@ const STATUS_META: Record<string, { label_uz: string; label_ru: string; bg: stri
   created: {
     label_uz: "Yaratildi",
     label_ru: "Создано",
-    bg: "bg-blue-100",
-    text: "text-blue-800",
+    bg: "bg-primary/10",
+    text: "text-primary",
   },
   updated: {
     label_uz: "O'zgartirildi",
     label_ru: "Изменено",
-    bg: "bg-amber-100",
-    text: "text-amber-800",
+    bg: "bg-warning/10",
+    text: "text-warning",
   },
   verified: {
     label_uz: "Tasdiqlandi",
     label_ru: "Утверждено",
-    bg: "bg-green-100",
-    text: "text-green-800",
+    bg: "bg-success/10",
+    text: "text-success",
   },
   rejected: {
     label_uz: "Rad qilindi",
     label_ru: "Отклонено",
-    bg: "bg-red-100",
-    text: "text-red-800",
+    bg: "bg-destructive/10",
+    text: "text-destructive",
   },
 };
 
@@ -96,17 +96,17 @@ const VerificationHistoryModal = ({ contractId, docNum, open, onClose }: Props) 
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col"
+        className="bg-card text-foreground rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h2 className="text-lg font-semibold">
             {tt("Shartnoma jarayonlari tarixi", "История изменений договора")}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-900 dark:hover:text-white text-2xl leading-none cursor-pointer"
+            className="text-muted-foreground hover:text-foreground dark:hover:text-primary-foreground text-2xl leading-none cursor-pointer"
           >
             ×
           </button>
@@ -115,44 +115,44 @@ const VerificationHistoryModal = ({ contractId, docNum, open, onClose }: Props) 
         <div className="flex-1 overflow-y-auto p-6">
           {loading && (
             <div className="flex justify-center py-8">
-              <span className="inline-block w-8 h-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+              <span className="inline-block w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin" />
             </div>
           )}
 
           {error && (
-            <div className="px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+            <div className="px-4 py-3 bg-destructive/10 border border-destructive/30 text-destructive rounded-lg text-sm">
               {error}
             </div>
           )}
 
           {!loading && !error && items.length === 0 && (
-            <div className="text-center text-gray-500 py-8">
+            <div className="text-center text-muted-foreground py-8">
               {tt("Hozircha hech qanday jarayon yo'q", "Пока нет ни одного события")}
             </div>
           )}
 
           {!loading && !error && items.length > 0 && (
-            <ol className="relative border-l-2 border-gray-200 dark:border-gray-700 ml-3 space-y-6">
+            <ol className="relative border-l-2 border-border ml-3 space-y-6">
               {items.map((item) => {
                 const meta = STATUS_META[item.status] || {
                   label_uz: item.status,
                   label_ru: item.status,
-                  bg: "bg-gray-100",
-                  text: "text-gray-700",
+                  bg: "bg-muted",
+                  text: "text-foreground",
                 };
                 return (
                   <li key={item.id} className="ml-6">
-                    <span className={`absolute -left-[9px] flex items-center justify-center w-4 h-4 rounded-full ${meta.bg} ring-4 ring-white dark:ring-gray-900`}>
-                      <span className={`w-2 h-2 rounded-full ${meta.text.replace("text-", "bg-")}`} />
+                    <span className={`absolute -left-[9px] flex items-center justify-center w-4 h-4 rounded-none ${meta.bg} ring-4 ring-white`}>
+                      <span className={`w-2 h-2 rounded-none ${meta.text.replace("text-", "bg-")}`} />
                     </span>
 
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                    <div className="border border-border rounded-lg p-4">
                       <div className="flex items-center justify-between flex-wrap gap-2">
                         <div className="flex items-center gap-2">
                           <span className={`px-2 py-0.5 text-xs font-semibold rounded ${meta.bg} ${meta.text}`}>
                             {tt(meta.label_uz, meta.label_ru)}
                           </span>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-muted-foreground">
                             {formatDateTime(item.created_at)}
                           </span>
                         </div>
@@ -166,7 +166,7 @@ const VerificationHistoryModal = ({ contractId, docNum, open, onClose }: Props) 
                                 `shartnoma_${docNum || contractId}_${item.id}.pdf`,
                               )
                             }
-                            className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded cursor-pointer"
+                            className="flex items-center gap-1 px-3 py-1 bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-semibold rounded cursor-pointer"
                           >
                             <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
                               <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
@@ -179,12 +179,12 @@ const VerificationHistoryModal = ({ contractId, docNum, open, onClose }: Props) 
                       <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm">
                         {item.status === "verified" && item.signer_name && (
                           <div>
-                            <span className="font-semibold text-gray-600 dark:text-gray-400">
+                            <span className="font-semibold text-muted-foreground">
                               {tt("Tasdiqlagan", "Утвердил")}:
                             </span>{" "}
                             {item.signer_name}
                             {item.user_type && USER_TYPE_LABEL[item.user_type] && (
-                              <span className="ml-2 inline-block px-2 py-0.5 text-[10px] font-semibold rounded bg-blue-100 text-blue-700">
+                              <span className="ml-2 inline-block px-2 py-0.5 text-[10px] font-semibold rounded bg-primary/10 text-primary">
                                 {tt(USER_TYPE_LABEL[item.user_type].uz, USER_TYPE_LABEL[item.user_type].ru)}
                               </span>
                             )}
@@ -192,14 +192,14 @@ const VerificationHistoryModal = ({ contractId, docNum, open, onClose }: Props) 
                         )}
                         {item.user_fio && (
                           <div>
-                            <span className="font-semibold text-gray-600 dark:text-gray-400">
+                            <span className="font-semibold text-muted-foreground">
                               {tt("Foydalanuvchi", "Пользователь")}:
                             </span>{" "}
                             {item.user_fio}
                           </div>
                         )}
                         {item.status === "rejected" && item.reason && (
-                          <div className="sm:col-span-2 text-red-700 dark:text-red-400">
+                          <div className="sm:col-span-2 text-destructive">
                             <span className="font-semibold">
                               {tt("Rad qilish sababi", "Причина отказа")}:
                             </span>{" "}
@@ -216,11 +216,11 @@ const VerificationHistoryModal = ({ contractId, docNum, open, onClose }: Props) 
           )}
         </div>
 
-        <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+        <div className="px-6 py-3 border-t border-border flex justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-lg text-sm font-semibold cursor-pointer"
+            className="cursor-pointer rounded-lg bg-muted px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           >
             {tt("Yopish", "Закрыть")}
           </button>

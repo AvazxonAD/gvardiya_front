@@ -1,4 +1,3 @@
-import Icon from "@/assets/icons";
 import DeleteModal from "@/Components/DeleteModal";
 import Input from "@/Components/Input";
 import Modal from "@/Components/Modal";
@@ -13,6 +12,15 @@ import { FormikHelpers, useFormik } from "formik";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
+import { Pencil, Plus, Trash2, Users } from "lucide-react";
+import {
+  Badge,
+  Button as UIButton,
+  EmptyState,
+  ListCard,
+  Toolbar,
+  ToolbarSpacer,
+} from "@/ui";
 
 const userTypes = [
   { id: "admin", name: "Viloyat admin" },
@@ -185,15 +193,14 @@ const UserTable: React.FC = () => {
         ),
         excludeEmptyString: true,
       }),
-      password: Yup.string()
-        .min(
-          3,
-          tt(
-            "Parol kamida 3 ta belgi bo'lishi kerak",
-            "Пароль должен содержать минимум 3 символов"
-          )
+      // Tahrirlashda parol ixtiyoriy: bo'sh qoldirilsa mavjudi saqlanadi.
+      password: Yup.string().min(
+        3,
+        tt(
+          "Parol kamida 3 ta belgi bo'lishi kerak",
+          "Пароль должен содержать минимум 3 символов"
         )
-        .required(tt("Parolni kiriting", "Введите пароль")),
+      ),
       login: Yup.string().required(tt("Login kiriting", "Введите логин")),
       region_id: Yup.number().required(
         tt("Hududni tanlang", "Выберите регион")
@@ -208,7 +215,8 @@ const UserTable: React.FC = () => {
     ) => {
       const formData = new FormData();
       formData.append("fio", values.fio);
-      formData.append("password", values.password);
+      // Bo'sh parol yuborilmaydi — backend uni "o'zgarmasin" deb tushunadi
+      if (values.password) formData.append("password", values.password);
       formData.append("login", values.login);
       formData.append("pinfl", values.pinfl);
       formData.append("region_id", values.region_id.toString());
@@ -266,115 +274,102 @@ const UserTable: React.FC = () => {
   }, [userEdited]);
 
   return (
-    <div className="p-4">
-      <div className="flex justify-end mb-4">
-        <Button mode="add" onClick={() => setAdd(true)} />
-      </div>
-      <Table
-        thead={[
-          { text: tt("Rasm", "Фото"), className: "w-[100px]" },
-          { text: tt("FIO", "ФИО"), className: "text-left" },
-          { text: tt("Viloyat", "Регион"), className: "text-left" },
-          { text: tt("Turi", "Тип"), className: "text-left" },
-          { text: tt("Login", "Логин"), className: "text-left" },
-          { text: tt("PINFL", "ПИНФЛ"), className: "text-left" },
-          { text: tt("Amallar", "Действия"), className: "w-[150px]" },
-        ]}
+    <div className="flex min-w-0 flex-col gap-3">
+      <ListCard
+        toolbar={
+          <Toolbar>
+            <ToolbarSpacer />
+            <UIButton size="sm" onClick={() => setAdd(true)}>
+              <Plus />
+              {tt("Qo'shish", "Добавить")}
+            </UIButton>
+          </Toolbar>
+        }
       >
-        {users.map((user) => (
-          <tr
-            key={user.id}
-            className="hover:bg-gray-50 dark:hover:bg-mytableheadborder text-mytextcolor border border-mytableheadborder"
+        {users.length ? (
+          <Table
+            thead={[
+              { text: tt("Rasm", "Фото"), className: "w-[90px] text-center" },
+              { text: tt("FIO", "ФИО"), className: "min-w-[200px]" },
+              { text: tt("Viloyat", "Регион"), className: "min-w-[150px]" },
+              { text: tt("Turi", "Тип"), className: "w-[150px]" },
+              { text: tt("Login", "Логин"), className: "min-w-[130px]" },
+              { text: "PINFL", className: "min-w-[140px]" },
+              { text: tt("Amallar", "Действия"), className: "w-[110px] text-center" },
+            ]}
           >
-            <td
-              className={`border-b border-l border-r  ${
-                user.image ? "py-1" : "py-3"
-              } px-3 text-center`}
-              style={{
-                cursor: user.image ? "pointer" : "not-allowed",
-              }}
-              onClick={() => {
-                if (user.image) {
-                  setUserSelected(user);
-                }
-              }}
-            >
-              {user.image ? (
-                <img
-                  src={baseUri + user.image}
-                  alt={user.fio}
-                  className="w-12 h-12 rounded-full mx-auto"
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-full mx-auto bg-blue-500/20 flex items-center justify-center">
-                  <span className="text-blue-400 font-bold text-lg">
-                    {user.fio?.charAt(0)?.toUpperCase() || "U"}
-                  </span>
-                </div>
-              )}
-            </td>
-            <td
-              className={`border-b border-l border-r  ${
-                user.image ? "py-1" : "py-3"
-              } px-3 font-[600] text-md`}
-            >
-              {user.fio}
-            </td>
-            <td
-              className={`border-b border-l border-r  ${
-                user.image ? "py-1" : "py-3"
-              } px-3 font-[600] text-md`}
-            >
-              {user.name}
-            </td>
-            <td
-              className={`border-b border-l border-r  ${
-                user.image ? "py-1" : "py-3"
-              } px-3 font-[600] text-md`}
-            >
-              {user.type === "admin"
-                ? tt("Viloyat admin", "Администратор")
-                : user.type === "lawyer"
-                ? tt("Viloyat yurist", "Юрист")
-                : "—"}
-            </td>
-            <td
-              className={`border-b border-l border-r  ${
-                user.image ? "py-1" : "py-3"
-              } px-3 font-[600] text-md`}
-            >
-              {user.login}
-            </td>
-            <td
-              className={`border-b border-l border-r  ${
-                user.image ? "py-1" : "py-3"
-              } px-3 font-[600] text-md`}
-            >
-              {user.pinfl || "—"}
-            </td>
-            <td
-              className={`border-b border-l border-r  ${
-                user.image ? "py-1" : "py-3"
-              } px-3 font-[600] text-md text-center`}
-            >
-              <div className="flex justify-center">
-                <button
-                  className="text-blue-500 hover:underline mr-4"
-                  onClick={() => setUserEdited(user)}
-                >
-                  <Icon name="edit" />
-                </button>
-                <button
-                  className="text-red-500 hover:underline"
-                  onClick={() => setUserDeleted(user)}
-                >
-                  <Icon name="delete" />
-                </button>
-              </div>
-            </td>
-          </tr>
-        ))}
-      </Table>
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td className="text-center">
+                  <button
+                    type="button"
+                    disabled={!user.image}
+                    onClick={() => user.image && setUserSelected(user)}
+                    className="mx-auto block disabled:cursor-default"
+                  >
+                    {user.image ? (
+                      <img
+                        src={baseUri + user.image}
+                        alt={user.fio}
+                        className="size-10 rounded-none object-cover ring-1 ring-border"
+                      />
+                    ) : (
+                      <span className="flex size-10 items-center justify-center rounded-none bg-primary/10 text-[15px] font-semibold text-primary">
+                        {user.fio?.charAt(0)?.toUpperCase() || "U"}
+                      </span>
+                    )}
+                  </button>
+                </td>
+                <td className="font-medium">{user.fio}</td>
+                <td className="text-muted-foreground">{user.name}</td>
+                <td>
+                  {user.type === "admin" ? (
+                    <Badge tone="primary">
+                      {tt("Viloyat admin", "Администратор")}
+                    </Badge>
+                  ) : user.type === "lawyer" ? (
+                    <Badge tone="brand">{tt("Viloyat yurist", "Юрист")}</Badge>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
+                </td>
+                <td className="tabular-nums">{user.login}</td>
+                <td className="tabular-nums text-muted-foreground">
+                  {user.pinfl || "—"}
+                </td>
+                <td>
+                  <div className="flex items-center justify-center gap-0.5">
+                    <UIButton
+                      variant="ghost"
+                      size="icon-xs"
+                      title={tt("Tahrirlash", "Редактировать")}
+                      aria-label={tt("Tahrirlash", "Редактировать")}
+                      onClick={() => setUserEdited(user)}
+                    >
+                      <Pencil />
+                    </UIButton>
+                    <UIButton
+                      variant="ghost"
+                      size="icon-xs"
+                      title={tt("O'chirish", "Удалить")}
+                      aria-label={tt("O'chirish", "Удалить")}
+                      className="hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => setUserDeleted(user)}
+                    >
+                      <Trash2 />
+                    </UIButton>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </Table>
+        ) : (
+          <EmptyState
+            icon={Users}
+            title={tt("Foydalanuvchi yo'q", "Нет пользователей")}
+          />
+        )}
+      </ListCard>
 
       <Modal
         title={tt("Foydalanuvchi tahrirlash", "Редактирование пользователя")}
@@ -424,10 +419,17 @@ const UserTable: React.FC = () => {
             <Input
               n="password"
               t="password"
-              label={tt("Parol", "Пароль")}
+              label={tt("Yangi parol", "Новый пароль")}
               v={formik2.values.password}
               change={formik2.handleChange}
               blur={formik2.handleBlur}
+              // Brauzer saqlangan parolni o'zi to'ldirib qo'ymasin —
+              // maydon bo'sh ko'rinishi kerak.
+              autoComplete="new-password"
+              p={tt(
+                "Bo'sh qoldiring — parol o'zgarmaydi",
+                "Оставьте пустым — пароль не изменится"
+              )}
               error={
                 formik2.touched?.password ? formik2.errors?.password : undefined
               }
@@ -472,12 +474,12 @@ const UserTable: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm text-mylabelcolor mb-1">{tt("Rasm", "Изображение")} <span className="text-[var(--dash-text-muted,#94a3b8)] text-xs">({tt("ixtiyoriy", "необязательно")})</span></label>
-            <label className="flex items-center gap-3 border border-mybordercolor rounded-lg px-4 py-2.5 cursor-pointer hover:border-blue-400 transition">
-              <svg className="w-5 h-5 text-mylabelcolor shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <label className="block text-sm text-muted-foreground mb-1">{tt("Rasm", "Изображение")} <span className="text-[var(--dash-text-muted,#94a3b8)] text-xs">({tt("ixtiyoriy", "необязательно")})</span></label>
+            <label className="flex items-center gap-3 border border-border rounded-lg px-4 py-2.5 cursor-pointer hover:border-primary/30 transition">
+              <svg className="w-5 h-5 text-muted-foreground shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span className="text-sm text-mytextcolor truncate">
+              <span className="text-sm text-foreground truncate">
                 {formik2.values.file ? formik2.values.file.name : tt("Rasm tanlang", "Выберите изображение")}
               </span>
               <input
@@ -535,6 +537,7 @@ const UserTable: React.FC = () => {
               v={formik.values.password}
               change={formik.handleChange}
               blur={formik.handleBlur}
+              autoComplete="new-password"
               error={
                 formik.touched?.password ? formik.errors?.password : undefined
               }
@@ -600,12 +603,12 @@ const UserTable: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm text-mylabelcolor mb-1">{tt("Rasm", "Изображение")} <span className="text-[var(--dash-text-muted,#94a3b8)] text-xs">({tt("ixtiyoriy", "необязательно")})</span></label>
-            <label className="flex items-center gap-3 border border-mybordercolor rounded-lg px-4 py-2.5 cursor-pointer hover:border-blue-400 transition">
-              <svg className="w-5 h-5 text-mylabelcolor shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <label className="block text-sm text-muted-foreground mb-1">{tt("Rasm", "Изображение")} <span className="text-[var(--dash-text-muted,#94a3b8)] text-xs">({tt("ixtiyoriy", "необязательно")})</span></label>
+            <label className="flex items-center gap-3 border border-border rounded-lg px-4 py-2.5 cursor-pointer hover:border-primary/30 transition">
+              <svg className="w-5 h-5 text-muted-foreground shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span className="text-sm text-mytextcolor truncate">
+              <span className="text-sm text-foreground truncate">
                 {formik.values.file ? formik.values.file.name : tt("Rasm tanlang", "Выберите изображение")}
               </span>
               <input

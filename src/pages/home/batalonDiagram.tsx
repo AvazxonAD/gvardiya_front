@@ -15,8 +15,8 @@ export const BatalonDiagram: React.FC<DiagramProps> = ({
 }) => {
 
   return (
-    <div className="w-full h-full border border-mybordercolor rounded-lg p-6">
-      <h2 className="text-mysecondarytext text-xl font-semibold mb-4">
+    <div className="w-full h-full border border-border rounded-lg p-6">
+      <h2 className="text-foreground text-xl font-semibold mb-4">
         {title}
       </h2>
       <div className="flex items-start gap-x-3 w-full">
@@ -26,10 +26,10 @@ export const BatalonDiagram: React.FC<DiagramProps> = ({
             {data.map((item) => (
               <div key={item.id} className="flex items-center gap-2">
                 <div
-                  className="w-4 h-4 rounded-full shadow-md border cursor-pointer"
+                  className="w-4 h-4 rounded-none shadow-md border cursor-pointer"
                   style={{ backgroundColor: item.color }}
                 />
-                <span className="text-sm text-mynavactiveborder cursor-pointer">
+                <span className="text-sm text-primary cursor-pointer">
                   {item[`${type}_name`]} - {formatSum(item.summa)}
                 </span>
               </div>

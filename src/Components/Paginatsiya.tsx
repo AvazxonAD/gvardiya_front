@@ -1,8 +1,21 @@
-import Icon from "@/assets/icons";
-import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 import { tt } from "../utils";
 import Select from "./Select";
 
+const PAGE_SIZES = [10, 15, 20, 30, 40, 50, 100].map((n) => ({
+  id: n,
+  name: String(n),
+}));
+
+/**
+ * Sahifalash — yangi dizayn tokenlariga o'tkazildi.
+ *
+ * Props interfeysi o'zgarmadi. `framer-motion` olib tashlandi: bu yerda u
+ * faqat bosishdagi kichik masshtab uchun ishlatilardi, xuddi shu narsa CSS
+ * bilan ham bo'ladi va har bir sahifada ortiqcha kutubxona yuklanmaydi.
+ */
 const Paginatsiya = ({
   currentPage,
   setCurrentPage,
@@ -11,108 +24,91 @@ const Paginatsiya = ({
   setLimet,
   count,
 }: any) => {
-  const pageOptions = [
-    { id: 10, name: "10" },
-    { id: 15, name: "15" },
-    { id: 20, name: "20" },
-    { id: 30, name: "30" },
-    { id: 40, name: "40" },
-    { id: 100, name: "100" },
-  ]; // Example options for totalPages
-
-  // Function to get the pages to display
   const getVisiblePages = () => {
     if (totalPages <= 3) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
-
-    if (currentPage <= 2) {
-      return [1, 2, 3, "..."];
-    } else if (currentPage >= totalPages - 1) {
+    if (currentPage <= 2) return [1, 2, 3, "..."];
+    if (currentPage >= totalPages - 1)
       return ["...", totalPages - 2, totalPages - 1, totalPages];
-    } else {
-      return ["...", currentPage - 1, currentPage, currentPage + 1, "..."];
-    }
+    return ["...", currentPage - 1, currentPage, currentPage + 1, "..."];
   };
 
-  const handlePrev = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+  const atStart = currentPage <= 1;
+  const atEnd = currentPage >= totalPages;
 
-  const handleNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
+  const stepClass = (disabled: boolean) =>
+    cn(
+      "flex h-8 items-center gap-1 rounded-md px-2.5 text-[13px] font-medium",
+      "transition-colors active:scale-[0.98]",
+      disabled
+        ? "cursor-not-allowed text-muted-foreground/50"
+        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+    );
 
   return (
-    <div className="flex   items-center text-mytextcolor text-[12px] gap-2 leading-[14.52px] justify-center p-4">
-      {/* Pagination Control */}
-      <div className="flex items-center justify-center space-x-2">
-        {/* Previous Button */}
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className={`px-3 py-1 rounded flex gap-1 items-center ${currentPage === 1
-            ? "cursor-not-allowed opacity-50"
-            : "cursor-pointer"
-            }`}
-          onClick={handlePrev}
-          disabled={currentPage === 1}>
-          <Icon name="prev" />
-          <span>{tt("Oldinga", "Вперед")}</span>
-        </motion.button>
+    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 px-4 py-3">
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          className={stepClass(atStart)}
+          onClick={() => !atStart && setCurrentPage(currentPage - 1)}
+          disabled={atStart}
+        >
+          <ChevronLeft className="size-4" />
+          <span className="hidden sm:inline">{tt("Oldinga", "Назад")}</span>
+        </button>
 
-        {/* Page Numbers */}
-        <div className="flex items-center space-x-2">
-          {getVisiblePages().map((page, index) => (
-            <motion.button
+        {getVisiblePages().map((page, index) =>
+          typeof page === "number" ? (
+            <button
               key={index}
-              whileHover={typeof page === "number" ? { scale: 1.1 } : {}}
-              whileTap={typeof page === "number" ? { scale: 0.9 } : {}}
-              className={`w-[35px] h-[32px] rounded-[6px] font-[500]   ${currentPage === page
-                ? " border  border-[#383838] dark:border-[#D9D9D9]"
-                : ""
-                } flex items-center justify-center ${typeof page !== "number" ? "cursor-default" : "cursor-pointer"
-                }`}
-              onClick={() => typeof page === "number" && setCurrentPage(page)}>
+              type="button"
+              aria-current={currentPage === page ? "page" : undefined}
+              onClick={() => setCurrentPage(page)}
+              className={cn(
+                "size-8 rounded-md text-[13px] font-medium tabular-nums",
+                "transition-colors active:scale-[0.98]",
+                currentPage === page
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-foreground hover:bg-accent hover:text-accent-foreground"
+              )}
+            >
               {page}
-            </motion.button>
-          ))}
-        </div>
+            </button>
+          ) : (
+            <span
+              key={index}
+              className="w-6 text-center text-[13px] text-muted-foreground"
+            >
+              …
+            </span>
+          )
+        )}
 
-        {/* Next Button */}
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className={`px-3 py-1 rounded flex gap-1 items-center ${currentPage === totalPages
-            ? "cursor-not-allowed opacity-50"
-            : "cursor-pointer"
-            }`}
-          onClick={handleNext}
-          disabled={currentPage === totalPages}>
-          <span>{tt("Keyingi", "Следующий")}</span>
-          <Icon name="next" />
-        </motion.button>
+        <button
+          type="button"
+          className={stepClass(atEnd)}
+          onClick={() => !atEnd && setCurrentPage(currentPage + 1)}
+          disabled={atEnd}
+        >
+          <span className="hidden sm:inline">{tt("Keyingi", "Вперёд")}</span>
+          <ChevronRight className="size-4" />
+        </button>
       </div>
+
       {limet && (
-        <div className="flex gap-3 items-center">
-          <span className="text-[12px] leading-[12.52px] font-[600] text-mytextcolor">
-            {tt("qatorlar:", "строк:")}
-          </span>
+        <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
+          <span>{tt("qatorlar:", "строк:")}</span>
           <Select
             value={limet}
             up
-            data={pageOptions}
+            data={PAGE_SIZES}
             onChange={(e: any) => setLimet(e)}
-            w={200}
+            w={88}
           />
-          <span className="text-[12px] leading-[12.52px] font-[600] text-mytextcolor">
-            {tt("jami:", "итого:")}
-          </span>
-          <span className="text-[14px]  leading-[12.52px] font-[600] text-mytextcolor">
+          <span className="ml-1">{tt("jami:", "итого:")}</span>
+          <span className="font-semibold tabular-nums text-foreground">
             {count}
           </span>
         </div>

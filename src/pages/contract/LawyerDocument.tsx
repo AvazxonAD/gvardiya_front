@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import DocumentForPrint from "./DocumentForPrint";
+import EimzoBadges from "./EimzoBadges";
 import BudgetTable from "./Smeta";
 import BackButton from "@/Components/reusable/BackButton";
 import Button from "@/Components/reusable/button";
@@ -30,10 +31,6 @@ interface VerificationInfo {
   created_at: string;
 }
 
-const SIGNER_TYPE_LABEL: Record<string, { uz: string; ru: string }> = {
-  admin: { uz: "Boshliq", ru: "Начальник" },
-  lawyer: { uz: "Yurist", ru: "Юрист" },
-};
 
 const LawyerDocument = () => {
   const [templatesData, setTemplatesdata] = React.useState<templateInterface[]>([]);
@@ -479,6 +476,7 @@ const LawyerDocument = () => {
               getFullDate={getFullDate}
               organisation={organisation}
               singleTemplate={singleTemplate}
+              verificationInfo={verificationInfo}
             />
             <DocumentForPrint2
               ref={contentRef2}
@@ -487,6 +485,7 @@ const LawyerDocument = () => {
               getFullDate={getFullDate}
               organisation={organisation}
               singleTemplate={singleTemplate}
+              verificationInfo={verificationInfo}
             />
           </div>
           <div className="h-full  text-[#000000] text-[14px] leading-[19.2px]">
@@ -500,7 +499,7 @@ const LawyerDocument = () => {
                   <button
                     onClick={handleEimzoSign}
                     disabled={signing}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#059669] hover:bg-[#047857] disabled:bg-[#6ee7b7] text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-4 py-2 bg-success hover:bg-success/90 disabled:bg-success/40 text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer disabled:cursor-not-allowed"
                   >
                     {signing ? (
                       <>
@@ -540,7 +539,7 @@ const LawyerDocument = () => {
                         `shartnoma_${data?.doc_num || id}.pdf`
                       )
                     }
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer"
                   >
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                       <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
@@ -551,7 +550,7 @@ const LawyerDocument = () => {
                 <button
                   type="button"
                   onClick={() => setHistoryOpen(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand/90 text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer"
                 >
                   <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                     <path d="M13 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-7-7V3zm-1 5v5l4.25 2.52.75-1.23-3.5-2.07V8H12z" />
@@ -592,7 +591,7 @@ const LawyerDocument = () => {
             )}
 
             <div className="mb-[100px] mt-5">
-              <div ref={documentRef} className="container mx-auto   text-wrap    text-[14px] overfloww my-auto w-[795px] bg-mybackground text-mytextcolor font__times">
+              <div ref={documentRef} className="container mx-auto   text-wrap    text-[14px] overfloww my-auto w-[795px] bg-card text-foreground font__times">
                 <section className="pt-10 pr-[40px] pl-[80px] border border-gray-300">
                   <h1 className="text-center font-bold text-lg mb-1">
                     {singleTemplate?.title}
@@ -650,7 +649,7 @@ const LawyerDocument = () => {
                   </div>
                 </section>
 
-                <div className="h-[16px] bg-mybackground w-[100%]  "></div>
+                <div className="h-[16px] bg-card w-[100%]  "></div>
 
                 <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300">
                   <div className="">
@@ -691,7 +690,7 @@ const LawyerDocument = () => {
                   </div>
                 </section>
 
-                <div className="h-[16px] bg-mybackground w-[100%]  "></div>
+                <div className="h-[16px] bg-card w-[100%]  "></div>
 
                 <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300">
                   <h2 className="text-lg font-semibold text-center mb-4">8. Томонларнинг реквизитлари</h2>
@@ -731,7 +730,7 @@ const LawyerDocument = () => {
                   </div>
                 </section>
 
-                <div className="h-[16px] bg-mybackground w-[100%]  "></div>
+                <div className="h-[16px] bg-card w-[100%]  "></div>
 
                 <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300" style={{ pageBreakBefore: "always" }}>
                   <div className="flex flex-col justify-end text-lg font-semibold items-end gap-1">
@@ -757,34 +756,8 @@ const LawyerDocument = () => {
                     </div>
                   </div>
 
-                  {verificationInfo.length > 0 && (
-                    <div className="mt-10 flex justify-end">
-                      <div className="flex flex-row flex-wrap justify-end gap-2">
-                        {verificationInfo.map((v) => (
-                          <div key={v.id} className="inline-flex items-center gap-2 px-3 py-2 border border-green-400 bg-green-50 rounded-md text-[12px] text-green-800">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="text-green-600">
-                              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.41 14.42L7.17 12l1.41-1.41 2.01 2.01 5.04-5.04 1.41 1.42-6.46 6.44z" />
-                            </svg>
-                            <div className="flex flex-col leading-tight">
-                              <span className="font-semibold">
-                                {v.signer_name}
-                                {v.user_type && SIGNER_TYPE_LABEL[v.user_type] && (
-                                  <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold rounded bg-blue-100 text-blue-700">
-                                    {tt(
-                                      SIGNER_TYPE_LABEL[v.user_type].uz,
-                                      SIGNER_TYPE_LABEL[v.user_type].ru,
-                                    )}
-                                  </span>
-                                )}
-                              </span>
-                              <span className="text-[10px] text-green-700">
-                                {tt("E-IMZO bilan tasdiqlandi", "Утверждено E-IMZO")}: {formatDateTime(v.created_at)}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                  {!singleTemplate?.qoshimcha && (
+                    <EimzoBadges items={verificationInfo} />
                   )}
                 </section>
 
@@ -792,7 +765,7 @@ const LawyerDocument = () => {
                     keyin alohida sahifa. Eski shablonlarda bo'lmaydi (qoshimcha bo'sh). */}
                 {singleTemplate?.qoshimcha && (
                   <>
-                    <div className="h-[16px] bg-mybackground w-[100%]  "></div>
+                    <div className="h-[16px] bg-card w-[100%]  "></div>
                     <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300" style={{ pageBreakBefore: "always" }}>
                       {singleTemplate?.qoshimcha_title && (
                         <h1 className="text-center text-lg mt-[30px] mb-[50px] font-bold">
@@ -804,6 +777,9 @@ const LawyerDocument = () => {
                         className="mb-6 text-justify"
                         dangerouslySetInnerHTML={{ __html: singleTemplate.qoshimcha }}
                       />
+
+                      {/* Imzo hujjatning eng oxirida */}
+                      <EimzoBadges items={verificationInfo} />
                     </section>
                   </>
                 )}

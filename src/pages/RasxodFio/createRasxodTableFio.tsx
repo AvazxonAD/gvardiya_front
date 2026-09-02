@@ -101,14 +101,14 @@ export const RasxodcreateTableFio = ({
 
   return (
     <div>
-      <div className="rounded-t-[6px] max-h-[400px] overflow-y-auto overflow-x-auto text-[#323232] text-[11px] leading-[14px]">
-        <table className="min-w-full table-auto relative border-collapse">
-          <thead className="bg-mytablehead text-mytextcolor text-[11px] leading-[14px] rounded-t-[6px] sticky -top-1 z-[2]">
+      <div className="rounded-t-[6px] max-h-[400px] overflow-y-auto overflow-x-auto text-foreground text-[11px] leading-[14px]">
+        <table className="table-grid min-w-full table-auto relative">
+          <thead className="bg-muted/60 text-foreground text-[11px] leading-[14px] rounded-t-[6px] sticky -top-1 z-[2]">
             <tr className="rounded-t-[6px]">
               {tablehead.map((item, index) => (
                 <th
                   key={index}
-                  className={`px-2 py-2 border border-mytableheadborder text-left ${item.className}`}
+                  className={`px-2 py-2 border-b border-border text-left ${item.className}`}
                 >
                   {item.name}
                 </th>
@@ -116,7 +116,7 @@ export const RasxodcreateTableFio = ({
             </tr>
           </thead>
 
-          <tbody className="text-mytextcolor bg-mybackground text-[11px] leading-[14px] relative z-[1]">
+          <tbody className="text-foreground bg-card text-[11px] leading-[14px] relative z-[1]">
             {data?.map((item, index) => {
               const activeUstama = ustamaData.filter(
                 (el) => el.active === true
@@ -128,7 +128,7 @@ export const RasxodcreateTableFio = ({
               return (
                 <tr
                   key={index}
-                  className={`text-mytextcolor ${item.saved ? "bg-[#e5fedea9] dark:bg-mytableheadborder" : ""
+                  className={`text-foreground ${item.saved ? "bg-[#e5fedea9] dark:bg-muted/60border" : ""
                     } relative`}
                 >
                   {(() => {
@@ -142,13 +142,13 @@ export const RasxodcreateTableFio = ({
                     const s252 = item.saved && item.summa_25_2 != null ? item.summa_25_2 : s125 * 0.25;
                     const s12 = item.saved && item.summa_12 != null ? item.summa_12 : s125 * 0.12;
                     const ws = item.saved && item.worker_summa != null ? item.worker_summa : s125 - s12;
-                    const c = "px-2 py-1 border border-mytableheadborder";
+                    const c = "px-2 py-1 border-b border-border";
                     return (<>
                       <td className={`${c} text-left`}>{item.contract_doc_num}</td>
                       <td className={`${c} text-left`}>{newdate(item.contract_doc_date)}</td>
                       <td className={`${c} text-left relative group cursor-pointer max-w-[170px]`}>
                         <p className="truncate">{item.organization_name}</p>
-                        <div className="hidden group-hover:block absolute left-[100px] -mt-4 w-[220px] shadow-lg z-10 rounded-md bg-mybackground border border-mytableheadborder text-mytextcolor p-2 text-[10px]">
+                        <div className="hidden group-hover:block absolute left-[100px] -mt-4 w-[220px] shadow-lg z-10 rounded-md bg-card border-b border-border text-foreground p-2 text-[10px]">
                           <p>{item.organization_name}</p>
                           <p>{tt("Hisob", "Счет")}: {textNum(item.organization_account_number, 4)}</p>
                           <p>{tt("INN", "ИНН")}: {item.organization_str}</p>
@@ -174,9 +174,9 @@ export const RasxodcreateTableFio = ({
 
             {/* Totals row */}
             {(() => {
-              const c = "px-2 py-1 border border-mytableheadborder font-semibold";
+              const c = "px-2 py-1 border-b border-border font-semibold";
               return (
-                <tr className="bg-mytablehead">
+                <tr className="bg-muted/60">
                   <td colSpan={4} className={`${c} text-right whitespace-nowrap`}>{tt("Jami", "Итого")}</td>
                   <td className={`${c} text-center`}>{formatNum(total.task_time)}</td>
                   <td className={`${c} text-right whitespace-nowrap`}>{formatNum(total.totalSumma)}</td>

@@ -188,7 +188,7 @@ const AddTemplate: React.FC = () => {
   return (
     <form
       onSubmit={formik.handleSubmit}
-      className="py-6 bg-mybackground space-y-4"
+      className="py-6 bg-card space-y-4"
     >
       <div className="relative flex justify-center items-center mb-7">
         <div className="absolute left-0">
@@ -208,17 +208,17 @@ const AddTemplate: React.FC = () => {
           id="shablon_name"
           name="shablon_name"
           type="text"
-          className={`w-full bg-mybackground border rounded p-2 ${
+          className={`w-full bg-card border rounded p-2 ${
             formik.touched.shablon_name && formik.errors.shablon_name
-              ? "border-red-500"
-              : "border-gray-300"
+              ? "border-destructive/30"
+              : "border-border"
           }`}
           value={formik.values.shablon_name}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
         />
         {formik.touched.shablon_name && formik.errors.shablon_name && (
-          <div className="text-red-500 text-sm">
+          <div className="text-destructive text-sm">
             {formik.errors.shablon_name}
           </div>
         )}
@@ -233,17 +233,17 @@ const AddTemplate: React.FC = () => {
           id="title"
           name="title"
           type="text"
-          className={`w-full bg-mybackground border rounded p-2 ${
+          className={`w-full bg-card border rounded p-2 ${
             formik.touched.title && formik.errors.title
-              ? "border-red-500"
-              : "border-gray-300"
+              ? "border-destructive/30"
+              : "border-border"
           }`}
           value={formik.values.title}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
         />
         {formik.touched.title && formik.errors.title && (
-          <div className="text-red-500 text-sm">{formik.errors.title}</div>
+          <div className="text-destructive text-sm">{formik.errors.title}</div>
         )}
       </div>
 
@@ -256,17 +256,17 @@ const AddTemplate: React.FC = () => {
           id="main_section"
           name="main_section"
           rows={3}
-          className={`w-full bg-mybackground border rounded p-2 ${
+          className={`w-full bg-card border rounded p-2 ${
             formik.touched.main_section && formik.errors.main_section
-              ? "border-red-500"
-              : "border-gray-300"
+              ? "border-destructive/30"
+              : "border-border"
           }`}
           value={formik.values.main_section}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
         />
         {formik.touched.main_section && formik.errors.main_section && (
-          <div className="text-red-500 text-sm">
+          <div className="text-destructive text-sm">
             {formik.errors.main_section}
           </div>
         )}
@@ -290,15 +290,15 @@ const AddTemplate: React.FC = () => {
               id={`section_${sectionNumber}_title`}
               name={`section_${sectionNumber}_title`}
               type="text"
-              className={`outline-none bg-mybackground w-full border rounded p-2 ${
+              className={`outline-none bg-card w-full border rounded p-2 ${
                 formik.touched[
                   `section_${sectionNumber}_title` as keyof typeof formik.values
                 ] &&
                 formik.errors[
                   `section_${sectionNumber}_title` as keyof typeof formik.values
                 ]
-                  ? "border-red-500"
-                  : "border-gray-300"
+                  ? "border-destructive/30"
+                  : "border-border"
               }`}
               value={
                 formik.values[
@@ -314,7 +314,7 @@ const AddTemplate: React.FC = () => {
               formik.errors[
                 `section_${sectionNumber}_title` as keyof typeof formik.values
               ] && (
-                <div className="text-red-500 text-sm">
+                <div className="text-destructive text-sm">
                   {
                     formik.errors[
                       `section_${sectionNumber}_title` as keyof typeof formik.values
@@ -336,15 +336,15 @@ const AddTemplate: React.FC = () => {
               id={`section_${sectionNumber}`}
               name={`section_${sectionNumber}`}
               rows={3}
-              className={`outline-none bg-mybackground w-full border rounded p-2 ${
+              className={`outline-none bg-card w-full border rounded p-2 ${
                 formik.touched[
                   `section_${sectionNumber}` as keyof typeof formik.values
                 ] &&
                 formik.errors[
                   `section_${sectionNumber}` as keyof typeof formik.values
                 ]
-                  ? "border-red-500"
-                  : "border-gray-300"
+                  ? "border-destructive/30"
+                  : "border-border"
               }`}
               value={
                 formik.values[
@@ -360,7 +360,7 @@ const AddTemplate: React.FC = () => {
               formik.errors[
                 `section_${sectionNumber}` as keyof typeof formik.values
               ] && (
-                <div className="text-red-500 text-sm">
+                <div className="text-destructive text-sm">
                   {
                     formik.errors[
                       `section_${sectionNumber}` as keyof typeof formik.values
@@ -374,7 +374,7 @@ const AddTemplate: React.FC = () => {
 
       {/* Qo'shimcha (Kafolat xati) — ixtiyoriy. Smetadan keyin alohida sahifa
           bo'lib chiqadi. Bo'sh qoldirilsa, hujjatda bu sahifa ko'rinmaydi. */}
-      <div className="pt-4 mt-4 border-t border-gray-300">
+      <div className="pt-4 mt-4 border-t border-border">
         <h2 className="font-bold mb-3">
           {tt(
             `Qo'shimcha sahifa (ixtiyoriy) — Kafolat xati`,
@@ -390,7 +390,7 @@ const AddTemplate: React.FC = () => {
             name="qoshimcha_title"
             type="text"
             placeholder="КАФОЛАТ ХАТИ"
-            className="w-full bg-mybackground border border-gray-300 rounded p-2"
+            className="w-full bg-card border border-border rounded p-2"
             value={formik.values.qoshimcha_title}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -408,7 +408,7 @@ const AddTemplate: React.FC = () => {
               `Har bir xatboshi yangi qatorda. Placeholderlar: \${client.name}, \${doc_date}, \${contract_number}`,
               `Каждый абзац с новой строки. Плейсхолдеры: \${client.name}, \${doc_date}, \${contract_number}`
             )}
-            className="outline-none bg-mybackground w-full border border-gray-300 rounded p-2"
+            className="outline-none bg-card w-full border border-border rounded p-2"
             value={formik.values.qoshimcha}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}

@@ -97,7 +97,7 @@ export type IContract = {
 };
 
 const SimpleText = ({ txt }: { txt: string }) => (
-  <h3 className="opacity-[0.7] dark:opacity-[1] font-[600] text-mytextcolor">
+  <h3 className="opacity-[0.7] dark:opacity-[1] font-[600] text-foreground">
     {txt}
   </h3>
 );
@@ -369,9 +369,9 @@ const ContractEdit = () => {
   return (
     <div className="h-full mt-5 mx-auto">
       <form onSubmit={handleSubmit} className="p-0">
-        <div style={{ maxHeight: fullHeight }} className="w-full  overfloww">
+        <div style={{ maxHeight: fullHeight }} className="w-full overfloww">
           <div className="w-full flex justify-between my-7 gap-x-5">
-            <div className="flex-col w-1/2 items-start gap-x-5 bg-mybackground rounded-md">
+            <div className="flex-col w-1/2 items-start gap-x-5 bg-card rounded-md">
               <div className="flex gap-x-5">
                 <div className="w-1/2">
                   <Input
@@ -454,7 +454,7 @@ const ContractEdit = () => {
                   />
                   <label
                     htmlFor="address_input"
-                    className="cursor-pointer block text-[#636566] text-[16px]  leading-[14.52px] font-[600]"
+                    className="cursor-pointer block text-muted-foreground text-[16px] leading-[14.52px] font-[600]"
                   >
                     {tt("Manzil", "Адрес")}
                   </label>
@@ -470,14 +470,14 @@ const ContractEdit = () => {
                   />
                   <label
                     htmlFor="date_input"
-                    className="cursor-pointer block text-[#636566] text-[16px]  leading-[14.52px] font-[600]"
+                    className="cursor-pointer block text-muted-foreground text-[16px] leading-[14.52px] font-[600]"
                   >
                     {tt("Sana", "Дата")}
                   </label>
                 </div>
               </div>
             </div>
-            <div className="flex-col w-1/2 items-start gap-x-5 bg-mybackground rounded-md">
+            <div className="flex-col w-1/2 items-start gap-x-5 bg-card rounded-md">
               <div className="flex flex-col gap-5">
                 <div className="grid grid-cols-[4fr_3fr] gap-x-5">
                   <SpecialDatePicker
@@ -527,7 +527,7 @@ const ContractEdit = () => {
             </div>
           </div>
           <div className="flex mt-5 gap-x-5">
-            <div className="border w-1/2 p-3 bg-mybackground rounded-sm">
+            <div className="border w-1/2 p-3 bg-card rounded-sm">
               <SimpleText
                 txt={tt("Qabul qiluvchi tafsilotlari", "Данные получателя")}
               />
@@ -537,7 +537,7 @@ const ContractEdit = () => {
                 ))}
               </div>
             </div>
-            <div className="border w-1/2 p-3 bg-mybackground rounded-sm">
+            <div className="border w-1/2 p-3 bg-card rounded-sm">
               <SimpleText
                 txt={tt("To'lovchi tafsilotlari", "Данные плательщика")}
               />
@@ -553,7 +553,7 @@ const ContractEdit = () => {
               </div>
             </div>
           </div>
-          <div className="py-5 bg-mybackground mt-8">
+          <div className="py-5 bg-card mt-8">
             <div className="">
               {contract?.tasks?.map((e, i) => (
                 <TaskColumn

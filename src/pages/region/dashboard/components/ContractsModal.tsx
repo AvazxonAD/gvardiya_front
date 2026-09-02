@@ -19,7 +19,7 @@ const typeLabels: Record<ContractType, string> = {
 
 const formatAmount = (num?: number): string => {
   if (!num && num !== 0) return "0";
-  return num.toLocaleString("ru-RU");
+  return Number(num).toLocaleString("ru-RU");
 };
 
 export default function ContractsModal({ isOpen, onClose, type }: ContractsModalProps) {
@@ -87,7 +87,7 @@ export default function ContractsModal({ isOpen, onClose, type }: ContractsModal
 
   if (!isOpen) return null;
 
-  const borderColor = type === "debt" ? "border-l-rose-500" : "border-l-emerald-500";
+  const borderColor = type === "debt" ? "border-l-rose-500" : "border-l-success";
 
   return (
     <div ref={overlayRef} className="dash-modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4"
@@ -98,7 +98,7 @@ export default function ContractsModal({ isOpen, onClose, type }: ContractsModal
         <div className="px-5 py-4 flex justify-between items-center rounded-t-2xl shrink-0"
           style={{ background: "var(--dash-modal-header-bg)", borderBottom: "1px solid var(--dash-modal-border)" }}>
           <div className="flex items-center gap-3">
-            <div className={`w-1 h-8 rounded-full ${borderColor.replace("border-l-", "bg-")}`} />
+            <div className={`w-1 h-8 rounded-none ${borderColor.replace("border-l-", "bg-")}`} />
             <div>
               <h3 className="text-lg font-bold text-[var(--dash-text)]">{typeLabels[type]}</h3>
               {meta && (
@@ -112,7 +112,7 @@ export default function ContractsModal({ isOpen, onClose, type }: ContractsModal
             <button
               onClick={handleExcel}
               disabled={loading || contracts.length === 0}
-              className="h-[36px] px-3 bg-emerald-500 rounded-lg text-white text-[12px] font-medium flex items-center gap-1.5 hover:bg-emerald-600 transition disabled:opacity-40 disabled:cursor-not-allowed"
+              className="h-[36px] px-3 bg-success rounded-lg text-primary-foreground text-[12px] font-medium flex items-center gap-1.5 hover:bg-success transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -131,12 +131,12 @@ export default function ContractsModal({ isOpen, onClose, type }: ContractsModal
         <div className="px-5 py-4 flex-1 flex flex-col overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center h-[200px]">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary/30" />
             </div>
           ) : (
             <div className="rounded-xl flex flex-col overflow-hidden flex-1" style={{ border: "1px solid var(--dash-table-border)" }}>
-              <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead style={{ background: "var(--dash-table-header-bg)", borderBottom: "1px solid var(--dash-table-border)" }}>
+              <table className="table-grid w-full text-left text-sm whitespace-nowrap">
+                <thead style={{ background: "var(--dash-table-header-bg)" }}>
                   <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
                     <th className="px-4 py-3 font-semibold w-[50px]">№</th>
                     <th className="px-4 py-3 font-semibold w-[100px]">Hujjat raqami</th>
@@ -150,7 +150,7 @@ export default function ContractsModal({ isOpen, onClose, type }: ContractsModal
                 </thead>
               </table>
               <div className="overflow-y-auto flex-1">
-              <table className="w-full text-left text-sm whitespace-nowrap">
+              <table className="table-grid w-full text-left text-sm whitespace-nowrap">
                 <tbody>
                   {contracts.length === 0 ? (
                     <tr>
@@ -161,14 +161,14 @@ export default function ContractsModal({ isOpen, onClose, type }: ContractsModal
                   ) : (
                     contracts.map((c, i) => (
                       <tr key={c.id} className="transition hover:opacity-80"
-                        style={{ background: i % 2 === 1 ? "var(--dash-table-row-alt)" : "transparent", borderBottom: "1px solid var(--dash-table-border)" }}>
+                        style={{ background: i % 2 === 1 ? "var(--dash-table-row-alt)" : "transparent" }}>
                         <td className="px-4 py-3 text-[var(--dash-text-muted)] w-[50px]">{(page - 1) * limit + i + 1}</td>
                         <td className="px-4 py-3 font-medium text-[var(--dash-text)] w-[100px]">{c.doc_num}</td>
                         <td className="px-4 py-3 text-[var(--dash-text-secondary)] w-[100px]">{c.doc_date?.slice(0, 10)}</td>
                         <td className="px-4 py-3 text-[var(--dash-text)]">{c.organization_name || "—"}</td>
                         <td className="px-4 py-3 text-[var(--dash-text-secondary)] w-[160px]">{c.user_name}</td>
                         <td className="px-4 py-3 text-right text-[var(--dash-text)] w-[150px]">{formatAmount(c.result_summa)}</td>
-                        <td className="px-4 py-3 text-right text-emerald-500 w-[120px]">{formatAmount(c.paid_summa)}</td>
+                        <td className="px-4 py-3 text-right text-success w-[120px]">{formatAmount(c.paid_summa)}</td>
                         <td className="px-4 py-3 text-right text-rose-500 w-[120px]">{formatAmount(c.debt_summa)}</td>
                       </tr>
                     ))

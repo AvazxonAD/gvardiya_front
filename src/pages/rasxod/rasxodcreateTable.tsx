@@ -102,8 +102,8 @@ export const RasxodcreateTable = ({ data, setRasxodRequestData }: Props) => {
 
   return (
     <div>
-      <div className=" rounded-t-[6px] min-h-[300px]  text-[#323232] text-[14px] leading-[16.94px]">
-        <table className="min-w-full">
+      <div className="rounded-t-[6px] min-h-[300px] text-foreground text-[14px] leading-[16.94px]">
+        <table className="table-grid min-w-full">
           <thead
             style={
               {
@@ -111,9 +111,9 @@ export const RasxodcreateTable = ({ data, setRasxodRequestData }: Props) => {
                 // top: 0,
               }
             }
-            className="bg-mytablehead text-mytextcolor border border-mytableheadborder text-[14px] leading-[16.94px] rounded-t-[6px]"
+            className="bg-muted/60 text-foreground border-b border-border text-[14px] leading-[16.94px] rounded-t-[6px]"
           >
-            <tr className=" h-[46px]   rounded-t-[6px]">
+            <tr className="h-[46px] rounded-t-[6px]">
               {tablehead.map((item, index) => (
                 <th
                   key={index}
@@ -126,19 +126,19 @@ export const RasxodcreateTable = ({ data, setRasxodRequestData }: Props) => {
             </tr>
           </thead>
 
-          <tbody className="text-mytextcolor  text-[14px] leading-[16.94px]">
+          <tbody className="text-foreground text-[14px] leading-[16.94px]">
             {data?.map((item, index) => (
               <tr
                 key={index}
-                className={`text-mytextcolor ${
-                  item.saved ? "bg-[#e5fedea9] dark:bg-mytableheadborder" : ""
+                className={`text-foreground ${
+                  item.saved ? "bg-[#e5fedea9] dark:bg-muted/60border" : ""
                 } relative`}
               >
                 <TableItem>{item.doc_num}</TableItem>
                 <TableItem>{formatDate(item.doc_date)}</TableItem>
-                <TableItem className="rasxod-tooltip ">
+                <TableItem className="rasxod-tooltip">
                   {item.organization_name}
-                  <div className="absolute rasxod-tooltip-wrap  w-[250px] shadow-lg z-10 rounded-[6px] p-3 bg-mytablehead text-mytextcolor border border-mytableheadborder">
+                  <div className="absolute rasxod-tooltip-wrap w-[250px] shadow-lg z-10 rounded-none p-3 bg-muted/60 text-foreground border-b border-border">
                     <ul className="space-y-1 text-left">
                       <li className="opacity-[0.7] text-[14px]">
                         {item.organization_name}
@@ -169,7 +169,7 @@ export const RasxodcreateTable = ({ data, setRasxodRequestData }: Props) => {
               </tr>
             ))}
             {/* Totals row */}
-            <tr className="bg-mytablehead font-medium border-t border-mytableheadborder">
+            <tr className="bg-muted/60 font-medium border-t border-border">
               <td colSpan={3} className="text-left"></td>
               <TableItem className="text-center">
                 {formatNum(task_time)}

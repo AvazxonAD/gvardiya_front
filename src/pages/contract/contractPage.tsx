@@ -1,9 +1,8 @@
 /** @format */
-import Input from "@/Components/Input";
-import Modal from "@/Components/Modal";
 import Paginatsiya from "@/Components/Paginatsiya";
-import Button from "@/Components/reusable/button";
 import { DateInput } from "@/Components/ui/date-input";
+import { Button, Field, Input, Modal, Select, SummaryTile } from "@/ui";
+import { Plus, Save, Search, X } from "lucide-react";
 import useFullHeight from "@/hooks/useFullHeight";
 import OrganTAb from "@/pageCompoents/OrganTAb";
 import { alertt } from "@/Redux/LanguageSlice";
@@ -23,9 +22,7 @@ import TaskColumn, { returnBxmSum } from "./taskColumn";
 import OrganizationModal from "@/shared/components/OrganizationModal";
 
 const SimpleText = ({ txt }: { txt: string }) => (
-  <h3 className="opacity-[0.7] dark:opacity-[1] font-[600] text-mytextcolor">
-    {txt}
-  </h3>
+  <h3 className="text-[14px] font-semibold text-foreground">{txt}</h3>
 );
 
 const ContractPage = () => {
@@ -69,7 +66,12 @@ const ContractPage = () => {
       `contract/${id}?account_number_id=${account_number_id}`
     );
     if (get?.success) {
-      const appendUniqueId = get.data.tasks.map((task) => ({
+      // Shartnomada topshiriq bo'lmasligi mumkin — javobda `tasks`
+      // umuman kelmasa sahifa yiqilardi
+      const appendUniqueId = (Array.isArray(get.data?.tasks)
+        ? get.data.tasks
+        : []
+      ).map((task) => ({
         ...task,
         unique_id: task.id,
       }));
@@ -307,10 +309,10 @@ const ContractPage = () => {
         bank_name: organizationValue.bank_name,
         mfo: organizationValue.mfo,
         boss: organizationValue.boss,
-        account_numbers: organizationValue.account_numbers.map((number) => ({
-          account_number: number,
-        })),
-        gazna_numbers: organizationValue.gazna_numbers.map((number) => ({
+        account_numbers: (organizationValue.account_numbers ?? []).map(
+          (number) => ({ account_number: number })
+        ),
+        gazna_numbers: (organizationValue.gazna_numbers ?? []).map((number) => ({
           gazna_number: number,
         })),
       });
@@ -327,180 +329,183 @@ const ContractPage = () => {
     }
   };
 
+  const totals = allDiscount();
+
   return (
     <div className="h-full mt-5 mx-auto">
       <form onSubmit={handleSubmit}>
-        <div style={{ maxHeight: fullHeight }} className="w-full  overfloww">
-          {/* sana,shartnoma raqamlari */}
-          <div className="w-full flex justify-between my-7 gap-x-5">
-            <div className="flex-col w-1/2 items-start gap-x-5 bg-mybackground rounded-md">
-              <div className="flex gap-x-5">
-                <div className="w-1/2">
-                  <Input
-                    label={tt("Shartnoma raqam", "Номер контракта")}
-                    n="doc_num"
-                    v={contract.doc_num}
-                    change={(event: any) => {
-                      setContract((prev) => ({
-                        ...prev,
-                        doc_num: event.target.value,
-                      }));
-                    }}
-                    className="w-full"
-                  />
-                </div>
+        <div style={{ maxHeight: fullHeight }} className="w-full overfloww">
+          {/* ═══ Shartnoma ma'lumotlari ═════════════════════════════
+              Ilgari bu qism ikkita `w-1/2` kartaga bo'lingan edi: chapda
+              uchta qator, o'ngda ikkita — natijada o'ng kartaning yarmi
+              bo'sh turardi. Endi bitta karta ichida yagona 4-ustunli
+              setka: maydonlar ma'no bo'yicha guruhlangan va bo'sh joy
+              qolmaydi. */}
+          <div className="my-6 rounded-lg border border-border bg-card p-4">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <Field label={tt("Shartnoma raqam", "Номер контракта")}>
+                <Input
+                  name="doc_num"
+                  value={contract.doc_num ?? ""}
+                  onChange={(event) =>
+                    setContract((prev) => ({
+                      ...prev,
+                      doc_num: event.target.value,
+                    }))
+                  }
+                />
+              </Field>
 
-                <DateInput
-                  label={tt("Shartnoma sanasi", "Дата контракта")}
-                  name="doc_date"
-                  defaultValue={contract.doc_date}
-                  onChange={(event) => {
-                    setContract((prev) => ({ ...prev, doc_date: event }));
-                  }}
+              <DateInput
+                className="w-full"
+                label={tt("Shartnoma sanasi", "Дата контракта")}
+                name="doc_date"
+                defaultValue={contract.doc_date}
+                onChange={(event) =>
+                  setContract((prev) => ({ ...prev, doc_date: event }))
+                }
+              />
+
+              <DateInput
+                className="w-full"
+                label={tt("Amal qilish muddati", "Срок действия")}
+                name="period"
+                defaultValue={contract.period}
+                onChange={(event) =>
+                  setContract((prev) => ({ ...prev, period: event }))
+                }
+              />
+
+              <Field label={tt("Chegirma (%)", "Скидка (%)")}>
+                <Input
+                  name="discount"
+                  type="number"
+                  value={contract.discount ?? 0}
+                  onChange={(event) =>
+                    setContract((prev) => ({
+                      ...prev,
+                      discount: +event.target.value,
+                    }))
+                  }
+                  className="tabular-nums"
                 />
-              </div>
-              <div className="flex mt-5 gap-x-5">
-                <div className="w-1/2">
-                  <Input
-                    label={tt("Manzil", "Адрес")}
-                    n="address"
-                    v={contract.adress}
-                    change={(event: any) => {
-                      setContract((prev) => ({
-                        ...prev,
-                        adress: event.target.value,
-                      }));
-                    }}
-                    className="w-full"
-                  />
-                </div>
-                <DateInput
-                  label={tt("Amal qilish muddati", "Срок действия")}
-                  name="period"
-                  defaultValue={contract.period}
-                  onChange={(event) => {
-                    setContract((prev) => ({ ...prev, period: event }));
-                  }}
+              </Field>
+
+              {/* Boshlanish / tugash juftliklari yonma-yon turadi */}
+              <DateInput
+                className="w-full"
+                label={tt("Boshlanish sana", "Дата начала")}
+                name="start_date"
+                defaultValue={contract.start_date?.slice(0, 10)}
+                onChange={(event) =>
+                  setContract((prev) => ({ ...prev, start_date: event }))
+                }
+              />
+
+              <Field label={tt("Boshlanish vaqti", "Время начала")}>
+                <Input
+                  name="start_time"
+                  value={contract.start_time ?? ""}
+                  onChange={(e) => handleTimeChange(e, "start_time")}
+                  placeholder="00:00"
+                  className="tabular-nums"
                 />
-              </div>
-              <div className="flex items-end mt-5 gap-5">
-                <div>
-                  <Input
-                    n="discount"
-                    v={contract.discount + "" || "0"}
-                    label={tt("Chegirma (%)", "Скидка (%)")}
-                    t="number"
-                    change={(event: any) => {
-                      setContract((prev) => ({
-                        ...prev,
-                        discount: +event.target.value,
-                      }));
-                    }}
-                    className="w-full"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[#636566] text-[16px] leading-[14.52px] font-[600] mb-2">
-                    {tt("Shablon", "Шаблон")}
-                  </label>
-                  <select
-                    value={contract.template_id || ""}
-                    onChange={(e) =>
-                      setContract((prev: any) => ({
-                        ...prev,
-                        template_id: e.target.value ? +e.target.value : null,
-                      }))
-                    }
-                    className="border rounded-md px-3 py-2 bg-mybackground text-mytextcolor min-w-[180px]"
-                  >
-                    <option value="">{tt("Tanlang", "Выберите")}</option>
-                    {templates.map((t: any) => (
-                      <option key={t.id} value={t.id}>
-                        {t.shablon_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex items-center gap-x-1">
+              </Field>
+
+              <DateInput
+                className="w-full"
+                label={tt("Tugash sana", "Дата окончания")}
+                name="end_date"
+                defaultValue={contract.end_date?.slice(0, 10)}
+                onChange={(event) =>
+                  setContract((prev) => ({ ...prev, end_date: event }))
+                }
+              />
+
+              <Field label={tt("Tugash vaqti", "Время окончания")}>
+                <Input
+                  name="end_time"
+                  value={contract.end_time ?? ""}
+                  onChange={(e) => handleTimeChange(e, "end_time")}
+                  placeholder="00:00"
+                  className="tabular-nums"
+                />
+              </Field>
+
+              <Field
+                label={tt("Manzil", "Адрес")}
+                className="sm:col-span-2"
+              >
+                <Input
+                  name="address"
+                  value={contract.adress ?? ""}
+                  onChange={(event) =>
+                    setContract((prev) => ({
+                      ...prev,
+                      adress: event.target.value,
+                    }))
+                  }
+                />
+              </Field>
+
+              <Field label={tt("Shablon", "Шаблон")}>
+                <Select
+                  value={contract.template_id || ""}
+                  onChange={(e) =>
+                    setContract((prev: any) => ({
+                      ...prev,
+                      template_id: e.target.value ? +e.target.value : null,
+                    }))
+                  }
+                  placeholder={tt("Tanlang", "Выберите")}
+                  options={templates.map((t: any) => ({
+                    value: t.id,
+                    label: t.shablon_name,
+                  }))}
+                />
+              </Field>
+
+              {/* Belgilar maydon balandligiga tekislanadi */}
+              <div className="flex items-center gap-5 sm:h-9 sm:self-end">
+                <div className="flex items-center gap-2">
                   <input
                     checked={addressBox}
                     onChange={() => setAddressBox(!addressBox)}
                     type="checkbox"
                     name="all__address"
                     id="address_input"
-                    className="w-6 h-6 cursor-pointer"
+                    className="size-4 cursor-pointer accent-primary"
                   />
                   <label
                     htmlFor="address_input"
-                    className="cursor-pointer block text-[#636566] text-[16px]  leading-[14.52px] font-[600]"
+                    className="cursor-pointer select-none text-[13px] font-medium text-foreground"
                   >
                     {tt("Manzil", "Адрес")}
                   </label>
                 </div>
-                <div className="flex items-center gap-x-1">
+                <div className="flex items-center gap-2">
                   <input
                     checked={dateBox}
                     onChange={() => setDateBox(!dateBox)}
                     type="checkbox"
                     name="all__date"
                     id="date_input"
-                    className="w-6 h-6 cursor-pointer"
+                    className="size-4 cursor-pointer accent-primary"
                   />
                   <label
                     htmlFor="date_input"
-                    className="cursor-pointer block text-[#636566] text-[16px]  leading-[14.52px] font-[600]"
+                    className="cursor-pointer select-none text-[13px] font-medium text-foreground"
                   >
                     {tt("Sana", "Дата")}
                   </label>
                 </div>
               </div>
             </div>
-            <div className="flex-col w-1/2 items-start gap-x-5 bg-mybackground rounded-md">
-              <div className="flex flex-col gap-5">
-                <div className="grid grid-cols-[4fr_3fr] gap-x-5">
-                  <DateInput
-                    label={tt("Boshlanish sana", "Дата начала")}
-                    name="start_date"
-                    defaultValue={contract.start_date?.slice(0, 10)}
-                    onChange={(event) => {
-                      setContract((prev) => ({ ...prev, start_date: event }));
-                    }}
-                  />
-
-                  <Input
-                    change={(e: any) => handleTimeChange(e, "start_time")}
-                    v={contract.start_time}
-                    label={tt("Boshlanish vaqti", "Время начала")}
-                    t="text"
-                    n="start_time"
-                    className="w-auto"
-                  />
-                </div>
-                <div className="grid grid-cols-[4fr_3fr] gap-x-5">
-                  <DateInput
-                    label={tt("Tugash sana", "Дата начала")}
-                    defaultValue={contract.end_date?.slice(0, 10)}
-                    name="end_date"
-                    onChange={(event) => {
-                      setContract((prev) => ({ ...prev, end_date: event }));
-                    }}
-                  />
-
-                  <Input
-                    change={(e: any) => handleTimeChange(e, "end_time")}
-                    v={contract.end_time}
-                    label={tt("Tugash vaqti", "Время окончания")}
-                    t="text"
-                    n="end_time"
-                    className="w-auto"
-                  />
-                </div>
-              </div>
-            </div>
           </div>
+
           {/* tolovchi malumotlari */}
-          <div className="flex mt-5 gap-x-5">
-            <div className="border w-1/2 p-3 bg-mybackground rounded-sm">
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            <div className="min-w-0 rounded-lg border border-border bg-card p-4">
               <SimpleText
                 txt={tt("Qabul qiluvchi tafsilotlari", "Данные получателя")}
               />
@@ -510,7 +515,7 @@ const ContractPage = () => {
                 ))}
               </div>
             </div>
-            <div className="border w-1/2 p-3 bg-mybackground rounded-sm">
+            <div className="min-w-0 rounded-lg border border-border bg-card p-4">
               <SimpleText
                 txt={tt("To'lovchi tafsilotlari", "Данные плательщика")}
               />
@@ -534,7 +539,7 @@ const ContractPage = () => {
             </div>
           </div>
           {/* topshiriqlar */}
-          <div className="py-5 bg-mybackground mt-8" ref={divRef}>
+          <div className="mt-8 py-5" ref={divRef}>
             <div className="">
               {contract?.tasks?.map((e, i) => (
                 <TaskColumn
@@ -549,26 +554,43 @@ const ContractPage = () => {
                 />
               ))}
             </div>
-            <div className="flex gap-2 ms-[692px]">
-              <div className="!w-[200px]">
-                <Input v={allDiscount().dis} className="w-full mt-3" readonly />
-              </div>
-              <div className="!w-[200px]">
-                <Input v={allDiscount().sum} className="w-full mt-3" readonly />
-              </div>
+            {/* Jami ko'rsatkichlar.
+
+                Ilgari bu yerda ikkita yorliqsiz `readOnly` input turardi —
+                qaysi raqam chegirma, qaysi biri summa ekanini bilib
+                bo'lmasdi va ular oddiy tahrirlanadigan maydonga o'xshab
+                ko'rinardi. Endi yorliqli jamlanma katakchalari.
+                (Joylashuvi ham `ms-[692px]` bilan qo'lda surilgan edi —
+                tor ekranda jadvaldan chiqib ketardi.) */}
+            <div className="mt-3 flex flex-wrap justify-end gap-2">
+              <SummaryTile
+                className="w-[200px] text-right"
+                label={tt("Jami chegirma", "Итого скидка")}
+                value={totals.dis || "0"}
+              />
+              <SummaryTile
+                className="w-[200px] text-right"
+                label={tt("Jami summa", "Итого сумма")}
+                value={totals.sum || "0"}
+                tone="primary"
+              />
             </div>
           </div>
         </div>
         {/* yuborish */}
         <div className="w-full flex justify-center items-center gap-x-10 mt-4">
           <Button
-            mode="cancel"
+            variant="secondary"
             type="button"
             onClick={() => navigate("/contract")}
-          />
-          <Button mode="save" type="submit" />
+          >
+            {tt("Bekor qilish", "Отмена")}
+          </Button>
+          <Button type="submit">
+            <Save />
+            {tt("Saqlash", "Сохранить")}
+          </Button>
           <Button
-            mode="add"
             type="button"
             onClick={() => {
               setContract((prev: any) => {
@@ -596,26 +618,43 @@ const ContractPage = () => {
                 return updatedContract;
               });
             }}
-          />
+          >
+            <Plus />
+            {tt("Qo'shish", "Добавить")}
+          </Button>
         </div>
       </form>
       <Modal
-        className="!w-full !max-w-[95vw] !min-w-[85vw]"
-        title="Buyurtmachi"
+        size="full"
+        title={tt("Buyurtmachi", "Заказчик")}
         open={open}
-        closeModal={async () => {
-          setOpen(false);
-        }}
+        onClose={() => setOpen(false)}
       >
-        <div className="min-w-[80vw]">
-          <div className="mb-4 flex items-center gap-x-5 justify-between">
+        <div>
+          <div className="mb-4 flex items-center justify-between gap-4">
             <Input
-              search={true}
-              v={searchValue}
-              change={(e: any) => setSearchValue(e.target.value)}
-              p={tt("Nomlar bo'yicha qidiruv", "Поиск по имени")}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder={tt("Nomlar bo'yicha qidiruv", "Поиск по имени")}
+              startIcon={<Search />}
+              className="max-w-sm"
+              endIcon={
+                searchValue ? (
+                  <button
+                    type="button"
+                    onClick={() => setSearchValue("")}
+                    aria-label={tt("Tozalash", "Очистить")}
+                    className="rounded p-0.5 transition-colors hover:text-foreground"
+                  >
+                    <X />
+                  </button>
+                ) : undefined
+              }
             />
-            <Button mode="add" onClick={() => setOrganizationModalOpen(true)} />
+            <Button onClick={() => setOrganizationModalOpen(true)}>
+              <Plus />
+              {tt("Qo'shish", "Добавить")}
+            </Button>
           </div>
           <OrganTAb
             openEdit={false}

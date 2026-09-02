@@ -23,29 +23,29 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
     <>
       {showModal && selectedTask && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-mybackground p-6 rounded-2xl shadow-2xl w-[400px] animate-scale-in">
-            <h2 className="text-xl font-semibold text-center text-blue-700 dark:text-blue-400 mb-6 border-b pb-3">
+          <div className="bg-card dark:bg-card p-6 rounded-2xl shadow-2xl w-[400px] animate-scale-in">
+            <h2 className="text-xl font-semibold text-center text-primary mb-6 border-b pb-3">
               Shartnoma tafsilotlari
             </h2>
 
-            <div className="space-y-3 text-gray-700 dark:text-gray-300 text-[15px]">
-              <div className="border-l-4 border-blue-500 pl-3">
+            <div className="space-y-3 text-foreground text-[15px]">
+              <div className="border-l-4 border-primary/30 pl-3">
                 <strong>Shartnoma raqami:</strong>{" "}
                 {selectedTask.contract_info?.doc_num}
               </div>
-              <div className="border-l-4 border-blue-500 pl-3">
+              <div className="border-l-4 border-primary/30 pl-3">
                 <strong>Hamkor tashkilot:</strong>{" "}
                 {selectedTask.contract_info?.organization}
               </div>
-              <div className="border-l-4 border-blue-500 pl-3">
+              <div className="border-l-4 border-primary/30 pl-3">
                 <strong>Manzil:</strong> {selectedTask.contract_info?.adress}
               </div>
-              <div className="border-l-4 border-green-500 pl-3">
+              <div className="border-l-4 border-success/30 pl-3">
                 <strong>Tadbir boshlanish vaqti:</strong>{" "}
                 {selectedTask.contract_info?.start_date}{" "}
                 {selectedTask.contract_info?.start_time}
               </div>
-              <div className="border-l-4 border-red-500 pl-3">
+              <div className="border-l-4 border-destructive/30 pl-3">
                 <strong>Tadbir tugash vaqti:</strong>{" "}
                 {selectedTask.contract_info?.end_date}{" "}
                 {selectedTask.contract_info?.end_time}
@@ -54,7 +54,7 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
 
             <div className="mt-6 flex justify-center">
               <button
-                className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition duration-200"
+                className="px-6 py-2 rounded-none bg-primary text-primary-foreground hover:bg-primary transition duration-200"
                 onClick={() => {
                   setShowModal(false);
                   setSelectedTask(null);
@@ -72,9 +72,9 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
           className={`rounded-t-[6px] text-[14px] leading-[16.94px] border`}
           style={{ maxHeight: fullHeight, overflowY: "auto" }}
         >
-          <table className="min-w-full relative">
-            <thead className="bg-mytablehead sticky z-10 -top-1 text-[14px] leading-[16.94px] rounded-t-[6px] border border-mytableheadborder">
-              <tr className="text-mytextcolor">
+          <table className="table-grid min-w-full relative">
+            <thead className="bg-muted/60 sticky z-10 -top-1 text-[14px] leading-[16.94px] rounded-t-[6px] border-b border-border">
+              <tr className="text-foreground">
                 <th className="px-4 py-3 text-left w-[60px]">{tt("№", "№")}</th>
                 <th className="px-4 py-3 text-center w-[160px]">
                   {tt("Shartnoma raqami", "Номер контракта")}
@@ -113,11 +113,11 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
               {data.map((task: any, index: number) => (
                 <tr
                   key={task.id}
-                  className="hover:text-[#3B7FAF] text-mytextcolor cursor-pointer transition-colors duration-300 border-b border-mytableheadborder"
+                  className="hover:text-primary text-foreground cursor-pointer transition-colors duration-300 border-b border-border"
                 >
                   <td className="px-4 py-3 text-left">{getRowNumber(index)}</td>
                   <td
-                    className="px-4 py-3 text-center text-blue-600 cursor-pointer hover:font-semibold transition"
+                    className="px-4 py-3 text-center text-primary cursor-pointer hover:font-semibold transition"
                     onClick={() => {
                       setSelectedTask(task);
                       setShowModal(true);
@@ -136,8 +136,8 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
                   <td
                     className={`px-4 py-3 text-center ${
                       task.remaining_task_time === 0
-                        ? "text-green-500"
-                        : "text-red-500"
+                        ? "text-success"
+                        : "text-destructive"
                     }`}
                   >
                     {Math.round(task.remaining_task_time * 100) / 100}
@@ -150,11 +150,11 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
                   <td
                     className={`px-4 py-3 text-center font-semibold ${
                       task.status === "Muddati o'tgan"
-                        ? "text-red-600"
+                        ? "text-destructive"
                         : task.status === "Bajarilgan"
-                        ? "text-green-600"
+                        ? "text-success"
                         : task.status === "Bajarilmoqda"
-                        ? "text-yellow-600"
+                        ? "text-warning"
                         : ""
                     }`}
                   >
@@ -166,7 +166,7 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
                         onClick={() => {
                           navigate(`/batalon/worker/tasks/${task.id}`);
                         }}
-                        className="hover:opacity-80 transition-opacity text-blue-600"
+                        className="hover:opacity-80 transition-opacity text-primary"
                       >
                         <FaUserPlus size={20} className="inline mr-1" />
                       </button>
@@ -180,7 +180,7 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
       ) : (
         <div
           style={{ height: fullHeight }}
-          className="w-full text-[#323232] dark:text-mytextcolor font-[500] text-[20px] flex justify-center items-center bg-[#F4FAFD] dark:bg-mytablehead rounded-lg"
+          className="w-full text-foreground dark:text-foreground font-[500] text-[20px] flex justify-center items-center bg-muted dark:bg-muted/60 rounded-lg"
         >
           {tt("Malumot yo'q", "Нет ссылки")}
         </div>

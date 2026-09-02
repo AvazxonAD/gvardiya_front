@@ -13,7 +13,7 @@ interface Props {
 
 const formatAmount = (num?: number): string => {
   if (!num && num !== 0) return "0";
-  return num.toLocaleString("ru-RU");
+  return Number(num).toLocaleString("ru-RU");
 };
 
 export default function OrganizationsListModal({ isOpen, onClose, to, accountId }: Props) {
@@ -85,7 +85,7 @@ export default function OrganizationsListModal({ isOpen, onClose, to, accountId 
           <div className="px-5 py-4 flex justify-between items-center rounded-t-2xl shrink-0"
             style={{ background: "var(--dash-modal-header-bg)", borderBottom: "1px solid var(--dash-modal-border)" }}>
             <div className="flex items-center gap-3">
-              <div className="w-1 h-8 rounded-full bg-rose-500" />
+              <div className="w-1 h-8 rounded-none bg-rose-500" />
               <div>
                 <h3 className="text-lg font-bold text-[var(--dash-text)]">Qarzdor tashkilotlar</h3>
                 <p className="text-[11px] text-[var(--dash-text-muted)]">
@@ -95,7 +95,7 @@ export default function OrganizationsListModal({ isOpen, onClose, to, accountId 
             </div>
             <div className="flex items-center gap-2">
               <button onClick={handleExcel}
-                className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[12px] font-medium rounded-md transition flex items-center gap-1.5">
+                className="px-3 py-1.5 bg-success hover:bg-success text-primary-foreground text-[12px] font-medium rounded-md transition flex items-center gap-1.5">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
@@ -112,12 +112,12 @@ export default function OrganizationsListModal({ isOpen, onClose, to, accountId 
           <div className="px-5 py-4 flex-1 flex flex-col overflow-hidden">
             {loading ? (
               <div className="flex items-center justify-center h-[200px]">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary/30" />
               </div>
             ) : (
               <div className="rounded-xl flex flex-col overflow-hidden flex-1" style={{ border: "1px solid var(--dash-table-border)" }}>
-                <table className="w-full text-left text-sm whitespace-nowrap">
-                  <thead style={{ background: "var(--dash-table-header-bg)", borderBottom: "1px solid var(--dash-table-border)" }}>
+                <table className="table-grid w-full text-left text-sm whitespace-nowrap">
+                  <thead style={{ background: "var(--dash-table-header-bg)" }}>
                     <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
                       <th className="px-4 py-3 font-semibold w-[50px]">№</th>
                       <th className="px-4 py-3 font-semibold">Tashkilot</th>
@@ -130,7 +130,7 @@ export default function OrganizationsListModal({ isOpen, onClose, to, accountId 
                   </thead>
                 </table>
                 <div className="overflow-y-auto flex-1">
-                  <table className="w-full text-left text-sm whitespace-nowrap">
+                  <table className="table-grid w-full text-left text-sm whitespace-nowrap">
                     <tbody>
                       {rows.length === 0 ? (
                         <tr>
@@ -141,7 +141,7 @@ export default function OrganizationsListModal({ isOpen, onClose, to, accountId 
                       ) : (
                         rows.map((r, i) => (
                           <tr key={r.organization_id} className="transition hover:opacity-80"
-                            style={{ background: i % 2 === 1 ? "var(--dash-table-row-alt)" : "transparent", borderBottom: "1px solid var(--dash-table-border)" }}>
+                            style={{ background: i % 2 === 1 ? "var(--dash-table-row-alt)" : "transparent" }}>
                             <td className="px-4 py-3 text-[var(--dash-text-muted)] w-[50px]">{(page - 1) * limit + i + 1}</td>
                             <td className="px-4 py-3 text-[var(--dash-text)]">
                               <div className="font-medium">{r.organization_name}</div>
@@ -151,12 +151,12 @@ export default function OrganizationsListModal({ isOpen, onClose, to, accountId 
                             </td>
                             <td className="px-4 py-3 text-center text-[var(--dash-text-secondary)] w-[120px]">{r.contract_count}</td>
                             <td className="px-4 py-3 text-right text-[var(--dash-text)] w-[160px]">{formatAmount(r.total_summa)}</td>
-                            <td className="px-4 py-3 text-right text-emerald-500 w-[160px]">{formatAmount(r.paid_summa)}</td>
+                            <td className="px-4 py-3 text-right text-success w-[160px]">{formatAmount(r.paid_summa)}</td>
                             <td className="px-4 py-3 text-right text-rose-500 font-semibold w-[160px]">{formatAmount(r.debt_summa)}</td>
                             <td className="px-4 py-3 text-center w-[110px]">
                               <button
                                 onClick={() => setSelectedOrg(r)}
-                                className="px-2.5 py-1 text-[11px] font-medium rounded-md bg-blue-500 hover:bg-blue-600 text-white transition"
+                                className="px-2.5 py-1 text-[11px] font-medium rounded-md bg-primary hover:bg-primary-hover text-primary-foreground transition"
                               >
                                 Batafsil
                               </button>

@@ -33,7 +33,7 @@ export const ReadingInput = ({ val, className, placeholder, rows = 1, readOnly, 
                 ref={textareaRef}
                 value={val}
                 onChange={handleChange}
-                className={`w-full min-h-[40px] px-3 py-2 text-base bg-[#F4F6F8] dark:bg-[#162C49] ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md resize-none overflow-hidden ${className ?? ""}`}
+                className={`w-full min-h-[40px] px-3 py-2 text-base bg-muted ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md resize-none overflow-hidden ${className ?? ""}`}
                 placeholder={placeholder ?? ""}
                 rows={rows}
                 readOnly={readOnly}

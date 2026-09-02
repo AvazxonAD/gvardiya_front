@@ -6,6 +6,7 @@ import Input from "../Components/Input";
 import { alertt } from "../Redux/LanguageSlice";
 import { latinToCyrillic, tt } from "../utils";
 import SprTab from "./SprTab";
+import { ListCard } from "@/ui";
 function Spr({
   title,
   titleT,
@@ -100,13 +101,10 @@ function Spr({
   };
 
   return (
-    <div className="flex flex-col w-full">
-      <div className="flex justify-between mb-6">
-        <h1 className="text-mytextcolor text-[20px] leading-[24.2px] font-[500]">
-          {title}
-        </h1>
-      </div>
+    <div className="flex min-w-0 flex-col gap-3">
+      <h1 className="text-[16px] font-semibold text-foreground">{title}</h1>
 
+      <ListCard>
       <SprTab
         bank={bank}
         title={titleT}
@@ -162,6 +160,7 @@ function Spr({
           </div>
         </form>
       </SprTab>
+      </ListCard>
     </div>
   );
 }

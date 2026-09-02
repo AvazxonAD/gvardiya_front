@@ -1,12 +1,13 @@
-import Icon from "@/assets/icons";
 import DeleteModal from "@/Components/DeleteModal";
 import { useRequest } from "@/hooks/useRequest";
 import { RasxodInterface } from "@/interface";
 import { alertt } from "@/Redux/LanguageSlice";
 import { formatDate, formatNum, textNum, tt } from "@/utils";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { Award, CreditCard, FileSpreadsheet, Pencil, Trash2 } from "lucide-react";
+import { Button } from "@/ui";
 import Table, { ITheadItem } from "../../Components/reusable/table/Table";
 import { getExcel } from "@/api";
 import ScreenLoader from "@/Components/ScreenLoader";
@@ -27,20 +28,24 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
     const JWT = useSelector((s: any) => s.auth.jwt);
     const dispatch = useDispatch();
 
+    // 13 ta ustun bitta ekranga sig'ishi kerak: shrift kichik, sarlavhalar
+    // esa `whitespace-normal` bilan ikki qatorga tushadi — shunda ustun
+    // kengligini uzun sarlavha emas, raqamning o'zi belgilaydi.
+    const NUM = "whitespace-normal text-center text-[9px] leading-[1.15]";
     const tableHeaders: ITheadItem[] = [
-        { text: "№", className: "w-[40px]" },
-        { text: tt("Sana", "Дата"), className: "w-[75px]" },
-        { text: tt("Qabul qiluvchi", "Получатель"), className: "w-[80px]" },
-        { text: tt("Jami (100%)", "Жами (100%)"), className: "w-[100px] text-center" },
-        { text: tt("Boshqarma (10%)", "Бошқарма (10%)"), className: "w-[90px] text-center" },
-        { text: tt("Qolgan (90%)", "Қолган (90%)"), className: "w-[100px] text-center" },
-        { text: tt("Moddiy baza (65%)", "Моддий база (65%)"), className: "w-[100px] text-center" },
-        { text: tt("I-II guruh (25%)", "I-II гурух (25%)"), className: "w-[100px] text-center" },
-        { text: tt("Shaxsiy tarkib", "Шахсий таркиб"), className: "w-[100px] text-center" },
-        { text: tt("Ijtimoiy soliq (25%)", "Ижтимоий солиқ (25%)"), className: "w-[90px] text-center" },
-        { text: tt("Daromad solig'i (12%)", "Даромад солиғи (12%)"), className: "w-[90px] text-center" },
-        { text: tt("Kartaga o'tkazildi", "Картага ўтказилди"), className: "w-[100px] text-center" },
-        { text: "", className: "w-[40px] text-center" },
+        { text: "\u2116", className: "w-[30px] text-center text-[9px]" },
+        { text: tt("Sana", "Дата"), className: "w-[58px] text-center text-[9px]" },
+        { text: tt("Qabul qiluvchi", "Получатель"), className: "w-[44px] whitespace-normal text-center text-[9px] leading-[1.15]" },
+        { text: tt("Jami (100%)", "Жами (100%)"), className: NUM },
+        { text: tt("Boshqarma (10%)", "Бошқарма (10%)"), className: NUM },
+        { text: tt("Qolgan (90%)", "Қолган (90%)"), className: NUM },
+        { text: tt("Moddiy baza (65%)", "Моддий база (65%)"), className: NUM },
+        { text: tt("I-II guruh (25%)", "I-II гурух (25%)"), className: NUM },
+        { text: tt("Shaxsiy tarkib", "Шахсий таркиб"), className: NUM },
+        { text: tt("Ijtimoiy soliq (25%)", "Ижтимоий солиқ (25%)"), className: NUM },
+        { text: tt("Daromad solig'i (12%)", "Даромад солиғи (12%)"), className: NUM },
+        { text: tt("Kartaga o'tkazildi", "Картага ўтказилди"), className: NUM },
+        { text: tt("Amallar", "Действия"), className: "w-[100px] whitespace-normal text-center text-[9px] leading-[1.15]" },
     ];
 
     const handleRemove = async () => {
@@ -170,30 +175,34 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
 
     return (
         <>
-            <Table theadClassName="sticky top-[80px] z-[30] bg-mybackground" thead={tableHeaders}>
-                {data.map((item, index) => (
-                    <tr key={index} className="border-b border-mytableheadborder transition-colors text-[12px]">
-                        <td className="py-2 px-2 border-l border-r text-center">{item.doc_num}</td>
-                        <td className="py-2 px-2 border-l border-r text-center">{formatDate(item.doc_date)}</td>
-                        <td className="py-2 px-2 relative group border-l border-r cursor-pointer">
+            <Table
+                thead={tableHeaders}
+                theadClassName="[&>tr>th]:px-1 [&>tr>th]:py-1.5"
+                tbodyClassName="text-[9px] min-[1360px]:text-[10px] [&>tr>td]:px-1 [&>tr>td]:py-1.5"
+            >
+                {data.map((item) => (
+                    <tr key={item.id}>
+                        <td className="text-center tabular-nums">{item.doc_num}</td>
+                        <td className="whitespace-nowrap text-center tabular-nums">{formatDate(item.doc_date)}</td>
+                        <td className="group relative cursor-default">
                             {item.batalon_name}
-                            <div className="hidden group-hover:block -mt-8 ms-16 absolute z-10 bg-mybackground border rounded-md p-3 shadow-lg w-[250px] text-[12px]">
+                            <div className="pointer-events-none absolute left-4 top-full z-30 hidden w-[250px] rounded-md border border-border bg-popover p-3 text-[12px] text-popover-foreground shadow-lg group-hover:block">
                                 <p>{tt("Nomi", "Название")}: {item.batalon_name}</p>
                                 <p>{tt("Manzil", "Адрес")}: {item.batalon_address}</p>
                                 <p>{tt("INN", "ИНН")}: {textNum(item.batalon_str, 3)}</p>
                                 <p>{tt("Hisob raqam", "Номер счета")}: {textNum(item.batalon_account_number, 4)}</p>
                             </div>
                         </td>
-                        <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa)}</td>
-                        <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa_10)}</td>
-                        <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa_remaining)}</td>
-                        <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa_65)}</td>
-                        <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa_25)}</td>
-                        <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa_1_25)}</td>
-                        <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa_25_2)}</td>
-                        <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.summa_12)}</td>
-                        <td className="py-2 px-2 text-right border-l border-r">{formatNum(item.worker_summa)}</td>
-                        <ThreeDotActions
+                        <td className="whitespace-nowrap text-right font-medium tabular-nums">{formatNum(item.summa)}</td>
+                        <td className="whitespace-nowrap text-right tabular-nums">{formatNum(item.summa_10)}</td>
+                        <td className="whitespace-nowrap text-right tabular-nums">{formatNum(item.summa_remaining)}</td>
+                        <td className="whitespace-nowrap text-right tabular-nums">{formatNum(item.summa_65)}</td>
+                        <td className="whitespace-nowrap text-right tabular-nums">{formatNum(item.summa_25)}</td>
+                        <td className="whitespace-nowrap text-right tabular-nums">{formatNum(item.summa_1_25)}</td>
+                        <td className="whitespace-nowrap text-right tabular-nums">{formatNum(item.summa_25_2)}</td>
+                        <td className="whitespace-nowrap text-right tabular-nums">{formatNum(item.summa_12)}</td>
+                        <td className="whitespace-nowrap text-right font-medium tabular-nums text-success">{formatNum(item.worker_summa)}</td>
+                        <RowActions
                             item={item}
                             source={source}
                             onExcelDownload={handleExcelDownload}
@@ -215,7 +224,7 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
     );
 };
 
-interface ThreeDotProps {
+interface RowActionsProps {
     item: RasxodInterface;
     source?: string;
     onExcelDownload: (item: RasxodInterface) => void;
@@ -225,60 +234,93 @@ interface ThreeDotProps {
     onDelete: () => void;
 }
 
-const ThreeDotActions: React.FC<ThreeDotProps> = ({ item, source, onExcelDownload, onExcelDownloadRasxod, onExcelDownload2, onExcelDownload3, onDelete }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const menuRef = useRef<HTMLDivElement>(null);
-    const buttonRef = useRef<HTMLDivElement>(null);
+/**
+ * Ilgari bu yerda `absolute` joylashgan uch nuqtali menyu bor edi. Jadval
+ * endi o'z ichida aylanadigan qutida turibdi va har qanday ochiluvchi qatlam
+ * shu quti chetida kesiladi — shuning uchun amallar bevosita tugma bo'lib
+ * turadi.
+ */
+const RowActions: React.FC<RowActionsProps> = ({
+    item,
+    source,
+    onExcelDownload,
+    onExcelDownloadRasxod,
+    onExcelDownload2,
+    onExcelDownload3,
+    onDelete,
+}) => {
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node) && buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    // Ustun tor bo'lgani uchun tugmalar odatdagidan kichikroq
+    const btn = "h-5 w-5 [&_svg]:size-3";
 
     return (
-        <td className="p-2 border-l border-r relative">
-            <div className="h-[25px] hover:border hover:border-mytextcolor w-[20px] mx-auto rounded-md flex items-center justify-center cursor-pointer" onClick={() => setIsOpen((prev) => !prev)} ref={buttonRef}>
-                <button className="text-mytextcolor">
-                    <Icon name="more" />
-                </button>
-                {isOpen && (
-                    <div ref={menuRef} className="absolute right-[40px] top-0 w-[180px] bg-mybackground border border-gray-300 rounded-md shadow-lg z-[50]">
-                        <ul className="py-1 text-mytextcolor font-[400] text-[14px]">
-                            {source === "fio" && (
-                                <li className="px-4 py-[6px] cursor-pointer hover:bg-gray-100 dark:hover:bg-mytableheadborder" onClick={() => { onExcelDownload3(item); setIsOpen(false); }}>
-                                    {tt("Umumiy hisobot", "Умумий ҳисобот")}
-                                </li>
-                            )}
-                            {source === "fio" && (
-                                <li className="px-4 py-[6px] cursor-pointer hover:bg-gray-100 dark:hover:bg-mytableheadborder" onClick={() => { onExcelDownload(item); setIsOpen(false); }}>
-                                    {tt("Premiya hisoboti", "Премия ҳисоботи")}
-                                </li>
-                            )}
-                            {source !== "fio" && (
-                                <li className="px-4 py-[6px] cursor-pointer hover:bg-gray-100 dark:hover:bg-mytableheadborder" onClick={() => { onExcelDownloadRasxod(item); setIsOpen(false); }}>
-                                    {tt("Taqsimot hisoboti", "Тақсимот ҳисоботи")}
-                                </li>
-                            )}
-                            {source === "fio" && (
-                                <li className="px-4 py-[6px] cursor-pointer hover:bg-gray-100 dark:hover:bg-mytableheadborder" onClick={() => { onExcelDownload2(item); setIsOpen(false); }}>
-                                    {tt("Karta hisoboti", "Карта ҳисоботи")}
-                                </li>
-                            )}
-                            <li className="px-4 py-[6px] cursor-pointer hover:bg-gray-100 dark:hover:bg-mytableheadborder" onClick={() => { navigate(`${item.id}`); setIsOpen(false); }}>
-                                {tt("Tahrirlash", "Редактировать")}
-                            </li>
-                            <li className="px-4 py-[6px] cursor-pointer hover:bg-gray-100 dark:hover:bg-mytableheadborder text-red-500" onClick={() => { onDelete(); setIsOpen(false); }}>
-                                {tt("O'chirish", "Удалить")}
-                            </li>
-                        </ul>
-                    </div>
+        <td>
+            <div className="flex items-center justify-center">
+                {source === "fio" ? (
+                    <>
+                        <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            className={btn}
+                            title={tt("Umumiy hisobot", "\u0423\u043c\u0443\u043c\u0438\u0439 \u04b3\u0438\u0441\u043e\u0431\u043e\u0442")}
+                            aria-label={tt("Umumiy hisobot", "\u0423\u043c\u0443\u043c\u0438\u0439 \u04b3\u0438\u0441\u043e\u0431\u043e\u0442")}
+                            onClick={() => onExcelDownload3(item)}
+                        >
+                            <FileSpreadsheet />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            className={btn}
+                            title={tt("Premiya hisoboti", "\u041f\u0440\u0435\u043c\u0438\u044f \u04b3\u0438\u0441\u043e\u0431\u043e\u0442\u0438")}
+                            aria-label={tt("Premiya hisoboti", "\u041f\u0440\u0435\u043c\u0438\u044f \u04b3\u0438\u0441\u043e\u0431\u043e\u0442\u0438")}
+                            onClick={() => onExcelDownload(item)}
+                        >
+                            <Award />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            className={btn}
+                            title={tt("Karta hisoboti", "\u041a\u0430\u0440\u0442\u0430 \u04b3\u0438\u0441\u043e\u0431\u043e\u0442\u0438")}
+                            aria-label={tt("Karta hisoboti", "\u041a\u0430\u0440\u0442\u0430 \u04b3\u0438\u0441\u043e\u0431\u043e\u0442\u0438")}
+                            onClick={() => onExcelDownload2(item)}
+                        >
+                            <CreditCard />
+                        </Button>
+                    </>
+                ) : (
+                    <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        className={btn}
+                        title={tt("Taqsimot hisoboti", "\u0422\u0430\u049b\u0441\u0438\u043c\u043e\u0442 \u04b3\u0438\u0441\u043e\u0431\u043e\u0442\u0438")}
+                        aria-label={tt("Taqsimot hisoboti", "\u0422\u0430\u049b\u0441\u0438\u043c\u043e\u0442 \u04b3\u0438\u0441\u043e\u0431\u043e\u0442\u0438")}
+                        onClick={() => onExcelDownloadRasxod(item)}
+                    >
+                        <FileSpreadsheet />
+                    </Button>
                 )}
+                <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    className={btn}
+                    title={tt("Tahrirlash", "\u0420\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c")}
+                    aria-label={tt("Tahrirlash", "\u0420\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c")}
+                    onClick={() => navigate(`${item.id}`)}
+                >
+                    <Pencil />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    className={`${btn} hover:bg-destructive/10 hover:text-destructive`}
+                    title={tt("O'chirish", "\u0423\u0434\u0430\u043b\u0438\u0442\u044c")}
+                    aria-label={tt("O'chirish", "\u0423\u0434\u0430\u043b\u0438\u0442\u044c")}
+                    onClick={onDelete}
+                >
+                    <Trash2 />
+                </Button>
             </div>
         </td>
     );

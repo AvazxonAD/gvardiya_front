@@ -10,7 +10,7 @@ interface Props {
 }
 
 const formatNum = (num: number): string => {
-  return num.toLocaleString("ru-RU");
+  return Number(num).toLocaleString("ru-RU");
 };
 
 const COLORS = [
@@ -33,7 +33,7 @@ export default function SoldierTasksChart({ data }: Props) {
   const theme = useSelector((state: any) => state.theme);
   const [selectedRow, setSelectedRow] = useState<SoldierTaskRow | null>(null);
 
-  const d = data || { total_task_count: 0, total_time: 0, total_summa: 0, total_summa_25: 0, count: 0, rows: [] };
+  const d = data || { total_task_count: 0, total_time: 0, total_summa: 0, total_worker_count: 0, count: 0, rows: [] };
   const sorted = [...d.rows].sort((a, b) => b.total_summa - a.total_summa);
   sortedRef.current = sorted;
 
@@ -181,31 +181,31 @@ export default function SoldierTasksChart({ data }: Props) {
               <div className="grid grid-cols-2 gap-1.5">
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
                   <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Qatnashishlar</p>
-                  <p className="text-[13px] font-bold text-amber-500">{selectedRow.task_count.toLocaleString()}</p>
+                  <p className="text-[13px] font-bold text-warning">{selectedRow.task_count.toLocaleString()}</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
                   <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Qatnashish ulushi</p>
-                  <p className="text-[13px] font-bold text-amber-400">
+                  <p className="text-[13px] font-bold text-warning">
                     {d.total_task_count > 0 ? Math.round((selectedRow.task_count / d.total_task_count) * 100) : 0}%
                   </p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
                   <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Soat</p>
-                  <p className="text-[13px] font-bold text-sky-500">{selectedRow.total_time.toLocaleString()}</p>
+                  <p className="text-[13px] font-bold text-primary">{selectedRow.total_time.toLocaleString()}</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
                   <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Soat ulushi</p>
-                  <p className="text-[13px] font-bold text-sky-400">
+                  <p className="text-[13px] font-bold text-primary">
                     {d.total_time > 0 ? Math.round((selectedRow.total_time / d.total_time) * 100) : 0}%
                   </p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
                   <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Summa</p>
-                  <p className="text-[13px] font-bold text-indigo-500">{formatNum(selectedRow.total_summa)}</p>
+                  <p className="text-[13px] font-bold text-primary">{formatNum(selectedRow.total_summa)}</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
                   <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Summa ulushi</p>
-                  <p className="text-[13px] font-bold text-indigo-400">
+                  <p className="text-[13px] font-bold text-primary">
                     {d.total_summa > 0 ? Math.round((selectedRow.total_summa / d.total_summa) * 100) : 0}%
                   </p>
                 </div>
@@ -213,7 +213,7 @@ export default function SoldierTasksChart({ data }: Props) {
 
               <button
                 onClick={() => setSelectedRow(null)}
-                className="w-full py-2 rounded-lg text-[12px] font-medium text-white bg-blue-500 hover:bg-blue-600 transition"
+                className="w-full py-2 rounded-lg text-[12px] font-medium text-primary-foreground bg-primary hover:bg-primary-hover transition"
               >
                 Yopish
               </button>

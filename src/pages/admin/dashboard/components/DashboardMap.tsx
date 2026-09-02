@@ -20,7 +20,7 @@ const labels = [
 
 const formatNum = (num?: number): string => {
   if (!num && num !== 0) return "0";
-  return num.toLocaleString("ru-RU");
+  return Number(num).toLocaleString("ru-RU");
 };
 
 interface DashboardMapProps {
@@ -72,11 +72,11 @@ export default function DashboardMap({ selectedId, regionsData, onSelect }: Dash
     <div className="dash-glass p-[12px] lg:col-span-2 flex flex-col relative z-10 min-h-0" ref={containerRef}>
       <div className="flex items-center justify-between mb-1">
         <h2 className="text-[16px] font-semibold flex items-center text-[var(--dash-text)]">
-          <div className="w-3 h-3 rounded-full bg-blue-500 mr-3 animate-pulse" />
+          <div className="w-3 h-3 rounded-none bg-primary mr-3 animate-pulse" />
           Markazlashgan Tizim Monitoring
         </h2>
         {selectedId && (
-          <button onClick={() => onSelect(null)} className="flex items-center gap-2 bg-[#38bdf8] hover:bg-[#22d3ee] text-white text-[13px] font-semibold px-4 py-1.5 rounded-lg shadow-lg shadow-[#38bdf8]/40 transition-all">
+          <button onClick={() => onSelect(null)} className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-primary-foreground text-[13px] font-semibold px-4 py-1.5 rounded-lg shadow-lg shadow-primary/40 transition-all">
             {selectedName}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -114,9 +114,9 @@ export default function DashboardMap({ selectedId, regionsData, onSelect }: Dash
           <div className={`map-tooltip absolute z-50 w-[220px] rounded-xl shadow-2xl border backdrop-blur-md overflow-hidden ${tooltip.visible ? "opacity-100" : "opacity-0"}`}
             style={{ left: tooltip.x, top: tooltip.y, transform: "translateY(-100%)", background: "var(--dash-tooltip-bg)", borderColor: "var(--dash-tooltip-border)", color: "var(--dash-tooltip-text)" }}>
             <div className="px-3 py-2" style={{ borderBottom: "1px solid var(--dash-tooltip-border)" }}>
-              <h4 className="font-bold text-[#38bdf8] text-[13px]">{r.region_name}</h4>
+              <h4 className="font-bold text-primary text-[13px]">{r.region_name}</h4>
             </div>
-            <div className="px-3 py-2 border-l-[3px] border-l-emerald-500 mx-2 mt-2 rounded-sm" style={{ background: "rgba(255,255,255,0.03)" }}>
+            <div className="px-3 py-2 border-l-[3px] border-l-success mx-2 mt-2 rounded-sm" style={{ background: "rgba(255,255,255,0.03)" }}>
               <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider font-semibold">Jami shartnomalar</p>
               <div className="flex items-baseline gap-1 mt-0.5">
                 <span className="text-[9px] text-[var(--dash-text-muted)]">Soni:</span>
@@ -127,7 +127,7 @@ export default function DashboardMap({ selectedId, regionsData, onSelect }: Dash
                 <span className="text-[12px] font-semibold text-[var(--dash-text-secondary)]">{formatNum(r.data.all_contract.summa)}</span>
               </div>
             </div>
-            <div className="px-3 py-2 border-l-[3px] border-l-emerald-500 mx-2 mt-1.5 rounded-sm" style={{ background: "rgba(255,255,255,0.03)" }}>
+            <div className="px-3 py-2 border-l-[3px] border-l-success mx-2 mt-1.5 rounded-sm" style={{ background: "rgba(255,255,255,0.03)" }}>
               <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider font-semibold">Puli to'lab berilgan</p>
               <div className="flex items-baseline gap-1 mt-0.5">
                 <span className="text-[9px] text-[var(--dash-text-muted)]">Soni:</span>
@@ -135,7 +135,7 @@ export default function DashboardMap({ selectedId, regionsData, onSelect }: Dash
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-[9px] text-[var(--dash-text-muted)]">Summasi:</span>
-                <span className="text-[12px] font-semibold text-emerald-500">{formatNum(r.data.prixod_contract.summa)}</span>
+                <span className="text-[12px] font-semibold text-success">{formatNum(r.data.prixod_contract.summa)}</span>
               </div>
             </div>
             <div className="px-3 py-2 border-l-[3px] border-l-rose-500 mx-2 mt-1.5 mb-2 rounded-sm" style={{ background: "rgba(255,255,255,0.03)" }}>

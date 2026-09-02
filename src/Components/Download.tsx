@@ -1,24 +1,30 @@
+import { useDispatch, useSelector } from "react-redux";
+import { Download as DownloadIcon, FileSpreadsheet } from "lucide-react";
+
 import { alertt } from "@/Redux/LanguageSlice";
 import { getExcel } from "@/api";
 import { tt } from "@/utils";
+import { Button, Modal } from "@/ui";
 
-import { useDispatch, useSelector } from "react-redux";
-import Button from "./reusable/button";
-
-function Download({ open, URL, closeModal }: any) {
+/**
+ * Excel yuklab olishni tasdiqlash oynasi — yangi dizayn tizimida.
+ * Props interfeysi o'zgarmadi (`open`, `URL`, `closeModal`).
+ */
+function Download({ open, URL: url, closeModal }: any) {
   const JWT = useSelector((s: any) => s.auth.jwt);
   const dispatch = useDispatch();
+
   const downloadExcel = async () => {
     try {
-      const excelBlob = await getExcel(JWT, URL);
-      const url = window.URL.createObjectURL(excelBlob);
+      const excelBlob = await getExcel(JWT, url);
+      const blobUrl = window.URL.createObjectURL(excelBlob);
       const a = document.createElement("a");
-      a.href = url;
-      a.download = `${URL.split("/")[2]}_file.xlsx`;
+      a.href = blobUrl;
+      a.download = `${url.split("/")[2]}_file.xlsx`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(blobUrl);
       dispatch(
         alertt({
           text: tt("Excel file yuklandi", "Файл Excel загружен"),
@@ -37,38 +43,42 @@ function Download({ open, URL, closeModal }: any) {
       );
     }
   };
+
   return (
-    <>
-      {open && (
-        <div className="fixed inset-0 bg-[#00000066]  flex items-center justify-center z-50">
-          <div className="bg-mybackground rounded-[6px]  w-[512px] h-[212px] text-mytextcolor shadow-[0.5px_0.5px_4px_0px_#00000026] flex justify-center items-center">
-            <div className="w-[70%] mx-auto ">
-              <h1 className=" leading-[19.36px]  mb-3 font-[600]">
-                {tt("Faylni yuklab olish", "Скачать файл")}
-              </h1>
-
-              <div className="text-mytextcolor mb-6 text-[14px]  leading-[16.94px] font-[400]">
-                {tt(
-                  "Faylni yuklab olib olmoqchimisiz? Unda “Yuklash” tugmasini bosing.",
-                  "Хотите скачать файл? В нем нажмите кнопку Загрузить."
-                )}
-              </div>
-
-              <div className="flex  items-center gap-5 justify-center">
-                <Button mode="cancel" onClick={closeModal} />
-                <Button
-                  mode="download"
-                  onClick={() => {
-                    downloadExcel();
-                    closeModal();
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+    <Modal
+      open={open}
+      onClose={closeModal}
+      size="sm"
+      title={tt("Faylni yuklab olish", "Скачать файл")}
+      footer={
+        <div className="flex w-full justify-end gap-2">
+          <Button variant="secondary" onClick={closeModal}>
+            {tt("Bekor qilish", "Отмена")}
+          </Button>
+          <Button
+            onClick={() => {
+              downloadExcel();
+              closeModal();
+            }}
+          >
+            <DownloadIcon />
+            {tt("Yuklash", "Загрузить")}
+          </Button>
         </div>
-      )}
-    </>
+      }
+    >
+      <div className="flex items-start gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-none bg-success/10 text-success">
+          <FileSpreadsheet className="size-5" />
+        </span>
+        <p className="text-[13px] leading-relaxed text-muted-foreground">
+          {tt(
+            "Ma'lumotlar Excel faylga yuklab olinadi. Davom etish uchun “Yuklash” tugmasini bosing.",
+            "Данные будут выгружены в файл Excel. Нажмите «Загрузить», чтобы продолжить."
+          )}
+        </p>
+      </div>
+    </Modal>
   );
 }
 

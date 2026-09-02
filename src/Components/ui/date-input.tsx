@@ -6,7 +6,7 @@ import { Calendar as CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { tt } from "@/utils";
-import { Input } from "@/Components/ui/input";
+import { Input as UIInput } from "@/ui";
 import { Button } from "@/Components/ui/button";
 import { Calendar } from "@/Components/ui/calendar";
 import {
@@ -172,19 +172,23 @@ function DateInput({
   const hasError = Boolean(error);
 
   return (
-    <div className="grid gap-[6px]">
+    // Kenglik o'ramda: kalendar tugmasi shunga nisbatan joylashadi.
+    // Ilgari kenglik inputda edi, tugma esa o'ramga nisbatan
+    // `absolute right-0` — natijada keng katakda ikonka inputdan
+    // uzilib, katak chetiga uchib ketardi.
+    <div className={cn("grid w-[140px] gap-1.5", className)}>
       {label && (
         <label
           className={cn(
-            "font-bold text-xs",
-            hasError && !selectedDate ? "text-[#F23D53]" : "text-[#636566]"
+            "text-[13px] font-medium leading-none",
+            hasError && !selectedDate ? "text-destructive" : "text-foreground"
           )}
         >
           {label}
         </label>
       )}
       <div className="relative flex items-center">
-        <Input
+        <UIInput
           id={id}
           type="text"
           value={inputValue}
@@ -192,11 +196,8 @@ function DateInput({
           onBlur={handleInputBlur}
           placeholder={placeholder}
           disabled={disabled}
-          className={cn(
-            "w-[140px] pr-10 bg-background text-mytextcolor",
-            hasError && !selectedDate && "border-[#F23D53]",
-            className
-          )}
+          aria-invalid={hasError && !selectedDate ? true : undefined}
+          className="w-full pr-9 tabular-nums"
         />
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
@@ -205,13 +206,13 @@ function DateInput({
               variant="ghost"
               size="sm"
               disabled={disabled}
-              className="absolute right-0 h-full px-3 hover:bg-transparent"
+              className="absolute right-0 h-full px-2.5 hover:bg-transparent"
             >
-              <CalendarIcon className="h-4 w-4 text-gray-400" />
+              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
             </Button>
           </PopoverTrigger>
           <PopoverContent
-            className="w-auto p-0 bg-mybackground"
+            className="w-auto p-0 bg-card"
             align="end"
           >
             <Calendar
@@ -238,7 +239,7 @@ function DateInput({
         {name && <input type="hidden" name={name} value={isoValue} />}
       </div>
       {hasError && typeof error === "string" && !selectedDate && (
-        <div className="text-[12px] leading-[14.52px] font-[600] text-[#F23D53]">
+        <div className="text-[12px] leading-[14.52px] font-[600] text-destructive">
           {error}
         </div>
       )}

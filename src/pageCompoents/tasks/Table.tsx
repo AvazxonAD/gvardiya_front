@@ -3,14 +3,24 @@ import { formatSum, tt } from "@/utils";
 import React, { useCallback, useState } from "react";
 import TableItem from "./TableItem";
 import Icon from "@/assets/icons";
-import Modal from "@/Components/Modal";
 import { Info } from "lucide-react";
+import {
+  Button,
+  DataTable,
+  EmptyState,
+  Modal,
+  SummaryRow,
+  SummaryTile,
+  type TableColumn,
+} from "@/ui";
 
 const Table: React.FC<{ data: ITask[]; getTasks: Function; contract?: any }> = ({
-  data,
+  data: rawData,
   getTasks,
   contract,
 }) => {
+  // Javob kutilgan shaklda bo'lmasligi mumkin — `.reduce`/`.map` yiqilmasin
+  const data: ITask[] = Array.isArray(rawData) ? rawData : [];
   const [creatingId, setCreatingId] = useState<number | null>(null);
   const [batalonModalOpen, setBatalonModalOpen] = useState<boolean>(false);
   const [workerStats, setWorkerStats] = useState<
@@ -89,45 +99,114 @@ const Table: React.FC<{ data: ITask[]; getTasks: Function; contract?: any }> = (
     }, {})
   ).sort((a, b) => a.batalon_name.localeCompare(b.batalon_name));
 
+  const batalonColumns: TableColumn<BatalonGroup>[] = [
+    {
+      key: "name",
+      header: tt("Batalon / Boshqarma nomi", "Название батальона / организации"),
+      cell: (g) => <span className="font-medium">{g.batalon_name}</span>,
+      sortValue: (g) => g.batalon_name,
+    },
+    {
+      key: "workers",
+      header: tt("Xodimlar soni", "Кол-во сотр."),
+      align: "center",
+      width: "120px",
+      cell: (g) => <span className="tabular-nums">{g.workerNumber}</span>,
+      sortValue: (g) => g.workerNumber,
+    },
+    {
+      key: "hours",
+      header: tt("Jami soat", "Всего часов"),
+      align: "center",
+      width: "110px",
+      cell: (g) => <span className="tabular-nums">{g.totalHours}</span>,
+      sortValue: (g) => g.totalHours,
+    },
+    {
+      key: "summa",
+      header: tt("Summa", "Сумма"),
+      align: "right",
+      width: "150px",
+      cell: (g) => (
+        <span className="font-medium tabular-nums">{formatSum(g.summa)}</span>
+      ),
+      sortValue: (g) => g.summa,
+    },
+    {
+      key: "remaining",
+      header: tt("Qolgan vaqt", "Остаток"),
+      align: "center",
+      width: "110px",
+      cell: (g) => (
+        <span
+          className={`font-medium tabular-nums ${
+            g.remaining > 0 ? "text-destructive" : "text-success"
+          }`}
+        >
+          {g.remaining}
+        </span>
+      ),
+      sortValue: (g) => g.remaining,
+    },
+    {
+      key: "attWorkers",
+      header: tt("Birik. xodimlar", "Прикр. сотр."),
+      align: "center",
+      width: "130px",
+      hideOnMobile: true,
+      cell: (g) => <span className="tabular-nums">{g.attachedWorkers}</span>,
+      sortValue: (g) => g.attachedWorkers,
+    },
+    {
+      key: "attHours",
+      header: tt("Birik. soat", "Прикр. часы"),
+      align: "center",
+      width: "120px",
+      hideOnMobile: true,
+      cell: (g) => <span className="tabular-nums">{g.attachedHours}</span>,
+      sortValue: (g) => g.attachedHours,
+    },
+  ];
+
   return (
-    <div className="overflow-x-auto my-5">
-      <table className="min-w-full border-collapse border border-mytableheadborder">
+    <div className="w-full overflow-x-auto">
+      <table className="table-grid w-full">
         <thead>
-          <tr className="bg-mytablehead text-mytextcolor uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left border border-mytableheadborder">
+          <tr className="bg-muted/60 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <th className="py-3 px-6 text-left border-b border-border">
               {tt(
                 "Batalon / Boshqarma nomi",
                 "Название батальона / организации"
               )}
             </th>
-            <th className="py-3 px-6 text-center border border-mytableheadborder">
+            <th className="py-3 px-6 text-center border-b border-border">
               {tt("Topshiriq vaqti", "Время задачи")}
             </th>
-            <th className="py-3 px-6 text-center border border-mytableheadborder">
+            <th className="py-3 px-6 text-center border-b border-border">
               <div className="flex items-center gap-2 justify-center">
                 <Icon name="ava" />
                 {tt("Xodimlar soni", "Количество сотрудников")}
               </div>
             </th>
-            <th className="py-3 px-6 text-center border border-mytableheadborder">
+            <th className="py-3 px-6 text-center border-b border-border">
               {tt("Jami soat", "Всего часов")}
             </th>
-            <th className="py-3 px-6 text-left min-w-[170px] border border-mytableheadborder">
+            <th className="py-3 px-6 text-left min-w-[170px] border-b border-border">
               {tt("Summa", "Сумма")}
             </th>
-            <th className="py-3 px-6 text-center border border-mytableheadborder">
+            <th className="py-3 px-6 text-center border-b border-border">
               {tt("Qolgan vaqt", "Оставшееся время")}
             </th>
-<th className="py-3 px-6 text-center border border-mytableheadborder">
+<th className="py-3 px-6 text-center border-b border-border">
               {tt("Biriktirilgan jami xodimlar", "Всего прикреплённых сотрудников")}
             </th>
-            <th className="py-3 px-6 text-center border border-mytableheadborder">
+            <th className="py-3 px-6 text-center border-b border-border">
               {tt("Biriktirilgan jami soat", "Всего прикреплённых часов")}
             </th>
-            <th className="py-3 px-6 text-left min-w-[200px] border border-mytableheadborder">
+            <th className="py-3 px-6 text-left min-w-[200px] border-b border-border">
               {tt("Izoh", "Комментарий")}
             </th>
-            <th className="py-3 px-6 text-center border border-mytableheadborder">
+            <th className="py-3 px-6 text-center border-b border-border">
               {tt("Amallar", "Действия")}
             </th>
           </tr>
@@ -149,43 +228,45 @@ const Table: React.FC<{ data: ITask[]; getTasks: Function; contract?: any }> = (
         </tbody>
         {data.length > 0 && (
           <tfoot>
-            <tr className="bg-mytablehead text-mytextcolor font-bold text-sm">
-              <td className="py-3 px-6 text-left border border-mytableheadborder uppercase">
+            <tr className="bg-muted/60 text-[13px] font-semibold text-foreground">
+              <td className="py-3 px-6 text-left border-b border-border uppercase">
                 {tt("Jami", "Итого")}
               </td>
-              <td className="py-3 px-6 text-center border border-mytableheadborder"></td>
-              <td className="py-3 px-6 text-center border border-mytableheadborder">
+              <td className="py-3 px-6 text-center border-b border-border"></td>
+              <td className="py-3 px-6 text-center border-b border-border">
                 {totals.workerNumber}
               </td>
-              <td className="py-3 px-6 text-center border border-mytableheadborder">
+              <td className="py-3 px-6 text-center border-b border-border">
                 {totals.totalHours}
               </td>
-              <td className="py-3 px-6 text-left border border-mytableheadborder">
+              <td className="py-3 px-6 text-left border-b border-border">
                 {formatSum(totals.summa)}
               </td>
               <td
-                style={{ color: totals.remaining > 0 ? "red" : "green" }}
-                className="py-3 px-6 text-center border border-mytableheadborder"
+                className={`py-3 px-6 text-center border-b border-border tabular-nums ${
+                  totals.remaining > 0 ? "text-destructive" : "text-success"
+                }`}
               >
                 {totals.remaining}
               </td>
-              <td className="py-3 px-6 text-center border border-mytableheadborder">
+              <td className="py-3 px-6 text-center border-b border-border">
                 {totals.attachedWorkers}
               </td>
-              <td className="py-3 px-6 text-center border border-mytableheadborder">
+              <td className="py-3 px-6 text-center border-b border-border">
                 {totals.attachedHours}
               </td>
-              <td className="py-3 px-6 border border-mytableheadborder"></td>
-              <td className="py-3 px-6 border border-mytableheadborder">
+              <td className="py-3 px-6 border-b border-border"></td>
+              <td className="py-3 px-6 border-b border-border">
                 <div className="flex justify-center items-center">
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     onClick={() => setBatalonModalOpen(true)}
+                    aria-label={tt("Batalonlar kesimida", "По батальонам")}
                     title={tt("Batalonlar kesimida", "По батальонам")}
-                    className="text-blue-600 hover:text-blue-800"
                   >
-                    <Info size={20} />
-                  </button>
+                    <Info />
+                  </Button>
                 </div>
               </td>
             </tr>
@@ -194,97 +275,47 @@ const Table: React.FC<{ data: ITask[]; getTasks: Function; contract?: any }> = (
       </table>
       <Modal
         open={batalonModalOpen}
-        closeModal={() => setBatalonModalOpen(false)}
+        onClose={() => setBatalonModalOpen(false)}
         title={tt("Batalonlar kesimida", "По батальонам")}
-        w="900px"
+        size="2xl"
+        footer={
+          <SummaryRow className="w-full px-0 pt-0 lg:grid-cols-5">
+            <SummaryTile
+              label={tt("Xodimlar soni", "Кол-во сотр.")}
+              value={totals.workerNumber}
+            />
+            <SummaryTile
+              label={tt("Jami soat", "Всего часов")}
+              value={totals.totalHours}
+            />
+            <SummaryTile
+              label={tt("Summa", "Сумма")}
+              value={formatSum(totals.summa)}
+            />
+            <SummaryTile
+              label={tt("Qolgan vaqt", "Остаток")}
+              value={totals.remaining}
+              tone={totals.remaining > 0 ? "danger" : "success"}
+            />
+            <SummaryTile
+              label={tt("Biriktirilgan", "Прикреплено")}
+              value={`${totals.attachedWorkers} / ${totals.attachedHours}`}
+            />
+          </SummaryRow>
+        }
       >
-        <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse border border-mytableheadborder">
-            <thead>
-              <tr className="bg-mytablehead text-mytextcolor uppercase text-[12px]">
-                <th className="py-2 px-3 text-left border border-mytableheadborder">
-                  {tt("Batalon / Boshqarma nomi", "Название батальона / организации")}
-                </th>
-                <th className="py-2 px-3 text-center border border-mytableheadborder">
-                  {tt("Xodimlar soni", "Кол-во сотр.")}
-                </th>
-                <th className="py-2 px-3 text-center border border-mytableheadborder">
-                  {tt("Jami soat", "Всего часов")}
-                </th>
-                <th className="py-2 px-3 text-left border border-mytableheadborder">
-                  {tt("Summa", "Сумма")}
-                </th>
-                <th className="py-2 px-3 text-center border border-mytableheadborder">
-                  {tt("Qolgan vaqt", "Остаток")}
-                </th>
-                <th className="py-2 px-3 text-center border border-mytableheadborder">
-                  {tt("Birik. xodimlar", "Прикр. сотр.")}
-                </th>
-                <th className="py-2 px-3 text-center border border-mytableheadborder">
-                  {tt("Birik. soat", "Прикр. часы")}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-[13px] text-mytextcolor">
-              {batalonGroups.map((g) => (
-                <tr key={g.batalon_name}>
-                  <td className="py-2 px-3 text-left border border-mytableheadborder font-[500]">
-                    {g.batalon_name}
-                  </td>
-                  <td className="py-2 px-3 text-center border border-mytableheadborder">
-                    {g.workerNumber}
-                  </td>
-                  <td className="py-2 px-3 text-center border border-mytableheadborder">
-                    {g.totalHours}
-                  </td>
-                  <td className="py-2 px-3 text-left border border-mytableheadborder">
-                    {formatSum(g.summa)}
-                  </td>
-                  <td
-                    style={{ color: g.remaining > 0 ? "red" : "green" }}
-                    className="py-2 px-3 text-center border border-mytableheadborder"
-                  >
-                    {g.remaining}
-                  </td>
-                  <td className="py-2 px-3 text-center border border-mytableheadborder">
-                    {g.attachedWorkers}
-                  </td>
-                  <td className="py-2 px-3 text-center border border-mytableheadborder">
-                    {g.attachedHours}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr className="bg-mytablehead text-mytextcolor font-bold text-[13px]">
-                <td className="py-2 px-3 text-left border border-mytableheadborder uppercase">
-                  {tt("Jami", "Итого")}
-                </td>
-                <td className="py-2 px-3 text-center border border-mytableheadborder">
-                  {totals.workerNumber}
-                </td>
-                <td className="py-2 px-3 text-center border border-mytableheadborder">
-                  {totals.totalHours}
-                </td>
-                <td className="py-2 px-3 text-left border border-mytableheadborder">
-                  {formatSum(totals.summa)}
-                </td>
-                <td
-                  style={{ color: totals.remaining > 0 ? "red" : "green" }}
-                  className="py-2 px-3 text-center border border-mytableheadborder"
-                >
-                  {totals.remaining}
-                </td>
-                <td className="py-2 px-3 text-center border border-mytableheadborder">
-                  {totals.attachedWorkers}
-                </td>
-                <td className="py-2 px-3 text-center border border-mytableheadborder">
-                  {totals.attachedHours}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+        <DataTable
+          columns={batalonColumns}
+          rows={batalonGroups}
+          keyOf={(g) => g.batalon_name}
+          maxHeight={460}
+          empty={
+            <EmptyState
+              icon={Info}
+              title={tt("Ma'lumot yo'q", "Нет данных")}
+            />
+          }
+        />
       </Modal>
     </div>
   );

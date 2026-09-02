@@ -8,15 +8,28 @@ import Paginatsiya from "../../Components/Paginatsiya";
 import { alertt } from "../../Redux/LanguageSlice";
 import { PayCont, deleteCont, getSpr, getCont } from "../../api";
 import ContTab from "../../pageCompoents/ContTab";
-import { tt } from "../../utils";
+import { formatSum, tt } from "../../utils";
 import Modal from "@/Components/Modal";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import Button from "@/Components/reusable/button";
 import { RootState } from "@/Redux/store";
-import useFullHeight from "@/hooks/useFullHeight";
 import { useRequest } from "@/hooks/useRequest";
 import { useDebounce } from "use-debounce";
 import Select from "../../Components/Select";
+import {
+  FileSpreadsheet,
+  Plus,
+  RotateCcw,
+} from "lucide-react";
+import {
+  Button as UIButton,
+  ListCard,
+  Select as UISelect,
+  SummaryRow,
+  SummaryTile,
+  Toolbar,
+  ToolbarSpacer,
+} from "@/ui";
 
 function ContractHome() {
   const { startDate, endDate } = useSelector(
@@ -93,13 +106,21 @@ function ContractHome() {
     });
   };
 
+  // Filtrlar o'zgarishi bilan ro'yxat o'zi yangilanadi — alohida
+  // "Yuklash" tugmasi kerak emas.
   useEffect(() => {
     getInfo(dates);
-  }, [currentPage, limet, searchText, account_id, status, statusSumma, rasxodStatus]);
-
-  const handleDownload = () => {
-    getInfo(dates);
-  };
+  }, [
+    currentPage,
+    limet,
+    searchText,
+    account_id,
+    status,
+    statusSumma,
+    rasxodStatus,
+    dates.date1,
+    dates.date2,
+  ]);
 
   const deleteInfo = async () => {
     const res = await deleteCont(JWT, active, account_id);
@@ -148,10 +169,6 @@ function ContractHome() {
 
     setInfoToTushum();
   };
-
-  const height = useFullHeight();
-  const fullHeight =
-    typeof height === "string" ? `calc(${height} - 230px)` : height - 230;
 
   const request = useRequest();
   const { account_number_id } = useSelector((state: any) => state.account);
@@ -222,213 +239,158 @@ function ContractHome() {
   };
 
   return (
-    <div className="flex flex-col w-full">
-      <div style={{ minHeight: fullHeight }}>
-        <div className="-mt-5 sticky py-5 -top-1 z-[30] bg-mybackground flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className="w-[200px]">
+    <div className="flex flex-col gap-3">
+      <ListCard
+        toolbar={
+          <Toolbar>
+            <div className="w-full sm:w-64">
               <Input
                 v={value}
                 change={(e: any) => setValue(e.target.value)}
                 search={true}
                 p={tt("Ma’lumotlarni qidirish", "Поиск данных")}
-                className="w-full"
+                className="h-9 w-full"
               />
             </div>
-            <div className="w-[130px]">
-              <select
+
+            <div className="w-[150px]">
+              <UISelect
+                selectSize="sm"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="
-                  block w-full
-                  bg-white dark:bg-mybackground
-                  border border-gray-300 dark:border-mybordercolor
-                  rounded-md
-                  py-1.5 px-2
-                  text-gray-700 dark:text-mytextcolor
-                  text-sm
-                  focus:outline-none
-                  focus:ring-1
-                  focus:ring-blue-500
-                  focus:border-blue-500
-                  cursor-pointer
-                  transition
-                  duration-200
-                  ease-in-out
-                  shadow-sm
-                  hover:border-blue-400
-                "
-              >
-                <option value="">Barchasi</option>
-                <option value="done">Bajarilgan</option>
-                <option value="not_done">Bajarilmagan</option>
-              </select>
+                placeholder={tt("Barchasi", "Все")}
+                options={[
+                  { value: "done", label: tt("Bajarilgan", "Выполнено") },
+                  { value: "not_done", label: tt("Bajarilmagan", "Не выполнено") },
+                ]}
+              />
             </div>
 
-            <div className="w-[120px]">
-              <select
+            <div className="w-[150px]">
+              <UISelect
+                selectSize="sm"
                 value={statusSumma}
                 onChange={(e) => setStatusSumma(e.target.value)}
-                className="
-                  block w-full
-                  bg-white dark:bg-mybackground
-                  border border-gray-300 dark:border-mybordercolor
-                  rounded-md
-                  py-1.5 px-2
-                  text-gray-700 dark:text-mytextcolor
-                  text-sm
-                  focus:outline-none
-                  focus:ring-1
-                  focus:ring-blue-500
-                  focus:border-blue-500
-                  cursor-pointer
-                  transition
-                  duration-200
-                  ease-in-out
-                  shadow-sm
-                  hover:border-blue-400
-                "
-              >
-                <option value="">Barchasi</option>
-                <option value="debet">Tolangan</option>
-                <option value="kredit">Tolanmagan</option>
-              </select>
+                placeholder={tt("Barchasi", "Все")}
+                options={[
+                  { value: "debet", label: tt("To'langan", "Оплачено") },
+                  { value: "kredit", label: tt("To'lanmagan", "Не оплачено") },
+                ]}
+              />
             </div>
 
-            <div className="w-[130px]">
-              <select
+            <div className="w-[160px]">
+              <UISelect
+                selectSize="sm"
                 value={rasxodStatus}
                 onChange={(e) => setRasxodStatus(e.target.value)}
-                className="
-                  block w-full
-                  bg-white dark:bg-mybackground
-                  border border-gray-300 dark:border-mybordercolor
-                  rounded-md
-                  py-1.5 px-2
-                  text-gray-700 dark:text-mytextcolor
-                  text-sm
-                  focus:outline-none
-                  focus:ring-1
-                  focus:ring-blue-500
-                  focus:border-blue-500
-                  cursor-pointer
-                  transition
-                  duration-200
-                  ease-in-out
-                  shadow-sm
-                  hover:border-blue-400
-                "
-              >
-                <option value="">{tt("Barchasi", "Все")}</option>
-                <option value="spent">{tt("Sarflangan", "Потрачено")}</option>
-                <option value="not_spent">{tt("Sarflanmagan", "Не потрачено")}</option>
-              </select>
+                placeholder={tt("Barchasi", "Все")}
+                options={[
+                  { value: "spent", label: tt("Sarflangan", "Потрачено") },
+                  { value: "not_spent", label: tt("Sarflanmagan", "Не потрачено") },
+                ]}
+              />
             </div>
 
-          </div>
-
-          <div className="flex items-center gap-1">
-            <div className="flex gap-1 items-center">
+            <div className="flex items-center gap-1.5">
               <SpecialDatePicker
                 defaultValue={dates.date1}
                 onChange={(e) => setDates({ ...dates, date1: e })}
               />
+              <span className="text-muted-foreground">—</span>
               <SpecialDatePicker
                 defaultValue={dates.date2}
                 onChange={(e) => setDates({ ...dates, date2: e })}
               />
-              <Button mode="download" onClick={handleDownload} className="!px-2" />
             </div>
-            <Button
-              mode="clear"
+
+            <ToolbarSpacer />
+
+            <UIButton
+              variant="ghost"
+              size="sm"
               onClick={async () => {
-                setDates({
-                  date1: startDate,
-                  date2: endDate,
-                });
+                setDates({ date1: startDate, date2: endDate });
                 setValue("");
-                getInfo({
-                  date1: startDate,
-                  date2: endDate,
-                });
+                getInfo({ date1: startDate, date2: endDate });
                 setStatus("");
                 setStatusSumma("");
                 setRasxodStatus("");
               }}
-              className="!px-2"
-            />
-            <div className="flex gap-1">
-              <Button
-                mode="download"
-                onClick={handleDownloadExel}
-                text={tt("Barchasi", "Все")}
-                className="!px-2"
+            >
+              <RotateCcw />
+              {tt("Tozalash", "Очистить")}
+            </UIButton>
+
+            <UIButton variant="secondary" size="sm" onClick={handleDownloadExel}>
+              <FileSpreadsheet />
+              {tt("Barchasi", "Все")}
+            </UIButton>
+
+            <UIButton
+              variant="secondary"
+              size="sm"
+              onClick={async () => {
+                await getBatalyons();
+                setBatalonOpen(true);
+              }}
+            >
+              <FileSpreadsheet />
+              {tt("Batalon", "Бат.")}
+            </UIButton>
+
+            <UIButton size="sm" onClick={() => navigate("/contract/add")}>
+              <Plus />
+              {tt("Qo'shish", "Добавить")}
+            </UIButton>
+          </Toolbar>
+        }
+        footer={
+          data ? (
+            <>
+              <SummaryRow>
+                <SummaryTile
+                  label={tt("Hisoblangan summa", "Начисленная сумма")}
+                  value={formatSum(balance.internal_summa) || "0"}
+                />
+                <SummaryTile
+                  label={tt("Kelib tushgan summa", "Поступившая сумма")}
+                  value={formatSum(balance.debet_summa) || "0"}
+                  tone="success"
+                />
+                <SummaryTile
+                  label={tt("Debitor qarzdorlik", "Дебиторская задолженность")}
+                  value={formatSum(balance.kredit_summa) || "0"}
+                  tone="danger"
+                />
+                <SummaryTile
+                  label={tt("Rasxod summa", "Сумма расхода")}
+                  value={formatSum(balance.rasxod_summa) || "0"}
+                />
+              </SummaryRow>
+
+              <Paginatsiya
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                totalPages={totalPages}
+                limet={limet}
+                setLimet={setLimet}
+                count={all}
               />
-              <Button
-                mode="download"
-                onClick={async () => {
-                  await getBatalyons();
-                  setBatalonOpen(true);
-                }}
-                text={tt("Batalon", "Бат.")}
-                className="!px-2"
-              />
-              <Button mode="add" onClick={() => navigate("/contract/add")} className="!px-2" />
-            </div>
-          </div>
-        </div>
+            </>
+          ) : null
+        }
+      >
+        <ContTab data={data} handleDelete={deleteInfo} setActive={setactive} />
+      </ListCard>
 
-        <div>
-          <ContTab
-            data={data}
-            handleDelete={deleteInfo}
-            setActive={setactive}
-          />
-        </div>
-      </div>
-
-      {data ? (
-        <div className="sticky bottom-0 bg-mybackground z-2 mt-[30px]">
-          <div className="flex flex-col items-start gap-4">
-            <div className="flex gap-1">
-              <div className="flex flex-col items-start gap-y-0.5 min-w-0">
-                <label className="font-[600] text-[8px] truncate whitespace-nowrap">{tt("Hisoblangan summa", "Ҳисобланган сумма")}:</label>
-                <Input readonly v={balance.internal_summa} className="w-[170px] text-[11px] h-7 px-2 py-0" />
-              </div>
-              <div className="flex flex-col items-start gap-y-0.5 min-w-0">
-                <label className="font-[600] text-[8px] truncate whitespace-nowrap">{tt("Kelib tushgan summa", "Келиб тушган сумма")}:</label>
-                <Input readonly v={balance.debet_summa} className="w-[170px] text-[11px] h-7 px-2 py-0" />
-              </div>
-              <div className="flex flex-col items-start gap-y-0.5 min-w-0">
-                <label className="font-[600] text-[8px] truncate whitespace-nowrap">{tt("Debitor qarzdorlik", "Дебитор қарздорлик")}:</label>
-                <Input readonly v={balance.kredit_summa} className="w-[170px] text-[11px] h-7 px-2 py-0" />
-              </div>
-              <div className="flex flex-col items-start gap-y-0.5 min-w-0">
-                <label className="font-[600] text-[8px] truncate whitespace-nowrap">{tt("Rasxod summa", "Расход сумма")}:</label>
-                <Input readonly v={balance.rasxod_summa} className="w-[170px] text-[11px] h-7 px-2 py-0" />
-              </div>
-            </div>
-
-            <Paginatsiya
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              totalPages={totalPages}
-              limet={limet}
-              setLimet={setLimet}
-              count={all}
-            />
-          </div>
-        </div>
-      ) : (
-        <></>
-      )}
       <Modal
         open={open}
         closeModal={() => setOpen(false)}
         title={tt("Tushumlar", "Квитанции")}
       >
         <form onSubmit={handleCreateTushum} className="flex flex-col gap-3">
-          <div className="flex flex-col gap-2 text-[12px]  leading-[14.52px] font-[600] text-[#636566]">
+          <div className="flex flex-col gap-2 text-[12px] leading-[14.52px] font-[600] text-muted-foreground">
             <SpecialDatePicker
               defaultValue={tushum.date}
               onChange={(e: any) => setTushum({ ...tushum, date: e })}
@@ -454,9 +416,9 @@ function ContractHome() {
 
       <Modal
         open={batalonOpen}
-        setOpen={setBatalonOpen}
-        title="Batalonni tanlang"
-        className="!p-5"
+        closeModal={() => setBatalonOpen(false)}
+        title={tt("Batalonni tanlang", "Выберите батальон")}
+        w="380px"
       >
         <section
           className={`${openSelect ? "h-[300px]" : ""

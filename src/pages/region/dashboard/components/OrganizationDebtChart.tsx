@@ -87,7 +87,7 @@ export default function OrganizationDebtChart() {
           label: "Qarz summasi",
           data: debts,
           backgroundColor: bgColors,
-          borderRadius: 6,
+          borderRadius: 0, // rasmiy uslub — to'rtburchak ustunlar
           barPercentage: 0.7,
         }],
       },
@@ -179,7 +179,7 @@ export default function OrganizationDebtChart() {
         <div className="relative flex-1 w-full min-h-0">
           {loading ? (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary/30" />
             </div>
           ) : d.rows.length === 0 ? (
             <div className="absolute inset-0 flex items-center justify-center text-[12px] text-[var(--dash-text-muted)]">

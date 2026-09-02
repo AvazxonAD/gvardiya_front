@@ -1,8 +1,6 @@
 /** @format */
 
 import Download from "@/Components/Download";
-import Button from "@/Components/reusable/button";
-import useFullHeight from "@/hooks/useFullHeight";
 import useApi from "@/services/api";
 import { IOrganization } from "@/types/organization";
 import React, { useEffect, useRef, useState } from "react";
@@ -23,6 +21,13 @@ import { alertt } from "../Redux/LanguageSlice";
 import { tt } from "../utils";
 import OrganizationForPrint from "./organization/print";
 import OrganizationModal from "@/shared/components/OrganizationModal";
+import { FileSpreadsheet, Plus, Printer } from "lucide-react";
+import {
+  Button as UIButton,
+  ListCard,
+  Toolbar,
+  ToolbarSpacer,
+} from "@/ui";
 
 export const formatAccountNumber = (value: string, count?: number) => {
   let newValue = value.replace(/[^\d]/g, ""); // faqat raqamlar qolsin
@@ -278,9 +283,6 @@ function Organisation() {
     }
   }, [forPdf]);
 
-  const height = useFullHeight();
-  const fullHeight =
-    typeof height === "string" ? `calc(${height} - 190px)` : height - 190;
 
   // Add new functions to handle account numbers and gazna_numbers
   const handleAccountNumberChange = (index: number, inputValue: string) => {
@@ -349,51 +351,60 @@ function Organisation() {
   };
 
   return (
-    <div className="flex flex-col w-full">
-      <div className=" hidden">
+    <div className="flex min-w-0 flex-col gap-3">
+      <div className="hidden">
         <OrganizationForPrint ref={fioRef} data={forPdf} />
       </div>
-      <div style={{ minHeight: fullHeight }}>
-        <div className="flex justify-between items-center mb-4">
-          <Input
-            search={true}
-            v={searchValue}
-            change={(e: any) => setSearchValue(e.target.value)}
-            p={tt("Nomlar bo'yicha qidiruv", "Поиск по имени")}
-          />
-          <div className="flex items-center gap-5">
-            <Button mode="print" onClick={onPrintClick} />
-            <Button
-              mode="download"
-              onClick={() => setDownOpen(true)}
-              text={tt("Excel", "Экcель")}
-            />
-            <Button mode="add" onClick={() => setOpen(true)} />
-          </div>
-        </div>
 
-        <div>
-          <OrganTAb
-            handleDelete={handleDelete}
-            setActive={setActive}
-            data={data}
-            openEdit={openEdit}
-            page={currentPage}
-            itemsPerPage={10}
-          />
-        </div>
-      </div>
+      <ListCard
+        toolbar={
+          <Toolbar>
+            <div className="w-full sm:w-72">
+              <Input
+                search={true}
+                v={searchValue}
+                change={(e: any) => setSearchValue(e.target.value)}
+                p={tt("Nomlar bo'yicha qidiruv", "Поиск по имени")}
+                className="h-9 w-full"
+              />
+            </div>
 
-      <div className="">
-        <Paginatsiya
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          totalPages={totalPages}
-          limet={limet}
-          setLimet={setLimet}
-          count={all}
+            <ToolbarSpacer />
+
+            <UIButton variant="secondary" size="sm" onClick={onPrintClick}>
+              <Printer />
+              {tt("Chop etish", "Печать")}
+            </UIButton>
+            <UIButton variant="secondary" size="sm" onClick={() => setDownOpen(true)}>
+              <FileSpreadsheet />
+              Excel
+            </UIButton>
+            <UIButton size="sm" onClick={() => setOpen(true)}>
+              <Plus />
+              {tt("Qo'shish", "Добавить")}
+            </UIButton>
+          </Toolbar>
+        }
+        footer={
+          <Paginatsiya
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={totalPages}
+            limet={limet}
+            setLimet={setLimet}
+            count={all}
+          />
+        }
+      >
+        <OrganTAb
+          handleDelete={handleDelete}
+          setActive={setActive}
+          data={data}
+          openEdit={openEdit}
+          page={currentPage}
+          itemsPerPage={10}
         />
-      </div>
+      </ListCard>
 
       <OrganizationModal
         open={open}

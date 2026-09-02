@@ -66,7 +66,7 @@ function UserMonitoring() {
     <div className="">
       <div className="flex justify-between items-start">
         <div className="flex gap-x-3 items-center">
-          <h2 className="font-[600] text-[36px] text-mytextcolor">
+          <h2 className="font-[600] text-[36px] text-foreground">
             {findRegion ? findRegion.title : ""}
           </h2>
         </div>
@@ -78,10 +78,10 @@ function UserMonitoring() {
       </div>
       <div className="-mt-[80px] mb-5 flex justify-between items-end w-full">
         <div>
-          <h3 className="font-[600] text-mysecondarytext">
+          <h3 className="font-[600] text-foreground">
             {tt("Jami summa", "Общая сумма")}
           </h3>
-          <h1 className="font-[500] text-mysecondarytext text-[35px]">
+          <h1 className="font-[500] text-foreground text-[35px]">
             {formatSum(data?.itogo || 0)}
           </h1>
         </div>
@@ -103,9 +103,8 @@ function UserMonitoring() {
           />
         </div>
 
-        <div className="w-1/2 h-[430px] border border-mybordercolor px-4 py-5 rounded-md">
+        <div className="w-1/2 h-[430px] border border-border px-4 py-5 rounded-md">
           <Table
-            theadClassName="sticky -top-1 z-20"
             tableClassName="max-h-[390px] overflow-y-auto"
             thead={[
               {
@@ -137,21 +136,21 @@ function UserMonitoring() {
             {data?.byBatalon.map((r, ind) => (
               <tr
                 key={ind}
-                className="cursor-pointer font-[500] hover:text-[#3B7FAF] transition-colors duration-300 border-b border-[#3B7FAF66]"
+                className="cursor-pointer font-[500] hover:text-primary transition-colors duration-300 border-b border-border"
               >
-                <td className="px-[8px] py-3 border-b border-l border-r text-center">
+                <td className="px-[8px] py-3 border-b border-border text-center">
                   {ind + 1}
                 </td>
                 <td
                   onClick={() => setBatalonId(r.id)}
-                  className="px-[8px] py-3 border-b border-l border-r text-center"
+                  className="px-[8px] py-3 border-b border-border text-center"
                 >
                   {r.batalon_name}
                 </td>
-                <td className="px-[8px] py-3 border-b border-l border-r text-center">
+                <td className="px-[8px] py-3 border-b border-border text-center">
                   {r?.task_time ?? 0}
                 </td>
-                <td className="px-[8px] py-3 border-b border-l border-r text-right">
+                <td className="px-[8px] py-3 border-b border-border text-right">
                   {formatSum(r?.summa ?? 0)}
                 </td>
               </tr>
@@ -170,7 +169,7 @@ function UserMonitoring() {
 
       <div className="my-10 flex justify-center">
         <div className="w-11/12">
-          <h2 className="font-[600] text-mytextcolor">
+          <h2 className="font-[600] text-foreground">
             {tt("Top 10 gvardiya hodimlari", "Топ 10 сотрудников гвардии")}
           </h2>
           <div className="mt-3">
@@ -195,21 +194,21 @@ function UserMonitoring() {
               {data?.workers.map((r, ind) => (
                 <tr
                   key={ind}
-                  className="cursor-pointer font-[500] hover:text-[#3B7FAF] transition-colors duration-300 border-b border-[#3B7FAF66]"
+                  className="cursor-pointer font-[500] hover:text-primary transition-colors duration-300 border-b border-border"
                 >
-                  <td className="px-[8px] py-3 border-b border-l border-r text-center">
+                  <td className="px-[8px] py-3 border-b border-border text-center">
                     {ind + 1}
                   </td>
-                  <td className="px-[8px] py-3 border-b border-l border-r text-center">
+                  <td className="px-[8px] py-3 border-b border-border text-center">
                     {r.batalon_name}
                   </td>
-                  <td className="px-[8px] py-3 border-b border-l border-r text-center">
+                  <td className="px-[8px] py-3 border-b border-border text-center">
                     {r.fio}
                   </td>
-                  <td className="px-[8px] py-3 border-b border-l border-r text-center">
+                  <td className="px-[8px] py-3 border-b border-border text-center">
                     {r.task_time}
                   </td>
-                  <td className="px-[8px] py-3 border-b border-l border-r text-right">
+                  <td className="px-[8px] py-3 border-b border-border text-right">
                     {formatSum(r?.summa ?? 0)}
                   </td>
                 </tr>

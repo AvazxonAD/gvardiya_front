@@ -85,16 +85,16 @@ export interface SoldierTaskRow {
   batalon_id: number;
   batalon_name: string;
   task_count: number;
+  worker_count: number;
   total_time: number;
   total_summa: number;
-  summa_25: number;
 }
 
 export interface SoldierTasksResponse {
   total_task_count: number;
   total_time: number;
   total_summa: number;
-  total_summa_25: number;
+  total_worker_count: number;
   count: number;
   rows: SoldierTaskRow[];
 }

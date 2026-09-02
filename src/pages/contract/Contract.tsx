@@ -1,37 +1,50 @@
 /** @format */
 
-import BackButton from "@/Components/reusable/BackButton";
-import { Outlet, useLocation } from "react-router-dom";
-import { tt } from "../../utils";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
+import { tt } from "../../utils";
+import { Button } from "@/ui";
+
+/**
+ * Shartnoma bo'limining qobig'i.
+ *
+ * Ilgari bu yerda `grid grid-rows-[auto_1fr]` ishlatilardi va ichki element
+ * `min-width: auto` bo'lgani uchun keng jadval qobiqni cho'zib yuborardi —
+ * butun sahifa gorizontal aylanardi. Endi oddiy flex-ustun va `min-w-0`:
+ * jadval o'z qutisi ichida aylanadi.
+ */
 const Contract = () => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  const title =
+    pathname === "/contract/add"
+      ? tt("Shartnomani kiritish", "Заключение договора")
+      : pathname.startsWith("/contract/tasks/")
+      ? tt("Topshiriqlar", "Задачи")
+      : pathname !== "/contract" &&
+        !pathname.startsWith("/contract/view/") &&
+        !pathname.startsWith("/contract/analiz/")
+      ? tt("Shartnoma tahrirlash", "Редактировать договор")
+      : "";
 
   return (
-    <div className={`grid grid-rows-[auto_1fr]  h-full `}>
-      {pathname !== "/contract" && !pathname.startsWith("/contract/analiz") && (
-        <div>
-          {!pathname.includes("contract/view/") && (
-            <div className="flex justify-center relative items-center">
-              <div className="absolute left-0">
-                <BackButton />
-              </div>
-              <h1 className="text-[20px] text-center font-[700] text-mytextcolor">
-                {pathname === "/contract/add"
-                  ? tt("Shartnomani kiritish", "Заключение договора")
-                  : pathname.startsWith("/contract/tasks/")
-                  ? tt("Topshiriqlar", "Задачи")
-                  : pathname !== "/contract/add" &&
-                    !pathname.startsWith("/contract/analiz/")
-                  ? tt("Shartnoma tahrirlash", "Редактировать контракт")
-                  : ""}
-              </h1>
-            </div>
-          )}
+    <div className="flex min-w-0 flex-col gap-3">
+      {title && (
+        <div className="flex items-center gap-3">
+          <Button variant="secondary" size="sm" onClick={() => navigate(-1)}>
+            <ArrowLeft />
+            {tt("Orqaga", "Назад")}
+          </Button>
+          <h1 className="truncate text-[16px] font-semibold text-foreground">
+            {title}
+          </h1>
         </div>
       )}
-      <div className="h-full w-full">
-        <Outlet></Outlet>
+
+      <div className="min-w-0">
+        <Outlet />
       </div>
     </div>
   );

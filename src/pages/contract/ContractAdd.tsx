@@ -18,7 +18,7 @@ import { initialContract } from "./ContractEdit";
 import TaskColumn from "./taskColumn";
 
 const SimpleText = ({ txt }: { txt: string }) => (
-  <h3 className="opacity-[0.7] dark:opacity-[1] font-[600] text-mytextcolor">
+  <h3 className="opacity-[0.7] dark:opacity-[1] font-[600] text-foreground">
     {txt}
   </h3>
 );
@@ -198,7 +198,7 @@ const ContractAdd = () => {
           className="overfloww flex flex-col gap-10"
         >
           <div className="flex justify-between gap-x-4 mt-5">
-            <div className="flex-col w-1/2 items-start gap-x-5 bg-mybackground rounded-md">
+            <div className="flex-col w-1/2 items-start gap-x-5 bg-card rounded-md">
               <div className="flex gap-x-5">
                 <div className="w-1/2">
                   <Input
@@ -269,7 +269,7 @@ const ContractAdd = () => {
                   className="w-full"
                 />
                 <div>
-                  <label className="block text-[#636566] text-[16px] leading-[14.52px] font-[600] mb-2">
+                  <label className="block text-muted-foreground text-[16px] leading-[14.52px] font-[600] mb-2">
                     {tt("Shablon", "Шаблон")}
                   </label>
                   <select
@@ -280,7 +280,7 @@ const ContractAdd = () => {
                         template_id: e.target.value ? +e.target.value : null,
                       }))
                     }
-                    className="border rounded-md px-3 py-2 bg-mybackground text-mytextcolor min-w-[180px]"
+                    className="border rounded-md px-3 py-2 bg-card text-foreground min-w-[180px]"
                   >
                     <option value="">{tt("Tanlang", "Выберите")}</option>
                     {templates.map((t: any) => (
@@ -301,7 +301,7 @@ const ContractAdd = () => {
                   />
                   <label
                     htmlFor="address_input"
-                    className="cursor-pointer block text-[#636566] text-[16px]  leading-[14.52px] font-[600]"
+                    className="cursor-pointer block text-muted-foreground text-[16px] leading-[14.52px] font-[600]"
                   >
                     {tt("Manzil", "Адрес")}
                   </label>
@@ -317,14 +317,14 @@ const ContractAdd = () => {
                   />
                   <label
                     htmlFor="date_input"
-                    className="cursor-pointer block text-[#636566] text-[16px]  leading-[14.52px] font-[600]"
+                    className="cursor-pointer block text-muted-foreground text-[16px] leading-[14.52px] font-[600]"
                   >
                     {tt("Sana", "Дата")}
                   </label>
                 </div>
               </div>
             </div>
-            <div className="flex-col w-1/2 items-start gap-x-5 bg-mybackground rounded-md">
+            <div className="flex-col w-1/2 items-start gap-x-5 bg-card rounded-md">
               <div className="flex flex-col gap-5">
                 <div className="flex gap-5">
                   <div className="flex flex-col w-[212px] gap-5">
@@ -384,7 +384,7 @@ const ContractAdd = () => {
             </div>
           </div>
           <div className="flex mt-5 gap-x-5">
-            <div className="border w-1/2 p-3 bg-mybackground rounded-sm">
+            <div className="border w-1/2 p-3 bg-card rounded-sm">
               <SimpleText
                 txt={tt("Qabul qiluvchi tafsilotlari", "Данные получателя")}
               />
@@ -394,7 +394,7 @@ const ContractAdd = () => {
                 ))}
               </div>
             </div>
-            <div className="border w-1/2 p-3 bg-mybackground rounded-sm">
+            <div className="border w-1/2 p-3 bg-card rounded-sm">
               <SimpleText
                 txt={tt("To'lovchi tafsilotlari", "Данные плательщика")}
               />
@@ -411,7 +411,7 @@ const ContractAdd = () => {
             </div>
           </div>
           <div>
-            <div className="bg-mybackground mt-8">
+            <div className="bg-card mt-8">
               <div>
                 {contract?.tasks?.map((e, i) => (
                   <TaskColumn

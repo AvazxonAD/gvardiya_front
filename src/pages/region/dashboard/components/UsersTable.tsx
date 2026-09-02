@@ -7,7 +7,7 @@ import { UserApiData } from "../types";
 
 const formatAmount = (num?: number): string => {
   if (!num && num !== 0) return "0";
-  return num.toLocaleString("ru-RU");
+  return Number(num).toLocaleString("ru-RU");
 };
 
 interface UsersTableProps {
@@ -20,12 +20,12 @@ export default function UsersTable({ usersData, onDetail }: UsersTableProps) {
     <div className="dash-glass p-[12px] lg:col-span-2 flex flex-col min-h-0">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-[16px] font-semibold flex items-center text-[var(--dash-text)]">
-          <div className="w-3 h-3 rounded-full bg-blue-500 mr-3 animate-pulse" />
+          <div className="w-3 h-3 rounded-none bg-primary mr-3 animate-pulse" />
           Foydalanuvchilar bo'yicha
         </h2>
         <button
           onClick={onDetail}
-          className="text-[10px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 border border-blue-400/40 hover:border-blue-300/60 rounded-md px-2.5 py-1 transition"
+          className="text-[10px] text-primary hover:text-primary font-medium flex items-center gap-1 border border-primary/30/40 hover:border-primary/30/60 rounded-md px-2.5 py-1 transition"
         >
           Batafsil
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,8 +35,8 @@ export default function UsersTable({ usersData, onDetail }: UsersTableProps) {
       </div>
 
       <div className="overflow-auto flex-1 rounded-xl" style={{ border: "1px solid var(--dash-table-border)" }}>
-        <table className="w-full text-left text-sm whitespace-nowrap">
-          <thead className="sticky top-0 z-10" style={{ background: "var(--dash-table-header-bg)", borderBottom: "1px solid var(--dash-table-border)" }}>
+        <table className="table-grid w-full text-left text-sm whitespace-nowrap">
+          <thead className="sticky top-0 z-10" style={{ background: "var(--dash-table-header-bg)" }}>
             <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
               <th className="px-3 py-2.5 font-semibold">№</th>
               <th className="px-3 py-2.5 font-semibold">Foydalanuvchi</th>
@@ -51,13 +51,13 @@ export default function UsersTable({ usersData, onDetail }: UsersTableProps) {
           <tbody>
             {usersData.filter(u => u.data.all_contract.count > 0).map((user, i) => (
               <tr key={user.user_id} className="transition hover:opacity-80"
-                style={{ background: i % 2 === 1 ? "var(--dash-table-row-alt)" : "transparent", borderBottom: "1px solid var(--dash-table-border)" }}>
+                style={{ background: i % 2 === 1 ? "var(--dash-table-row-alt)" : "transparent" }}>
                 <td className="px-3 py-2.5 text-[var(--dash-text-muted)] text-[12px]">{i + 1}</td>
                 <td className="px-3 py-2.5 font-medium text-[var(--dash-text)] text-[12px]">{user.user_name}</td>
                 <td className="px-3 py-2.5 text-center text-[var(--dash-text)] text-[12px]">{user.data.all_contract.count}</td>
                 <td className="px-3 py-2.5 text-right text-[var(--dash-text-secondary)] text-[12px]">{formatAmount(user.data.all_contract.summa)}</td>
-                <td className="px-3 py-2.5 text-center text-emerald-500 text-[12px]">{user.data.prixod_contract.count}</td>
-                <td className="px-3 py-2.5 text-right text-emerald-500 text-[12px]">{formatAmount(user.data.prixod_contract.summa)}</td>
+                <td className="px-3 py-2.5 text-center text-success text-[12px]">{user.data.prixod_contract.count}</td>
+                <td className="px-3 py-2.5 text-right text-success text-[12px]">{formatAmount(user.data.prixod_contract.summa)}</td>
                 <td className="px-3 py-2.5 text-center text-rose-500 text-[12px]">{user.data.rasxod_contract.count}</td>
                 <td className="px-3 py-2.5 text-right text-rose-500 text-[12px]">{formatAmount(user.data.rasxod_contract.summa)}</td>
               </tr>
@@ -119,7 +119,7 @@ export function UserModal({ isOpen, onClose, usersData }: { isOpen: boolean; onC
             <button
               onClick={handleExcel}
               disabled={usersData.length === 0}
-              className="h-[36px] px-3 bg-emerald-500 rounded-lg text-white text-[12px] font-medium flex items-center gap-1.5 hover:bg-emerald-600 transition disabled:opacity-40 disabled:cursor-not-allowed"
+              className="h-[36px] px-3 bg-success rounded-lg text-primary-foreground text-[12px] font-medium flex items-center gap-1.5 hover:bg-success transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -137,8 +137,8 @@ export function UserModal({ isOpen, onClose, usersData }: { isOpen: boolean; onC
 
         <div className="grid grid-cols-3 gap-3 px-5 py-4 shrink-0" style={{ borderBottom: "1px solid var(--dash-modal-border)" }}>
           {[
-            { label: "Jami shartnomalar", count: totals.allCount, summa: totals.allSumma, border: "border-l-emerald-500", color: "" },
-            { label: "Puli to'lab berilgan", count: totals.paidCount, summa: totals.paidSumma, border: "border-l-emerald-500", color: "text-emerald-500" },
+            { label: "Jami shartnomalar", count: totals.allCount, summa: totals.allSumma, border: "border-l-success", color: "" },
+            { label: "Puli to'lab berilgan", count: totals.paidCount, summa: totals.paidSumma, border: "border-l-success", color: "text-success" },
             { label: "Qarzdorligi bor", count: totals.debtCount, summa: totals.debtSumma, border: "border-l-rose-500", color: "text-rose-500" },
           ].map((card, i) => (
             <div key={i} className={`rounded-xl p-3 border-l-[3px] ${card.border}`} style={{ background: "var(--dash-table-row-alt)" }}>
@@ -159,8 +159,8 @@ export function UserModal({ isOpen, onClose, usersData }: { isOpen: boolean; onC
 
         <div className="px-5 py-4 overflow-y-auto flex-1">
           <div className="overflow-x-auto rounded-xl" style={{ border: "1px solid var(--dash-table-border)" }}>
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead style={{ background: "var(--dash-table-header-bg)", borderBottom: "1px solid var(--dash-table-border)" }}>
+            <table className="table-grid w-full text-left text-sm whitespace-nowrap">
+              <thead style={{ background: "var(--dash-table-header-bg)" }}>
                 <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
                   <th className="px-4 py-3 font-semibold">№</th>
                   <th className="px-4 py-3 font-semibold">Foydalanuvchi</th>
@@ -175,13 +175,13 @@ export function UserModal({ isOpen, onClose, usersData }: { isOpen: boolean; onC
               <tbody>
                 {usersData.map((user, i) => (
                   <tr key={user.user_id} className="transition hover:opacity-80"
-                    style={{ background: i % 2 === 1 ? "var(--dash-table-row-alt)" : "transparent", borderBottom: "1px solid var(--dash-table-border)" }}>
+                    style={{ background: i % 2 === 1 ? "var(--dash-table-row-alt)" : "transparent" }}>
                     <td className="px-4 py-3 text-[var(--dash-text-muted)]">{i + 1}</td>
                     <td className="px-4 py-3 font-medium text-[var(--dash-text)]">{user.user_name}</td>
                     <td className="px-4 py-3 text-center text-[var(--dash-text)]">{user.data.all_contract.count}</td>
                     <td className="px-4 py-3 text-right text-[var(--dash-text-secondary)]">{formatAmount(user.data.all_contract.summa)}</td>
-                    <td className="px-4 py-3 text-center text-emerald-500">{user.data.prixod_contract.count}</td>
-                    <td className="px-4 py-3 text-right text-emerald-500">{formatAmount(user.data.prixod_contract.summa)}</td>
+                    <td className="px-4 py-3 text-center text-success">{user.data.prixod_contract.count}</td>
+                    <td className="px-4 py-3 text-right text-success">{formatAmount(user.data.prixod_contract.summa)}</td>
                     <td className="px-4 py-3 text-center text-rose-500">{user.data.rasxod_contract.count}</td>
                     <td className="px-4 py-3 text-right text-rose-500">{formatAmount(user.data.rasxod_contract.summa)}</td>
                   </tr>

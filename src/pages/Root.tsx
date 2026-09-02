@@ -37,7 +37,7 @@ function Root() {
   });
 
   return (
-    <div className={`text-mytextcolor w-full relative h-[100vh]`}>
+    <div className={`text-foreground w-full relative h-[100vh]`}>
       {pathname.includes("/contract/view") ? (
         <div
           className="flex gap-5"
@@ -56,7 +56,7 @@ function Root() {
                 minHeight:
                   height,
               }}
-              className={`w-full h-auto bg-mybackground   pt-[20px] px-[40px]  border-[1px] border-mybordercolor rounded-tl-[20px] `}>
+              className={`w-full h-auto bg-card   pt-[20px] px-[40px]  border-[1px] border-border rounded-tl-[20px] `}>
               <Outlet />
             </div>
           </div>
@@ -88,7 +88,7 @@ function Root() {
                       ? `calc(${height} - 93px)`
                       : height - 93,
                 }}
-                className={`w-full h-auto bg-mybackground   pt-[20px] px-[40px]  border-[1px] border-mybordercolor rounded-tl-[20px] `}>
+                className={`w-full h-auto bg-card   pt-[20px] px-[40px]  border-[1px] border-border rounded-tl-[20px] `}>
                 <Outlet />
               </div>
             </div>

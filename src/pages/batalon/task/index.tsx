@@ -8,16 +8,21 @@ import Paginatsiya from "../../../Components/Paginatsiya";
 import TaskTable from "./table";
 import { tt } from "../../../utils";
 
-import Button from "@/Components/reusable/button";
-import useFullHeight from "@/hooks/useFullHeight";
 import { useDebounce } from "use-debounce";
 import { SpecialDatePicker } from "../../../Components/SpecialDatePicker";
+import { RotateCcw } from "lucide-react";
+import {
+  Button as UIButton,
+  ListCard,
+  Select as UISelect,
+  Toolbar,
+} from "@/ui";
 
 function BatalonTasks() {
   const now = new Date();
   const currentYear = now.getFullYear();
 
-  function formatLocalDate(date) {
+  function formatLocalDate(date: Date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -71,98 +76,79 @@ function BatalonTasks() {
     }
   }, [currentPage, limet, status, searchingText, dates.date1, dates.date2]);
 
-  const height = useFullHeight();
-
-  const fullHeight =
-    typeof height === "string" ? `calc(${height} - 190px)` : height - 190;
-
   return (
-    <div className="flex flex-col">
-      <div style={{ minHeight: fullHeight }}>
-        <div className="flex justify-between items-center mb-5">
-          <div className="flex items-center gap-8">
-            <div className="w-[250px]">
+    <div className="flex min-w-0 flex-col gap-3">
+      <ListCard
+        toolbar={
+          <Toolbar>
+            <div className="w-full sm:w-64">
               <Input
                 v={search}
                 change={(e: any) => setSearch(e.target.value)}
                 search={true}
                 p={tt("Ismlar bo’yicha qidiruv", "Поиск по имени")}
-                className="w-full"
+                className="h-9 w-full"
               />
             </div>
 
-            <div className="w-[200px]">
-              <select
+            <div className="w-[190px]">
+              <UISelect
+                selectSize="sm"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="
-                                    block w-full
-                                    bg-white dark:bg-mybackground
-                                    border border-gray-300 dark:border-mybordercolor
-                                    rounded-md
-                                    py-2 px-3
-                                    text-gray-700 dark:text-mytextcolor
-                                    text-base
-                                    focus:outline-none
-                                    focus:ring-2
-                                    focus:ring-blue-500
-                                    focus:border-blue-500
-                                    cursor-pointer
-                                    transition
-                                    duration-200
-                                    ease-in-out
-                                    shadow-sm
-                                    hover:border-blue-400
-                                "
-              >
-                <option value="">Barchasi</option>
-                <option value="done">Bajarilgan</option>
-                <option value="progress">Bajarilmoqda</option>
-                <option value="extended">Muddati o'tgan</option>
-              </select>
+                placeholder={tt("Barchasi", "Все")}
+                options={[
+                  { value: "done", label: tt("Bajarilgan", "Выполнено") },
+                  { value: "progress", label: tt("Bajarilmoqda", "В работе") },
+                  { value: "extended", label: tt("Muddati o'tgan", "Просрочено") },
+                ]}
+              />
             </div>
 
-            <div className="flex gap-2  items-center">
+            <div className="flex items-center gap-1.5">
               <SpecialDatePicker
                 defaultValue={dates.date1}
                 onChange={(e) => setDates({ ...dates, date1: e })}
               />
+              <span className="text-muted-foreground">—</span>
               <SpecialDatePicker
                 defaultValue={dates.date2}
                 onChange={(e) => setDates({ ...dates, date2: e })}
               />
             </div>
 
-            <Button
-              mode="clear"
+            <UIButton
+              variant="ghost"
+              size="sm"
               onClick={() => {
-                setDates({
-                  date1: startDate,
-                  date2: endDate,
-                });
+                setDates({ date1: startDate, date2: endDate });
                 setSearch("");
                 setStatus("");
               }}
-            />
-          </div>
-        </div>
+            >
+              <RotateCcw />
+              {tt("Tozalash", "Очистить")}
+            </UIButton>
+          </Toolbar>
+        }
+        footer={
+          <Paginatsiya
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+            currentPage={currentPage}
+            limet={limet}
+            setLimet={setLimet}
+            count={all}
+          />
+        }
+      >
         <TaskTable
           setActive={setActive}
           page={currentPage}
           itemsPerPage={10}
           data={data}
         />
-      </div>
-      <div className="">
-        <Paginatsiya
-          totalPages={totalPages}
-          setCurrentPage={setCurrentPage}
-          currentPage={currentPage}
-          limet={limet}
-          setLimet={setLimet}
-          count={all}
-        />
-      </div>
+      </ListCard>
     </div>
   );
 }

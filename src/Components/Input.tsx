@@ -1,7 +1,18 @@
 /** @format */
 
-import Icon from "@/assets/icons";
+import { Search, X } from "lucide-react";
+import { Field, Input as UIInput } from "@/ui";
 
+/**
+ * Eski input — endi dizayn tizimidagi `@/ui` Input ustidagi moslashtiruvchi.
+ *
+ * Props nomlari ataylab o'zgarmadi (`p`, `t`, `v`, `n`, `change`, `tush` …):
+ * o'nlab sahifa shu qisqartmalar bilan chaqiradi. Ilgari bu komponent o'z
+ * uslubini yozardi va natijada `@/ui` Input dan farq qilardi — balandligi
+ * 40px (yangisi 36px), foni `bg-background` (yangisi `bg-card`). Bir
+ * sahifada ikkalasi uchraganda maydonlar bir tekis turmasdi. Endi ichkarida
+ * bitta komponent ishlaydi, shuning uchun farq yo'q.
+ */
 function Input({
   label,
   error,
@@ -19,55 +30,68 @@ function Input({
   onDoubleClick,
   readonly,
   removeValue,
+  // Qolgan proplar inputga o'tkaziladi — masalan `autoComplete`,
+  // `maxLength`, `inputMode`. Ilgari ular yo'qolib ketardi.
+  ...rest
 }: any) {
-  return (
-    <div className="flex flex-col gap-2 relative">
-      {label && (
-        <span
-          className={` ${error ? "text-[#F23D53]" : "text-[#636566]"
-            }  text-[12px]  leading-[14.52px] font-[600] `}>
-          {label}
-        </span>
-      )}
-      {search && (
-        <div className="top-3 left-2 absolute">
-          <Icon name="search" />
-        </div>
-      )}
+  const showClear = removeValue && v && String(v).length > 0;
 
-      <input
-        defaultValue={defaultValue}
-        value={v}
-        name={n}
-        type={t ? t : "text"}
-        onChange={(e: any) => {
-          change(e);
-        }}
-        onBlur={blur}
-        placeholder={p}
-        disabled={disabled}
-        onDoubleClick={onDoubleClick}
-        readOnly={readonly}
-        className={
-          `${tush ? "w-[320px]" : "w-full"} h-[41px] rounded-[6px] ${removeValue ? "pe-10" : ""
-          } ${search ? "pl-10" : "px-2"
-          } bg-mycalendarbg border text-[14px] leading-[16.94px] text-mytextcolor placeholder:text-[#BEBBBB]   focus:border-[#636566] focus:outline-none ${error ? "border-[#F23D53]" : "border-myinputborder"
-          } ` + className
-        }
-      />
-      {removeValue && v && v.length > 0 && (
-        <button onClick={removeValue} className="top-2 right-2 absolute">
-          <Icon name="close" />
-        </button>
-      )}
-      {error ? (
-        <div className="text-[12px]  leading-[14.52px] font-[600] text-[#F23D53] -mt-1">
-          {error}
-        </div>
-      ) : (
-        ""
-      )}
-    </div>
+  // React `value={undefined}` ni boshqarilmagan input deb qabul qiladi va
+  // keyin qiymat kelganda "uncontrolled -> controlled" ogohlantirishini
+  // beradi. `defaultValue` ishlatilmayotgan bo'lsa bo'sh matnga tushiramiz.
+  // NaN esa inputga umuman yozilmasligi kerak.
+  const value =
+    defaultValue !== undefined
+      ? v
+      : typeof v === "number" && Number.isNaN(v)
+      ? ""
+      : v ?? "";
+
+  const field = (
+    <UIInput
+      defaultValue={defaultValue}
+      value={value}
+      name={n}
+      type={t ? t : "text"}
+      onChange={(e) => change?.(e)}
+      onBlur={blur}
+      placeholder={p}
+      disabled={disabled}
+      onDoubleClick={onDoubleClick}
+      readOnly={readonly}
+      aria-invalid={error ? true : undefined}
+      startIcon={search ? <Search /> : undefined}
+      endIcon={
+        showClear ? (
+          <button
+            type="button"
+            onClick={removeValue}
+            aria-label="Tozalash"
+            className="rounded p-0.5 transition-colors hover:text-foreground"
+          >
+            <X />
+          </button>
+        ) : undefined
+      }
+      {...rest}
+      className={[
+        tush ? "w-[320px]" : "",
+        readonly ? "read-only:bg-muted/50" : "",
+        className ?? "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    />
+  );
+
+  // Yorliq yoki xato bo'lmasa ortiqcha o'ram qo'shmaymiz — ba'zi
+  // chaqiruvlar inputni to'g'ridan-to'g'ri grid katagiga joylaydi.
+  if (!label && !error) return field;
+
+  return (
+    <Field label={label} error={error}>
+      {field}
+    </Field>
   );
 }
 

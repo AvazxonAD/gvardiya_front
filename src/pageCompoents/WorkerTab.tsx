@@ -1,8 +1,10 @@
-import Icon from "@/assets/icons";
-import useFullHeight from "@/hooks/useFullHeight";
 import { useState } from "react";
+import { Pencil, Trash2, Users } from "lucide-react";
+
+import Table from "@/Components/reusable/table/Table";
 import DeleteModal from "../Components/DeleteModal";
 import { textNum, tt } from "../utils";
+import { Badge, Button, EmptyState } from "@/ui";
 
 interface IWorker {
   id: string | number;
@@ -13,6 +15,13 @@ interface IWorker {
   is_muddatli_harbiy?: boolean;
 }
 
+/**
+ * Xodimlar jadvali — umumiy `Table` komponentiga o'tkazildi.
+ *
+ * Ilgari bu yerda o'z `<table>` si, o'z sarlavha uslublari va
+ * `useFullHeight` bilan hisoblangan balandligi bor edi; natijada har bir
+ * jadval boshqacha ko'rinardi.
+ */
 const WorkerTab = ({
   data,
   handleDelete,
@@ -23,110 +32,88 @@ const WorkerTab = ({
 }: any) => {
   const [delOpen, setDelOpen] = useState(false);
 
-  const getRowNumber = (index: number) => {
-    return (page - 1) * itemsPerPage + index + 1;
-  };
-
-  const height = useFullHeight();
-
-  // fullHeight ni integer yoki string bo'lishiga qarab px formatini beramiz
-  const fullHeightValue =
-    typeof height === "string" ? `calc(${height} - 250px)` : height - 250;
+  const rowNumber = (index: number) => (page - 1) * itemsPerPage + index + 1;
 
   return (
     <>
-      {data ? (
-        <div
-          className="rounded-t-[6px] text-[14px] leading-[16.94px] border"
-          style={{
-            maxHeight: fullHeightValue,
-            overflowY: "auto",
-          }}
+      {data && data.length ? (
+        <Table
+          thead={[
+            { text: "№", className: "w-[70px]" },
+            { text: tt("F.I.O", "Ф.И.О"), className: "min-w-[220px]" },
+            { text: tt("Karta raqam", "Номер карты"), className: "text-center" },
+            { text: tt("Hisob raqam", "Номер счета"), className: "text-center" },
+            { text: tt("Batalon", "Батальон"), className: "text-center" },
+            {
+              text: tt("Muddatli harbiy", "Срочная служба"),
+              className: "text-center",
+            },
+            {
+              text: tt("Amallar", "Действия"),
+              className: "w-[110px] text-center",
+            },
+          ]}
         >
-          <table className="min-w-full relative border-collapse">
-            <thead className="bg-mytablehead sticky top-0 z-10 text-[14px] leading-[16.94px] rounded-t-[6px] border border-mytableheadborder">
-              <tr className="text-mytextcolor">
-                <th className="px-4 py-3 text-left w-[100px]">
-                  {tt("№", "№")}
-                </th>
-                <th className="px-4 py-3 text-left w-[250px]">
-                  {tt("F.I.O", "Ф.И.О")}
-                </th>
-                <th className="px-4 py-3 text-center w-[200px]">
-                  {tt("Karta raqam", "Номер карты")}
-                </th>
-                <th className="px-4 py-3 text-center w-[200px]">
-                  {tt("Hisob raqam", "Номер счета")}
-                </th>
-                <th className="px-4 py-3 text-center w-[200px]">
-                  {tt("Batalon", "Батальон")}
-                </th>
-                <th className="px-4 py-3 text-center w-[150px]">
-                  {tt("Muddatli harbiy", "Срочная служба")}
-                </th>
-                <th className="px-4 py-3 text-right w-[120px]">
-                  {tt("Amallar", "Действия")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((person: IWorker, index: number) => (
-                <tr
-                  key={person.id}
-                  className="hover:text-[#3B7FAF] text-mytextcolor cursor-pointer transition-colors duration-300 border-b border-mytableheadborder"
-                >
-                  <td className="px-4 py-3 text-left">{getRowNumber(index)}</td>
-                  <td className="px-4 py-3 text-left truncate">{person.fio}</td>
-                  <td className="px-4 py-3 text-center">
-                    {textNum(person.account_number, 4)}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {textNum(person.xisob_raqam, 4)}
-                  </td>
-                  <td className="px-4 py-3 text-center truncate">
-                    {person.batalon_name}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {person.is_muddatli_harbiy ? tt("Ha", "Да") : tt("Yo'q", "Нет")}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end space-x-4">
-                      <button
-                        onClick={() => edit(person.id)}
-                        className="hover:opacity-80 transition-opacity"
-                        type="button"
-                      >
-                        <Icon name="edit" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setDelOpen(true);
-                          setActive(person.id);
-                        }}
-                        className="hover:opacity-80 transition-opacity"
-                        type="button"
-                      >
-                        <Icon name="delete" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+          {data.map((person: IWorker, index: number) => (
+            <tr key={person.id}>
+              <td className="text-muted-foreground tabular-nums">
+                {rowNumber(index)}
+              </td>
+              <td className="font-medium">{person.fio}</td>
+              <td className="text-center tabular-nums">
+                {textNum(person.account_number, 4)}
+              </td>
+              <td className="text-center tabular-nums">
+                {textNum(person.xisob_raqam, 4)}
+              </td>
+              <td className="text-center text-muted-foreground">
+                {person.batalon_name}
+              </td>
+              <td className="text-center">
+                {person.is_muddatli_harbiy ? (
+                  <Badge tone="primary">{tt("Ha", "Да")}</Badge>
+                ) : (
+                  <span className="text-muted-foreground">—</span>
+                )}
+              </td>
+              <td>
+                <div className="flex items-center justify-center gap-0.5">
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    title={tt("Tahrirlash", "Редактировать")}
+                    aria-label={tt("Tahrirlash", "Редактировать")}
+                    onClick={() => edit(person.id)}
+                  >
+                    <Pencil />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    title={tt("O'chirish", "Удалить")}
+                    aria-label={tt("O'chirish", "Удалить")}
+                    className="hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => {
+                      setDelOpen(true);
+                      setActive(person.id);
+                    }}
+                  >
+                    <Trash2 />
+                  </Button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </Table>
       ) : (
-        <div
-          style={{
-            height:
-              typeof fullHeightValue === "number"
-                ? `${fullHeightValue}px`
-                : fullHeightValue,
-          }}
-          className="w-full text-[#323232] font-[500] text-[20px] flex justify-center items-center bg-[#F4FAFD] rounded-lg"
-        >
-          {tt("Malumot yo'q", "Нет ссылки")}
-        </div>
+        <EmptyState
+          icon={Users}
+          title={tt("Ma'lumot yo'q", "Нет данных")}
+          description={tt(
+            "Qidiruv shartlariga mos xodim topilmadi",
+            "Сотрудников по условиям поиска не найдено"
+          )}
+        />
       )}
 
       <DeleteModal

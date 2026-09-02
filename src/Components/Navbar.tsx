@@ -283,13 +283,13 @@ function Navbar() {
         width: isShrink ? "150px" : "320px",
       }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="h-[100%] pt-[85px] pr-2 relative rounded-tr-[20px] bg-mybackground border border-mybordercolor shadow-lg flex flex-col justify-between py-4"
+      className="h-[100%] pt-[85px] pr-2 relative rounded-tr-[20px] bg-card border border-border shadow-lg flex flex-col justify-between py-4"
     >
       <button
         onClick={() => setIsShrink(!isShrink)}
         className={`border absolute right-[-12px] ${
           pathname.includes("/contract/view") ? "top-[0px]" : "-top-[5px]"
-        }  transition-all duration-300 border-[#EEEDED] bg-[#323232] hover:bg-[#BEBBBB] w-[44px] h-[44px] rounded-[999px] flex justify-center items-center`}
+        }  transition-all duration-300 border-border bg-foreground hover:bg-muted w-[44px] h-[44px] rounded-none flex justify-center items-center`}
       >
         {/* <img src={`/${!isShrink ? "kichray" : "kottalashtir"}.svg`} alt="" /> */}
         <div>
@@ -310,11 +310,11 @@ function Navbar() {
                 }}
                 className={`flex items-center gap-3 ${
                   isShrink ? " h-[54px]" : "h-[44px]"
-                } transition-all duration-300 rounded-[4px] px-6 py-3 text-left  text-[20px] leading-[24.2px] font-[500]  
+                } transition-all duration-300 rounded-none px-6 py-3 text-left  text-[20px] leading-[24.2px] font-[500]  
                 ${
                   activeItem === item.name
-                    ? "text-mylabelcolor"
-                    : "text-mylabelcolor hover:text-[#323232] dark:hover:text-[#fff] "
+                    ? "text-muted-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }    transition-colors duration-300`}
               >
                 <div
@@ -322,8 +322,8 @@ function Navbar() {
                     isShrink ? "w-[30px] h-[30px] " : "w-[24px] h-[24px]"
                   } ${
                     activeItem == item.name
-                      ? "dark:text-[#00A1D5]"
-                      : "text-mytextcolor"
+                      ? "text-primary"
+                      : "text-foreground"
                   }`}
                 >
                   <item.icon active={activeItem === item.name} />
@@ -349,17 +349,17 @@ function Navbar() {
                         setActiveSubItem(subItem.name);
                       }}
                       key={subItem.id}
-                      className={`transition-all duration-300 text-[18px] flex items-center gap-3 font-[500] p-1 rounded-[4px] ${
+                      className={`transition-all duration-300 text-[18px] flex items-center gap-3 font-[500] p-1 rounded-none ${
                         activeSubItem === subItem.name
-                          ? "text-mynavactiveborder bg-mynavactivebg border-r-[6px] border-r-mynavactiveborder"
-                          : "text-mylabelcolor hover:text-opacity-[80%]"
+                          ? "text-primary bg-primary/10 border-r-[6px] border-r-mynavactiveborder"
+                          : "text-muted-foreground hover:text-opacity-[80%]"
                       }`}
                     >
                       <span
-                        className={`w-[5px] h-[5px] rounded-[999px] ${
+                        className={`w-[5px] h-[5px] rounded-none ${
                           activeSubItem === subItem.name
-                            ? "bg-mynavactiveborder"
-                            : "bg-[#323232]"
+                            ? "bg-primary"
+                            : "bg-foreground"
                         }`}
                       ></span>{" "}
                       <span>{tt(subItem.name, subItem.ru)}</span>
@@ -371,11 +371,11 @@ function Navbar() {
           </div>
         ))}
         <motion.div
-          className={`absolute right-0 rounded-[4px] z-[-1] top-[0] ${
+          className={`absolute right-0 rounded-none z-[-1] top-[0] ${
             isShrink ? "h-[53px]" : "h-[43px]"
           } 
-            text-mylabelcolor
-            bg-mynavactivebg border-r-[6px] border-r-mynavactiveborder`}
+            text-muted-foreground
+            bg-primary/10 border-r-[6px] border-r-mynavactiveborder`}
           initial={false}
           animate={{
             y: generateY(),
@@ -387,7 +387,7 @@ function Navbar() {
 
       <button
         onClick={handleLogout}
-        className="flex items-center gap-3 px-6 py-3 text-left text-[16px] font-medium text-red-500 hover:text-red-600 transition-colors duration-300"
+        className="flex items-center gap-3 px-6 py-3 text-left text-[16px] font-medium text-destructive hover:text-destructive transition-colors duration-300"
       >
         <div
           className={`${isShrink ? "w-[32px] h-[32px]" : "w-[24px] h-[24px]"}`}

@@ -51,7 +51,7 @@ export const TableItem: React.FC<ITableItemProps> = ({ item, onView }) => {
 
     const tooltipElement = (
       <div
-        className="text-mytextcolor fixed w-[250px] bg-mybackground border border-mytableheadborder rounded-md shadow-lg p-3"
+        className="text-foreground fixed w-[250px] bg-card border-b border-border rounded-md shadow-lg p-3"
         style={{
           top: `${tooltipPosition.top - 50}px`,
           left: `${tooltipPosition.left + 80}px`,
@@ -80,9 +80,9 @@ export const TableItem: React.FC<ITableItemProps> = ({ item, onView }) => {
 
   return (
     <>
-      <tr className="my-[25px] text-mytextcolor cursor-pointer font-[500] hover:text-[#3B7FAF] transition-colors duration-300 border-b border-mytableheadborder">
+      <tr className="my-[25px] text-foreground cursor-pointer font-[500] hover:text-primary transition-colors duration-300 border-b border-border">
         <td
-          className="px-2 py-3 text-[#3B7FAF] text-left"
+          className="px-2 py-3 text-primary text-left"
           onClick={() => onView(item.id)}>
           {item.doc_num}
         </td>

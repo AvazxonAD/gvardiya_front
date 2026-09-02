@@ -1,45 +1,44 @@
+import { Check } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 import { tt } from "@/utils";
+
 interface Props {
   label?: string;
   checked: boolean;
   handleChange: () => void;
   deleted?: boolean;
 }
+
+/**
+ * Belgilash katakchasi — dizayn tokenlariga o'tkazildi.
+ *
+ * Ilgari ranglar qotirilgan edi (`#3a7eae`, `#ff3d3d`, `#323232`) va
+ * qorong'i rejimda chegara deyarli ko'rinmasdi. O'lchov ham nomutanosib
+ * edi: 22×20px. Endi kvadrat va mavzuga moslashadi.
+ */
 export const Checkbox = ({ label, checked, handleChange, deleted }: Props) => {
   return (
     <button
       type="button"
       onClick={() => handleChange()}
-      className="flex items-center gap-[12px]">
-      <div
-        role="button"
-        className={`w-[22px] cursor-pointer  h-5 ${checked
-            ? `${deleted
-              ? "bg-[#ff3d3d] border-[#ff3d3d]"
-              : "bg-[#3a7eae] border-[#3a7eae]"
-            }`
-            : `bg-white border-[#323232]`
-          }  rounded border `}>
-        {checked && (
-          <>
-            <svg
-              width={19}
-              height={20}
-              viewBox="0 0 19 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M15.8327 5L7.12435 14.1667L3.16602 10"
-                stroke="white"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </>
+      aria-pressed={checked}
+      className="flex items-center gap-3 text-left"
+    >
+      <span
+        className={cn(
+          "flex size-5 shrink-0 items-center justify-center rounded border transition-colors",
+          checked
+            ? deleted
+              ? "border-destructive bg-destructive text-destructive-foreground"
+              : "border-primary bg-primary text-primary-foreground"
+            : "border-input bg-card"
         )}
-      </div>
-      <p className="text-mytextcolor text-sm font-normal ">
+      >
+        {checked && <Check className="size-3.5" strokeWidth={3} />}
+      </span>
+
+      <p className="text-sm font-normal text-foreground">
         {label ? label : ""}{" "}
         {deleted && tt("Hozirda mavjud emas", "В настоящее время недоступен")}
       </p>

@@ -1,4 +1,3 @@
-import Icon from "@/assets/icons";
 import DeleteModal from "@/Components/DeleteModal";
 import Input from "@/Components/Input";
 import Modal from "@/Components/Modal";
@@ -14,6 +13,14 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import { FaUser } from "react-icons/fa";
+import { Pencil, Plus, Trash2, Users } from "lucide-react";
+import {
+  Button as UIButton,
+  EmptyState,
+  ListCard,
+  Toolbar,
+  ToolbarSpacer,
+} from "@/ui";
 
 const BatalonUser: React.FC = () => {
   const [users, setUsers] = useState<IUsers[]>([]);
@@ -156,15 +163,14 @@ const BatalonUser: React.FC = () => {
     },
     validationSchema: Yup.object({
       fio: Yup.string().required(tt("FIO kiriting", "Введите ФИО")),
-      password: Yup.string()
-        .min(
-          3,
-          tt(
-            "Parol kamida 3 ta belgi bo'lishi kerak",
-            "Пароль должен содержать минимум 3 символов"
-          )
+      // Tahrirlashda parol ixtiyoriy: bo'sh qoldirilsa mavjudi saqlanadi.
+      password: Yup.string().min(
+        3,
+        tt(
+          "Parol kamida 3 ta belgi bo'lishi kerak",
+          "Пароль должен содержать минимум 3 символов"
         )
-        .required(tt("Parolni kiriting", "Введите пароль")),
+      ),
       login: Yup.string().required(tt("Login kiriting", "Введите логин")),
       batalon_id: Yup.number().required(
         tt("Hududni tanlang", "Выберите Баталон")
@@ -176,7 +182,8 @@ const BatalonUser: React.FC = () => {
     ) => {
       const formData = new FormData();
       formData.append("fio", values.fio);
-      formData.append("password", values.password);
+      // Bo'sh parol yuborilmaydi — backend uni "o'zgarmasin" deb tushunadi
+      if (values.password) formData.append("password", values.password);
       formData.append("login", values.login);
       formData.append("batalon_id", values.batalon_id.toString());
       if (values.file) formData.append("file", values.file);
@@ -230,93 +237,86 @@ const BatalonUser: React.FC = () => {
   }, [userEdited]);
 
   return (
-    <div className="p-4">
-      <div className="flex justify-end mb-4">
-        <Button mode="add" onClick={() => setAdd(true)} />
-      </div>
-      <Table
-        thead={[
-          { text: tt("Rasm", "Фото"), className: "w-[100px]" },
-          { text: tt("FIO", "ФИО"), className: "text-left" },
-          { text: tt("Batalon", "Баталон"), className: "text-left" },
-          { text: tt("Login", "Логин"), className: "text-left" },
-          { text: tt("Amallar", "Действия"), className: "w-[150px]" },
-        ]}
+    <div className="flex min-w-0 flex-col gap-3">
+      <ListCard
+        toolbar={
+          <Toolbar>
+            <ToolbarSpacer />
+            <UIButton size="sm" onClick={() => setAdd(true)}>
+              <Plus />
+              {tt("Qo'shish", "Добавить")}
+            </UIButton>
+          </Toolbar>
+        }
       >
-        {users.map((user) => (
-          <tr
-            key={user.id}
-            className="hover:bg-gray-50 dark:hover:bg-mytableheadborder text-mytextcolor border border-mytableheadborder"
+        {users.length ? (
+          <Table
+            thead={[
+              { text: tt("Rasm", "Фото"), className: "w-[90px] text-center" },
+              { text: tt("FIO", "ФИО"), className: "min-w-[220px]" },
+              { text: tt("Batalon", "Батальон"), className: "min-w-[160px]" },
+              { text: tt("Login", "Логин"), className: "min-w-[140px]" },
+              { text: tt("Amallar", "Действия"), className: "w-[110px] text-center" },
+            ]}
           >
-            <td
-              className={`border-b border-l border-r  ${
-                user.image ? "py-1" : "py-3"
-              } px-3 text-center`}
-              style={{
-                cursor: user.image ? "pointer" : "not-allowed",
-              }}
-              onClick={() => {
-                if (user.image) {
-                  setUserSelected(user);
-                }
-              }}
-            >
-              {user.image ? (
-                <img
-                  src={baseUri + user.image}
-                  alt={user.fio}
-                  className="w-12 h-12 rounded-full mx-auto"
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mx-auto">
-                  <FaUser className="text-gray-500 dark:text-gray-400 text-xl" />
-                </div>
-              )}
-            </td>
-            <td
-              className={`border-b border-l border-r  ${
-                user.image ? "py-1" : "py-3"
-              } px-3 font-[600] text-md`}
-            >
-              {user.fio}
-            </td>
-            <td
-              className={`border-b border-l border-r  ${
-                user.image ? "py-1" : "py-3"
-              } px-3 font-[600] text-md`}
-            >
-              {user.batalon.name}
-            </td>
-            <td
-              className={`border-b border-l border-r  ${
-                user.image ? "py-1" : "py-3"
-              } px-3 font-[600] text-md`}
-            >
-              {user.login}
-            </td>
-            <td
-              className={`border-b border-l border-r  ${
-                user.image ? "py-1" : "py-3"
-              } px-3 font-[600] text-md text-center`}
-            >
-              <div className="flex justify-center">
-                <button
-                  className="text-blue-500 hover:underline mr-4"
-                  onClick={() => setUserEdited(user)}
-                >
-                  <Icon name="edit" />
-                </button>
-                <button
-                  className="text-red-500 hover:underline"
-                  onClick={() => setUserDeleted(user)}
-                >
-                  <Icon name="delete" />
-                </button>
-              </div>
-            </td>
-          </tr>
-        ))}
-      </Table>
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td className="text-center">
+                  <button
+                    type="button"
+                    disabled={!user.image}
+                    onClick={() => user.image && setUserSelected(user)}
+                    className="mx-auto block disabled:cursor-default"
+                  >
+                    {user.image ? (
+                      <img
+                        src={baseUri + user.image}
+                        alt={user.fio}
+                        className="size-10 rounded-none object-cover ring-1 ring-border"
+                      />
+                    ) : (
+                      <span className="flex size-10 items-center justify-center rounded-none bg-muted text-muted-foreground">
+                        <FaUser />
+                      </span>
+                    )}
+                  </button>
+                </td>
+                <td className="font-medium">{user.fio}</td>
+                <td className="text-muted-foreground">{user.batalon.name}</td>
+                <td className="tabular-nums">{user.login}</td>
+                <td>
+                  <div className="flex items-center justify-center gap-0.5">
+                    <UIButton
+                      variant="ghost"
+                      size="icon-xs"
+                      title={tt("Tahrirlash", "Редактировать")}
+                      aria-label={tt("Tahrirlash", "Редактировать")}
+                      onClick={() => setUserEdited(user)}
+                    >
+                      <Pencil />
+                    </UIButton>
+                    <UIButton
+                      variant="ghost"
+                      size="icon-xs"
+                      title={tt("O'chirish", "Удалить")}
+                      aria-label={tt("O'chirish", "Удалить")}
+                      className="hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => setUserDeleted(user)}
+                    >
+                      <Trash2 />
+                    </UIButton>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </Table>
+        ) : (
+          <EmptyState
+            icon={Users}
+            title={tt("Foydalanuvchi yo'q", "Нет пользователей")}
+          />
+        )}
+      </ListCard>
 
       <Modal
         title={tt("Foydalanuvchi tahrirlash", "Редактирование пользователя")}
@@ -355,10 +355,16 @@ const BatalonUser: React.FC = () => {
             <Input
               n="password"
               t="password"
-              label={tt("Parol", "Пароль")}
+              label={tt("Yangi parol", "Новый пароль")}
               v={formik2.values.password}
               change={formik2.handleChange}
               blur={formik2.handleBlur}
+              // Brauzer saqlangan parolni o'zi to'ldirib qo'ymasin
+              autoComplete="new-password"
+              p={tt(
+                "Bo'sh qoldiring — parol o'zgarmaydi",
+                "Оставьте пустым — пароль не изменится"
+              )}
               error={
                 formik2.touched?.password ? formik2.errors?.password : undefined
               }
@@ -386,19 +392,19 @@ const BatalonUser: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               {tt("Rasm", "Изображение")}
             </label>
 
             <div className="flex items-center gap-4">
               <label
                 htmlFor="file-upload"
-                className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition"
+                className="cursor-pointer inline-flex items-center px-4 py-2 border border-border rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover transition"
               >
                 {tt("Fayl tanlash", "Выбрать файл")}
               </label>
 
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-muted-foreground">
                 {formik.values.file
                   ? formik.values.file.name
                   : tt("Fayl tanlanmagan", "Файл не выбран")}
@@ -416,7 +422,7 @@ const BatalonUser: React.FC = () => {
             />
 
             {formik.touched.file && formik.errors.file && (
-              <p className="text-red-500 text-sm mt-1">{formik.errors.file}</p>
+              <p className="text-destructive text-sm mt-1">{formik.errors.file}</p>
             )}
           </div>
 
@@ -475,6 +481,7 @@ const BatalonUser: React.FC = () => {
               v={formik.values.password}
               change={formik.handleChange}
               blur={formik.handleBlur}
+              autoComplete="new-password"
               error={
                 formik.touched?.password ? formik.errors?.password : undefined
               }
@@ -502,19 +509,19 @@ const BatalonUser: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               {tt("Rasm", "Изображение")}
             </label>
 
             <div className="flex items-center gap-4">
               <label
                 htmlFor="file-upload"
-                className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition"
+                className="cursor-pointer inline-flex items-center px-4 py-2 border border-border rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover transition"
               >
                 {tt("Fayl tanlash", "Выбрать файл")}
               </label>
 
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-muted-foreground">
                 {formik.values.file
                   ? formik.values.file.name
                   : tt("Fayl tanlanmagan", "Файл не выбран")}
@@ -532,7 +539,7 @@ const BatalonUser: React.FC = () => {
             />
 
             {formik.touched.file && formik.errors.file && (
-              <p className="text-red-500 text-sm mt-1">{formik.errors.file}</p>
+              <p className="text-destructive text-sm mt-1">{formik.errors.file}</p>
             )}
           </div>
 

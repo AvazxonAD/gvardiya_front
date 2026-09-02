@@ -1,5 +1,4 @@
 import { getSpr } from "@/api";
-import Icon from "@/assets/icons";
 import DeleteModal from "@/Components/DeleteModal";
 import Input from "@/Components/Input";
 import Modal from "@/Components/Modal";
@@ -9,6 +8,15 @@ import useApi from "@/services/api";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { tt } from "../../utils";
+import Table from "@/Components/reusable/table/Table";
+import { Coins, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Button as UIButton,
+  EmptyState,
+  ListCard,
+  Toolbar,
+  ToolbarSpacer,
+} from "@/ui";
 
 function Bxm() {
   const [data, setData] = useState([]);
@@ -98,76 +106,75 @@ function Bxm() {
   }
 
   return (
-    <div>
-      <div className="flex justify-between mb-6">
-        <h1 className="text-mytextcolor text-[20px] leading-[24.2px] font-[500]">
-          {tt("Hisob Raqami", "Номер Счета")}
-        </h1>
-        <Button mode="add" onClick={() => setOpen2(true)} />
-      </div>
-      <div>
-        {data ? (
-          <div className="overflow-x-auto rounded-t-[6px] h-[510px] text-[#323232] text-[14px] leading-[16.94px]">
-            <table className="min-w-full  ">
-              <thead className="bg-mytablehead text-mytextcolor text-[14px] leading-[16.94px] rounded-t-[6px] border-b border-mytableheadborder">
-                <tr className="">
-                  <th className="px-4 py-3 text-left">{tt("№", "№")}</th>
+    <div className="flex min-w-0 flex-col gap-3">
+      <h1 className="text-[16px] font-semibold text-foreground">
+        {tt("BXM", "БХМ")}
+      </h1>
 
-                  <th className="pr-[350px] py-3 text-left">
-                    {tt("Bxm summa", "Сумма Bxm")}
-                  </th>
-
-                  <th className="py-3 text-center w-[80px]">
-                    {tt("Amallar", "Действия")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((person: any, index: number) => (
-                  <tr
-                    key={person.id}
-                    className={`${index % 2 === 0 ? " bg-white   dark:bg-mybackground" : " bg-[#F4FAFD] dark:bg-mybackground"
-                      } cursor-pointer hover:text-[#3B7FAF] transition-colors duration-300 text-mytextcolor border-b border-mytableheadborder`}
-                  >
-                    <td className="px-4 py-3 text-inherit ">
-                      {index + 1}
-                    </td>
-
-                    <td className="pr-[100px] py-3 text-inherit ">
-                      {person.summa}
-                    </td>
-
-                    <td className="py-3 text-inherit flex justify-center ">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => {
-                            setValue(person.summa);
-                            setActive(person.id);
-                            setOpen(true);
-                          }}
-                        >
-                          <Icon name="edit" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setDelOpen(true);
-                            setActive(person.id);
-                          }}
-                        >
-                          <Icon name="delete" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      <ListCard
+        toolbar={
+          <Toolbar>
+            <ToolbarSpacer />
+            <UIButton size="sm" onClick={() => setOpen2(true)}>
+              <Plus />
+              {tt("Qo'shish", "Добавить")}
+            </UIButton>
+          </Toolbar>
+        }
+      >
+        {data && data.length ? (
+          <Table
+            thead={[
+              { text: "№", className: "w-[70px]" },
+              { text: tt("BXM summa", "Сумма БХМ") },
+              {
+                text: tt("Amallar", "Действия"),
+                className: "w-[110px] text-center",
+              },
+            ]}
+          >
+            {data.map((person: any, index: number) => (
+              <tr key={person.id}>
+                <td className="text-muted-foreground tabular-nums">{index + 1}</td>
+                <td className="font-medium tabular-nums">{person.summa}</td>
+                <td>
+                  <div className="flex items-center justify-center gap-0.5">
+                    <UIButton
+                      variant="ghost"
+                      size="icon-xs"
+                      title={tt("Tahrirlash", "Редактировать")}
+                      aria-label={tt("Tahrirlash", "Редактировать")}
+                      onClick={() => {
+                        setValue(person.summa);
+                        setActive(person.id);
+                        setOpen(true);
+                      }}
+                    >
+                      <Pencil />
+                    </UIButton>
+                    <UIButton
+                      variant="ghost"
+                      size="icon-xs"
+                      title={tt("O'chirish", "Удалить")}
+                      aria-label={tt("O'chirish", "Удалить")}
+                      className="hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => {
+                        setDelOpen(true);
+                        setActive(person.id);
+                      }}
+                    >
+                      <Trash2 />
+                    </UIButton>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </Table>
         ) : (
-          <div className="h-[400px] w-full text-[#323232] font-[500] text-[20px] flex justify-center items-center bg-[#F4FAFD] rounded-lg">
-            {tt("Malumot yo'q", "Нет дата")}
-          </div>
+          <EmptyState icon={Coins} title={tt("Ma'lumot yo'q", "Нет данных")} />
         )}
+      </ListCard>
+
         <Modal
           closeModal={() => {
             setOpen(false);
@@ -223,7 +230,6 @@ function Bxm() {
             setDelOpen(false);
           }}
         />
-      </div>
     </div>
   );
 }

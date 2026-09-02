@@ -39,12 +39,12 @@ export const SwitchTemplate = (props: Props) => {
       open={props.open}
       title={tt(`Shablonlar`, "Шаблоны")}
       w={"1000px"}>
-      <div className="cursor-pointer flex flex-wrap gap-2 rounded-md bg-[#f6f6f6] dark:bg-[#3d3d3f] p-2">
+      <div className="cursor-pointer flex flex-wrap gap-2 rounded-md bg-muted dark:bg-foreground p-2">
         {props.templatesData.map((el, idx) => (
           <div
             key={idx}
             onClick={() => handleChangeTemplate(el, idx)}
-            className={`flex w-[150px] h-[150px] bg-mybackground  justify-center items-center rounded-md border-[2px] ${el.active ? "border-[#ff7d2c]" : "border-[transparent]"
+            className={`flex w-[150px] h-[150px] bg-card  justify-center items-center rounded-md border-[2px] ${el.active ? "border-warning" : "border-[transparent]"
               }`}>
             {el.shablon_name}
           </div>

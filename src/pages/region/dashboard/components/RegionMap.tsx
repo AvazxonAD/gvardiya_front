@@ -36,12 +36,12 @@ export default function RegionMap({ usersData, onDetail }: RegionMapProps) {
     <div className="dash-glass p-[12px] lg:col-span-2 flex flex-col relative z-10 min-h-0">
       <div className="flex items-center justify-between mb-1">
         <h2 className="text-[16px] font-semibold flex items-center text-[var(--dash-text)]">
-          <div className="w-3 h-3 rounded-full bg-blue-500 mr-3 animate-pulse" />
+          <div className="w-3 h-3 rounded-none bg-primary mr-3 animate-pulse" />
           {regionName || "Viloyat"} Monitoring
         </h2>
         <button
           onClick={onDetail}
-          className="text-[10px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 border border-blue-400/40 hover:border-blue-300/60 rounded-md px-2.5 py-1 transition"
+          className="text-[10px] text-primary hover:text-primary font-medium flex items-center gap-1 border border-primary/30/40 hover:border-primary/30/60 rounded-md px-2.5 py-1 transition"
         >
           Batafsil
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

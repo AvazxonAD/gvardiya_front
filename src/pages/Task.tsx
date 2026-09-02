@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { formatDate, tt } from "@/utils";
+import { Card } from "@/ui";
 
 function Tasks() {
   const [data, setData] = useState<ITask[]>([]);
@@ -37,36 +38,38 @@ function Tasks() {
   }, []);
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex min-w-0 flex-col gap-3">
       {contract && (
-        <div className="flex items-center gap-6 text-[13px] text-mytextcolor border border-mytableheadborder rounded-lg px-4 py-2 bg-mytablehead mt-3">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5 rounded-lg border border-border bg-card px-4 py-3 text-[13px] text-foreground">
           <div>
-            <span className="text-mylabelcolor">{tt("Shartnoma raqami", "Номер договора")}: </span>
+            <span className="text-muted-foreground">{tt("Shartnoma raqami", "Номер договора")}: </span>
             <span className="font-semibold">{contract.doc_num}</span>
           </div>
           <div>
-            <span className="text-mylabelcolor">{tt("Shartnoma sanasi", "Дата договора")}: </span>
+            <span className="text-muted-foreground">{tt("Shartnoma sanasi", "Дата договора")}: </span>
             <span className="font-semibold">{formatDate(contract.doc_date)}</span>
           </div>
           <div>
-            <span className="text-mylabelcolor">{tt("Boshlanish sanasi", "Дата начала")}: </span>
+            <span className="text-muted-foreground">{tt("Boshlanish sanasi", "Дата начала")}: </span>
             <span className="font-semibold">{formatDate(contract.start_date)}</span>
           </div>
           <div>
-            <span className="text-mylabelcolor">{tt("Tugallash sanasi", "Дата окончания")}: </span>
+            <span className="text-muted-foreground">{tt("Tugallash sanasi", "Дата окончания")}: </span>
             <span className="font-semibold">{formatDate(contract.end_date)}</span>
           </div>
           <div>
-            <span className="text-mylabelcolor">{tt("Boshlanish vaqti", "Время начала")}: </span>
+            <span className="text-muted-foreground">{tt("Boshlanish vaqti", "Время начала")}: </span>
             <span className="font-semibold">{contract.start_time}</span>
           </div>
           <div>
-            <span className="text-mylabelcolor">{tt("Tugallash vaqti", "Время окончания")}: </span>
+            <span className="text-muted-foreground">{tt("Tugallash vaqti", "Время окончания")}: </span>
             <span className="font-semibold">{contract.end_time}</span>
           </div>
         </div>
       )}
-      <Table getTasks={getInfo} data={data} contract={contract} />
+      <Card className="overflow-hidden">
+        <Table getTasks={getInfo} data={data} contract={contract} />
+      </Card>
     </div>
   );
 }
