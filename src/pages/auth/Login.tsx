@@ -47,6 +47,8 @@ interface EimzoStep {
   login_token: string;
   challenge: string;
   bridge: string;
+  /** Sinov rejimi: backend EIMZO_LOGIN=off — imzo va USB Manager kerak emas */
+  disabled: boolean;
 }
 
 const LANGUAGES = [
@@ -131,9 +133,11 @@ export default function Login() {
           login_token: res.data.login_token,
           challenge: res.data.challenge,
           bridge: res.data.eimzo_bridge?.token || "",
+          disabled: Boolean(res.data.eimzo_disabled),
         };
         setEimzo(step);
-        loadCertificates(step.bridge);
+        // Sinov rejimida kalit ham, USB Manager ham so'ralmaydi
+        if (!step.disabled) loadCertificates(step.bridge);
         return;
       }
 
@@ -144,14 +148,20 @@ export default function Login() {
   };
 
   const confirmEimzo = async () => {
-    if (!eimzo || !selectedCert || signing) return;
+    if (!eimzo || signing) return;
+    if (!eimzo.disabled && !selectedCert) return;
     setError("");
     setSigning(true);
 
     try {
-      const content64 = btoa(eimzo.challenge);
-      const sig = await signWithBridge(eimzo.bridge, content64, selectedCert);
-      const res = await loginEimzoAuth(eimzo.login_token, sig.pkcs7_64);
+      // Sinov rejimida imzo yaratilmaydi — login_token'ning o'zi yetarli
+      let pkcs7 = "";
+      if (!eimzo.disabled) {
+        const content64 = btoa(eimzo.challenge);
+        const sig = await signWithBridge(eimzo.bridge, content64, selectedCert!);
+        pkcs7 = sig.pkcs7_64;
+      }
+      const res = await loginEimzoAuth(eimzo.login_token, pkcs7);
 
       if (res.success) {
         finishLogin(res);
@@ -211,6 +221,7 @@ export default function Login() {
           <div className="w-full max-w-[380px]">
             {eimzo ? (
               <EimzoStepView
+                disabled={eimzo.disabled}
                 certs={certs}
                 selected={selectedCert}
                 onSelect={setSelectedCert}
@@ -411,6 +422,7 @@ function LoginHero() {
    ═══════════════════════════════════════════════════════════════════ */
 
 function EimzoStepView({
+  disabled,
   certs,
   selected,
   onSelect,
@@ -421,6 +433,7 @@ function EimzoStepView({
   onConfirm,
   onCancel,
 }: {
+  disabled: boolean;
   certs: EimzoCertificate[];
   selected: EimzoCertificate | null;
   onSelect: (c: EimzoCertificate) => void;
@@ -450,7 +463,12 @@ function EimzoStepView({
         </h1>
       </div>
       <p className="text-[13px] text-muted-foreground">
-        {certs.length > 1
+        {disabled
+          ? tt(
+              "Sinov rejimi — imzo talab qilinmaydi",
+              "Тестовый режим — подпись не требуется"
+            )
+          : certs.length > 1
           ? tt(
               "Bir nechta kalit topildi — birini tanlang",
               "Найдено несколько ключей — выберите один"
@@ -478,7 +496,17 @@ function EimzoStepView({
           </ErrorNote>
         )}
 
-        {loading ? (
+        {disabled ? (
+          <div className="flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3.5 py-3 text-[13px] text-amber-700 dark:text-amber-400">
+            <AlertCircle className="mt-px size-4 shrink-0" />
+            <p>
+              {tt(
+                "Test uchun E-IMZO o'chirilib turibdi. \"Kirish\" tugmasini bosing.",
+                "E-IMZO временно отключён для тестирования. Нажмите \"Войти\"."
+              )}
+            </p>
+          </div>
+        ) : loading ? (
           <div className="flex items-center gap-2.5 rounded-lg border border-border bg-muted/40 px-3.5 py-3 text-[13px] text-muted-foreground">
             <Loader2 className="size-4 animate-spin" />
             {tt("Kalitlar qidirilmoqda...", "Поиск ключей...")}
@@ -539,12 +567,14 @@ function EimzoStepView({
           size="lg"
           className="w-full"
           onClick={onConfirm}
-          disabled={!selected || loading}
+          disabled={disabled ? false : !selected || loading}
           loading={signing}
         >
           {signing
-            ? tt("Imzolanmoqda...", "Подписывается...")
-            : tt("E-IMZO bilan kirish", "Войти через E-IMZO")}
+            ? tt("Kirilmoqda...", "Вход...")
+            : disabled
+              ? tt("Kirish", "Войти")
+              : tt("E-IMZO bilan kirish", "Войти через E-IMZO")}
         </Button>
       </div>
     </div>

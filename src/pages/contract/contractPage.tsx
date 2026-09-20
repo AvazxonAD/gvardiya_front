@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import Recipient from "../prixod/recipient";
 import { initialContract } from "./ContractEdit";
-import { payer, recipient } from "./recipientData";
+import { recipient, usePayerRows } from "./recipientData";
 import TaskColumn, { returnBxmSum } from "./taskColumn";
 import OrganizationModal from "@/shared/components/OrganizationModal";
 
@@ -112,20 +112,45 @@ const ContractPage = () => {
     getTemplates();
   }, [id]);
 
-  const getOrgans = async () => {
-    const sParam = searchValue ? `&search=${searchValue}` : "";
-    const get: any = await api.get<IOrganization[]>(
-      `organization?page=${currentPage}&limit=${15}${sParam}`
-    );
-    if (get?.success) {
-      setOrganWorkers(get.data);
-      setTotalPages(get.meta.pageCount);
-    }
-  };
+  /* Maydonga yozilgan matn (`searchValue`) va so'rovga ketadigan matn
+     (`query`) ataylab ajratilgan: har bosilgan harfda so'rov yuborilsa,
+     tarmoq javoblari bir-birini quvib yetib, ro'yxat noto'g'ri
+     to'ldirilardi. */
+  const [query, setQuery] = useState<string>("");
 
   useEffect(() => {
-    getOrgans();
-  }, [currentPage, searchValue]);
+    const timer = setTimeout(() => setQuery(searchValue.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [searchValue]);
+
+  useEffect(() => {
+    // Kechikkan javob yangisining ustidan yozib yubormasin
+    let stale = false;
+
+    (async () => {
+      const sParam = query ? `&search=${encodeURIComponent(query)}` : "";
+      const get: any = await api.get<IOrganization[]>(
+        `organization?page=${currentPage}&limit=${15}${sParam}`
+      );
+      if (stale) return;
+      if (get?.success) {
+        setOrganWorkers(get.data);
+        setTotalPages(get.meta.pageCount);
+      }
+    })();
+
+    return () => {
+      stale = true;
+    };
+  }, [currentPage, query]);
+
+  /* Hook, shuning uchun JSX ichidan emas, komponentning yuqorisidan
+     chaqiriladi — chaqiruv shartli bo'lib qolsa hooklar tartibi buzilardi. */
+  const payerRows = usePayerRows({
+    data: id ? allOrgan : organWorkers,
+    contract,
+    setContract,
+  });
 
   const height = useFullHeight();
   const fullHeight =
@@ -391,7 +416,9 @@ const ContractPage = () => {
                 />
               </Field>
 
-              {/* Boshlanish / tugash juftliklari yonma-yon turadi */}
+              {/* Avval ikkala SANA, keyin ikkala VAQT: ikki ustunli
+                  panjarada sanalar bir qatorda, vaqtlar keyingisida
+                  turadi va bir-biri bilan solishtirish oson bo'ladi. */}
               <DateInput
                 className="w-full"
                 label={tt("Boshlanish sana", "Дата начала")}
@@ -399,6 +426,16 @@ const ContractPage = () => {
                 defaultValue={contract.start_date?.slice(0, 10)}
                 onChange={(event) =>
                   setContract((prev) => ({ ...prev, start_date: event }))
+                }
+              />
+
+              <DateInput
+                className="w-full"
+                label={tt("Tugash sana", "Дата окончания")}
+                name="end_date"
+                defaultValue={contract.end_date?.slice(0, 10)}
+                onChange={(event) =>
+                  setContract((prev) => ({ ...prev, end_date: event }))
                 }
               />
 
@@ -411,16 +448,6 @@ const ContractPage = () => {
                   className="tabular-nums"
                 />
               </Field>
-
-              <DateInput
-                className="w-full"
-                label={tt("Tugash sana", "Дата окончания")}
-                name="end_date"
-                defaultValue={contract.end_date?.slice(0, 10)}
-                onChange={(event) =>
-                  setContract((prev) => ({ ...prev, end_date: event }))
-                }
-              />
 
               <Field label={tt("Tugash vaqti", "Время окончания")}>
                 <Input
@@ -520,11 +547,7 @@ const ContractPage = () => {
                 txt={tt("To'lovchi tafsilotlari", "Данные плательщика")}
               />
               <div>
-                {payer({
-                  data: id ? allOrgan : organWorkers,
-                  contract,
-                  setContract,
-                }).map((e, ind) => (
+                {payerRows.map((e, ind) => (
                   <Recipient
                     onDoubleClick={() => setOpen(true)}
                     key={ind}
@@ -634,7 +657,12 @@ const ContractPage = () => {
           <div className="mb-4 flex items-center justify-between gap-4">
             <Input
               value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
+              onChange={(e) => {
+                setSearchValue(e.target.value);
+                // Uchinchi sahifada turib qidirilsa, natija bo'sh
+                // sahifaga tushib qolardi
+                setCurrentPage(1);
+              }}
               placeholder={tt("Nomlar bo'yicha qidiruv", "Поиск по имени")}
               startIcon={<Search />}
               className="max-w-sm"
@@ -642,7 +670,10 @@ const ContractPage = () => {
                 searchValue ? (
                   <button
                     type="button"
-                    onClick={() => setSearchValue("")}
+                    onClick={() => {
+                      setSearchValue("");
+                      setCurrentPage(1);
+                    }}
                     aria-label={tt("Tozalash", "Очистить")}
                     className="rounded p-0.5 transition-colors hover:text-foreground"
                   >

@@ -106,10 +106,10 @@ const UserTable: React.FC = () => {
       }),
       password: Yup.string()
         .min(
-          3,
+          8,
           tt(
-            "Parol kamida 3 ta belgi bo'lishi kerak",
-            "Пароль должен содержать минимум 3 символов"
+            "Parol kamida 8 ta belgi bo'lishi kerak",
+            "Пароль должен содержать минимум 8 символов"
           )
         )
         .required(tt("Parolni kiriting", "Введите пароль")),
@@ -195,10 +195,10 @@ const UserTable: React.FC = () => {
       }),
       // Tahrirlashda parol ixtiyoriy: bo'sh qoldirilsa mavjudi saqlanadi.
       password: Yup.string().min(
-        3,
+        8,
         tt(
-          "Parol kamida 3 ta belgi bo'lishi kerak",
-          "Пароль должен содержать минимум 3 символов"
+          "Parol kamida 8 ta belgi bo'lishi kerak",
+          "Пароль должен содержать минимум 8 символов"
         )
       ),
       login: Yup.string().required(tt("Login kiriting", "Введите логин")),

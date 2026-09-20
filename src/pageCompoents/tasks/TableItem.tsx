@@ -59,7 +59,7 @@ const TableItem = ({
   const api = useApi();
 
   const fetchTaskWorkers = async (withSearch: boolean = false) => {
-    const searchParam = withSearch && searchTerm ? `&search=${searchTerm}` : "";
+    const searchParam = withSearch && searchTerm ? `&search=${encodeURIComponent(searchTerm)}` : "";
     const get = await api.get<ITaskWorker[]>(
       `worker_task/?task_id=${row.id}${searchParam}`
     );

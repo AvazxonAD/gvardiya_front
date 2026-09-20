@@ -6,7 +6,7 @@ import { useRequest } from "@/hooks/useRequest";
 import { RasxodTabelInterface } from "@/interface";
 import { alertt } from "@/Redux/LanguageSlice";
 import useApi from "@/services/api";
-import { IOrganization } from "@/types/organization";
+import { IOrganization, primaryAccountNumber } from "@/types/organization";
 import { IPrixod } from "@/types/prixod";
 import { latinToCyrillic, numberToWords, textNum, tt } from "@/utils";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -225,8 +225,8 @@ export const CreateRasxod = () => {
     {
       txt: tt("Joriy hisob", "Расчетный счет"),
       value: textNum(
-        (selectedO?.account_number ??
-          currentPrixod?.organization_account_number) ||
+        primaryAccountNumber(selectedO) ||
+          currentPrixod?.organization_account_number ||
         "",
         4
       ),

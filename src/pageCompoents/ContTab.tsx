@@ -18,6 +18,7 @@ import { URL as API_URL } from "@/api";
 import { cn } from "@/lib/utils";
 import {
   formatDate,
+  formatInn,
   formatSum,
   textNum,
   tt,
@@ -169,7 +170,7 @@ const ContTab: React.FC<ContTabProps> = ({
                 </p>
                 <p>
                   <span className="text-muted-foreground">INN:</span>{" "}
-                  {textNum(item.organization_str, 3)}
+                  {formatInn(item.organization_str)}
                 </p>
                 <p>
                   <span className="text-muted-foreground">

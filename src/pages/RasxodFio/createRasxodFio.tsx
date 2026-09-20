@@ -9,7 +9,7 @@ import {
 } from "@/interface";
 import { alertt } from "@/Redux/LanguageSlice";
 import useApi from "@/services/api";
-import { IOrganization } from "@/types/organization";
+import { IOrganization, primaryAccountNumber } from "@/types/organization";
 import { latinToCyrillic, numberToWords, textNum, tt } from "@/utils";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -286,7 +286,7 @@ export const CreateRasxodFio = () => {
     },
     {
       txt: tt("Joriy hisob", "Расчетный счет"),
-      value: textNum(selectedO?.account_number || "", 4),
+      value: textNum(primaryAccountNumber(selectedO), 4),
     },
   ];
 

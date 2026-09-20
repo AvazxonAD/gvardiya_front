@@ -66,7 +66,7 @@ export const updateAuth = async (value: any, JWT: any) => {
 
 export const getWorkers = async (JWT: any, page: any, limet: any, id: any, search: any) => {
   const res = await authFetch(
-    URL + `/worker?page=${page}&limit=${limet}${id > 0 ? "&batalon_id=" + id : ""}${search.length > 0 ? "&search=" + search : ""}`,
+    URL + `/worker?page=${page}&limit=${limet}${id > 0 ? "&batalon_id=" + id : ""}${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}`,
     {
       method: "GET",
       headers: {
@@ -82,7 +82,7 @@ export const getWorkers = async (JWT: any, page: any, limet: any, id: any, searc
 };
 
 export const getBatalonWorkers = async (JWT: any, page: any, limet: any, search: any) => {
-  const res = await authFetch(URL + `/batalon/worker?page=${page}&limit=${limet}${search.length > 0 ? "&search=" + search : ""}`, {
+  const res = await authFetch(URL + `/batalon/worker?page=${page}&limit=${limet}${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -98,7 +98,7 @@ export const getBatalonWorkers = async (JWT: any, page: any, limet: any, search:
 export const getTasks = async (JWT: any, page: any, limet: any, from: any, to: any, search: any, status: any) => {
   const res = await authFetch(
     URL +
-      `/batalon/tasks?page=${page}&limit=${limet}&from=${from}&to=${to}${search.length > 0 ? "&search=" + search : ""}${status.length > 0 ? "&status=" + status : ""}`,
+      `/batalon/tasks?page=${page}&limit=${limet}&from=${from}&to=${to}${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}${status.length > 0 ? "&status=" + status : ""}`,
     {
       method: "GET",
       headers: {
@@ -127,7 +127,7 @@ export const getExcel = async (JWT: any, url: any) => {
 };
 
 export const getWorkersSearch = async (JWT: any, page: any, name: any) => {
-  const res = await authFetch(URL + `/worker?page=${page}&limit=10&search=${name}`, {
+  const res = await authFetch(URL + `/worker?page=${page}&limit=10&search=${encodeURIComponent(name)}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -225,7 +225,7 @@ export const getAllOrgans = async (JWT: any, page?: any, limet?: any) => {
 };
 
 export const getSearch = async (JWT: any, page: any, search: any, limet?: any) => {
-  const res = await authFetch(URL + `/organization?page=${page}&limit=${limet || 20}&search=${search}`, {
+  const res = await authFetch(URL + `/organization?page=${page}&limit=${limet || 20}&search=${encodeURIComponent(search)}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -256,7 +256,7 @@ export const getCont = async (
   const rasxodStatusParam = rasxodStatus ? `&rasxod-status=${rasxodStatus}` : "";
   const res = await authFetch(
     URL +
-      `/contract/?from=${date.date1}&to=${date.date2}&page=${page}&limit=${limet}${search.length > 0 ? "&search=" + search : ""}&account_number_id=${account_number}${batalonParam}${statusParam}${statusSummaParam}${rasxodStatusParam}`,
+      `/contract/?from=${date.date1}&to=${date.date2}&page=${page}&limit=${limet}${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}&account_number_id=${account_number}${batalonParam}${statusParam}${statusSummaParam}${rasxodStatusParam}`,
     {
       method: "GET",
       headers: {
@@ -442,6 +442,30 @@ export const updateSpr = async (value: any, JWT: any, path: any, text: any) => {
       Authorization: "Bearer " + JWT,
     },
     body: JSON.stringify({ [text]: value }),
+  });
+
+  const data = await res.json();
+
+  return { ...data, message: data?.message || handleStatus(res.status) };
+};
+
+/**
+ * Ikkita maydonli ma'lumotnomalar (Bank: bank+mfo, Ijrochi: doer+title).
+ * Ikkala maydon ham bitta so'rovda yuboriladi — server tomonda Joi
+ * ularni birga talab qiladi.
+ *
+ * Ilgari bu funksiya faqat `/bank` ga qotirilgan edi (`updateSpr2`), shu
+ * sabab Ijrochi uchun ishlatib bo'lmasdi va u yerdan faqat `doer`
+ * yuborilardi — natijada server "title is required" deb rad etardi.
+ */
+export const updateSprPair = async (value: any, JWT: any, path: string) => {
+  const res = await authFetch(URL + "/" + path, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + JWT,
+    },
+    body: JSON.stringify({ ...value }),
   });
 
   const data = await res.json();

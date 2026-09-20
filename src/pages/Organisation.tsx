@@ -6,6 +6,7 @@ import { IOrganization } from "@/types/organization";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useReactToPrint } from "react-to-print";
+import { useDebounce } from "use-debounce";
 import {
   CreateOrgn,
   DeleteOrgan,
@@ -77,13 +78,28 @@ function Organisation() {
   });
   const [open, setOpen] = useState(false);
 
-  const getInfo = async () => {
-    const res = await getOrgan(JWT, currentPage, limet);
+  /* Maydonga yozilgan matn (`searchValue`) va so'rovga ketadigan matn
+     (`query`) ataylab ajratilgan: har bosilgan harfda so'rov yuborilsa,
+     javoblar bir-birini quvib yetib, ro'yxat noto'g'ri to'ldirilardi. */
+  const [query] = useDebounce(searchValue.trim(), 400);
 
+  /* Qidiruv bo'sh bo'lsa oddiy ro'yxat, aks holda qidiruv chaqiriladi —
+     ikkalasi ham bitta `organization` yo'liga boradi va bir xil `meta`
+     qaytaradi. */
+  const readList = async () =>
+    query
+      ? await getSearch(JWT, currentPage, query, limet)
+      : await getOrgan(JWT, currentPage, limet);
+
+  const applyList = (res: any) => {
+    if (!res?.data) return;
     setData(res.data);
-    setTotalPages(res.meta.pageCount);
-    setAll(res.meta.count);
+    setTotalPages(res.meta?.pageCount ?? 1);
+    setAll(res.meta?.count ?? 0);
   };
+
+  /** O'zgartirishdan keyin ro'yxatni yangilaydi — qidiruv saqlanadi */
+  const getInfo = async () => applyList(await readList());
 
   const handleDelete = async () => {
     const res = await DeleteOrgan(JWT, active);
@@ -217,8 +233,15 @@ function Organisation() {
     editInfo();
   };
   useEffect(() => {
-    getInfo();
-  }, [currentPage, limet]);
+    // Kechikkan javob yangisining ustidan yozib yubormasin
+    let stale = false;
+    readList().then((res) => {
+      if (!stale) applyList(res);
+    });
+    return () => {
+      stale = true;
+    };
+  }, [currentPage, limet, query]);
 
   const openEdit = async (id: any) => {
     setActive(id);
@@ -243,23 +266,6 @@ function Organisation() {
     }
     setOpen2(true);
   };
-
-  const handleSearch = async () => {
-    const res = await getSearch(JWT, currentPage, searchValue.trim(), limet);
-
-    if (res.success) {
-      setData(res.data);
-      setTotalPages(res.meta.pageCount);
-    }
-  };
-
-  useEffect(() => {
-    if (searchValue) {
-      handleSearch();
-    } else {
-      getInfo();
-    }
-  }, [searchValue]);
 
   const api = useApi();
   const [forPdf, setForPdf] = useState<{
@@ -363,7 +369,12 @@ function Organisation() {
               <Input
                 search={true}
                 v={searchValue}
-                change={(e: any) => setSearchValue(e.target.value)}
+                change={(e: any) => {
+                  setSearchValue(e.target.value);
+                  // Uchinchi sahifada turib qidirilsa, natija bo'sh
+                  // sahifaga tushib qolardi
+                  setCurrentPage(1);
+                }}
                 p={tt("Nomlar bo'yicha qidiruv", "Поиск по имени")}
                 className="h-9 w-full"
               />

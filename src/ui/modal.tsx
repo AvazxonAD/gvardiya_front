@@ -10,7 +10,10 @@ const SIZES = {
   lg: "max-w-lg",
   xl: "max-w-2xl",
   "2xl": "max-w-4xl",
-  full: "max-w-[min(1200px,calc(100vw-2rem))]",
+  // Ma'lumot jadvallari uchun: 10 ta ustunli jadval 1200px da
+  // qatorma-qator o'ralib ketardi. Katta ekranda kengroq joy beriladi,
+  // kichigida esa oyna baribir ekranga sig'adi.
+  full: "max-w-[min(1600px,calc(100vw-2rem))]",
 } as const;
 
 export type ModalProps = {
@@ -46,9 +49,27 @@ function Modal({
   children,
 }: ModalProps) {
   const panelRef = React.useRef<HTMLDivElement>(null);
+  const bodyRef = React.useRef<HTMLDivElement>(null);
   const openerRef = React.useRef<HTMLElement | null>(null);
   const titleId = React.useId();
   const descId = React.useId();
+
+  /*
+   * `onClose` refda saqlanadi, chunki chaqiruvchilar uni deyarli har doim
+   * joyida yozilgan strelka funksiyasi sifatida beradi (`onClose={() =>
+   * setOpen(false)}`) — u har renderda YANGI funksiya bo'ladi.
+   *
+   * Ilgari quyidagi effekt `[open, onClose]` ga bog'langan edi va shu
+   * sababli ota komponent har qayta renderlanganda (masalan, modal
+   * ichidagi qidiruv maydoniga bitta harf yozilganda) effekt tozalanib,
+   * qaytadan ishga tushardi: fokus avval chaqiruvchi tugmaga, keyin
+   * modal ichidagi birinchi elementga sakrab, matn yozib bo'lmay
+   * qolardi. Endi effekt faqat `open` ga bog'liq.
+   */
+  const onCloseRef = React.useRef(onClose);
+  React.useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
   // Escape + sahifa skrollini bloklash + fokusni tiklash
   React.useEffect(() => {
@@ -59,7 +80,7 @@ function Modal({
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.stopPropagation();
-        onClose();
+        onCloseRef.current();
       }
     };
     document.addEventListener("keydown", onKeyDown);
@@ -67,11 +88,16 @@ function Modal({
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    // Ochilgandan keyin fokusni panel ichiga olib kiramiz
+    // Ochilgandan keyin fokusni panel ichiga olib kiramiz. Avval
+    // MAZMUN qismidan qidiriladi: sarlavhadagi yopish tugmasi hujjat
+    // tartibida birinchi bo'lgani uchun, butun panel bo'ylab qidirilsa
+    // fokus doim o'shanga tushib qolardi.
     const raf = requestAnimationFrame(() => {
-      const target = panelRef.current?.querySelector<HTMLElement>(
-        "[data-autofocus], input:not([type=hidden]), textarea, select, button"
-      );
+      const controls =
+        "[data-autofocus], input:not([type=hidden]), textarea, select";
+      const target =
+        bodyRef.current?.querySelector<HTMLElement>(controls) ??
+        panelRef.current?.querySelector<HTMLElement>(`${controls}, button`);
       target?.focus();
     });
 
@@ -81,7 +107,7 @@ function Modal({
       cancelAnimationFrame(raf);
       openerRef.current?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
@@ -138,7 +164,12 @@ function Modal({
           </div>
         )}
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
+        <div
+          ref={bodyRef}
+          className="min-h-0 flex-1 overflow-y-auto px-5 py-4"
+        >
+          {children}
+        </div>
 
         {footer && (
           <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border px-5 py-3.5">

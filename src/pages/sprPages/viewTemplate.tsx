@@ -3,6 +3,7 @@ import { useRequest } from "@/hooks/useRequest";
 import { SingleTemplateInterface } from "@/interface";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { safeHtml } from "@/lib/safeHtml";
 
 const ViewTemplate = () => {
   const { id } = useParams();
@@ -50,7 +51,7 @@ const ViewTemplate = () => {
                 <p
                   className="mb-0"
                   dangerouslySetInnerHTML={{
-                    __html: singleTemplate?.section_1,
+                    __html: safeHtml(singleTemplate?.section_1),
                   }}
                 />
               </div>
@@ -62,7 +63,7 @@ const ViewTemplate = () => {
                 <p
                   className="mb-0"
                   dangerouslySetInnerHTML={{
-                    __html: singleTemplate?.section_2,
+                    __html: safeHtml(singleTemplate?.section_2),
                   }}
                 />
               </div>
@@ -74,7 +75,7 @@ const ViewTemplate = () => {
                 <p
                   className="mb-0"
                   dangerouslySetInnerHTML={{
-                    __html: singleTemplate?.section_3,
+                    __html: safeHtml(singleTemplate?.section_3),
                   }}
                 />
               </div>
@@ -90,7 +91,7 @@ const ViewTemplate = () => {
                 <p
                   className="mb-0"
                   dangerouslySetInnerHTML={{
-                    __html: singleTemplate?.section_4,
+                    __html: safeHtml(singleTemplate?.section_4),
                   }}
                 />
               </div>
@@ -101,7 +102,7 @@ const ViewTemplate = () => {
                 <p
                   className="mb-0"
                   dangerouslySetInnerHTML={{
-                    __html: singleTemplate?.section_5,
+                    __html: safeHtml(singleTemplate?.section_5),
                   }}
                 />
               </div>
@@ -111,7 +112,7 @@ const ViewTemplate = () => {
                 </h2>
                 <p
                   dangerouslySetInnerHTML={{
-                    __html: singleTemplate?.section_6,
+                    __html: safeHtml(singleTemplate?.section_6),
                   }}
                 />
               </div>
@@ -121,7 +122,7 @@ const ViewTemplate = () => {
                 </h2>
                 <p
                   dangerouslySetInnerHTML={{
-                    __html: singleTemplate?.section_7,
+                    __html: safeHtml(singleTemplate?.section_7),
                   }}
                 />
               </div>
@@ -139,7 +140,7 @@ const ViewTemplate = () => {
                   )}
                   <p
                     dangerouslySetInnerHTML={{
-                      __html: singleTemplate.qoshimcha.join("<br>"),
+                      __html: safeHtml(singleTemplate.qoshimcha.join("<br>")),
                     }}
                   />
                 </section>

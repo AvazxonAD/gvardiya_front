@@ -1,6 +1,6 @@
 /** @format */
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
@@ -28,11 +28,22 @@ function Modal({
   style,
   className,
 }: any) {
+  /* `closeModal` refda saqlanadi: chaqiruvchilar uni deyarli har doim
+     joyida yozilgan strelka funksiyasi sifatida beradi va u har renderda
+     YANGI bo'ladi. Effekt unga bog'langanida, modal ichidagi maydonga
+     bitta harf yozilishi ham effektni tozalab, qaytadan ishga tushirardi
+     — `body` ning `overflow` i bir zumda ochilib-yopilib, sahifa
+     titrardi. Endi effekt faqat `open` ga bog'liq. */
+  const closeModalRef = useRef(closeModal);
+  useEffect(() => {
+    closeModalRef.current = closeModal;
+  });
+
   useEffect(() => {
     if (!open) return;
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && closeModal) closeModal();
+      if (e.key === "Escape") closeModalRef.current?.();
     };
     document.addEventListener("keydown", onKeyDown);
 
@@ -43,7 +54,7 @@ function Modal({
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = prev;
     };
-  }, [open, closeModal]);
+  }, [open]);
 
   if (!open) return null;
 

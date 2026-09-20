@@ -2,7 +2,7 @@ import DeleteModal from "@/Components/DeleteModal";
 import { useRequest } from "@/hooks/useRequest";
 import { RasxodInterface } from "@/interface";
 import { alertt } from "@/Redux/LanguageSlice";
-import { formatDate, formatNum, textNum, tt } from "@/utils";
+import { formatDate, formatInn, formatNum, textNum, tt } from "@/utils";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -189,7 +189,7 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
                             <div className="pointer-events-none absolute left-4 top-full z-30 hidden w-[250px] rounded-md border border-border bg-popover p-3 text-[12px] text-popover-foreground shadow-lg group-hover:block">
                                 <p>{tt("Nomi", "Название")}: {item.batalon_name}</p>
                                 <p>{tt("Manzil", "Адрес")}: {item.batalon_address}</p>
-                                <p>{tt("INN", "ИНН")}: {textNum(item.batalon_str, 3)}</p>
+                                <p>{tt("INN", "ИНН")}: {formatInn(item.batalon_str)}</p>
                                 <p>{tt("Hisob raqam", "Номер счета")}: {textNum(item.batalon_account_number, 4)}</p>
                             </div>
                         </td>

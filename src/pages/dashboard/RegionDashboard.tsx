@@ -17,7 +17,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { formatSum, textNum, tt } from "@/utils";
+import { formatInn, formatSum, tt } from "@/utils";
 import useApi, { baseUri } from "@/services/api";
 import { authFetch } from "@/services/tokenManager";
 import { RootState } from "@/Redux/store";
@@ -221,9 +221,20 @@ export default function RegionDashboard() {
   const filteredDebt = useMemo(() => {
     const q = debtSearch.trim().toLowerCase();
     if (!q) return debtRows;
-    return debtRows.filter((r) =>
-      (r.organization_name || "").toLowerCase().includes(q)
-    );
+    // Jadvalda ko'rinadigan HAR BIR ustun bo'yicha qidiriladi.
+    // Ilgari faqat nom solishtirilardi va INN kiritilganda natija
+    // bo'sh chiqib, qidiruv ishlamayotgandek tuyulardi.
+    // INN bo'shliq bilan guruhlanib ko'rsatiladi ("123 456 789"),
+    // shuning uchun bo'shliqlar olib tashlanib ham taqqoslanadi.
+    const qDigits = q.replace(/\s/g, "");
+    return debtRows.filter((r) => {
+      const inn = String(r.organization_str || "").replace(/\s/g, "");
+      return (
+        (r.organization_name || "").toLowerCase().includes(q) ||
+        (r.organization_address || "").toLowerCase().includes(q) ||
+        (qDigits.length > 0 && inn.includes(qDigits))
+      );
+    });
   }, [debtRows, debtSearch]);
 
   /* ── Yuklab olishlar ───────────────────────────────────────────── */
@@ -291,7 +302,7 @@ export default function RegionDashboard() {
             className="block truncate tabular-nums text-muted-foreground"
             title={r.organization_str}
           >
-            {textNum(r.organization_str, 3)}
+            {formatInn(r.organization_str)}
           </span>
         ) : (
           <span className="text-muted-foreground">—</span>
@@ -525,7 +536,7 @@ export default function RegionDashboard() {
               inputSize="sm"
               value={debtSearch}
               onChange={(e) => setDebtSearch(e.target.value)}
-              placeholder={tt("Tashkilot qidirish", "Поиск организации")}
+              placeholder={tt("Tashkilot, INN yoki manzil", "Организация, ИНН или адрес")}
               startIcon={<Search />}
               className="min-w-0 flex-1 md:w-64 md:flex-none"
               endIcon={

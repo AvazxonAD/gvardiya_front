@@ -6,7 +6,7 @@ import { Building2, Pencil, Trash2 } from "lucide-react";
 import Table from "@/Components/reusable/table/Table";
 import DeleteModal from "../Components/DeleteModal";
 import { IOrganization } from "@/types/organization";
-import { textNum, tt } from "../utils";
+import { formatInn, textNum, tt } from "../utils";
 import { Button, EmptyState } from "@/ui";
 
 /** Tashkilotlar jadvali */
@@ -46,6 +46,13 @@ const OrganTAb = ({
   return (
     <>
       <Table
+        // Jadvalda 9-10 ta ustun bor. `w-full` bilan ular tor oynada
+        // qisilib, har bir katak bir necha qatorga o'ralib ketardi
+        // (o'qib bo'lmasdi). Eng kam kenglik berilgach, tor ekranda
+        // jadval gorizontal aylanadi, kengida esa bo'sh joyni egallaydi.
+        // Kenglik ichki `<table>` ga beriladi — tashqi quti aylanish
+        // maydoni bo'lib qolishi kerak.
+        tableClassName="[&_table]:min-w-[1260px]"
         thead={[
           { text: "№", className: "w-[44px]" },
           { text: tt("Nomi", "Название"), className: "whitespace-normal leading-[1.15]" },
@@ -77,7 +84,7 @@ const OrganTAb = ({
             <td className="text-muted-foreground">
               {person.address}
             </td>
-            <td className="tabular-nums">{textNum(person.str, 3)}</td>
+            <td className="tabular-nums">{formatInn(person.str)}</td>
             <td className="text-muted-foreground">{person.bank_name}</td>
             <td className="tabular-nums">{person.mfo}</td>
             <td className="text-muted-foreground">{person.boss}</td>

@@ -12,7 +12,7 @@ import {
 import RasxodModal from "@/pages/rasxod/modal";
 import { alertt } from "@/Redux/LanguageSlice";
 import useApi from "@/services/api";
-import { IOrganization } from "@/types/organization";
+import { primaryAccountNumber, OrganizationLike } from "@/types/organization";
 import { IPrixod } from "@/types/prixod";
 import {
   formatNum,
@@ -56,7 +56,11 @@ export const EditRasxodFio = () => {
 
   const [open, setOpen] = useState<boolean>(false);
   const [organization, setOrganization] = useState({ data: [] });
-  const [selectedO, setSelectedO] = useState<IOrganization>();
+  // Bu holatga IKKI xil shakl tushadi: tanlash modalidan haqiqiy
+  // tashkilot (`account_numbers` massivi) va yuklashda batalon
+  // ma'lumoti (skalyar `account_number`). `OrganizationLike` ikkalasini
+  // ham qamraydi — ilgari bu yer `@ts-ignore` bilan yopilgan edi.
+  const [selectedO, setSelectedO] = useState<OrganizationLike>();
   const [limit, setLimit] = useState<number>(15);
   const [page, setPage] = useState<number>(1);
 
@@ -142,7 +146,6 @@ export const EditRasxodFio = () => {
           setRasxodFromDate(data.from);
           setRasxodToDate(data.to);
           // setCalculatedSum(data.summa);
-          //@ts-ignore
           setSelectedO({
             account_number: data.batalon_account_number,
             address: data.batalon_address,
@@ -463,8 +466,8 @@ export const EditRasxodFio = () => {
     {
       txt: tt("Joriy hisob", "Расчетный счет"),
       value: textNum(
-        (selectedO?.account_number ??
-          currentPrixod?.organization_account_number) ||
+        primaryAccountNumber(selectedO) ||
+          currentPrixod?.organization_account_number ||
           "",
         4
       ),

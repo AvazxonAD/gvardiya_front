@@ -4,7 +4,7 @@ import { Pencil, Shield, Trash2 } from "lucide-react";
 import Table from "@/Components/reusable/table/Table";
 import DeleteModal from "../Components/DeleteModal";
 import { IBatalon } from "@/types/batalon";
-import { textNum, tt } from "../utils";
+import { formatInn, tt } from "../utils";
 import { cn } from "@/lib/utils";
 import { Badge, Button, EmptyState } from "@/ui";
 
@@ -44,7 +44,7 @@ const BatTab = ({ data, setActive, edit, handleDelete }: any) => {
                 )}
               </td>
               <td className="text-muted-foreground">{person.address}</td>
-              <td className="tabular-nums">{textNum(person.str, 3)}</td>
+              <td className="tabular-nums">{formatInn(person.str)}</td>
               <td className="text-muted-foreground">{person.bank_name}</td>
               <td className="tabular-nums">{person.mfo}</td>
               <td className="tabular-nums">{person.account_number}</td>

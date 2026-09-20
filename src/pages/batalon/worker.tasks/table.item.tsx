@@ -41,7 +41,7 @@ const TableItem = ({
   useEffect(() => {
     (async () => {
       if (open) {
-        const searchParam = searchTerm ? `&search=${searchTerm}` : "";
+        const searchParam = searchTerm ? `&search=${encodeURIComponent(searchTerm)}` : "";
 
         const get = await api.get<ITaskWorker[]>(
           `batalon/worker-tasks/?task_id=${row.id}${searchParam}`

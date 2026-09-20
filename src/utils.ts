@@ -309,6 +309,24 @@ export const tt = (text: string, ru: string) => {
   return type == "2" ? ru : type == "0" ? text : latinToCyrillic(text);
 };
 
+/**
+ * INN ni ko'rsatish uchun — guruhlashsiz, qanday saqlangan bo'lsa shunday.
+ *
+ * Ilgari INN `textNum(str, 3)` bilan "310 843 244" ko'rinishida chizilardi.
+ * Bazada esa u bo'shliqsiz turadi, shuning uchun foydalanuvchi jadvaldan
+ * nusxa olib qidirganda hech narsa topilmasdi. Endi ekranda ham bo'shliqsiz
+ * ko'rsatiladi; qidiruv tomoni ham bo'shliqqa chidamli qilingan
+ * (`organization.service.js`, `region/batalon/db.js`), ya'ni bank
+ * hujjatidan bo'shliqli nusxalangan INN ham topiladi.
+ *
+ * DIQQAT: shartnoma hujjatlari (`Document*`, `LawyerDocument`) va hujjat
+ * ko'rinishi panellarida INN ataylab eski ko'rinishida qoldirilgan —
+ * ular rasmiy matn.
+ */
+export function formatInn(text: string | number | null | undefined): string {
+  return text == null ? "" : String(text).replace(/\s+/g, "");
+}
+
 export function textNum(text: string | number | null | undefined, number: number): string {
   // Hisob raqam/INN ba'zan son bo'lib keladi — `.slice` ishlamay qolardi
   const str = text == null ? "" : String(text);

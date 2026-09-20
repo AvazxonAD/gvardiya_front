@@ -1,4 +1,4 @@
-import { IOrganization } from "@/types/organization";
+import { IOrganization, orgAccountNumbers, orgGaznaNumbers } from "@/types/organization";
 import { textNum } from "@/utils";
 import React from "react";
 
@@ -36,10 +36,10 @@ const OrganizationForPrint = React.forwardRef<HTMLDivElement, OrganizationForPri
                                 <td className="border border-gray-400 px-4 py-2">{item.bank_name}</td>
                                 <td className="border border-gray-400 px-4 py-2">{item.mfo}</td>
                                 <td className="border border-gray-400 px-4 py-2">
-                                    {textNum(item.account_number, 4)}
+                                    {orgAccountNumbers(item).map((a) => textNum(a, 4)).join(", ")}
                                 </td>
-                                <td className="border border-gray-400 px-4 py-2">{item.treasury1}</td>
-                                <td className="border border-gray-400 px-4 py-2">{item.treasury2}</td>
+                                <td className="border border-gray-400 px-4 py-2">{textNum(orgGaznaNumbers(item)[0] ?? "", 4)}</td>
+                                <td className="border border-gray-400 px-4 py-2">{textNum(orgGaznaNumbers(item)[1] ?? "", 4)}</td>
                             </tr>
                         ))}
                         <tr

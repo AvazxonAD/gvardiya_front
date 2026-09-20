@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { BookMarked, Eye, Pencil } from "lucide-react";
+import { BookMarked, Eye, Pencil, Plus } from "lucide-react";
 
 import Table from "@/Components/reusable/table/Table";
 import Modal from "../Components/Modal";
@@ -8,7 +8,8 @@ import { Button, EmptyState } from "@/ui";
 
 interface SprTabProps {
   data: any[];
-  bank?: boolean;
+  /** Ikkita maydonli bo'lim (Bank, Ijrochi) — ustunlar shundan quriladi */
+  pairFields?: { key: string; label: string }[] | null;
   title: string;
   path: string;
   children: React.ReactNode;
@@ -25,7 +26,7 @@ interface SprTabProps {
 /** Spravochnik bo'limlarining umumiy jadvali */
 const SprTab = ({
   data,
-  bank,
+  pairFields,
   title,
   path,
   children,
@@ -49,14 +50,14 @@ const SprTab = ({
     setOpen(true);
   };
 
-  const twoCols = Boolean(bank || deduction);
+  const twoCols = Boolean(pairFields || deduction);
 
   const thead = [
     { text: "№", className: "w-[70px]" },
-    ...(bank
+    ...(pairFields
       ? [
-          { text: tt("Bank nomi", "Название банка") },
-          { text: "MFO", className: "w-[140px] text-center" },
+          { text: pairFields[0].label },
+          { text: pairFields[1].label, className: "w-[220px]" },
         ]
       : deduction
       ? [
@@ -77,8 +78,12 @@ const SprTab = ({
 
               {twoCols ? (
                 <>
-                  <td className="font-medium">{person.bank}</td>
-                  <td className="text-center tabular-nums">{person?.mfo}</td>
+                  <td className="font-medium">
+                    {pairFields ? person?.[pairFields[0].key] : person?.name}
+                  </td>
+                  <td className="tabular-nums">
+                    {pairFields ? person?.[pairFields[1].key] : person?.percent}
+                  </td>
                 </>
               ) : (
                 <td className="font-medium">
@@ -120,7 +125,29 @@ const SprTab = ({
           ))}
         </Table>
       ) : (
-        <EmptyState icon={BookMarked} title={tt("Ma'lumot yo'q", "Нет данных")} />
+        <EmptyState
+          icon={BookMarked}
+          title={tt("Ma'lumot yo'q", "Нет данных")}
+          description={tt(
+            "Bu ma'lumot hali kiritilmagan.",
+            "Эти данные ещё не заполнены."
+          )}
+          /* Bu bo'limlarda viloyatga BITTA qator to'g'ri keladi va uni
+             tahrirlash oynasi faqat mavjud qatordagi qalamcha orqali
+             ochilardi. Natijada qatori yo'q yangi viloyat ma'lumotni
+             umuman kirita olmasdi. Endi bo'sh holatda ham shu oyna
+             ochiladi — saqlashda server qatorni o'zi yaratadi.
+             Shablonlarda kerak emas: u yerda alohida "yaratish"
+             sahifasi va o'z tugmasi bor. */
+          action={
+            template ? undefined : (
+              <Button size="sm" onClick={() => setOpen(true)}>
+                <Plus />
+                {tt("Qo'shish", "Добавить")}
+              </Button>
+            )
+          }
+        />
       )}
 
       <Modal closeModal={() => setOpen(false)} title={titleM} open={open}>

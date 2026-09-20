@@ -13,33 +13,50 @@ import { Field, Input as UIInput } from "@/ui";
  * sahifada ikkalasi uchraganda maydonlar bir tekis turmasdi. Endi ichkarida
  * bitta komponent ishlaydi, shuning uchun farq yo'q.
  */
-function Input({
-  label,
-  error,
-  p,
-  t,
-  v,
-  change,
-  search,
-  n,
-  blur,
-  disabled,
-  className,
-  defaultValue,
-  tush,
-  onDoubleClick,
-  readonly,
-  removeValue,
-  // Qolgan proplar inputga o'tkaziladi — masalan `autoComplete`,
-  // `maxLength`, `inputMode`. Ilgari ular yo'qolib ketardi.
-  ...rest
-}: any) {
+function Input(props: any) {
+  const {
+    label,
+    error,
+    p,
+    t,
+    v,
+    change,
+    search,
+    n,
+    blur,
+    disabled,
+    className,
+    defaultValue,
+    tush,
+    onDoubleClick,
+    readonly,
+    removeValue,
+    // Qolgan proplar inputga o'tkaziladi — masalan `autoComplete`,
+    // `maxLength`, `inputMode`. Ilgari ular yo'qolib ketardi.
+    ...rest
+  } = props;
+
   const showClear = removeValue && v && String(v).length > 0;
 
-  // React `value={undefined}` ni boshqarilmagan input deb qabul qiladi va
-  // keyin qiymat kelganda "uncontrolled -> controlled" ogohlantirishini
-  // beradi. `defaultValue` ishlatilmayotgan bo'lsa bo'sh matnga tushiramiz.
-  // NaN esa inputga umuman yozilmasligi kerak.
+  /**
+   * Boshqariladigan (controlled) bo'lish-bo'lmaslikni CHAQIRUVCHI hal qiladi.
+   *
+   * Ilgari bu yerda qiymat shartsiz `v ?? ""` ga tushirilardi. Natijada
+   * `v` bermagan chaqiruvlar — masalan
+   *     <Input change={onChange} search p="Izlash..." />
+   * (prixod/rasxod tanlash modallaridagi qidiruv) — doimo `value=""` bilan
+   * boshqariladigan inputga aylanardi. Ota-komponent qiymatni hech qachon
+   * qaytarmagani uchun yozilgan matn ekranga chiqmasdi: qidiruv butunlay
+   * ishlamay qolgandi.
+   *
+   * Endi `v` berilmagan bo'lsa `value` umuman uzatilmaydi va input o'z
+   * holicha ishlaydi; `change` esa avvalgidek chaqiriladi.
+   */
+  const controlled = "v" in props;
+
+  // Boshqariladigan holatda `undefined` bo'lmasin — aks holda React
+  // "uncontrolled -> controlled" ogohlantirishini beradi. NaN esa
+  // inputga umuman yozilmasligi kerak.
   const value =
     defaultValue !== undefined
       ? v
@@ -50,7 +67,7 @@ function Input({
   const field = (
     <UIInput
       defaultValue={defaultValue}
-      value={value}
+      value={controlled ? value : undefined}
       name={n}
       type={t ? t : "text"}
       onChange={(e) => change?.(e)}

@@ -1,5 +1,5 @@
 import { IContract } from "@/types/contract";
-import { formatDate, formatSum, textNum, tt } from "@/utils";
+import { formatDate, formatInn, formatSum, textNum, tt } from "@/utils";
 import { useState } from "react";
 import ReactDOM from "react-dom";
 
@@ -66,7 +66,7 @@ export const TableItem: React.FC<ITableItemProps> = ({ item, onView }) => {
           {tt("Manzil", "Адрес")}: {item.organization_address}
         </h2>
         <h2>
-          {tt("INN", "ИНН")}: {textNum(item.organization_str, 3)}
+          {tt("INN", "ИНН")}: {formatInn(item.organization_str)}
         </h2>
         <h2>
           {tt("Hisob raqam", "Номер счета")}:{" "}

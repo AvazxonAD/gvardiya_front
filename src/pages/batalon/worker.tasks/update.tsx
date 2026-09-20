@@ -47,7 +47,10 @@ const EditForm: React.FC<EditFormProps> = ({
   const dispatch = useDispatch();
 
   const fetchWorkers = async () => {
-    const searchParam = searchTerm ? `&search=${searchTerm}` : "";
+    // Debounce'dan O'TGAN qiymat ishlatiladi: effekt `search` ga
+    // bog'langan, so'rov esa `searchTerm` ni yuborsa, `page`/`limit`
+    // yozib turgan paytda o'zgarganda ikkalasi mos kelmay qolardi.
+    const searchParam = search ? `&search=${encodeURIComponent(search)}` : "";
 
     const getWorkers: any = await api.get(
       `batalon/worker?page=${page}&limit=${limit}${searchParam}`

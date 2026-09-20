@@ -5,7 +5,7 @@ import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import { alertt } from "@/Redux/LanguageSlice";
 import useApi from "@/services/api";
 import { IContract } from "@/types/contract";
-import { IOrganization } from "@/types/organization";
+import { IOrganization, primaryAccountNumber, primaryGaznaNumber } from "@/types/organization";
 import { IPrixod } from "@/types/prixod";
 import { formatDate, formatSum, numberToWords, textNum, tt } from "@/utils";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -123,7 +123,7 @@ const CreatePrixod = () => {
   }, [selectedC]);
 
   const getOrganization = async () => {
-    const searchParam = searchText ? `&search=${searchText}` : "";
+    const searchParam = searchText ? `&search=${encodeURIComponent(searchText)}` : "";
     const get: any = await api.get(
       `organization?page=${page}&limit=${limit}${searchParam}`
     );
@@ -131,7 +131,7 @@ const CreatePrixod = () => {
   };
 
   const getContract = async () => {
-    const searchParam = searchCText ? `&search=${searchCText}` : "";
+    const searchParam = searchCText ? `&search=${encodeURIComponent(searchCText)}` : "";
     const get: any = await api.get(
       `contract/?from=${contractFrom}&to=${contractTo}&page=${cPage}&limit=${cLimit}&account_number_id=${account_number_id}${searchParam}`
     );
@@ -185,8 +185,8 @@ const CreatePrixod = () => {
       txt: tt("Joriy hisob", "Расчетный счет"),
       value:
         textNum(
-          selectedO?.account_number ??
-          currentPrixod?.organization_account_number ??
+          primaryAccountNumber(selectedO) ||
+          currentPrixod?.organization_account_number ||
           "",
           4
         ) || "",
@@ -352,8 +352,8 @@ const CreatePrixod = () => {
                 <OrganizationTD txt={textNum(o.str, 3)} />
                 <OrganizationTD txt={o.mfo} />
                 <OrganizationTD txt={o.bank_name} />
-                <OrganizationTD txt={textNum(o.account_number, 4)} />
-                <OrganizationTD txt={textNum(o.treasury1, 4)} />
+                <OrganizationTD txt={textNum(primaryAccountNumber(o), 4)} />
+                <OrganizationTD txt={textNum(primaryGaznaNumber(o), 4)} />
               </tr>
             ))}
           </PrixodModal>

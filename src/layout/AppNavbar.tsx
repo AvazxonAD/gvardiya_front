@@ -357,6 +357,16 @@ function ProfileModal({
       return;
     }
 
+    if (form.newPassword.trim().length < 8) {
+      setError(
+        tt(
+          "Yangi parol kamida 8 ta belgi bo'lishi kerak",
+          "Новый пароль должен содержать минимум 8 символов"
+        )
+      );
+      return;
+    }
+
     setSaving(true);
     try {
       const res = await updateAuth(form, jwt);

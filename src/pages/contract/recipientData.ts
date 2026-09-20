@@ -24,7 +24,17 @@ export const recipient = () => {
   }
 };
 
-export const payer = ({
+/**
+ * To'lovchi tafsilotlari qatorlari.
+ *
+ * Ichida `useEffect` bor, shuning uchun bu — HOOK, oddiy funksiya emas.
+ * Ilgari `payer` deb atalib, JSX ichidan `payer({...}).map(...)` tarzida
+ * chaqirilardi: hook render paytida, shartli joyda chaqirilishi mumkin
+ * bo'lib qolardi va shart qo'shilishi bilanoq sahifa "Rendered fewer
+ * hooks than expected" bilan yiqilardi. Nomi `use` bilan boshlanadi va
+ * komponentning yuqorisidan chaqiriladi.
+ */
+export const usePayerRows = ({
   data,
   contract,
   setContract,
@@ -41,21 +51,46 @@ export const payer = ({
       name: textNum(d.account_number, 4),
     }))?.[0]?.id ?? "";
 
-  // Yangi shartnoma uchun default hisob raqamni set qilish (edit rejimida emas)
+  // Tanlangan raqamlar joriy tashkilotga tegishlimi. Tahrirlashda tashkilot
+  // almashtirilsa, eski tashkilotning hisob/gazna raqami qolib ketar va
+  // backend uni "Hisob raqami topilmadi" deb 404 bilan rad etardi.
+  const accountFitsOrg =
+    !contract?.organ_account_number_id ||
+    (org?.account_numbers ?? []).some(
+      (d: any) => d.id === contract.organ_account_number_id
+    );
+
+  const gaznaFitsOrg =
+    !contract?.gazna_number_id ||
+    (org?.gazna_numbers ?? []).some(
+      (d: any) => d.id === contract.gazna_number_id
+    );
+
+  // Hisob/gazna raqamini tashkilotga moslab turadi — yangi shartnomada ham,
+  // tahrirlashda ham.
   useEffect(() => {
-    if (
-      !contract?.id &&
-      contract?.organization_id &&
-      data?.length &&
-      !contract?.organ_account_number_id &&
-      defaultAccount
-    ) {
-      setContract?.({
-        ...contract,
-        organ_account_number_id: defaultAccount,
-      });
+    // `org` hali yuklanmagan bo'lsa tegmaymiz: aks holda tahrirlash sahifasi
+    // ochilganda saqlangan qiymat o'chib ketardi.
+    if (!org) return;
+
+    const patch: Record<string, any> = {};
+
+    if (!accountFitsOrg) {
+      // Boshqa tashkilotniki — joriy tashkilotning birinchisiga almashtiramiz
+      patch.organ_account_number_id = defaultAccount || null;
+    } else if (!contract?.organ_account_number_id && defaultAccount) {
+      patch.organ_account_number_id = defaultAccount;
     }
-  }, [contract?.organization_id, defaultAccount]);
+
+    if (!gaznaFitsOrg) patch.gazna_number_id = null;
+
+    if (Object.keys(patch).length === 0) return;
+
+    // Funksiya ko'rinishidagi yangilash: closure'dagi eski `contract`
+    // ni butunlay yozib yuborish, shu asnoda foydalanuvchi kiritgan
+    // o'zgarishlarni o'chirib tashlash xavfi bor edi.
+    setContract?.((prev: any) => ({ ...prev, ...patch }));
+  }, [org?.id, defaultAccount, accountFitsOrg, gaznaFitsOrg]);
 
   try {
     const payer = [

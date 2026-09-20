@@ -20,6 +20,7 @@ import { URL as API_URL } from "@/api";
 import html2pdf from "html2pdf.js";
 import VerificationHistoryModal from "./VerificationHistoryModal";
 import CertSelectModal from "./CertSelectModal";
+import { safeHtml } from "@/lib/safeHtml";
 
 interface VerificationInfo {
   id: number;
@@ -607,7 +608,7 @@ const LawyerDocument = () => {
                   <div className="mb-1 text-justify">
                     <p
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.main_section,
+                        __html: safeHtml(singleTemplate?.main_section),
                       }}
                       className="mb-2   "
                     />
@@ -615,7 +616,7 @@ const LawyerDocument = () => {
 
                   <h2
                     dangerouslySetInnerHTML={{
-                      __html: singleTemplate?.section_1_title,
+                      __html: safeHtml(singleTemplate?.section_1_title),
                     }}
                     className="text-lg text-center font-semibold mt-1 -mb-1"
                   ></h2>
@@ -623,7 +624,7 @@ const LawyerDocument = () => {
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.section_1,
+                        __html: safeHtml(singleTemplate?.section_1),
                       }}
                     />
                   </div>
@@ -633,7 +634,7 @@ const LawyerDocument = () => {
                     <div
                       className="text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.section_2,
+                        __html: safeHtml(singleTemplate?.section_2),
                       }}
                     />
                   </div>
@@ -643,7 +644,7 @@ const LawyerDocument = () => {
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.section_3,
+                        __html: safeHtml(singleTemplate?.section_3),
                       }}
                     />
                   </div>
@@ -657,7 +658,7 @@ const LawyerDocument = () => {
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.section_4,
+                        __html: safeHtml(singleTemplate?.section_4),
                       }}
                     />
                   </div>
@@ -666,7 +667,7 @@ const LawyerDocument = () => {
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.section_5,
+                        __html: safeHtml(singleTemplate?.section_5),
                       }}
                     />
                   </div>
@@ -675,7 +676,7 @@ const LawyerDocument = () => {
                     <p
                       className="text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.section_6,
+                        __html: safeHtml(singleTemplate?.section_6),
                       }}
                     />
                   </div>
@@ -684,7 +685,7 @@ const LawyerDocument = () => {
                     <p
                       className="text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.section_7,
+                        __html: safeHtml(singleTemplate?.section_7),
                       }}
                     />
                   </div>
@@ -775,7 +776,7 @@ const LawyerDocument = () => {
 
                       <div
                         className="mb-6 text-justify"
-                        dangerouslySetInnerHTML={{ __html: singleTemplate.qoshimcha }}
+                        dangerouslySetInnerHTML={{ __html: safeHtml(singleTemplate.qoshimcha) }}
                       />
 
                       {/* Imzo hujjatning eng oxirida */}

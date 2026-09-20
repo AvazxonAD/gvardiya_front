@@ -2,6 +2,7 @@ import { textNum } from "@/utils";
 import React from "react";
 import BudgetTable from "./Smeta";
 import EimzoBadges from "./EimzoBadges";
+import { safeHtml } from "@/lib/safeHtml";
 
 const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
   (
@@ -33,7 +34,7 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                     <p
                       className="mb-2 text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.main_section,
+                        __html: safeHtml(singleTemplate?.main_section),
                       }}
                     />
                   </div>
@@ -46,7 +47,7 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.section_1,
+                        __html: safeHtml(singleTemplate?.section_1),
                       }}
                     />
                   </div>
@@ -58,7 +59,7 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.section_2,
+                        __html: safeHtml(singleTemplate?.section_2),
                       }}
                     />
                   </div>
@@ -70,7 +71,7 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.section_3,
+                        __html: safeHtml(singleTemplate?.section_3),
                       }}
                     />
                   </div>
@@ -84,7 +85,7 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.section_4,
+                        __html: safeHtml(singleTemplate?.section_4),
                       }}
                     />
                   </div>
@@ -95,7 +96,7 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.section_5,
+                        __html: safeHtml(singleTemplate?.section_5),
                       }}
                     />
                   </div>
@@ -107,7 +108,7 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.section_6,
+                        __html: safeHtml(singleTemplate?.section_6),
                       }}
                     />
                   </div>
@@ -119,7 +120,7 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
-                        __html: singleTemplate?.section_7,
+                        __html: safeHtml(singleTemplate?.section_7),
                       }}
                     />
                   </div>
@@ -217,7 +218,7 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
 
                     <div
                       className="mb-6 text-justify"
-                      dangerouslySetInnerHTML={{ __html: singleTemplate.qoshimcha }}
+                      dangerouslySetInnerHTML={{ __html: safeHtml(singleTemplate.qoshimcha) }}
                     />
 
                     {/* Imzo hujjatning eng oxirida */}

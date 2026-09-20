@@ -3,7 +3,7 @@ import Table from "@/Components/reusable/table/Table";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import useApi from "@/services/api";
 import { IReportAdmin } from "@/types/report";
-import { formatDate, formatSum, textNum, tt } from "@/utils";
+import { formatDate, formatInn, formatSum, textNum, tt } from "@/utils";
 import React, { useEffect, useState } from "react";
 import {
   ListCard,
@@ -110,7 +110,7 @@ const ReportAdmin: React.FC = () => {
           </h2>
           <h2>
             {tt("INN", "ИНН")}:{" "}
-            {textNum(isOrganization ? item.tashkilot_inn : item.doer_inn, 3)}
+            {formatInn(isOrganization ? item.tashkilot_inn : item.doer_inn)}
           </h2>
           <h2>
             {tt("Hisob raqam", "Номер счета")}:{" "}

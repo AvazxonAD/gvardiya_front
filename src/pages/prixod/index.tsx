@@ -13,6 +13,7 @@ import { IPrixod } from "@/types/prixod";
 import { formatDate, formatSum, textNum, tt } from "@/utils";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useDebounce } from "use-debounce";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import PrixodForPrint from "./print";
@@ -69,21 +70,37 @@ const Prixod = () => {
   }, [defDate]);
 
   const navigate = useNavigate();
-  const getData = async () => {
-    const get = await api.get<IPrixodState>(
-      `prixod?from=${startDate}&to=${endDate}&account_number_id=${account_number_id}&limit=${limet}&page=${currentPage}&search=${searchTerm}`
+
+  /* Maydonga yozilgan matn (`searchTerm`) va so'rovga ketadigan matn
+     (`query`) ataylab ajratilgan: har bosilgan harfda so'rov yuborilsa,
+     javoblar bir-birini quvib yetib, ro'yxat noto'g'ri to'ldirilardi. */
+  const [query] = useDebounce(searchTerm.trim(), 400);
+
+  const fetchPrixod = () =>
+    api.get<IPrixodState>(
+      `prixod?from=${startDate}&to=${endDate}&account_number_id=${account_number_id}&limit=${limet}&page=${currentPage}&search=${encodeURIComponent(query)}`
     );
-    if (get?.success) {
-      setData(get as any);
-    }
+
+  /** O'chirishdan keyin ro'yxatni yangilaydi */
+  const getData = async () => {
+    const get = await fetchPrixod();
+    if (get?.success) setData(get as any);
   };
 
   // Sana yoki qidiruv o'zgarganda ro'yxat o'zi yangilanadi
   useEffect(() => {
-    if ((startDate && endDate) || searchTerm) {
-      getData();
-    }
-  }, [currentPage, limet, searchTerm, startDate, endDate]);
+    if (!((startDate && endDate) || query)) return;
+
+    // Kechikkan javob yangisining ustidan yozib yubormasin
+    let stale = false;
+    fetchPrixod().then((get) => {
+      if (!stale && get?.success) setData(get as any);
+    });
+
+    return () => {
+      stale = true;
+    };
+  }, [currentPage, limet, query, startDate, endDate]);
 
   const handleDelete = async () => {
     const remove: any = await api.remove(
@@ -181,8 +198,16 @@ const Prixod = () => {
                 p={tt("Qidirish", "Поиск")}
                 className="h-9 w-full"
                 v={searchTerm}
-                change={(e: any) => setSearchTerm(e.target.value)}
-                removeValue={() => setSearchTerm("")}
+                change={(e: any) => {
+                  setSearchTerm(e.target.value);
+                  // Uchinchi sahifada turib qidirilsa, natija bo'sh
+                  // sahifaga tushib qolardi
+                  setCurrentPage(1);
+                }}
+                removeValue={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
                 search
               />
             </div>
