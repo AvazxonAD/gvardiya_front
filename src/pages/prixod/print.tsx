@@ -18,8 +18,8 @@ const PrixodForPrint = React.forwardRef<HTMLDivElement, Props>(
                     {tt("Ommaviy tadbirlardan tushgan tushumlar", "Поступления от массовых мероприятий")}
                 </h1>
                 <h3 className="text-left font-bold text-sm mb-4 ms-4">
-                    {formatDate(fromDate)} {tt("dan", "с")} {formatDate(endDate)}{" "}
-                    {tt("gacha bo'lgan tushumlar, jami:", "до поступлений, всего:")} {formatSum(totalSum)}
+                    {formatDate(fromDate)} {tt("dan", "—")} {formatDate(endDate)}{" "}
+                    {tt("gacha bo'lgan tushumlar, jami:", "поступления, итого:")} {formatSum(totalSum)}
                 </h3>
                 <table className="table-auto border-collapse border border-gray-400 w-full">
                     <thead>
@@ -28,16 +28,16 @@ const PrixodForPrint = React.forwardRef<HTMLDivElement, Props>(
                                 {tt("№", "№")}
                             </th>
                             <th className="border border-gray-400 px-4 py-2">
-                                {tt("Shartnoma №", "Номер договора")}
+                                {tt("Shartnoma №", "№ договора")}
                             </th>
                             <th className="border border-gray-400 px-4 py-2">
                                 {tt("Shartnoma sanasi", "Дата договора")}
                             </th>
                             <th className="border border-gray-400 px-4 py-2">
-                                {tt("Xamkor tashkilot", "Организация партнера")}
+                                {tt("Hamkor tashkilot", "Организация-партнёр")}
                             </th>
                             <th className="border border-gray-400 px-4 py-2">
-                                {tt("Xamkor INN", "ИНН партнера")}
+                                {tt("Hamkor INN", "ИНН партнёра")}
                             </th>
                             <th className="border border-gray-400 px-4 py-2 text-right">
                                 {tt("To'langan pul mablag'i", "Оплаченные средства")}

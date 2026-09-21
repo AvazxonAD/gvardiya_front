@@ -180,7 +180,7 @@ const EditForm: React.FC<EditFormProps> = ({
     if (!newWorker.fio?.trim()) {
       dispatch(
         alertt({
-          text: tt("F.I.O kiriting", "Введите Ф.И.О"),
+          text: tt("F.I.Sh. kiriting", "Введите Ф.И.О"),
           success: false,
         })
       );
@@ -241,7 +241,7 @@ const EditForm: React.FC<EditFormProps> = ({
     },
     {
       key: "fio",
-      header: tt("F.I.O", "Ф.И.О"),
+      header: tt("F.I.Sh.", "Ф.И.О"),
       cell: (w) => {
         const checked = workersData.some((e) => e.worker_id === w.id);
         return (
@@ -437,7 +437,7 @@ const EditForm: React.FC<EditFormProps> = ({
       >
         <form onSubmit={handleCreateWorker} className="flex flex-col gap-3">
           <Field
-            label={tt("Ism, familya, otasining ismi", "Имя, фамилия, отчество")}
+            label={tt("Familiya, ism, otasining ismi", "Фамилия, имя, отчество")}
             required
           >
             <Input
@@ -446,8 +446,8 @@ const EditForm: React.FC<EditFormProps> = ({
                 setNewWorker({ ...newWorker, fio: e.target.value })
               }
               placeholder={tt(
-                "Ism, familya, otasining ismini kiriting",
-                "Введите имя, фамилия и отчество"
+                "Familiya, ism, otasining ismini kiriting",
+                "Введите фамилию, имя и отчество"
               )}
             />
           </Field>

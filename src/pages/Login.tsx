@@ -10,7 +10,7 @@ import Alert from "@/Components/Alert";
 import useFullHeight from "@/hooks/useFullHeight";
 import { store } from "@/Redux/store";
 import { alertt } from "../Redux/LanguageSlice";
-import { latinToCyrillic, tt } from "../utils";
+import { tt } from "../utils";
 import Logo from "@/assets/logo.png";
 import {
   EimzoCertificate,
@@ -209,7 +209,7 @@ function Login() {
             <form onSubmit={handleSubmit} className="flex flex-col">
               <div className="flex flex-col gap-2 mb-2">
                 <span className="text-[#BEBBBB] text-[12px] leading-[14.52px] font-[600]">
-                  {tt("Login", latinToCyrillic("Login"))}
+                  {tt("Login", "Логин")}
                 </span>
 
                 <input
@@ -245,7 +245,7 @@ function Login() {
                 className="w-[300px] text-white text-[14px] leading-[16.94px] font-[600] flex justify-center items-center rounded-none bg-[#C18B2F] h-[33px] hover:bg-card border border-[#C18B2F] hover:text-[#C18B2F] transition-all duration-300"
                 type="submit"
               >
-                {tt("Kirish", "Введение")}
+                {tt("Kirish", "Вход")}
               </button>
             </form>
           ) : (

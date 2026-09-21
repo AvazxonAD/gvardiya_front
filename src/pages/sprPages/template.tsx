@@ -19,7 +19,7 @@ const Template = () => {
         titleT={tt("Shablon nomi", "Название шаблона")}
         path="template"
         text="shablon_name"
-        label={tt("Shablon nomi ismi", "Имя шаблона")}
+        label={tt("Shablon nomi", "Название шаблона")}
       />
     </div>
   );

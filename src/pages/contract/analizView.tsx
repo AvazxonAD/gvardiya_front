@@ -186,7 +186,7 @@ const AnalizView = React.forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
     },
     {
       key: "fio",
-      header: tt("FIO", "ФИО"),
+      header: tt("F.I.Sh.", "ФИО"),
       cell: (r) => <span className="font-medium">{r.fio || "—"}</span>,
     },
     {
@@ -252,7 +252,7 @@ const AnalizView = React.forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
           <InfoRow label={tt("Debet", "Дебет")} value={sum(contract.debit)} />
           <InfoRow label={tt("Kredit", "Кредит")} value={sum(contract.kridit)} />
           <InfoRow
-            label={tt("Rasxod", "Расход")}
+            label={tt("Chiqim", "Расход")}
             value={sum(contract.rasxod_summa)}
           />
           <InfoRow
@@ -290,7 +290,7 @@ const AnalizView = React.forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
 
       {/* ═══ Chiqim FIO ══════════════════════════════════════════════ */}
       <Section
-        title={tt("Chiqim FIO", "Расход ФИО")}
+        title={tt("Chiqim F.I.Sh.", "Расход ФИО")}
         icon={Users}
         columns={fioColumns}
         rows={rasxodFios}

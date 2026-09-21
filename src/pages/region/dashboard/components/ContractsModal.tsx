@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { tt } from "@/utils";
 import { useSelector } from "react-redux";
 import { RootState } from "@/Redux/store";
 import useApi, { baseUri } from "@/services/api";
@@ -118,7 +119,7 @@ export default function ContractsModal({ isOpen, onClose, type }: ContractsModal
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              Excel yuklab olish
+              {tt("Excel yuklab olish", "Скачать Excel")}
             </button>
             <button onClick={onClose} className="text-[var(--dash-text-secondary)] hover:text-[var(--dash-text)] p-2 rounded-lg transition">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,13 +140,13 @@ export default function ContractsModal({ isOpen, onClose, type }: ContractsModal
                 <thead style={{ background: "var(--dash-table-header-bg)" }}>
                   <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
                     <th className="px-4 py-3 font-semibold w-[50px]">№</th>
-                    <th className="px-4 py-3 font-semibold w-[100px]">Hujjat raqami</th>
-                    <th className="px-4 py-3 font-semibold w-[100px]">Sana</th>
-                    <th className="px-4 py-3 font-semibold">Tashkilot</th>
-                    <th className="px-4 py-3 font-semibold w-[160px]">Foydalanuvchi</th>
-                    <th className="px-4 py-3 font-semibold text-right w-[150px]">Shartnoma summasi</th>
-                    <th className="px-4 py-3 font-semibold text-right w-[120px]">To'langan</th>
-                    <th className="px-4 py-3 font-semibold text-right w-[120px]">Qarz</th>
+                    <th className="px-4 py-3 font-semibold w-[100px]">{tt("Hujjat raqami", "Номер документа")}</th>
+                    <th className="px-4 py-3 font-semibold w-[100px]">{tt("Sana", "Дата")}</th>
+                    <th className="px-4 py-3 font-semibold">{tt("Tashkilot", "Организация")}</th>
+                    <th className="px-4 py-3 font-semibold w-[160px]">{tt("Foydalanuvchi", "Пользователь")}</th>
+                    <th className="px-4 py-3 font-semibold text-right w-[150px]">{tt("Shartnoma summasi", "Сумма договора")}</th>
+                    <th className="px-4 py-3 font-semibold text-right w-[120px]">{tt("To'langan", "Оплачено")}</th>
+                    <th className="px-4 py-3 font-semibold text-right w-[120px]">{tt("Qarz", "Долг")}</th>
                   </tr>
                 </thead>
               </table>
@@ -155,7 +156,7 @@ export default function ContractsModal({ isOpen, onClose, type }: ContractsModal
                   {contracts.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="px-4 py-8 text-center text-[var(--dash-text-muted)]">
-                        Ma'lumot topilmadi
+                        {tt("Ma'lumot topilmadi", "Данные не найдены")}
                       </td>
                     </tr>
                   ) : (
@@ -188,11 +189,11 @@ export default function ContractsModal({ isOpen, onClose, type }: ContractsModal
             <div className="flex gap-2">
               <button disabled={!meta.backPage} onClick={() => setPage((p) => p - 1)}
                 className="px-3 py-1.5 text-[12px] font-medium rounded-lg border border-[var(--dash-modal-border)] text-[var(--dash-text-secondary)] hover:text-[var(--dash-text)] transition disabled:opacity-30 disabled:cursor-not-allowed">
-                Oldingi
+                {tt("Oldingi", "Предыдущая")}
               </button>
               <button disabled={!meta.nextPage} onClick={() => setPage((p) => p + 1)}
                 className="px-3 py-1.5 text-[12px] font-medium rounded-lg border border-[var(--dash-modal-border)] text-[var(--dash-text-secondary)] hover:text-[var(--dash-text)] transition disabled:opacity-30 disabled:cursor-not-allowed">
-                Keyingi
+                {tt("Keyingi", "Следующая")}
               </button>
             </div>
           </div>

@@ -46,7 +46,7 @@ const SPRAVOCHNIK_SUB: SubItem[] = [
   { path: "/rahbar", uz: "Rahbari", ru: "Руководитель" },
   { path: "/manzil", uz: "Manzil", ru: "Адрес" },
   { path: "/bank", uz: "Bank", ru: "Банк" },
-  { path: "/mfo", uz: "INN", ru: "ИНН" },
+  { path: "/mfo", uz: "STIR", ru: "ИНН" },
   { path: "/deduction", uz: "Ushlanma", ru: "Удержание" },
 ];
 
@@ -54,12 +54,12 @@ const SPRAVOCHNIK_SUB: SubItem[] = [
 const REGION_MENU: MenuItem[] = [
   { path: "/", uz: "Asosiy", ru: "Главная", icon: LayoutDashboard },
   { path: "/contract", uz: "Shartnoma", ru: "Договор", icon: FileText },
-  { path: "/workers", uz: "F.I.O", ru: "Ф.И.О", icon: Users },
+  { path: "/workers", uz: "F.I.Sh.", ru: "Ф.И.О", icon: Users },
   { path: "/batalon", uz: "Batalon", ru: "Батальон", icon: Shield },
   { path: "/report", uz: "Hisobot", ru: "Отчетность", icon: BarChart3 },
   {
     path: "/organisation",
-    uz: "Organizatsiya",
+    uz: "Tashkilot",
     ru: "Организация",
     icon: Building2,
   },
@@ -67,13 +67,13 @@ const REGION_MENU: MenuItem[] = [
   { path: "/rasxod", uz: "Chiqim", ru: "Расход", icon: ArrowUpFromLine },
   {
     path: "/rasxod-workers",
-    uz: "Chiqim F.I.O",
+    uz: "Chiqim F.I.Sh.",
     ru: "Расход Ф.И.О",
     icon: UserMinus,
   },
   {
     path: "/spravichnik",
-    uz: "Spravochnik",
+    uz: "Ma'lumotnoma",
     ru: "Справочник",
     icon: BookMarked,
     subItems: SPRAVOCHNIK_SUB,
@@ -102,7 +102,7 @@ const BATALON_MENU: MenuItem[] = [
     ru: "Задания",
     icon: ClipboardList,
   },
-  { path: "/batalon/workers", uz: "F.I.O", ru: "Ф.И.О", icon: Users },
+  { path: "/batalon/workers", uz: "F.I.Sh.", ru: "Ф.И.О", icon: Users },
 ];
 
 /** Yurist — faqat shartnomalarni ko'rish */

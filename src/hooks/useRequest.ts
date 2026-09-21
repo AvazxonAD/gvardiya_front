@@ -2,21 +2,23 @@ import { URL } from "@/api";
 import axios, { AxiosInstance } from "axios";
 import { useSelector } from "react-redux";
 import { getValidAccessToken, refreshAccessToken } from "@/services/tokenManager";
+import { getAppLang, LANG_HEADER } from "@/lib/lang";
 
 const getAxios = (jwt: string): AxiosInstance => {
   const instance = axios.create({
     baseURL: URL,
-    headers: { Authorization: "Bearer " + jwt },
+    headers: { Authorization: "Bearer " + jwt, [LANG_HEADER]: getAppLang() },
   });
 
   // Proactive: swap in a fresh token on each outgoing request if the stored one
   // is about to expire.
   instance.interceptors.request.use(async (config) => {
     const token = await getValidAccessToken();
-    if (token) {
-      config.headers = config.headers || {};
-      config.headers.Authorization = "Bearer " + token;
-    }
+    config.headers = config.headers || {};
+    if (token) config.headers.Authorization = "Bearer " + token;
+    // Til har so'rovda qayta o'qiladi: foydalanuvchi tilni almashtirsa,
+    // sahifani yangilamasdan ham server xabarlari yangi tilda keladi.
+    config.headers[LANG_HEADER] = getAppLang();
     return config;
   });
 

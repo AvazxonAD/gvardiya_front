@@ -103,7 +103,7 @@ export const usePayerRows = ({
         value: org?.bank_name || "",
       },
       {
-        txt: tt("MFО", "МФО"),
+        txt: tt("MFO", "МФО"),
         value: org?.mfo || "",
       },
       {
@@ -112,7 +112,7 @@ export const usePayerRows = ({
       },
       {
         type: "select",
-        txt: tt("Hisob raqami", "Счет"),
+        txt: tt("Hisob raqami", "Номер счета"),
         selectData:
           org?.account_numbers?.map((d: any) => ({
             ...d,
@@ -128,7 +128,7 @@ export const usePayerRows = ({
       },
       {
         type: "select",
-        txt: tt("Hisob raqami g'azna", "Номер счета казна"),
+        txt: tt("G'azna hisob raqami", "Казначейский счёт"),
         selectData:
           org?.gazna_numbers?.map((d: any) => ({
             ...d,

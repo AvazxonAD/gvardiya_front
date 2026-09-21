@@ -1,5 +1,6 @@
 /** @format */
 import Paginatsiya from "@/Components/Paginatsiya";
+import { usePagedFetch } from "@/hooks/usePagedFetch";
 import Button from "@/Components/reusable/button";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import useFullHeight from "@/hooks/useFullHeight";
@@ -111,9 +112,6 @@ const ContractAdd = () => {
 
     fetchData();
   }, []);
-  useEffect(() => {
-    handleOrganization();
-  }, [currentPage]);
 
   const handleSearch = async () => {
     const res = await getSearch(jwt, currentPage, searchValue.trim());
@@ -139,13 +137,18 @@ const ContractAdd = () => {
   //     setStartAndFinishTimes({ ...startAndFinishTimes, endtime: inputVal });
   //   }
   // };
-  useEffect(() => {
-    if (searchValue) {
-      handleSearch();
-    } else {
-      handleOrganization();
-    }
-  }, [searchValue]);
+  // Tashkilot ro'yxati: qidiruv o'zgarsa 1-sahifaga qaytadi.
+  // Ilgari qidiruv joriy sahifa raqami bilan yuborilardi va 3-sahifada
+  // turib qidirilganda bo'sh ro'yxat chiqardi.
+  usePagedFetch({
+    page: currentPage,
+    setPage: setCurrentPage,
+    filters: [searchValue],
+    fetch: () => {
+      if (searchValue) handleSearch();
+      else handleOrganization();
+    },
+  });
 
   const userStore = localStorage.getItem("user");
   const userData = userStore ? JSON.parse(userStore) : undefined;
@@ -202,7 +205,7 @@ const ContractAdd = () => {
               <div className="flex gap-x-5">
                 <div className="w-1/2">
                   <Input
-                    label={tt("Shartnoma raqam", "Номер контракта")}
+                    label={tt("Shartnoma raqami", "Номер договора")}
                     n="doc_num"
                     v={contract.doc_num}
                     change={(event: any) => {
@@ -216,7 +219,7 @@ const ContractAdd = () => {
                 </div>
 
                 <SpecialDatePicker
-                  label={tt("Shartnoma sanasi", "Дата контракта")}
+                  label={tt("Shartnoma sanasi", "Дата договора")}
                   name="doc_date"
                   defaultValue={contract.doc_date}
                   onChange={(event) => {

@@ -36,15 +36,15 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
         { text: "\u2116", className: "w-[30px] text-center text-[9px]" },
         { text: tt("Sana", "Дата"), className: "w-[58px] text-center text-[9px]" },
         { text: tt("Qabul qiluvchi", "Получатель"), className: "w-[44px] whitespace-normal text-center text-[9px] leading-[1.15]" },
-        { text: tt("Jami (100%)", "Жами (100%)"), className: NUM },
-        { text: tt("Boshqarma (10%)", "Бошқарма (10%)"), className: NUM },
-        { text: tt("Qolgan (90%)", "Қолган (90%)"), className: NUM },
-        { text: tt("Moddiy baza (65%)", "Моддий база (65%)"), className: NUM },
-        { text: tt("I-II guruh (25%)", "I-II гурух (25%)"), className: NUM },
-        { text: tt("Shaxsiy tarkib", "Шахсий таркиб"), className: NUM },
-        { text: tt("Ijtimoiy soliq (25%)", "Ижтимоий солиқ (25%)"), className: NUM },
-        { text: tt("Daromad solig'i (12%)", "Даромад солиғи (12%)"), className: NUM },
-        { text: tt("Kartaga o'tkazildi", "Картага ўтказилди"), className: NUM },
+        { text: tt("Jami (100%)", "Всего (100%)"), className: NUM },
+        { text: tt("Boshqarma (10%)", "Управление (10%)"), className: NUM },
+        { text: tt("Qolgan (90%)", "Остаток (90%)"), className: NUM },
+        { text: tt("Moddiy baza (65%)", "Материальная база (65%)"), className: NUM },
+        { text: tt("I-II guruh (25%)", "I-II группы (25%)"), className: NUM },
+        { text: tt("Shaxsiy tarkib", "Личный состав"), className: NUM },
+        { text: tt("Ijtimoiy soliq (25%)", "Социальный налог (25%)"), className: NUM },
+        { text: tt("Daromad solig'i (12%)", "Налог на доходы (12%)"), className: NUM },
+        { text: tt("Kartaga o'tkazildi", "Перечислено на карту"), className: NUM },
         { text: tt("Amallar", "Действия"), className: "w-[100px] whitespace-normal text-center text-[9px] leading-[1.15]" },
     ];
 
@@ -85,14 +85,14 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
             window.URL.revokeObjectURL(url);
             dispatch(
                 alertt({
-                    text: tt("Excel file yuklandi", "Файл Excel загружен"),
+                    text: tt("Excel fayl yuklandi", "Файл Excel загружен"),
                     success: true,
                 })
             );
         } catch (error) {
             dispatch(
                 alertt({
-                    text: tt("Excel file yuklanishda muamo mavjud", "Проблема с загрузкой файла Excel"),
+                    text: tt("Excel faylni yuklashda muammo yuz berdi", "Проблема с загрузкой файла Excel"),
                     success: false,
                 })
             );
@@ -113,14 +113,14 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
             window.URL.revokeObjectURL(url);
             dispatch(
                 alertt({
-                    text: tt("Excel file yuklandi", "Файл Excel загружен"),
+                    text: tt("Excel fayl yuklandi", "Файл Excel загружен"),
                     success: true,
                 })
             );
         } catch (error) {
             dispatch(
                 alertt({
-                    text: tt("Excel file yuklanishda muamo mavjud", "Проблема с загрузкой файла Excel"),
+                    text: tt("Excel faylni yuklashda muammo yuz berdi", "Проблема с загрузкой файла Excel"),
                     success: false,
                 })
             );
@@ -139,9 +139,9 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
             a.click();
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
-            dispatch(alertt({ text: tt("Excel file yuklandi", "Файл Excel загружен"), success: true }));
+            dispatch(alertt({ text: tt("Excel fayl yuklandi", "Файл Excel загружен"), success: true }));
         } catch (error) {
-            dispatch(alertt({ text: tt("Excel file yuklanishda muamo mavjud", "Проблема с загрузкой файла Excel"), success: false }));
+            dispatch(alertt({ text: tt("Excel faylni yuklashda muammo yuz berdi", "Проблема с загрузкой файла Excel"), success: false }));
         }
     };
 
@@ -159,14 +159,14 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
             window.URL.revokeObjectURL(url);
             dispatch(
                 alertt({
-                    text: tt("Excel file yuklandi", "Файл Excel загружен"),
+                    text: tt("Excel fayl yuklandi", "Файл Excel загружен"),
                     success: true,
                 })
             );
         } catch (error) {
             dispatch(
                 alertt({
-                    text: tt("Excel file yuklanishda muamo mavjud", "Проблема с загрузкой файла Excel"),
+                    text: tt("Excel faylni yuklashda muammo yuz berdi", "Проблема с загрузкой файла Excel"),
                     success: false,
                 })
             );
@@ -262,8 +262,8 @@ const RowActions: React.FC<RowActionsProps> = ({
                             variant="ghost"
                             size="icon-xs"
                             className={btn}
-                            title={tt("Umumiy hisobot", "\u0423\u043c\u0443\u043c\u0438\u0439 \u04b3\u0438\u0441\u043e\u0431\u043e\u0442")}
-                            aria-label={tt("Umumiy hisobot", "\u0423\u043c\u0443\u043c\u0438\u0439 \u04b3\u0438\u0441\u043e\u0431\u043e\u0442")}
+                            title={tt("Umumiy hisobot", "Общий отчёт")}
+                            aria-label={tt("Umumiy hisobot", "Общий отчёт")}
                             onClick={() => onExcelDownload3(item)}
                         >
                             <FileSpreadsheet />
@@ -272,8 +272,8 @@ const RowActions: React.FC<RowActionsProps> = ({
                             variant="ghost"
                             size="icon-xs"
                             className={btn}
-                            title={tt("Premiya hisoboti", "\u041f\u0440\u0435\u043c\u0438\u044f \u04b3\u0438\u0441\u043e\u0431\u043e\u0442\u0438")}
-                            aria-label={tt("Premiya hisoboti", "\u041f\u0440\u0435\u043c\u0438\u044f \u04b3\u0438\u0441\u043e\u0431\u043e\u0442\u0438")}
+                            title={tt("Premiya hisoboti", "Отчёт по премиям")}
+                            aria-label={tt("Premiya hisoboti", "Отчёт по премиям")}
                             onClick={() => onExcelDownload(item)}
                         >
                             <Award />
@@ -282,8 +282,8 @@ const RowActions: React.FC<RowActionsProps> = ({
                             variant="ghost"
                             size="icon-xs"
                             className={btn}
-                            title={tt("Karta hisoboti", "\u041a\u0430\u0440\u0442\u0430 \u04b3\u0438\u0441\u043e\u0431\u043e\u0442\u0438")}
-                            aria-label={tt("Karta hisoboti", "\u041a\u0430\u0440\u0442\u0430 \u04b3\u0438\u0441\u043e\u0431\u043e\u0442\u0438")}
+                            title={tt("Karta hisoboti", "Отчёт по картам")}
+                            aria-label={tt("Karta hisoboti", "Отчёт по картам")}
                             onClick={() => onExcelDownload2(item)}
                         >
                             <CreditCard />
@@ -294,8 +294,8 @@ const RowActions: React.FC<RowActionsProps> = ({
                         variant="ghost"
                         size="icon-xs"
                         className={btn}
-                        title={tt("Taqsimot hisoboti", "\u0422\u0430\u049b\u0441\u0438\u043c\u043e\u0442 \u04b3\u0438\u0441\u043e\u0431\u043e\u0442\u0438")}
-                        aria-label={tt("Taqsimot hisoboti", "\u0422\u0430\u049b\u0441\u0438\u043c\u043e\u0442 \u04b3\u0438\u0441\u043e\u0431\u043e\u0442\u0438")}
+                        title={tt("Taqsimot hisoboti", "Отчёт по распределению")}
+                        aria-label={tt("Taqsimot hisoboti", "Отчёт по распределению")}
                         onClick={() => onExcelDownloadRasxod(item)}
                     >
                         <FileSpreadsheet />

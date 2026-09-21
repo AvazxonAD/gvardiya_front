@@ -48,7 +48,7 @@ function Deduction() {
       className: "w-[100px] text-left",
     },
     {
-      text: tt("Ushlanma nomi", "Название удержание"),
+      text: tt("Ushlanma nomi", "Название удержания"),
       className: "w-[250px] text-left",
     },
     {

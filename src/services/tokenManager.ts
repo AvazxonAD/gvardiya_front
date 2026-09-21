@@ -1,6 +1,7 @@
 import { store } from "@/Redux/store";
 import { putJwt } from "@/Redux/apiSlice";
 import { baseUri } from "./api";
+import { getAppLang, LANG_HEADER } from "@/lib/lang";
 
 const ACCESS_KEY = "token";
 const REFRESH_KEY = "refreshToken";
@@ -126,6 +127,8 @@ export async function authFetch(input: RequestInfo, init: RequestInit = {}): Pro
   const token = await getValidAccessToken();
   const headers = new Headers(init.headers || {});
   if (token) headers.set("Authorization", "Bearer " + token);
+  // Server xabarlari foydalanuvchi tanlagan tilda kelsin
+  headers.set(LANG_HEADER, getAppLang());
 
   let res = await fetch(input, { ...init, headers });
   if (res.status !== 401 && res.status !== 403) return res;
@@ -135,6 +138,7 @@ export async function authFetch(input: RequestInfo, init: RequestInit = {}): Pro
 
   const retryHeaders = new Headers(init.headers || {});
   retryHeaders.set("Authorization", "Bearer " + refreshed);
+  retryHeaders.set(LANG_HEADER, getAppLang());
   return fetch(input, { ...init, headers: retryHeaders });
 }
 

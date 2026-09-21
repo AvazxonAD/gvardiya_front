@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { usePagedFetch } from "@/hooks/usePagedFetch";
 import { useSelector } from "react-redux";
 import Input from "../../Components/Input";
 import Paginatsiya from "../../Components/Paginatsiya";
@@ -67,10 +68,13 @@ function LawyerContract() {
     return true;
   });
 
-  // Filtrlar o'zgarishi bilan ro'yxat o'zi yangilanadi
-  useEffect(() => {
-    getInfo(dates);
-  }, [currentPage, limet, searchText, account_id, dates.date1, dates.date2]);
+  // Filtrlar o'zgarishi bilan ro'yxat o'zi yangilanadi va 1-sahifaga qaytadi
+  usePagedFetch({
+    page: currentPage,
+    setPage: setCurrentPage,
+    filters: [limet, searchText, account_id, dates.date1, dates.date2],
+    fetch: () => getInfo(dates),
+  });
 
 
   const FILTERS: { id: "all" | "verified" | "pending"; label: string }[] = [

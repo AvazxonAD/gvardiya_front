@@ -74,7 +74,7 @@ const RasxodModal = ({
                 ]
               : [
                   {
-                    text: tt("Ism", "Название"),
+                    text: tt("Nomi", "Название"),
                     className: "text-left",
                   },
                   { text: tt("INN", "ИНН"), className: "text-left" },
@@ -88,7 +88,7 @@ const RasxodModal = ({
                     className: "text-left",
                   },
                   {
-                    text: tt("Joriy g'azna hisobi", "Расчетный счет газна"),
+                    text: tt("Joriy g'azna hisobi", "Казначейский счёт"),
                     className: "text-left",
                   },
                 ]

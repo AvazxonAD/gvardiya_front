@@ -38,7 +38,7 @@ const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
         <Button
           mode="download"
           onClick={handleDownloadExel}
-          text={tt("Excelga yuklash", "Эхcелга юклаш")}
+          text={tt("Excelga yuklash", "Выгрузить в Excel")}
         />
       </div>
 
@@ -63,7 +63,7 @@ const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
                 {tt("Qolgan vaqt", "Оставшееся время")}
               </th>
               <th className="py-3 px-6 text-center">
-                {tt("Manzil", "Адресс")}
+                {tt("Manzil", "Адрес")}
               </th>
               <th className="py-3 px-6 text-center w-64">
                 {tt("Izoh", "Примечание")}

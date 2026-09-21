@@ -5,28 +5,28 @@ import React from "react";
 import "./rasxod.css";
 const tablehead = [
   {
-    name: tt("Shartnoma №", "Номер контракта"),
+    name: tt("Shartnoma №", "№ договора"),
   },
   {
-    name: tt("Shartnoma sanasi", "Дата контракта"),
+    name: tt("Shartnoma sanasi", "Дата договора"),
   },
   {
     name: tt("Tashkilot nomi", "Название организации"),
   },
   {
-    name: tt("Topshiriq vaqti", "Время назначения"),
+    name: tt("Topshiriq vaqti", "Время задания"),
   },
   {
-    name: tt("Xodimlar soni", "Время назначения"),
+    name: tt("Xodimlar soni", "Количество сотрудников"),
   },
   {
     name: tt("Summa", "Сумма"),
   },
   {
-    name: tt("Chegirma summa", "Сумма скидки"),
+    name: tt("Chegirma summasi", "Сумма скидки"),
   },
   {
-    name: tt("Natijaviy summa", "Полученная сумма"),
+    name: tt("Natijaviy summa", "Итоговая сумма"),
   },
   // {
   //   name: tt("Amallar", "Действия"),

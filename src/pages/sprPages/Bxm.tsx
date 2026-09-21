@@ -191,7 +191,7 @@ function Bxm() {
                 setValue(val)
               }} // Har safar qiymatni formatlaymiz
               label={tt("Summa", "Сумма")}
-              p={tt("Summa kiriting", "Введите Сумма")}
+              p={tt("Summa kiriting", "Введите сумму")}
             />
             <div className="mt-5 flex justify-end">
               <Button mode="edit" type="submit" />
@@ -215,7 +215,7 @@ function Bxm() {
                 setValue2(val)
               }} // Har safar qiymatni formatlaymiz
               label={tt("Summa", "Сумма")}
-              p={tt("Summa kiriting", "Введите Сумма")}
+              p={tt("Summa kiriting", "Введите сумму")}
             />
             <div className="mt-5 flex justify-end">
               <Button mode="add" type="submit" />

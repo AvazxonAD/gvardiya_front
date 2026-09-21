@@ -109,7 +109,7 @@ export default function OrgContractsModal({
     },
     {
       key: "doc",
-      header: tt("Hujjat №", "Документ №"),
+      header: tt("Hujjat №", "№ документа"),
       width: "120px",
       cell: (r) => <span className="font-medium">{r.doc_num}</span>,
     },

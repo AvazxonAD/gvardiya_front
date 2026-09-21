@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import { tt } from "@/utils";
 import { RootState } from "@/Redux/store";
 import Icon, { IconName } from "@/assets/icons";
 import { datas } from "@/assets/icons/map/uzb";
@@ -43,14 +44,14 @@ export default function RegionMap({ usersData, onDetail }: RegionMapProps) {
           onClick={onDetail}
           className="text-[10px] text-primary hover:text-primary font-medium flex items-center gap-1 border border-primary/30/40 hover:border-primary/30/60 rounded-md px-2.5 py-1 transition"
         >
-          Batafsil
+          {tt("Batafsil", "Подробнее")}
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
       </div>
       <p className="text-[var(--dash-text-secondary)] text-[12px] mb-1">
-        Foydalanuvchilar kesimida mablag'lar harakati
+        {tt("Foydalanuvchilar kesimida mablag'lar harakati", "Движение средств по пользователям")}
       </p>
 
       <div className="flex-1 relative w-full flex items-center justify-center p-0 min-h-0 min-w-0 overflow-hidden">
@@ -59,7 +60,7 @@ export default function RegionMap({ usersData, onDetail }: RegionMapProps) {
             <Icon name={iconName} />
           </div>
         ) : (
-          <p className="text-[var(--dash-text-muted)]">Xarita topilmadi</p>
+          <p className="text-[var(--dash-text-muted)]">{tt("Xarita topilmadi", "Карта не найдена")}</p>
         )}
       </div>
     </div>

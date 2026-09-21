@@ -113,7 +113,7 @@ const TableItem = ({
     },
     {
       key: "fio",
-      header: tt("F.I.O", "Ф.И.О"),
+      header: tt("F.I.Sh.", "Ф.И.О"),
       cell: (w) => <span className="font-medium">{w.fio || "—"}</span>,
       sortValue: (w) => w.fio || "",
     },

@@ -149,7 +149,7 @@ function Hisob() {
     <div className="flex min-w-0 flex-col gap-3">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-[16px] font-semibold text-foreground">
-          {tt("Hisob Raqami", "Номер Счета")}
+          {tt("Hisob raqami", "Номер счета")}
         </h1>
       </div>
 
@@ -169,7 +169,7 @@ function Hisob() {
         setActive={setActive}
         open={open}
         setOpen={setOpen}
-        titleM={tt("Hisob raqam tahrirlash", "Изменить номер счета")}
+        titleM={tt("Hisob raqamini tahrirlash", "Изменить номер счета")}
         data={data}
       >
         <form onSubmit={handleSumbet}>
@@ -182,8 +182,8 @@ function Hisob() {
                 setValue(formatAccountNumber(e.target.value))
               }
             }} // Har safar qiymatni formatlaymiz
-            label={tt("Hisob Raqami", "Номер Счета")}
-            p={tt("Hisob raqami kiriting", "Введите Номер Счета")}
+            label={tt("Hisob raqami", "Номер счета")}
+            p={tt("Hisob raqamini kiriting", "Введите номер счета")}
           />
           <div className="mt-5 flex justify-end">
             <Button mode="edit" type="submit" />
@@ -196,7 +196,7 @@ function Hisob() {
         closeModal={() => {
           setOpen2(false);
         }}
-        title={tt("Hisob raqam qo'shish", "Добавить номер счета")}
+        title={tt("Hisob raqami qo'shish", "Добавить номер счета")}
         open={open2}
       >
         <form onSubmit={handleSumbet2}>
@@ -209,8 +209,8 @@ function Hisob() {
                 setValue2(formatAccountNumber(e.target.value))
               }
             }} // Har safar qiymatni formatlaymiz
-            label={tt("Hisob Raqami", "Номер Счета")}
-            p={tt("Hisob raqami kiriting", "Введите Номер Счета")}
+            label={tt("Hisob raqami", "Номер счета")}
+            p={tt("Hisob raqamini kiriting", "Введите номер счета")}
           />
           <div className="mt-5 flex justify-end">
             <Button mode="add" type="submit" />

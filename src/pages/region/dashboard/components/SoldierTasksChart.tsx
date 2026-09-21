@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { tt } from "../../../../utils";
 import { useSelector } from "react-redux";
 import { Chart, PieController, ArcElement, Tooltip, Legend } from "chart.js";
 import { SoldierTasksResponse, SoldierTaskRow } from "../types";
@@ -149,10 +150,10 @@ export default function SoldierTasksChart({ data }: Props) {
   return (
     <div className="dash-glass p-[12px] flex flex-col min-h-[320px] relative overflow-hidden">
       <h2 className="text-[14px] font-semibold text-[var(--dash-text)] mb-1">
-        Muddatli harbiy hizmatchilar kesimida
+        {tt("Muddatli harbiy xizmatchilar kesimida", "В разрезе военнослужащих срочной службы")}
       </h2>
       <p className="text-[var(--dash-text-secondary)] text-[11px] mb-2">
-        Muddatli xizmatchilar tadbirlardagi ulushi
+        {tt("Muddatli xizmatchilar tadbirlardagi ulushi", "Доля срочнослужащих в мероприятиях")}
       </p>
 
       <div className="relative flex-1 w-full min-h-0 flex justify-center items-center">
@@ -180,31 +181,31 @@ export default function SoldierTasksChart({ data }: Props) {
             <div className="p-2.5 space-y-2">
               <div className="grid grid-cols-2 gap-1.5">
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
-                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Qatnashishlar</p>
+                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">{tt("Qatnashishlar", "Участия")}</p>
                   <p className="text-[13px] font-bold text-warning">{selectedRow.task_count.toLocaleString()}</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
-                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Qatnashish ulushi</p>
+                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">{tt("Qatnashish ulushi", "Доля участий")}</p>
                   <p className="text-[13px] font-bold text-warning">
                     {d.total_task_count > 0 ? Math.round((selectedRow.task_count / d.total_task_count) * 100) : 0}%
                   </p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
-                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Soat</p>
+                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">{tt("Soat", "Часы")}</p>
                   <p className="text-[13px] font-bold text-primary">{selectedRow.total_time.toLocaleString()}</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
-                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Soat ulushi</p>
+                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">{tt("Soat ulushi", "Доля часов")}</p>
                   <p className="text-[13px] font-bold text-primary">
                     {d.total_time > 0 ? Math.round((selectedRow.total_time / d.total_time) * 100) : 0}%
                   </p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
-                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Summa</p>
+                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">{tt("Summa", "Сумма")}</p>
                   <p className="text-[13px] font-bold text-primary">{formatNum(selectedRow.total_summa)}</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
-                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Summa ulushi</p>
+                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">{tt("Summa ulushi", "Доля суммы")}</p>
                   <p className="text-[13px] font-bold text-primary">
                     {d.total_summa > 0 ? Math.round((selectedRow.total_summa / d.total_summa) * 100) : 0}%
                   </p>
@@ -215,7 +216,7 @@ export default function SoldierTasksChart({ data }: Props) {
                 onClick={() => setSelectedRow(null)}
                 className="w-full py-2 rounded-lg text-[12px] font-medium text-primary-foreground bg-primary hover:bg-primary-hover transition"
               >
-                Yopish
+                {tt("Yopish", "Закрыть")}
               </button>
             </div>
           </div>

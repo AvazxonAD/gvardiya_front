@@ -24,7 +24,7 @@ const DateModal: React.FC<DateModalProps> = ({ isOpen, onClose, onSave, default_
           Topshiriq muddatini kiriting
         </h3>
         <SpecialDatePicker
-          label={tt("kun oy yil", "один ой йил")}
+          label={tt("kun oy yil", "день месяц год")}
           name="start_date"
           value={date}
           defaultValue={default_date}
@@ -46,7 +46,7 @@ const DateModal: React.FC<DateModalProps> = ({ isOpen, onClose, onSave, default_
               } else {
                 dispatch(
                   alertt({
-                    text: tt('Iltimos sana tanlnag', 'Iltimos sana tanlnag'),
+                    text: tt('Iltimos, sanani tanlang', 'Пожалуйста, выберите дату'),
                     success: false,
                   })
                 );

@@ -99,7 +99,7 @@ const TaskColumn = ({
         <Input
           className="!w-full"
           v={e.worker_number}
-          label={tt("Hodimlar soni", "Кол-во сотрудников")}
+          label={tt("Xodimlar soni", "Кол-во сотрудников")}
           t="number"
           change={(event: any) =>
             handleChangeTask("worker_number", e.unique_id, event.target.value)
@@ -109,7 +109,7 @@ const TaskColumn = ({
       <div className="!w-[130px]">
         <Input
           className="!w-full"
-          label={tt("Tadbir vaqti", "Время события")}
+          label={tt("Tadbir vaqti", "Время мероприятия")}
           v={e.task_time}
           t="number"
           change={(event: any) =>
@@ -141,7 +141,7 @@ const TaskColumn = ({
             e.task_date != "0" ? e.task_date : new Date().toDateString()
           }
           // defaultValue={"2025-10-01"}
-          label={tt("Tadbir sanasi", "Дата события")}
+          label={tt("Tadbir sanasi", "Дата мероприятия")}
           onChange={(value) => {
             const task_date = dateFNS.format(value, "yyyy-MM-dd");
             handleChangeTask("task_date", e.unique_id, task_date);
@@ -158,7 +158,7 @@ const TaskColumn = ({
               /> */}
           <Input
             className="!w-full"
-            label={tt("Tadbir manzili", "Адрес события")}
+            label={tt("Tadbir manzili", "Адрес мероприятия")}
             t="text"
             change={(event: any) =>
               handleChangeTask("address", e.unique_id, event.target.value)

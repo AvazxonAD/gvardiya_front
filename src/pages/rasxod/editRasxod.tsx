@@ -7,7 +7,7 @@ import { RasxodTabelInterface, SingleRasxodInterface } from "@/interface";
 import { alertt } from "@/Redux/LanguageSlice";
 import useApi from "@/services/api";
 import { primaryAccountNumber, OrganizationLike } from "@/types/organization";
-import { latinToCyrillic, numberToWords, textNum, tt } from "@/utils";
+import { numberToWords, textNum, tt } from "@/utils";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -153,7 +153,7 @@ export const EditRasxod = () => {
               success: true,
               text: tt(
                 "O'zgartirish muvaffaqiyatli bajarildi!",
-                "Смена прошла успешно!"
+                "Изменения сохранены!"
               ),
             })
           );
@@ -320,7 +320,7 @@ export const EditRasxod = () => {
       {/* <SimpleText txt="To'lov hujjatlari" /> */}
       <div className="flex items-center gap-x-5 mt-5">
         <div className="flex items-center gap-x-5">
-          <h5 className="font-[600]">{tt("Hujjat №", "Документ №")}</h5>
+          <h5 className="font-[600]">{tt("Hujjat №", "№ документа")}</h5>
           <Input
             v={docNum ?? ""}
             change={(e: ChangeEvent<HTMLInputElement>) =>
@@ -330,7 +330,7 @@ export const EditRasxod = () => {
         </div>
         <div className="flex items-center gap-x-5">
           <h5 className="font-[600]">
-            {tt("Hujjat sanasiku bu", "Дата проводки")}
+            {tt("Hujjat sanasi", "Дата проводки")}
           </h5>
           <SpecialDatePicker
             defaultValue={docDate ?? ""}
@@ -387,7 +387,7 @@ export const EditRasxod = () => {
         </div>
         <div className="border w-1/2 p-3 bg-card">
           <SimpleText
-            txt={tt("Тo'lovchi ma’lumotlari", "Информация о плательщике")}
+            txt={tt("To'lovchi ma'lumotlari", "Информация о плательщике")}
           />
           <div>
             {recipient.map((e, ind) => (
@@ -438,14 +438,14 @@ export const EditRasxod = () => {
 
       <div className="flex justify-end my-[50px] items-center gap-[40px]">
         <SpecialDatePicker
-          label={tt("dan", latinToCyrillic("dan"))}
+          label={tt("dan", "с")}
           defaultValue={rasxodfromdate}
           onChange={setRasxodFromDate}
         />
 
         <SpecialDatePicker
-          label={tt("gacha", latinToCyrillic("do"))}
-          ru={latinToCyrillic("do")}
+          label={tt("gacha", "по")}
+          ru="по"
           defaultValue={rasxodtodate}
           onChange={setRasxodToDate}
         />

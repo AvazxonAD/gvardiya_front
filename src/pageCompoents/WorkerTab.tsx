@@ -40,7 +40,7 @@ const WorkerTab = ({
         <Table
           thead={[
             { text: "№", className: "w-[70px]" },
-            { text: tt("F.I.O", "Ф.И.О"), className: "min-w-[220px]" },
+            { text: tt("F.I.Sh.", "Ф.И.О"), className: "min-w-[220px]" },
             { text: tt("Karta raqam", "Номер карты"), className: "text-center" },
             { text: tt("Hisob raqam", "Номер счета"), className: "text-center" },
             { text: tt("Batalon", "Батальон"), className: "text-center" },

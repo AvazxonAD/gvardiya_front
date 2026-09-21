@@ -11,13 +11,13 @@ const FIOForPrint = React.forwardRef<HTMLDivElement, FIOForPrintProps>(
         return (
             <div className="h-full text-[#000000] text-[14px] leading-[19.2px]">
                 <div className="text-[16px] bg-[#FFFFFF] font-baltic" ref={ref}>
-                    <h1 className="text-center font-bold text-lg mb-4">FIO Ro'yxati</h1>
+                    <h1 className="text-center font-bold text-lg mb-4">F.I.Sh. ro'yxati</h1>
 
                     <table className="table-auto border-collapse border border-gray-400 w-full">
                         <thead>
                             <tr className="bg-gray-200">
                                 <th className="border border-gray-400 px-4 py-2">Batalon</th>
-                                <th className="border border-gray-400 px-4 py-2">FIO</th>
+                                <th className="border border-gray-400 px-4 py-2">F.I.Sh.</th>
                                 <th className="border border-gray-400 px-4 py-2">Karta raqam</th>
                                 <th className="border border-gray-400 px-4 py-2">Hisob raqam</th>
                             </tr>
@@ -47,7 +47,7 @@ const FIOForPrint = React.forwardRef<HTMLDivElement, FIOForPrintProps>(
                                 className={"bg-white font-[700]"}
                             >
                                 <td className="border border-gray-400 px-4 py-2">
-                                    Barcha hodimlar soni
+                                    Barcha xodimlar soni
                                 </td>
                                 <td className="border border-gray-400 px-4 py-2">
                                     {data?.total}ta

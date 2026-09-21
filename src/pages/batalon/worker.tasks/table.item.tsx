@@ -254,7 +254,7 @@ const TableItem = ({
           <div>
             <div className="w-[400px] mb-4">
               <Input
-                p={tt("Ismlar bo'yicha qidiriuv", "Поиск по именам")}
+                p={tt("Ismlar bo'yicha qidiruv", "Поиск по именам")}
                 className="border border-border rounded px-3 py-2 w-full"
                 v={searchTerm}
                 change={(e: any) => setSearchTerm(e.target.value)}
@@ -265,13 +265,13 @@ const TableItem = ({
             <Table
               thead={[
                 { text: "№", className: "text-center w-[50px]" },
-                { text: tt("F.I.O", "Ф.И.О"), className: "text-left" },
+                { text: tt("F.I.Sh.", "Ф.И.О"), className: "text-left" },
                 {
                   text: tt("Topshiriq vaqti", "Время задачи"),
                   className: "text-left",
                 },
                 {
-                  text: tt("Foydalanuvchi", "Фойдаланувчи"),
+                  text: tt("Foydalanuvchi", "Пользователь"),
                   className: "text-left",
                 },
                 {

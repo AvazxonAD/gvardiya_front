@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { tt } from "../../../../utils";
 
 interface DetailsModalProps {
   isOpen: boolean;
@@ -80,7 +81,7 @@ export default function DetailsModal({ isOpen, onClose }: DetailsModalProps) {
                 d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            Moliya tahlili tafsilotlari
+            {tt("Moliya tahlili tafsilotlari", "Детали финансового анализа")}
           </h3>
           <button
             onClick={onClose}
@@ -97,12 +98,12 @@ export default function DetailsModal({ isOpen, onClose }: DetailsModalProps) {
             <table className="table-grid w-full text-left text-sm whitespace-nowrap">
               <thead style={{ background: "var(--dash-table-header-bg)" }}>
                 <tr className="text-[var(--dash-text-secondary)] uppercase">
-                  <th className="px-6 py-4 font-semibold">Yo'nalish / Bo'lim</th>
-                  <th className="px-6 py-4 font-semibold">Hisoblangan (SUM)</th>
-                  <th className="px-6 py-4 font-semibold">Kelib Tushgan (SUM)</th>
-                  <th className="px-6 py-4 font-semibold">Tarqatilgan (SUM)</th>
-                  <th className="px-6 py-4 font-semibold">Qoldiq (SUM)</th>
-                  <th className="px-6 py-4 font-semibold">Status</th>
+                  <th className="px-6 py-4 font-semibold">{tt("Yo'nalish / Bo'lim", "Направление / Раздел")}</th>
+                  <th className="px-6 py-4 font-semibold">{tt("Hisoblangan (SUM)", "Начислено (сум)")}</th>
+                  <th className="px-6 py-4 font-semibold">{tt("Kelib tushgan (so'm)", "Поступило (сум)")}</th>
+                  <th className="px-6 py-4 font-semibold">{tt("Tarqatilgan (so'm)", "Распределено (сум)")}</th>
+                  <th className="px-6 py-4 font-semibold">{tt("Qoldiq (so'm)", "Остаток (сум)")}</th>
+                  <th className="px-6 py-4 font-semibold">{tt("Holati", "Статус")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -132,7 +133,7 @@ export default function DetailsModal({ isOpen, onClose }: DetailsModalProps) {
           </div>
           <div className="mt-6 flex justify-end">
             <button className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-lg transition">
-              Hisobotni yuklash
+              {tt("Hisobotni yuklash", "Скачать отчёт")}
             </button>
           </div>
         </div>

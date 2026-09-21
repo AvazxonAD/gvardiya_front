@@ -1,6 +1,7 @@
 /** @format */
 
 import Download from "@/Components/Download";
+import { usePagedFetch } from "@/hooks/usePagedFetch";
 import useApi from "@/services/api";
 import { IOrganization } from "@/types/organization";
 import React, { useEffect, useRef, useState } from "react";
@@ -109,8 +110,8 @@ function Organisation() {
       dispatch(
         alertt({
           text: tt(
-            "Malumot muvofaqiyatli o'chirildi",
-            "Ссылка удалена соответствующим образом"
+            "Ma'lumot muvaffaqiyatli o'chirildi",
+            "Данные удалены"
           ),
           success: true,
         })
@@ -167,7 +168,7 @@ function Organisation() {
       dispatch(
         alertt({
           success: true,
-          text: tt("Malumot qo'shildi", "Добавлена ссылка"),
+          text: tt("Ma'lumot qo'shildi", "Данные добавлены"),
         })
       );
       setValue({
@@ -232,16 +233,21 @@ function Organisation() {
 
     editInfo();
   };
-  useEffect(() => {
-    // Kechikkan javob yangisining ustidan yozib yubormasin
-    let stale = false;
-    readList().then((res) => {
-      if (!stale) applyList(res);
-    });
-    return () => {
-      stale = true;
-    };
-  }, [currentPage, limet, query]);
+  usePagedFetch({
+    page: currentPage,
+    setPage: setCurrentPage,
+    filters: [limet, query],
+    fetch: () => {
+      // Kechikkan javob yangisining ustidan yozib yubormasin
+      let stale = false;
+      readList().then((res) => {
+        if (!stale) applyList(res);
+      });
+      return () => {
+        stale = true;
+      };
+    },
+  });
 
   const openEdit = async (id: any) => {
     setActive(id);
@@ -429,7 +435,7 @@ function Organisation() {
         addGazna={addGazna}
         removeAccountNumber={removeAccountNumber}
         removeGazna={removeGazna}
-        title={tt("Organizator", "Организатор")}
+        title={tt("Tashkilotchi", "Организатор")}
         onFill={({ newAccountNumber, ...data }) =>
           setValue((prev: any) => ({
             ...prev,

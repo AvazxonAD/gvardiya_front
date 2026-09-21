@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { tt } from "../../../../utils";
 import { useSelector } from "react-redux";
 import { Chart, DoughnutController, ArcElement, Tooltip, Legend } from "chart.js";
 import { DistributionResponse } from "../types";
@@ -133,7 +134,7 @@ export default function StatusChart({ distData }: StatusChartProps) {
   return (
     <div className="dash-glass p-[12px] flex flex-col flex-1 min-h-0">
       <h2 className="text-[14px] font-semibold text-[var(--dash-text)] mb-2">
-        Kirim bolgan pulning taqsimoti
+        {tt("Kirim bo'lgan pulning taqsimoti", "Распределение поступивших средств")}
       </h2>
       <div className="relative flex-1 w-full h-full flex justify-center items-center min-h-0">
         <canvas ref={canvasRef} />
@@ -145,7 +146,7 @@ export default function StatusChart({ distData }: StatusChartProps) {
             </>
           ) : (
             <>
-              <span className="text-[var(--dash-text-muted)] text-[10px]">Jami kirim</span>
+              <span className="text-[var(--dash-text-muted)] text-[10px]">{tt("Jami kirim", "Всего поступило")}</span>
               <span className="text-[18px] font-bold text-[var(--dash-text)]">{formatFull(d.prixod?.summa)}</span>
             </>
           )}

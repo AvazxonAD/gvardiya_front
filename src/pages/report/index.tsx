@@ -1,4 +1,5 @@
 import Paginatsiya from "@/Components/Paginatsiya";
+import { usePagedFetch } from "@/hooks/usePagedFetch";
 import Table from "@/Components/reusable/table/Table";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import { RootState } from "@/Redux/store";
@@ -57,19 +58,21 @@ function ReportUser() {
     }
   };
 
-  // Faqat birinchi renderda `startDate` va `endDate` uchun request yuboradi
-
-  // Faqat `page` va `limit` o'zgarganda request yuboradi
-  useEffect(() => {
-    if (!startDate || !endDate) return;
-    getData();
-  }, [page, limit]);
-
-  useEffect(() => {
-    if (!startDate || !endDate) return;
-    if (data) return;
-    getData();
-  }, [startDate, endDate]);
+  // Sana, limit yoki sahifa o'zgarganda hisobot yangilanadi.
+  //
+  // Ilgari sana uchun alohida effekt bor edi va unda `if (data) return;`
+  // turardi — ya'ni birinchi yuklashdan keyin sana oralig'i o'zgartirilsa
+  // hisobot UMUMAN yangilanmasdi. Endi bitta joyda boshqariladi va filtr
+  // o'zgarganda 1-sahifaga qaytadi.
+  usePagedFetch({
+    page,
+    setPage,
+    filters: [limit, startDate, endDate],
+    fetch: () => {
+      if (!startDate || !endDate) return;
+      getData();
+    },
+  });
 
 
   return (
@@ -135,7 +138,7 @@ function ReportUser() {
                 className: "text-left px-[8px]",
               },
               {
-                text: tt("Debit", "Дебет"),
+                text: tt("Debet", "Дебет"),
                 className: "text-right py-3 px-[8px] w-[200px]",
               },
               {

@@ -65,7 +65,7 @@ const ContractAddColumn = ({
 
       <div className="!w-[130px]">
         <Input
-          label={tt("Hodimlar soni", "Кол-во сотрудников")}
+          label={tt("Xodimlar soni", "Кол-во сотрудников")}
           t="number"
           change={(e: any) => handleChange("worker_number", e.target.value)}
           v={data.worker_number}
@@ -76,7 +76,7 @@ const ContractAddColumn = ({
       <div className="!w-[130px]">
         <Input
           className="!w-full"
-          label={tt("Tadbir vaqti", "Время события")}
+          label={tt("Tadbir vaqti", "Время мероприятия")}
           t="number"
           change={(e: any) => handleChange("task_time", e.target.value)}
           v={data.task_time}
@@ -109,7 +109,7 @@ const ContractAddColumn = ({
               handleChange("task_date", datas);
             }}
             defaultValue={data.task_date}
-            label={tt("Tadbir sanasi", "Дата события")}
+            label={tt("Tadbir sanasi", "Дата мероприятия")}
           />
         </div>
       )}
@@ -117,7 +117,7 @@ const ContractAddColumn = ({
         <div className="!w-[200px]">
           <Input
             className="!w-full"
-            label={tt("Tadbir manzili", "Адрес события")}
+            label={tt("Tadbir manzili", "Адрес мероприятия")}
             t="text"
             change={(e: any) => handleChange("address", e.target.value)}
             v={data.address}

@@ -35,7 +35,7 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source
       className: "w-[100px]",
     },
     {
-      text: tt(`Hujjat sanasi`, "Дата публикации"),
+      text: tt(`Hujjat sanasi`, "Дата документа"),
       className: "w-[100px]",
     },
     {
@@ -43,7 +43,7 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source
       className: "w-[100px]",
     },
     {
-      text: tt("Izoh", "Объяснение"),
+      text: tt("Izoh", "Примечание"),
       className: "w-[100px]",
     },
     {
@@ -93,14 +93,14 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source
       window.URL.revokeObjectURL(url);
       dispatch(
         alertt({
-          text: tt("Excel file yuklandi", "Файл Excel загружен"),
+          text: tt("Excel fayl yuklandi", "Файл Excel загружен"),
           success: true,
         })
       );
     } catch (error) {
       dispatch(
         alertt({
-          text: tt("Excel file yuklanishda muamo mavjud", "Проблема с загрузкой файла Excel"),
+          text: tt("Excel faylni yuklashda muammo yuz berdi", "Проблема с загрузкой файла Excel"),
           success: false,
         })
       );
@@ -121,14 +121,14 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source
       window.URL.revokeObjectURL(url);
       dispatch(
         alertt({
-          text: tt("Excel file yuklandi", "Файл Excel загружен"),
+          text: tt("Excel fayl yuklandi", "Файл Excel загружен"),
           success: true,
         })
       );
     } catch (error) {
       dispatch(
         alertt({
-          text: tt("Excel file yuklanishda muamo mavjud", "Проблема с загрузкой файла Excel"),
+          text: tt("Excel faylni yuklashda muammo yuz berdi", "Проблема с загрузкой файла Excel"),
           success: false,
         })
       );
@@ -149,14 +149,14 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source
       window.URL.revokeObjectURL(url);
       dispatch(
         alertt({
-          text: tt("Excel file yuklandi", "Файл Excel загружен"),
+          text: tt("Excel fayl yuklandi", "Файл Excel загружен"),
           success: true,
         })
       );
     } catch (error) {
       dispatch(
         alertt({
-          text: tt("Excel file yuklanishda muamo mavjud", "Проблема с загрузкой файла Excel"),
+          text: tt("Excel faylni yuklashda muammo yuz berdi", "Проблема с загрузкой файла Excel"),
           success: false,
         })
       );
@@ -192,8 +192,8 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  title={tt("Taqsimot", "Тақсимот")}
-                  aria-label={tt("Taqsimot", "Тақсимот")}
+                  title={tt("Taqsimot", "Распределение")}
+                  aria-label={tt("Taqsimot", "Распределение")}
                   onClick={() =>
                     source === "fio"
                       ? handleExcelDownload(item)

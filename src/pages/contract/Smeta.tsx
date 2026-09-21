@@ -22,7 +22,7 @@ const BudgetTable = ({ data }: any) => {
               {latinToCyrillic("Jami ishlatilgan shaxsiy tarkib soni")}
             </th>
             <th className="border text-center py-1 w-[60px]">
-              {latinToCyrillic("Ommaiy tadbir o'tkazish vaqti (soat)")}
+              {latinToCyrillic("Ommaviy tadbir o'tkazish vaqti (soat)")}
             </th>
             <th className="border text-center py-1">
               {latinToCyrillic("Bir kishilik soatbay ish haqi (BHM*7%)")}

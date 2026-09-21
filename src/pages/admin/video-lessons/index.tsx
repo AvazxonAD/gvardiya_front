@@ -385,8 +385,8 @@ export default function AdminVideoLessons() {
             error={errors.file}
             required={!editing}
             hint={tt(
-              "MP4 yoki WEBM, eng ko'pi 500 MB",
-              "MP4 или WEBM, максимум 500 МБ"
+              "MP4 yoki WEBM, eng ko'pi 1 GB",
+              "MP4 или WEBM, максимум 1 ГБ"
             )}
           >
             <input

@@ -27,7 +27,7 @@ function Download({ open, URL: url, closeModal }: any) {
       window.URL.revokeObjectURL(blobUrl);
       dispatch(
         alertt({
-          text: tt("Excel file yuklandi", "Файл Excel загружен"),
+          text: tt("Excel fayl yuklandi", "Файл Excel загружен"),
           success: true,
         })
       );
@@ -35,7 +35,7 @@ function Download({ open, URL: url, closeModal }: any) {
       dispatch(
         alertt({
           text: tt(
-            "Excel file yuklanishda muamo mavjud",
+            "Excel faylni yuklashda muammo yuz berdi",
             "Проблема с загрузкой файла Excel"
           ),
           success: false,

@@ -1,4 +1,5 @@
 import Paginatsiya from "@/Components/Paginatsiya";
+import { usePagedFetch } from "@/hooks/usePagedFetch";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import { useRequest } from "@/hooks/useRequest";
 import { IRasxodFio, RasxodInterface } from "@/interface";
@@ -130,10 +131,13 @@ export const RasxodFio = () => {
     window.URL.revokeObjectURL(url);
   };
 
-  // Sana oralig'i o'zgarganda ro'yxat o'zi yangilanadi
-  React.useEffect(() => {
-    getRasxod();
-  }, [limet, currentPage, search.fromDate, search.toDate]);
+  // Sana oralig'i o'zgarganda ro'yxat yangilanadi va 1-sahifaga qaytadi
+  usePagedFetch({
+    page: currentPage,
+    setPage: setCurrentPage,
+    filters: [limet, search.fromDate, search.toDate],
+    fetch: getRasxod,
+  });
 
   const api = useApi();
   const navigate = useNavigate();

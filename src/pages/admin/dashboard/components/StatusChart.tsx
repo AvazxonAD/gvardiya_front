@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { tt } from "@/utils";
 import { useSelector } from "react-redux";
 import { RootState } from "@/Redux/store";
 import useApi from "@/services/api";
@@ -138,13 +139,13 @@ export default function StatusChart({ distData }: StatusChartProps) {
       <div className="dash-glass p-[12px] flex flex-col flex-1 min-h-0">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-[14px] font-semibold text-[var(--dash-text)]">
-            Kirim bolgan pulning taqsimoti
+            {tt("Kirim bo'lgan pulning taqsimoti", "Распределение поступивших средств")}
           </h2>
           <button
             onClick={() => setModalOpen(true)}
             className="text-[10px] text-primary hover:text-primary font-medium flex items-center gap-1 border border-primary/30/40 hover:border-primary/30/60 rounded-md px-2.5 py-1 transition"
           >
-            Batafsil
+            {tt("Batafsil", "Подробнее")}
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
             </svg>
@@ -160,7 +161,7 @@ export default function StatusChart({ distData }: StatusChartProps) {
               </>
             ) : (
               <>
-                <span className="text-[var(--dash-text-muted)] text-[10px]">Jami kirim</span>
+                <span className="text-[var(--dash-text-muted)] text-[10px]">{tt("Jami kirim", "Всего поступило")}</span>
                 <span className="text-[18px] font-bold text-[var(--dash-text)]">{formatFull(d.prixod?.summa)}</span>
               </>
             )}
@@ -215,7 +216,7 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
 
         <div className="px-5 py-4 flex justify-between items-center rounded-t-2xl shrink-0"
           style={{ background: "var(--dash-modal-header-bg)", borderBottom: "1px solid var(--dash-modal-border)" }}>
-          <h3 className="text-lg font-bold text-[var(--dash-text)]">Kirim bolgan pulning taqsimoti — viloyatlar bo'yicha</h3>
+          <h3 className="text-lg font-bold text-[var(--dash-text)]">{tt("Kirim bo'lgan pulning taqsimoti — viloyatlar bo'yicha", "Распределение поступивших средств по регионам")}</h3>
           <button onClick={onClose} className="text-[var(--dash-text-secondary)] hover:text-[var(--dash-text)] p-2 rounded-lg transition">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -226,11 +227,11 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
         {/* Summary */}
         <div className="grid grid-cols-5 gap-3 px-5 py-3 shrink-0" style={{ borderBottom: "1px solid var(--dash-modal-border)" }}>
           {[
-            { label: "Jami kirim", value: totals.jami_kirim, color: "" },
-            { label: "Moddiy baza (65%)", value: totals.summa_65, color: "text-primary" },
-            { label: "Hamkor tashkilotlar", value: totals.rasxod_summa, color: "text-success" },
-            { label: "Xodimlar premiyasi (25%)", value: totals.summa_25, color: "text-warning" },
-            { label: "Qolgan", value: totals.jami_kirim - totals.all_rasxod, color: "text-destructive" },
+            { label: tt("Jami kirim", "Всего поступило"), value: totals.jami_kirim, color: "" },
+            { label: tt("Moddiy baza (65%)", "Материальная база (65%)"), value: totals.summa_65, color: "text-primary" },
+            { label: tt("Hamkor tashkilotlar", "Партнёрские организации"), value: totals.rasxod_summa, color: "text-success" },
+            { label: tt("Xodimlar premiyasi (25%)", "Премия сотрудникам (25%)"), value: totals.summa_25, color: "text-warning" },
+            { label: tt("Qolgan", "Остаток"), value: totals.jami_kirim - totals.all_rasxod, color: "text-destructive" },
           ].map((c, i) => (
             <div key={i} className="rounded-lg p-2.5" style={{ background: "var(--dash-table-row-alt)" }}>
               <p className="text-[10px] text-[var(--dash-text-muted)] uppercase tracking-wider">{c.label}</p>
@@ -251,13 +252,13 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                 <thead className="sticky top-0 z-10" style={{ background: "var(--dash-table-header-bg)" }}>
                   <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
                     <th className="px-4 py-3 font-semibold">№</th>
-                    <th className="px-4 py-3 font-semibold min-w-[180px]">Viloyat</th>
-                    <th className="px-4 py-3 font-semibold text-right min-w-[120px]">Jami kirim</th>
-                    <th className="px-4 py-3 font-semibold text-right min-w-[140px]">Moddiy baza (65%)</th>
-                    <th className="px-4 py-3 font-semibold text-right min-w-[140px]">Hamkor tashkilotlar</th>
-                    <th className="px-4 py-3 font-semibold text-right min-w-[150px]">Xodimlar premiyasi (25%)</th>
-                    <th className="px-4 py-3 font-semibold text-right min-w-[120px]">Jami tarqatilgan</th>
-                    <th className="px-4 py-3 font-semibold text-right min-w-[120px]">Qolgan</th>
+                    <th className="px-4 py-3 font-semibold min-w-[180px]">{tt("Viloyat", "Регион")}</th>
+                    <th className="px-4 py-3 font-semibold text-right min-w-[120px]">{tt("Jami kirim", "Всего поступило")}</th>
+                    <th className="px-4 py-3 font-semibold text-right min-w-[140px]">{tt("Moddiy baza (65%)", "Материальная база (65%)")}</th>
+                    <th className="px-4 py-3 font-semibold text-right min-w-[140px]">{tt("Hamkor tashkilotlar", "Партнёрские организации")}</th>
+                    <th className="px-4 py-3 font-semibold text-right min-w-[150px]">{tt("Xodimlar premiyasi (25%)", "Премия сотрудникам (25%)")}</th>
+                    <th className="px-4 py-3 font-semibold text-right min-w-[120px]">{tt("Jami tarqatilgan", "Всего распределено")}</th>
+                    <th className="px-4 py-3 font-semibold text-right min-w-[120px]">{tt("Qolgan", "Остаток")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -282,7 +283,7 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
 
         <div className="px-5 py-3 flex justify-end shrink-0" style={{ borderTop: "1px solid var(--dash-modal-border)" }}>
           <button onClick={onClose} className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground text-[12px] font-medium rounded-lg transition">
-            Yopish
+            {tt("Yopish", "Закрыть")}
           </button>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getSpr, updateSpr, updateSprPair } from "../api";
 import Input from "../Components/Input";
 import { alertt } from "../Redux/LanguageSlice";
-import { latinToCyrillic, tt } from "../utils";
+import { tt } from "../utils";
 import SprTab from "./SprTab";
 import { ListCard } from "@/ui";
 function Spr({
@@ -44,7 +44,7 @@ function Spr({
     pairKey === "bank"
       ? [
           { key: "bank", label: tt("Bank nomi", "Название банка") },
-          { key: "mfo", label: tt("MFO", latinToCyrillic("MFO")) },
+          { key: "mfo", label: tt("MFO", "МФО") },
         ]
       : pairKey === "doer"
       ? [

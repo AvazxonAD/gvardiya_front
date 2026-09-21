@@ -96,7 +96,7 @@ const UserTable: React.FC = () => {
       type: "",
     },
     validationSchema: Yup.object({
-      fio: Yup.string().required(tt("FIO kiriting", "Введите ФИО")),
+      fio: Yup.string().required(tt("F.I.Sh. kiriting", "Введите ФИО")),
       pinfl: Yup.string().matches(/^\d{14}$/, {
         message: tt(
           "PINFL 14 ta raqamdan iborat bo'lishi kerak",
@@ -185,7 +185,7 @@ const UserTable: React.FC = () => {
       file: null as File | null,
     },
     validationSchema: Yup.object({
-      fio: Yup.string().required(tt("FIO kiriting", "Введите ФИО")),
+      fio: Yup.string().required(tt("F.I.Sh. kiriting", "Введите ФИО")),
       pinfl: Yup.string().matches(/^\d{14}$/, {
         message: tt(
           "PINFL 14 ta raqamdan iborat bo'lishi kerak",
@@ -290,7 +290,7 @@ const UserTable: React.FC = () => {
           <Table
             thead={[
               { text: tt("Rasm", "Фото"), className: "w-[90px] text-center" },
-              { text: tt("FIO", "ФИО"), className: "min-w-[200px]" },
+              { text: tt("F.I.Sh.", "ФИО"), className: "min-w-[200px]" },
               { text: tt("Viloyat", "Регион"), className: "min-w-[150px]" },
               { text: tt("Turi", "Тип"), className: "w-[150px]" },
               { text: tt("Login", "Логин"), className: "min-w-[130px]" },
@@ -384,7 +384,7 @@ const UserTable: React.FC = () => {
           <div className="mb-4 w-full">
             <Input
               n="fio"
-              label={tt("FIO", "ФИО")}
+              label={tt("F.I.Sh.", "ФИО")}
               v={formik2.values.fio}
               change={formik2.handleChange}
               blur={formik2.handleBlur}
@@ -521,7 +521,7 @@ const UserTable: React.FC = () => {
           <div className="mb-4 w-full">
             <Input
               n="fio"
-              label={tt("FIO", "ФИО")}
+              label={tt("F.I.Sh.", "ФИО")}
               v={formik.values.fio}
               change={formik.handleChange}
               blur={formik.handleBlur}

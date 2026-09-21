@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { tt } from "@/utils";
 import { baseUri } from "@/services/api";
 import { authFetch } from "@/services/tokenManager";
 import { RedWorkersResponse } from "../types";
@@ -47,11 +48,11 @@ export default function AlertCard({ redData, from, to }: AlertCardProps) {
           </div>
           <div className="flex-1">
             <h2 className="text-[14px] font-bold text-[var(--dash-text)] leading-snug">
-              Qizil chegaraga tushgan xodimlar
+              {tt("Qizil chegaraga tushgan xodimlar", "Сотрудники в красной зоне")}
             </h2>
             <div className="flex items-baseline gap-2 mt-1">
               <span className="text-[28px] font-bold text-rose-500 leading-none">{redData?.red_count || 0}</span>
-              <span className="text-[var(--dash-text-muted)] text-[12px]">xodim aniqlandi</span>
+              <span className="text-[var(--dash-text-muted)] text-[12px]">{tt("xodim aniqlandi", "сотрудников выявлено")}</span>
             </div>
           </div>
         </div>
@@ -65,7 +66,7 @@ export default function AlertCard({ redData, from, to }: AlertCardProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
             </svg>
-            Ro'yxatni ko'rsatish
+            {tt("Ro'yxatni ko'rsatish", "Показать список")}
           </button>
           <button
             onClick={handleExcel}
@@ -75,7 +76,7 @@ export default function AlertCard({ redData, from, to }: AlertCardProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            Excel yuklab olish
+            {tt("Excel yuklab olish", "Скачать Excel")}
           </button>
         </div>
       </div>
@@ -112,7 +113,7 @@ function RedWorkersModal({ isOpen, onClose, redData, onExcel }: { isOpen: boolea
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-[var(--dash-text)]">Qizil chegaraga tushgan xodimlar</h3>
+              <h3 className="text-lg font-bold text-[var(--dash-text)]">{tt("Qizil chegaraga tushgan xodimlar", "Сотрудники в красной зоне")}</h3>
               <p className="text-[12px] text-[var(--dash-text-muted)]">{redData.red_count} xodim aniqlandi</p>
             </div>
           </div>
@@ -129,14 +130,14 @@ function RedWorkersModal({ isOpen, onClose, redData, onExcel }: { isOpen: boolea
               <thead className="sticky top-0 z-10" style={{ background: "var(--dash-table-header-bg)" }}>
                 <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
                   <th className="px-4 py-3 font-semibold w-[50px]">№</th>
-                  <th className="px-4 py-3 font-semibold min-w-[250px]">Xodim ismi</th>
-                  <th className="px-4 py-3 font-semibold min-w-[100px]">Batalon</th>
-                  <th className="px-4 py-3 font-semibold text-center min-w-[100px]">Xodimlar soni</th>
-                  <th className="px-4 py-3 font-semibold text-right min-w-[130px]">Batalon summasi</th>
-                  <th className="px-4 py-3 font-semibold text-right min-w-[150px]">Xodimning olgan summasi</th>
-                  <th className="px-4 py-3 font-semibold text-right min-w-[120px]">O'rtacha</th>
-                  <th className="px-4 py-3 font-semibold text-right min-w-[120px]">Chegara (×2)</th>
-                  <th className="px-4 py-3 font-semibold text-center min-w-[110px]">Necha marta</th>
+                  <th className="px-4 py-3 font-semibold min-w-[250px]">{tt("Xodim ismi", "Ф.И.О. сотрудника")}</th>
+                  <th className="px-4 py-3 font-semibold min-w-[100px]">{tt("Batalon", "Батальон")}</th>
+                  <th className="px-4 py-3 font-semibold text-center min-w-[100px]">{tt("Xodimlar soni", "Количество сотрудников")}</th>
+                  <th className="px-4 py-3 font-semibold text-right min-w-[130px]">{tt("Batalon summasi", "Сумма батальона")}</th>
+                  <th className="px-4 py-3 font-semibold text-right min-w-[150px]">{tt("Xodimning olgan summasi", "Сумма, полученная сотрудником")}</th>
+                  <th className="px-4 py-3 font-semibold text-right min-w-[120px]">{tt("O'rtacha", "Среднее")}</th>
+                  <th className="px-4 py-3 font-semibold text-right min-w-[120px]">{tt("Chegara (×2)", "Порог (×2)")}</th>
+                  <th className="px-4 py-3 font-semibold text-center min-w-[110px]">{tt("Necha marta", "Во сколько раз")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -169,7 +170,7 @@ function RedWorkersModal({ isOpen, onClose, redData, onExcel }: { isOpen: boolea
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            Excel yuklab olish
+            {tt("Excel yuklab olish", "Скачать Excel")}
           </button>
         </div>
       </div>

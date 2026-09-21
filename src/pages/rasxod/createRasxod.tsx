@@ -8,7 +8,7 @@ import { alertt } from "@/Redux/LanguageSlice";
 import useApi from "@/services/api";
 import { IOrganization, primaryAccountNumber } from "@/types/organization";
 import { IPrixod } from "@/types/prixod";
-import { latinToCyrillic, numberToWords, textNum, tt } from "@/utils";
+import { numberToWords, textNum, tt } from "@/utils";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -101,7 +101,7 @@ export const CreateRasxod = () => {
           dispatch(
             alertt({
               success: true,
-              text: tt("Chiqim yaratildi!", "Создано успешно"),
+              text: tt("Chiqim yaratildi!", "Расход создан!"),
             })
           );
         }
@@ -189,7 +189,7 @@ export const CreateRasxod = () => {
 
   const recipient = [
     {
-      txt: tt("To'lovchi", "Получатель"),
+      txt: tt("To'lovchi", "Плательщик"),
       value: user?.doer_name || "",
     },
     { txt: tt("Bank", "Банк"), value: user?.bank_name || "" },
@@ -203,7 +203,7 @@ export const CreateRasxod = () => {
 
   const payer = [
     {
-      txt: tt("Qabul qiluvchi", "Плательщик"),
+      txt: tt("Qabul qiluvchi", "Получатель"),
       value: (selectedO?.name ?? currentPrixod?.organization_name) || "",
     },
     {
@@ -258,13 +258,13 @@ export const CreateRasxod = () => {
           <BackButton />
         </div>
         <h1 className="font-[700] text-[20px] block ms-8">
-          {tt("Chiqim hujjat yaratish", "Создать документ")}
+          {tt("Chiqim hujjatini yaratish", "Создать расходный документ")}
         </h1>
       </div>
       {/* <SimpleText txt="To'lov hujjatlari" /> */}
       <div className="flex items-center gap-x-5 mt-5">
         <div className="flex items-center gap-x-5">
-          <h5 className="font-[600]">{tt("Hujjat №", "Документ №")}</h5>
+          <h5 className="font-[600]">{tt("Hujjat №", "№ документа")}</h5>
           <Input
             v={docNum ?? currentPrixod?.contract_doc_num ?? ""}
             change={(e: ChangeEvent<HTMLInputElement>) =>
@@ -284,7 +284,7 @@ export const CreateRasxod = () => {
       <div className="flex mt-5">
         <div className="border w-1/2 p-3">
           {/* <SimpleText
-            txt={tt("Тo'lovchi ma’lumotlari", "Информация о плательщике")}
+            txt={tt("To'lovchi ma'lumotlari", "Информация о плательщике")}
           /> */}
           <SimpleText
             txt={tt("Qabul qiluvchi ma’lumotlari", "Информация о получателе")}
@@ -332,7 +332,7 @@ export const CreateRasxod = () => {
         </div>
         <div className="border w-1/2 p-3 bg-card">
           <SimpleText
-            txt={tt("Тo'lovchi ma’lumotlari", "Информация о плательщике")}
+            txt={tt("To'lovchi ma'lumotlari", "Информация о плательщике")}
           />
           <div>
             {recipient.map((e, ind) => (
@@ -384,13 +384,13 @@ export const CreateRasxod = () => {
 
       <div className="flex justify-end my-[50px] items-center gap-[40px]">
         <SpecialDatePicker
-          label={tt("dan", latinToCyrillic("dan"))}
+          label={tt("dan", "с")}
           defaultValue={rasxodfromdate}
           onChange={setRasxodFromDate}
         />
 
         <SpecialDatePicker
-          label={tt("gacha", latinToCyrillic("do"))}
+          label={tt("gacha", "по")}
           defaultValue={rasxodtodate}
           onChange={setRasxodToDate}
         />

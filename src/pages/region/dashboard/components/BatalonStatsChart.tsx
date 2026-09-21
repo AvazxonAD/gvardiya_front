@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { tt } from "../../../../utils";
 import { useSelector } from "react-redux";
 import { Chart, PieController, ArcElement, Tooltip, Legend } from "chart.js";
 import { BatalonStatsResponse, BatalonStatRow } from "../types";
@@ -147,10 +148,10 @@ export default function BatalonStatsChart({ data }: Props) {
   return (
     <div className="dash-glass p-[12px] flex flex-col min-h-[320px] relative overflow-hidden">
       <h2 className="text-[14px] font-semibold text-[var(--dash-text)] mb-1">
-        Umumiy batalon va birgadalar kesimida
+        {tt("Umumiy batalon va birgadalar kesimida", "В разрезе батальонов и бригад")}
       </h2>
       <p className="text-[var(--dash-text-secondary)] text-[11px] mb-2">
-        Har bir batalon va birgada ulushi
+        {tt("Har bir batalon va birgada ulushi", "Доля каждого батальона и бригады")}
       </p>
 
       <div className="relative flex-1 w-full min-h-0 flex justify-center items-center">
@@ -177,33 +178,33 @@ export default function BatalonStatsChart({ data }: Props) {
 
             <div className="p-2.5 space-y-2">
               <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
-                <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Xodimlar soni</p>
+                <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">{tt("Xodimlar soni", "Количество сотрудников")}</p>
                 <p className="text-[16px] font-bold text-warning">{selectedRow.worker_count.toLocaleString()}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-1.5">
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
-                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Umumiy summa</p>
+                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">{tt("Umumiy summa", "Общая сумма")}</p>
                   <p className="text-[13px] font-bold text-primary">{formatNum(selectedRow.total_summa)}</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
-                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Summa ulushi</p>
+                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">{tt("Summa ulushi", "Доля суммы")}</p>
                   <p className="text-[13px] font-bold text-primary">{selectedRow.summa_percent}%</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
-                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Umumiy soat</p>
+                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">{tt("Umumiy soat", "Всего часов")}</p>
                   <p className="text-[13px] font-bold text-primary">{selectedRow.total_time.toLocaleString()}</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
-                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Soat ulushi</p>
+                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">{tt("Soat ulushi", "Доля часов")}</p>
                   <p className="text-[13px] font-bold text-primary">{selectedRow.time_percent}%</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
-                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Tadbirlar soni</p>
+                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">{tt("Tadbirlar soni", "Количество мероприятий")}</p>
                   <p className="text-[13px] font-bold text-success">{selectedRow.task_count.toLocaleString()}</p>
                 </div>
                 <div className="rounded-lg p-1.5 text-center" style={{ background: "var(--dash-card-bg)" }}>
-                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">Tadbirlar ulushi</p>
+                  <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider mb-0.5">{tt("Tadbirlar ulushi", "Доля мероприятий")}</p>
                   <p className="text-[13px] font-bold text-success">{selectedRow.task_percent}%</p>
                 </div>
               </div>
@@ -212,7 +213,7 @@ export default function BatalonStatsChart({ data }: Props) {
                 onClick={() => setSelectedRow(null)}
                 className="w-full py-2 rounded-lg text-[12px] font-medium text-primary-foreground bg-primary hover:bg-primary transition"
               >
-                Yopish
+                {tt("Yopish", "Закрыть")}
               </button>
             </div>
           </div>

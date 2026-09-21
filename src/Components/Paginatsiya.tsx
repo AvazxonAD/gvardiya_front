@@ -56,7 +56,7 @@ const Paginatsiya = ({
           disabled={atStart}
         >
           <ChevronLeft className="size-4" />
-          <span className="hidden sm:inline">{tt("Oldinga", "Назад")}</span>
+          <span className="hidden sm:inline">{tt("Oldingi", "Предыдущая")}</span>
         </button>
 
         {getVisiblePages().map((page, index) =>
@@ -92,7 +92,7 @@ const Paginatsiya = ({
           onClick={() => !atEnd && setCurrentPage(currentPage + 1)}
           disabled={atEnd}
         >
-          <span className="hidden sm:inline">{tt("Keyingi", "Вперёд")}</span>
+          <span className="hidden sm:inline">{tt("Keyingi", "Следующая")}</span>
           <ChevronRight className="size-4" />
         </button>
       </div>

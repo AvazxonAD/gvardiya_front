@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { tt } from "@/utils";
 import useApi, { baseUri } from "@/services/api";
 import { authFetch } from "@/services/tokenManager";
 import { ContractsMeta, OrgDebtContractItem, OrganizationDebtRow } from "../types";
@@ -92,7 +93,7 @@ export default function OrgContractsModal({ isOpen, onClose, to, accountId, orga
             <div>
               <h3 className="text-[15px] font-bold text-[var(--dash-text)]">{organization.organization_name}</h3>
               <p className="text-[11px] text-[var(--dash-text-muted)]">
-                Qarz: <span className="text-rose-500 font-semibold">{formatAmount(organization.debt_summa)}</span>
+                {tt("Qarz:", "Долг:")} <span className="text-rose-500 font-semibold">{formatAmount(organization.debt_summa)}</span>
                 {" · "}Shartnomalar: {organization.contract_count}
                 {" · "}{to} sanasigacha
               </p>
@@ -125,13 +126,13 @@ export default function OrgContractsModal({ isOpen, onClose, to, accountId, orga
                 <thead style={{ background: "var(--dash-table-header-bg)" }}>
                   <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
                     <th className="px-4 py-3 font-semibold w-[50px]">№</th>
-                    <th className="px-4 py-3 font-semibold w-[120px]">Hujjat raqami</th>
-                    <th className="px-4 py-3 font-semibold w-[110px]">Sana</th>
-                    <th className="px-4 py-3 font-semibold w-[160px]">Hisob raqami</th>
-                    <th className="px-4 py-3 font-semibold">Foydalanuvchi</th>
-                    <th className="px-4 py-3 font-semibold text-right w-[160px]">Shartnoma summasi</th>
-                    <th className="px-4 py-3 font-semibold text-right w-[140px]">To'langan</th>
-                    <th className="px-4 py-3 font-semibold text-right w-[140px]">Qarz</th>
+                    <th className="px-4 py-3 font-semibold w-[120px]">{tt("Hujjat raqami", "Номер документа")}</th>
+                    <th className="px-4 py-3 font-semibold w-[110px]">{tt("Sana", "Дата")}</th>
+                    <th className="px-4 py-3 font-semibold w-[160px]">{tt("Hisob raqami", "Номер счета")}</th>
+                    <th className="px-4 py-3 font-semibold">{tt("Foydalanuvchi", "Пользователь")}</th>
+                    <th className="px-4 py-3 font-semibold text-right w-[160px]">{tt("Shartnoma summasi", "Сумма договора")}</th>
+                    <th className="px-4 py-3 font-semibold text-right w-[140px]">{tt("To'langan", "Оплачено")}</th>
+                    <th className="px-4 py-3 font-semibold text-right w-[140px]">{tt("Qarz", "Долг")}</th>
                   </tr>
                 </thead>
               </table>
@@ -141,7 +142,7 @@ export default function OrgContractsModal({ isOpen, onClose, to, accountId, orga
                     {contracts.length === 0 ? (
                       <tr>
                         <td colSpan={8} className="px-4 py-8 text-center text-[var(--dash-text-muted)]">
-                          Ma'lumot topilmadi
+                          {tt("Ma'lumot topilmadi", "Данные не найдены")}
                         </td>
                       </tr>
                     ) : (
@@ -174,11 +175,11 @@ export default function OrgContractsModal({ isOpen, onClose, to, accountId, orga
             <div className="flex gap-2">
               <button disabled={!meta.backPage} onClick={() => setPage((p) => p - 1)}
                 className="dash-btn dash-btn-secondary">
-                Oldingi
+                {tt("Oldingi", "Предыдущая")}
               </button>
               <button disabled={!meta.nextPage} onClick={() => setPage((p) => p + 1)}
                 className="dash-btn dash-btn-secondary">
-                Keyingi
+                {tt("Keyingi", "Следующая")}
               </button>
             </div>
           </div>

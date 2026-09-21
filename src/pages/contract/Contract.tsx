@@ -20,7 +20,7 @@ const Contract = () => {
 
   const title =
     pathname === "/contract/add"
-      ? tt("Shartnomani kiritish", "Заключение договора")
+      ? tt("Shartnomani kiritish", "Добавление договора")
       : pathname.startsWith("/contract/tasks/")
       ? tt("Topshiriqlar", "Задачи")
       : pathname !== "/contract" &&

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { tt } from "@/utils";
 import useApi, { baseUri } from "@/services/api";
 import { authFetch } from "@/services/tokenManager";
 import { OrganizationDebtRow, OrgDebtMeta } from "../types";
@@ -87,7 +88,7 @@ export default function OrganizationsListModal({ isOpen, onClose, to, accountId 
             <div className="flex items-center gap-3">
               <div className="w-1 h-8 rounded-none bg-rose-500" />
               <div>
-                <h3 className="text-lg font-bold text-[var(--dash-text)]">Qarzdor tashkilotlar</h3>
+                <h3 className="text-lg font-bold text-[var(--dash-text)]">{tt("Qarzdor tashkilotlar", "Организации-должники")}</h3>
                 <p className="text-[11px] text-[var(--dash-text-muted)]">
                   {to} sanasigacha{meta ? ` — jami ${meta.count} ta tashkilot, qarz: ${formatAmount(meta.total_debt)}` : ""}
                 </p>
@@ -120,12 +121,12 @@ export default function OrganizationsListModal({ isOpen, onClose, to, accountId 
                   <thead style={{ background: "var(--dash-table-header-bg)" }}>
                     <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
                       <th className="px-4 py-3 font-semibold w-[50px]">№</th>
-                      <th className="px-4 py-3 font-semibold">Tashkilot</th>
-                      <th className="px-4 py-3 font-semibold text-center w-[120px]">Shartnomalar</th>
-                      <th className="px-4 py-3 font-semibold text-right w-[160px]">Jami summa</th>
-                      <th className="px-4 py-3 font-semibold text-right w-[160px]">To'langan</th>
-                      <th className="px-4 py-3 font-semibold text-right w-[160px]">Qarz</th>
-                      <th className="px-4 py-3 font-semibold text-center w-[110px]">Amal</th>
+                      <th className="px-4 py-3 font-semibold">{tt("Tashkilot", "Организация")}</th>
+                      <th className="px-4 py-3 font-semibold text-center w-[120px]">{tt("Shartnomalar", "Договоры")}</th>
+                      <th className="px-4 py-3 font-semibold text-right w-[160px]">{tt("Jami summa", "Общая сумма")}</th>
+                      <th className="px-4 py-3 font-semibold text-right w-[160px]">{tt("To'langan", "Оплачено")}</th>
+                      <th className="px-4 py-3 font-semibold text-right w-[160px]">{tt("Qarz", "Долг")}</th>
+                      <th className="px-4 py-3 font-semibold text-center w-[110px]">{tt("Amallar", "Действия")}</th>
                     </tr>
                   </thead>
                 </table>
@@ -135,7 +136,7 @@ export default function OrganizationsListModal({ isOpen, onClose, to, accountId 
                       {rows.length === 0 ? (
                         <tr>
                           <td colSpan={7} className="px-4 py-8 text-center text-[var(--dash-text-muted)]">
-                            Ma'lumot topilmadi
+                            {tt("Ma'lumot topilmadi", "Данные не найдены")}
                           </td>
                         </tr>
                       ) : (
@@ -158,7 +159,7 @@ export default function OrganizationsListModal({ isOpen, onClose, to, accountId 
                                 onClick={() => setSelectedOrg(r)}
                                 className="px-2.5 py-1 text-[11px] font-medium rounded-md bg-primary hover:bg-primary-hover text-primary-foreground transition"
                               >
-                                Batafsil
+                                {tt("Batafsil", "Подробнее")}
                               </button>
                             </td>
                           </tr>
@@ -179,11 +180,11 @@ export default function OrganizationsListModal({ isOpen, onClose, to, accountId 
               <div className="flex gap-2">
                 <button disabled={!meta.backPage} onClick={() => setPage((p) => p - 1)}
                   className="dash-btn dash-btn-secondary">
-                  Oldingi
+                  {tt("Oldingi", "Предыдущая")}
                 </button>
                 <button disabled={!meta.nextPage} onClick={() => setPage((p) => p + 1)}
                   className="dash-btn dash-btn-secondary">
-                  Keyingi
+                  {tt("Keyingi", "Следующая")}
                 </button>
               </div>
             </div>

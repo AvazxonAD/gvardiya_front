@@ -159,7 +159,7 @@ function AdminMonitoring() {
       <div className="my-10 flex gap-x-3">
         <div className="w-1/2">
           <h2 className="font-[600]">
-            {tt("Top 10 gvardiya hodimlari", "Топ 10 сотрудников гвардии")}
+            {tt("Top 10 gvardiya xodimlari", "Топ 10 сотрудников гвардии")}
           </h2>
           <div className="mt-3">
             <Table
@@ -169,7 +169,7 @@ function AdminMonitoring() {
                   text: tt("Viloyat nomi", "Название региона"),
                   className: " py-[4px]",
                 },
-                { text: tt("FIO", "ФИО"), className: " py-[4px]" },
+                { text: tt("F.I.Sh.", "ФИО"), className: " py-[4px]" },
                 {
                   text: tt("Topshiriq vaqti (soat)", "Время задачи (часов)"),
                   className: "w-[200px] py-[4px]",

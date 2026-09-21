@@ -465,7 +465,7 @@ export default function RegionDashboard() {
 
         <DonutCard
           title={tt(
-            "Muddatli harbiy hizmatchilar kesimida",
+            "Muddatli harbiy xizmatchilar kesimida",
             "В разрезе военнослужащих срочной службы"
           )}
           subtitle={tt(
@@ -501,7 +501,7 @@ export default function RegionDashboard() {
           loading={loading}
           slices={incomeSlices}
           centerValue={compactSum(incomeTotal)}
-          centerLabel={tt("jami kirim", "всего приход")}
+          centerLabel={tt("jami kirim", "всего поступило")}
           /* Ulush yorliqning o'zida ko'rsatilgan (65%, 25%) — hisoblangan
              foizni ham qo'shsak, ikkita raqam bir-biriga ziddek ko'rinadi */
           showPercent={false}

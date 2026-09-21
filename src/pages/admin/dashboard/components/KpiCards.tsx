@@ -1,4 +1,5 @@
 import { KpiData, ContractType } from "../types";
+import { tt } from "../../../../utils";
 
 interface KpiCardProps {
   title: string;
@@ -23,11 +24,11 @@ function KpiCard({ title, count, amount, borderColor, icon, onDetail }: KpiCardP
         </p>
         <div className="flex items-baseline gap-4">
           <div>
-            <span className="text-[10px] text-[var(--dash-text-muted)] uppercase tracking-wider">Soni</span>
+            <span className="text-[10px] text-[var(--dash-text-muted)] uppercase tracking-wider">{tt("Soni", "Количество")}</span>
             <p className="text-[22px] font-bold text-[var(--dash-text)] leading-none">{count || 0}</p>
           </div>
           <div>
-            <span className="text-[10px] text-[var(--dash-text-muted)] uppercase tracking-wider">Summasi</span>
+            <span className="text-[10px] text-[var(--dash-text-muted)] uppercase tracking-wider">{tt("Summasi", "Сумма")}</span>
             <p className="text-[15px] font-semibold text-[var(--dash-text-secondary)] leading-none mt-0.5">{formatAmount(amount)}</p>
           </div>
         </div>
@@ -37,7 +38,7 @@ function KpiCard({ title, count, amount, borderColor, icon, onDetail }: KpiCardP
           {icon}
         </div>
         <button onClick={onDetail} className="text-[10px] text-primary hover:text-primary font-medium flex items-center gap-1 border border-primary/30/40 hover:border-primary/30/60 rounded-md px-2.5 py-1 transition">
-          Batafsil
+          {tt("Batafsil", "Подробнее")}
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
           </svg>
@@ -50,7 +51,7 @@ function KpiCard({ title, count, amount, borderColor, icon, onDetail }: KpiCardP
 export default function KpiCards({ data, onDetail }: { data: KpiData; onDetail: (type: ContractType) => void }) {
   const cards: KpiCardProps[] = [
     {
-      title: "Jami shartnomalar",
+      title: tt("Jami shartnomalar", "Всего договоров"),
       count: data.all.count,
       amount: data.all.summa,
       borderColor: "border-l-success",
@@ -62,7 +63,7 @@ export default function KpiCards({ data, onDetail }: { data: KpiData; onDetail: 
       ),
     },
     {
-      title: "Puli to'lab berilgan shartnomalar",
+      title: tt("Puli to'lab berilgan shartnomalar", "Оплаченные договоры"),
       count: data.paid.count,
       amount: data.paid.summa,
       borderColor: "border-l-success",
@@ -74,7 +75,7 @@ export default function KpiCards({ data, onDetail }: { data: KpiData; onDetail: 
       ),
     },
     {
-      title: "Qarzdorligi bor shartnomalar",
+      title: tt("Qarzdorligi bor shartnomalar", "Договоры с задолженностью"),
       count: data.debt.count,
       amount: data.debt.summa,
       borderColor: "border-l-rose-500",

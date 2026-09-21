@@ -6,7 +6,7 @@ function Tashkilot() {
     <div>
       <Spr
         title={tt("Tashkilot rahbari", "Руководитель организации")}
-        titleT={tt("Rahbar", "Лидер")}
+        titleT={tt("Rahbar", "Руководитель")}
        
         path={"boss"}
         text={"boss"}

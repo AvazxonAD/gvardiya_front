@@ -97,7 +97,7 @@ const BatalonUser: React.FC = () => {
       batalon_id: "",
     },
     validationSchema: Yup.object({
-      fio: Yup.string().required(tt("FIO kiriting", "Введите ФИО")),
+      fio: Yup.string().required(tt("F.I.Sh. kiriting", "Введите ФИО")),
       password: Yup.string()
         .min(
           8,
@@ -110,7 +110,7 @@ const BatalonUser: React.FC = () => {
       login: Yup.string().required(tt("Login kiriting", "Введите логин")),
       file: Yup.mixed().nullable(),
       batalon_id: Yup.number().required(
-        tt("Hududni tanlang", "Выберите Баталон")
+        tt("Batalonni tanlang", "Выберите батальон")
       ),
     }),
     onSubmit: async (values, { resetForm }) => {
@@ -162,7 +162,7 @@ const BatalonUser: React.FC = () => {
       file: null as File | null,
     },
     validationSchema: Yup.object({
-      fio: Yup.string().required(tt("FIO kiriting", "Введите ФИО")),
+      fio: Yup.string().required(tt("F.I.Sh. kiriting", "Введите ФИО")),
       // Tahrirlashda parol ixtiyoriy: bo'sh qoldirilsa mavjudi saqlanadi.
       password: Yup.string().min(
         8,
@@ -173,7 +173,7 @@ const BatalonUser: React.FC = () => {
       ),
       login: Yup.string().required(tt("Login kiriting", "Введите логин")),
       batalon_id: Yup.number().required(
-        tt("Hududni tanlang", "Выберите Баталон")
+        tt("Batalonni tanlang", "Выберите батальон")
       ),
     }),
     onSubmit: async (
@@ -253,7 +253,7 @@ const BatalonUser: React.FC = () => {
           <Table
             thead={[
               { text: tt("Rasm", "Фото"), className: "w-[90px] text-center" },
-              { text: tt("FIO", "ФИО"), className: "min-w-[220px]" },
+              { text: tt("F.I.Sh.", "ФИО"), className: "min-w-[220px]" },
               { text: tt("Batalon", "Батальон"), className: "min-w-[160px]" },
               { text: tt("Login", "Логин"), className: "min-w-[140px]" },
               { text: tt("Amallar", "Действия"), className: "w-[110px] text-center" },
@@ -331,7 +331,7 @@ const BatalonUser: React.FC = () => {
           <div className="mb-4 w-full">
             <Input
               n="fio"
-              label={tt("FIO", "ФИО")}
+              label={tt("F.I.Sh.", "ФИО")}
               v={formik2.values.fio}
               change={formik2.handleChange}
               blur={formik2.handleBlur}
@@ -379,8 +379,8 @@ const BatalonUser: React.FC = () => {
               onChange={(value: number) =>
                 formik2.setFieldValue("batalon_id", value)
               }
-              label={tt("Batalon", "Баталон")}
-              p={tt("Batalon tanlang", "Выберите баталон")}
+              label={tt("Batalon", "Батальон")}
+              p={tt("Batalon tanlang", "Выберите батальон")}
               error={
                 formik2.touched?.batalon_id
                   ? formik2.errors.batalon_id
@@ -454,7 +454,7 @@ const BatalonUser: React.FC = () => {
           <div className="mb-4 w-full">
             <Input
               n="fio"
-              label={tt("FIO", "ФИО")}
+              label={tt("F.I.Sh.", "ФИО")}
               v={formik.values.fio}
               change={formik.handleChange}
               blur={formik.handleBlur}
@@ -496,8 +496,8 @@ const BatalonUser: React.FC = () => {
               onChange={(value: number) =>
                 formik.setFieldValue("batalon_id", value)
               }
-              label={tt("Batalon", "Баталон")}
-              p={tt("Batalon tanlang", "Выберите Баталон")}
+              label={tt("Batalon", "Батальон")}
+              p={tt("Batalon tanlang", "Выберите батальон")}
               error={
                 formik.touched?.batalon_id
                   ? formik.errors.batalon_id

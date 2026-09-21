@@ -1,3 +1,5 @@
+import { tt } from "@/utils";
+
 interface DateRangePickerProps {
   from: string;
   to: string;
@@ -8,7 +10,7 @@ export default function DateRangePicker({ from, to, onChange }: DateRangePickerP
   return (
     <div className="flex items-center gap-3 flex-wrap">
       <div className="flex items-center gap-2">
-        <label className="text-[12px] text-[var(--dash-text-secondary)] font-medium">Dan:</label>
+        <label className="text-[12px] text-[var(--dash-text-secondary)] font-medium">{tt("Dan:", "С:")}</label>
         <input
           type="date"
           value={from}
@@ -17,7 +19,7 @@ export default function DateRangePicker({ from, to, onChange }: DateRangePickerP
         />
       </div>
       <div className="flex items-center gap-2">
-        <label className="text-[12px] text-[var(--dash-text-secondary)] font-medium">Gacha:</label>
+        <label className="text-[12px] text-[var(--dash-text-secondary)] font-medium">{tt("Gacha:", "По:")}</label>
         <input
           type="date"
           value={to}

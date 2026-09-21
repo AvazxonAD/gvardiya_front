@@ -229,8 +229,8 @@ export const EditRasxodFio = () => {
       dispatch(
         alertt({
           text: tt(
-            "Hozirda mavjud bo'lmagan ustamalarni tanlagansiz ularni tanlanishdan olib tashlang",
-            "Если вы уже выбрали расширения, которые в данный момент недоступны, отмените их выбор."
+            "Hozirda mavjud bo'lmagan ustamalarni tanlagansiz, ularni tanlovdan olib tashlang",
+            "Вы выбрали недоступные надбавки — снимите их выбор."
           ),
         })
       );
@@ -312,7 +312,7 @@ export const EditRasxodFio = () => {
               success: true,
               text: tt(
                 "O'zgartirish muvaffaqiyatli bajarildi!",
-                "Смена прошла успешно!"
+                "Изменения сохранены!"
               ),
             })
           );
@@ -500,7 +500,7 @@ export const EditRasxodFio = () => {
           <BackButton />
         </div>
         <h1 className="font-[700] text-foreground text-[20px] block ms-8">
-          {tt("Сhiqim FIO tahrirlash ", "Изменить расхода ФИО")}
+          {tt("Chiqim F.I.Sh. tahrirlash", "Редактирование расхода по Ф.И.О.")}
         </h1>
         <div className="flex ml-[53px] gap-[32px] items-center">
           {/* {ustamaData?.map((item: UstamaInterFaceEdited, index: number) => (
@@ -523,7 +523,7 @@ export const EditRasxodFio = () => {
       {/* <SimpleText txt="To'lov hujjatlari" /> */}
       <div className="flex items-center gap-x-5 mt-5">
         <div className="flex items-center gap-x-5">
-          <h5 className="font-[600]">{tt("Hujjat №", "Документ №")}</h5>
+          <h5 className="font-[600]">{tt("Hujjat №", "№ документа")}</h5>
           <Input
             v={docNum ?? currentPrixod?.contract_doc_num ?? ""}
             change={(e: ChangeEvent<HTMLInputElement>) =>
@@ -589,7 +589,7 @@ export const EditRasxodFio = () => {
         </div>
         <div className="border w-1/2 p-3 bg-card">
           <SimpleText
-            txt={tt("Тo'lovchi ma’lumotlari", "Информация о плательщике")}
+            txt={tt("To'lovchi ma'lumotlari", "Информация о плательщике")}
           />
           <div>
             {recipient.map((e, ind) => (
@@ -643,22 +643,22 @@ export const EditRasxodFio = () => {
             }
             search={true}
             p={tt(
-              "Shartnoma №, tashkilot, FIO",
-              "№ контракта, организация, ФИО"
+              "Shartnoma №, tashkilot, F.I.Sh.",
+              "№ договора, организация, Ф.И.О."
             )}
             className="w-full"
           />
         </div>
         <SpecialDatePicker
-          label={tt("dan", latinToCyrillic("dan"))}
+          label={tt("dan", "с")}
           ru={"от"}
           defaultValue={rasxodfromdate}
           onChange={setRasxodFromDate}
         />
 
         <SpecialDatePicker
-          label={tt("gacha", latinToCyrillic("do"))}
-          ru={latinToCyrillic("do")}
+          label={tt("gacha", "по")}
+          ru="по"
           defaultValue={rasxodtodate}
           onChange={setRasxodToDate}
         />

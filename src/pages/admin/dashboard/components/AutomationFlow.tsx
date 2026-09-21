@@ -1,7 +1,9 @@
+import { tt } from "@/utils";
+
 const steps = [
   {
-    label: "1-qadam",
-    title: "Tadbir kiritish",
+    label: tt("1-qadam", "Шаг 1"),
+    title: tt("Tadbir kiritish", "Добавление мероприятия"),
     percent: "90%",
     percentColor: "text-warning",
     iconBg: "bg-primary/20",
@@ -14,8 +16,8 @@ const steps = [
     titleClass: "font-medium",
   },
   {
-    label: "2-qadam",
-    title: "Xodimlar biriktirish",
+    label: tt("2-qadam", "Шаг 2"),
+    title: tt("Xodimlar biriktirish", "Прикрепление сотрудников"),
     percent: "70%",
     percentColor: "text-warning",
     iconBg: "bg-primary/20",
@@ -28,8 +30,8 @@ const steps = [
     titleClass: "font-medium",
   },
   {
-    label: "3-qadam",
-    title: "Avtomatik Formula",
+    label: tt("3-qadam", "Шаг 3"),
+    title: tt("Avtomatik formula", "Автоматическая формула"),
     percent: "100%",
     percentColor: "text-success",
     iconBg: "bg-teal-500/20",
@@ -42,8 +44,8 @@ const steps = [
     titleClass: "font-bold",
   },
   {
-    label: "Natija",
-    title: "Hisoblangan summa",
+    label: tt("Natija", "Результат"),
+    title: tt("Hisoblangan summa", "Начисленная сумма"),
     percent: "100%",
     percentColor: "text-success",
     iconBg: "bg-primary/20",
@@ -67,7 +69,7 @@ export default function AutomationFlow() {
   return (
     <div className="dash-glass p-[16px] relative overflow-hidden flex flex-col justify-center">
       <h2 className="text-[16px] font-semibold mb-2 text-primary">
-        Inson omilini kamaytirish mexanizmi (Avtomatlashtirish)
+        {tt("Inson omilini kamaytirish mexanizmi (Avtomatlashtirish)", "Механизм снижения человеческого фактора (автоматизация)")}
       </h2>
 
       <div className="flex flex-col md:flex-row items-center justify-between gap-[8px]">

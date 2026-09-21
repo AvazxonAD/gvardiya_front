@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { tt } from "@/utils";
 import { useSelector } from "react-redux";
 import { RootState } from "@/Redux/store";
 import { Chart, BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
@@ -84,7 +85,7 @@ export default function OrganizationDebtChart() {
       data: {
         labels,
         datasets: [{
-          label: "Qarz summasi",
+          label: tt("Qarz summasi", "Сумма долга"),
           data: debts,
           backgroundColor: bgColors,
           borderRadius: 0, // rasmiy uslub — to'rtburchak ustunlar
@@ -145,7 +146,7 @@ export default function OrganizationDebtChart() {
       <div className="dash-glass p-[12px] flex flex-col min-h-[320px]">
         <div className="flex items-center justify-between mb-1 gap-2 flex-wrap">
           <h2 className="text-[14px] font-semibold text-[var(--dash-text)]">
-            Tashkilotlar qarzdorligi
+            {tt("Tashkilotlar qarzdorligi", "Задолженность организаций")}
           </h2>
           <span className="text-[12px] font-bold text-rose-500">
             Jami qarz: {formatAmount(d.total_debt)}
@@ -162,7 +163,7 @@ export default function OrganizationDebtChart() {
               onChange={(e) => setAccountId(e.target.value ? Number(e.target.value) : "")}
               className="dash-control"
             >
-              <option value="">Barcha hisob raqamlar</option>
+              <option value="">{tt("Barcha hisob raqamlar", "Все счета")}</option>
               {accounts.map((a) => (
                 <option key={a.id} value={a.id}>{a.account_number}</option>
               ))}
@@ -171,7 +172,7 @@ export default function OrganizationDebtChart() {
               onClick={() => setModalOpen(true)}
               className="dash-btn dash-btn-primary"
             >
-              Batafsil
+              {tt("Batafsil", "Подробнее")}
             </button>
           </div>
         </div>
@@ -183,7 +184,7 @@ export default function OrganizationDebtChart() {
             </div>
           ) : d.rows.length === 0 ? (
             <div className="absolute inset-0 flex items-center justify-center text-[12px] text-[var(--dash-text-muted)]">
-              Qarzdorlik topilmadi
+              {tt("Qarzdorlik topilmadi", "Задолженности не найдены")}
             </div>
           ) : (
             <canvas ref={canvasRef} />

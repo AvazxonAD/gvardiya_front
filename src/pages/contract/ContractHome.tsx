@@ -1,6 +1,7 @@
 /** @format */
 
 import { useEffect, useState } from "react";
+import { usePagedFetch } from "@/hooks/usePagedFetch";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Input from "../../Components/Input";
@@ -107,20 +108,24 @@ function ContractHome() {
   };
 
   // Filtrlar o'zgarishi bilan ro'yxat o'zi yangilanadi — alohida
-  // "Yuklash" tugmasi kerak emas.
-  useEffect(() => {
-    getInfo(dates);
-  }, [
-    currentPage,
-    limet,
-    searchText,
-    account_id,
-    status,
-    statusSumma,
-    rasxodStatus,
-    dates.date1,
-    dates.date2,
-  ]);
+  // "Yuklash" tugmasi kerak emas. Filtr o'zgarsa 1-sahifaga qaytadi:
+  // aks holda 5-sahifada turib filtr qo'yilsa, natija kamayib, bo'sh
+  // sahifa ko'rinardi.
+  usePagedFetch({
+    page: currentPage,
+    setPage: setCurrentPage,
+    filters: [
+      limet,
+      searchText,
+      account_id,
+      status,
+      statusSumma,
+      rasxodStatus,
+      dates.date1,
+      dates.date2,
+    ],
+    fetch: () => getInfo(dates),
+  });
 
   const deleteInfo = async () => {
     const res = await deleteCont(JWT, active, account_id);
@@ -364,7 +369,7 @@ function ContractHome() {
                   tone="danger"
                 />
                 <SummaryTile
-                  label={tt("Rasxod summa", "Сумма расхода")}
+                  label={tt("Chiqim summasi", "Сумма расхода")}
                   value={formatSum(balance.rasxod_summa) || "0"}
                 />
               </SummaryRow>
@@ -387,7 +392,7 @@ function ContractHome() {
       <Modal
         open={open}
         closeModal={() => setOpen(false)}
-        title={tt("Tushumlar", "Квитанции")}
+        title={tt("Tushumlar", "Поступления")}
       >
         <form onSubmit={handleCreateTushum} className="flex flex-col gap-3">
           <div className="flex flex-col gap-2 text-[12px] leading-[14.52px] font-[600] text-muted-foreground">
@@ -405,7 +410,7 @@ function ContractHome() {
             }
             tush
             p={tt("Summa kiriting", "Введите сумму")}
-            label={tt("Summasi (so’m)", "Сумма (Сум)")}
+            label={tt("Summasi (so'm)", "Сумма (сум)")}
           />
 
           <div className="mt-5 flex justify-end">

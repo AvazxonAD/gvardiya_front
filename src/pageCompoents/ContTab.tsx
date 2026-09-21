@@ -117,7 +117,7 @@ const ContTab: React.FC<ContTabProps> = ({
           { text: tt("Hisoblangan", "Начислено"), className: "text-right whitespace-normal leading-[1.15]" },
           { text: tt("Kelib tushgan", "Поступило"), className: "text-right whitespace-normal leading-[1.15]" },
           { text: tt("Qarzdorlik", "Задолженность"), className: "text-right whitespace-normal leading-[1.15]" },
-          { text: tt("Rasxod", "Расход"), className: "text-right whitespace-normal leading-[1.15]" },
+          { text: tt("Chiqim", "Расход"), className: "text-right whitespace-normal leading-[1.15]" },
           { text: tt("Xodim", "Сотрудник"), className: "text-center whitespace-normal leading-[1.15]" },
           { text: tt("Boshliq T", "Утв. рук."), className: "text-center whitespace-normal leading-[1.15]" },
           { text: tt("Yurist T", "Утв. юр."), className: "text-center whitespace-normal leading-[1.15]" },

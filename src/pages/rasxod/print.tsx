@@ -15,26 +15,26 @@ const RasxodForPrint = React.forwardRef<HTMLDivElement, Props>(
         return (
             <div className="text-black text-sm leading-5" ref={ref}>
                 <h1 className="text-center font-bold text-lg mb-4">
-                    {tt("Xamkor tashkilotlar uchun qilingan chiqimlar", "Расходы на партнерские организации")}
+                    {tt("Hamkor tashkilotlar uchun qilingan chiqimlar", "Расходы на партнёрские организации")}
                 </h1>
                 <h3 className="text-left font-bold text-sm mb-4 ms-4">
-                    {formatDate(fromDate)} {tt("dan", "с")} {formatDate(endDate)}{" "}
-                    {tt(" gacha bo'lgan chiqimlar, jami:", "до расходов, всего:")} {formatSum(totalSum)}
+                    {formatDate(fromDate)} {tt("dan", "—")} {formatDate(endDate)}{" "}
+                    {tt(" gacha bo'lgan chiqimlar, jami:", "расходы, итого:")} {formatSum(totalSum)}
                 </h3>
                 <table className="table-auto border-collapse border border-gray-400 w-full">
                     <thead>
                         <tr className="bg-gray-200">
                             <th className="border border-gray-400 px-4 py-2">
-                                {tt("Hujjat №", "Номер документа")}
+                                {tt("Hujjat №", "№ документа")}
                             </th>
                             <th className="border border-gray-400 px-4 py-2">
                                 {tt("Hujjat sanasi", "Дата документа")}
                             </th>
                             <th className="border border-gray-400 px-4 py-2">
-                                {tt("Xamkor tashkilot", "Организация партнера")}
+                                {tt("Hamkor tashkilot", "Организация-партнёр")}
                             </th>
                             <th className="border border-gray-400 px-4 py-2">
-                                {tt("Xamkor INN", "ИНН партнера")}
+                                {tt("Hamkor INN", "ИНН партнёра")}
                             </th>
                             <th className="border border-gray-400 px-4 py-2 text-right">
                                 {tt("To'langan pul mablag'i", "Оплаченные средства")}

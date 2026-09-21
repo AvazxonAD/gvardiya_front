@@ -77,19 +77,19 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
               <tr className="text-foreground">
                 <th className="px-4 py-3 text-left w-[60px]">{tt("№", "№")}</th>
                 <th className="px-4 py-3 text-center w-[160px]">
-                  {tt("Shartnoma raqami", "Номер контракта")}
+                  {tt("Shartnoma raqami", "Номер договора")}
                 </th>
                 <th className="px-4 py-3 text-center w-[140px]">
                   {tt("Xodimlar soni", "Количество сотрудников")}
                 </th>
                 <th className="px-4 py-3 text-center w-[180px]">
-                  {tt("Tadbir vaqti", "Время события")}
+                  {tt("Tadbir vaqti", "Время мероприятия")}
                 </th>
                 <th className="px-4 py-3 text-center w-[180px]">
-                  {tt("Umumiy vaqt ", "Время события")}
+                  {tt("Umumiy vaqt", "Общее время")}
                 </th>
                 <th className="px-4 py-3 text-center w-[180px]">
-                  {tt("Qolgan ", "Остальные")}
+                  {tt("Qolgan", "Остаток")}
                 </th>
                 <th className="px-4 py-3 text-center w-[180px]">
                   {tt("Topshiriq muddati", "Крайний срок выполнения задания")}
@@ -182,7 +182,7 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
           style={{ height: fullHeight }}
           className="w-full text-foreground dark:text-foreground font-[500] text-[20px] flex justify-center items-center bg-muted dark:bg-muted/60 rounded-lg"
         >
-          {tt("Malumot yo'q", "Нет ссылки")}
+          {tt("Ma'lumot yo'q", "Нет данных")}
         </div>
       )}
 

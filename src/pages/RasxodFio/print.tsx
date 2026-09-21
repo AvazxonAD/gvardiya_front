@@ -18,14 +18,14 @@ const RasxodFioForPrint = React.forwardRef<HTMLDivElement, Props>(
                     {tt("Batalonlar uchun qilingan chiqimlar", "Расходы по батальонам")}
                 </h1>
                 <h3 className="text-left font-bold text-sm mb-4 ms-4">
-                    {formatDate(fromDate)} {tt("dan", "с")} {formatDate(endDate)}{" "}
-                    {tt(" gacha bo'lgan chiqimlar, jami:", "до расходов, всего:")} {formatSum(totalSum)}
+                    {formatDate(fromDate)} {tt("dan", "—")} {formatDate(endDate)}{" "}
+                    {tt(" gacha bo'lgan chiqimlar, jami:", "расходы, итого:")} {formatSum(totalSum)}
                 </h3>
                 <table className="table-auto border-collapse border border-gray-400 w-full">
                     <thead>
                         <tr className="bg-gray-200">
                             <th className="border border-gray-400 px-4 py-2">
-                                {tt("Hujjat №", "Номер документа")}
+                                {tt("Hujjat №", "№ документа")}
                             </th>
                             <th className="border border-gray-400 px-4 py-2">
                                 {tt("Hujjat sanasi", "Дата документа")}

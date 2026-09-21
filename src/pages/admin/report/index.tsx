@@ -1,10 +1,11 @@
 import Paginatsiya from "@/Components/Paginatsiya";
+import { usePagedFetch } from "@/hooks/usePagedFetch";
 import Table from "@/Components/reusable/table/Table";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import useApi from "@/services/api";
 import { IReportAdmin } from "@/types/report";
 import { formatDate, formatInn, formatSum, textNum, tt } from "@/utils";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ListCard,
   SummaryRow,
@@ -60,10 +61,13 @@ const ReportAdmin: React.FC = () => {
     }
   };
 
-  // Sana oralig'i o'zgarganda hisobot o'zi yangilanadi
-  useEffect(() => {
-    fetchData();
-  }, [page, limit, startDate, endDate]);
+  // Sana oralig'i o'zgarganda hisobot yangilanadi va 1-sahifaga qaytadi
+  usePagedFetch({
+    page,
+    setPage,
+    filters: [limit, startDate, endDate],
+    fetch: fetchData,
+  });
 
   // Calculate full height for the component
 

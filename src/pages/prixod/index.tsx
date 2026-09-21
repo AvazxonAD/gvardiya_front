@@ -1,4 +1,5 @@
 import Icon from "@/assets/icons";
+import { usePagedFetch } from "@/hooks/usePagedFetch";
 import Input from "@/Components/Input";
 import Modal from "@/Components/Modal";
 import Paginatsiya from "@/Components/Paginatsiya";
@@ -87,20 +88,25 @@ const Prixod = () => {
     if (get?.success) setData(get as any);
   };
 
-  // Sana yoki qidiruv o'zgarganda ro'yxat o'zi yangilanadi
-  useEffect(() => {
-    if (!((startDate && endDate) || query)) return;
+  // Sana yoki qidiruv o'zgarganda ro'yxat yangilanadi va 1-sahifaga qaytadi
+  usePagedFetch({
+    page: currentPage,
+    setPage: setCurrentPage,
+    filters: [limet, query, startDate, endDate],
+    fetch: () => {
+      if (!((startDate && endDate) || query)) return;
 
-    // Kechikkan javob yangisining ustidan yozib yubormasin
-    let stale = false;
-    fetchPrixod().then((get) => {
-      if (!stale && get?.success) setData(get as any);
-    });
+      // Kechikkan javob yangisining ustidan yozib yubormasin
+      let stale = false;
+      fetchPrixod().then((get) => {
+        if (!stale && get?.success) setData(get as any);
+      });
 
-    return () => {
-      stale = true;
-    };
-  }, [currentPage, limet, query, startDate, endDate]);
+      return () => {
+        stale = true;
+      };
+    },
+  });
 
   const handleDelete = async () => {
     const remove: any = await api.remove(
@@ -267,7 +273,7 @@ const Prixod = () => {
               },
               {
                 className: "w-[200px]",
-                text: tt("Shartnoma №", "Договор №"),
+                text: tt("Shartnoma №", "№ договора"),
               },
               {
                 text: tt("O‘tkazma sanasi", "Дата проводки"),
@@ -283,7 +289,7 @@ const Prixod = () => {
               },
               { text: tt("Tavsiflar", "Описания") },
               {
-                text: tt("Amallar", "Действие"),
+                text: tt("Amallar", "Действия"),
                 className: "w-[50px]",
               },
             ]}

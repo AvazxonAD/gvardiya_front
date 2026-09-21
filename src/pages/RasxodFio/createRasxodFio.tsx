@@ -154,7 +154,7 @@ export const CreateRasxodFio = () => {
           dispatch(
             alertt({
               success: true,
-              text: tt("Chiqim FIO yaratildi!", "Создано успешно"),
+              text: tt("Chiqim F.I.Sh. yaratildi!", "Расход по Ф.И.О. создан!"),
             })
           );
         }
@@ -332,7 +332,7 @@ export const CreateRasxodFio = () => {
           <BackButton />
         </div>
         <h1 className="font-[700] text-[20px] block ms-8">
-          {tt("Сhiqim FIO yaratish ", "Создание расхода ФИО")}
+          {tt("Chiqim F.I.Sh. yaratish", "Создание расхода по Ф.И.О.")}
         </h1>
         <div className="flex ml-[53px] gap-[32px] items-center">
           {/* {ustamaData.map((item: UstamaInterFaceEdited, index: number) => (
@@ -354,7 +354,7 @@ export const CreateRasxodFio = () => {
       {/* <SimpleText txt="To'lov hujjatlari" /> */}
       <div className="flex items-center gap-x-5 mt-5">
         <div className="flex items-center gap-x-5">
-          <h5 className="font-[600]">{tt("Hujjat №", "Документ №")}</h5>
+          <h5 className="font-[600]">{tt("Hujjat №", "№ документа")}</h5>
           <Input
             v={docNum ?? ""}
             change={(e: ChangeEvent<HTMLInputElement>) =>
@@ -420,7 +420,7 @@ export const CreateRasxodFio = () => {
         </div>
         <div className="border w-1/2 p-3 bg-card">
           <SimpleText
-            txt={tt("Тo'lovchi ma’lumotlari", "Информация о плательщике")}
+            txt={tt("To'lovchi ma'lumotlari", "Информация о плательщике")}
           />
           <div>
             {recipient.map((e, ind) => (
@@ -472,22 +472,22 @@ export const CreateRasxodFio = () => {
             }
             search={true}
             p={tt(
-              "Shartnoma №, tashkilot, FIO",
-              "№ контракта, организация, ФИО"
+              "Shartnoma №, tashkilot, F.I.Sh.",
+              "№ договора, организация, Ф.И.О."
             )}
             className="w-full"
           />
         </div>
         <SpecialDatePicker
-          label={tt("dan", latinToCyrillic("dan"))}
+          label={tt("dan", "с")}
           ru={"от"}
           defaultValue={rasxodfromdate}
           onChange={setRasxodFromDate}
         />
 
         <SpecialDatePicker
-          label={tt("gacha", latinToCyrillic("do"))}
-          ru={latinToCyrillic("do")}
+          label={tt("gacha", "по")}
+          ru="по"
           defaultValue={rasxodtodate}
           onChange={setRasxodToDate}
         />

@@ -7,7 +7,7 @@ import Modal from "../Components/Modal";
 import BatTab from "../pageCompoents/BatTab";
 import ChangeSelect from "../pageCompoents/ChangeSelect";
 import { alertt } from "../Redux/LanguageSlice";
-import { latinToCyrillic, tt } from "../utils";
+import { tt } from "../utils";
 import { formatAccountNumber } from "./Organisation";
 import { Plus } from "lucide-react";
 import {
@@ -212,8 +212,8 @@ function Batalon() {
                 change={handleChange}
                 v={value.name}
                 n="name"
-                label={tt("Nomi", "Имя")}
-                p={tt("Nom kiriting", "Введите имя")}
+                label={tt("Nomi", "Название")}
+                p={tt("Nom kiriting", "Введите название")}
               />
               <Input
                 change={handleChange}
@@ -244,14 +244,14 @@ function Batalon() {
                 v={value.mfo}
                 n="mfo"
                 t="number"
-                label={tt("MFO", latinToCyrillic("MFO"))}
-                p={tt("MFO kiriting", "Введите информацию")}
+                label={tt("MFO", "МФО")}
+                p={tt("MFO kiriting", "Введите МФО")}
               />
               <Input
                 change={handleChange}
                 v={value.account_number}
                 n="account_number"
-                label={tt("Hisob raqam", "Счет номер")}
+                label={tt("Hisob raqam", "Номер счета")}
                 p={tt("Hisob raqam kiriting", "Введите номер счета")}
               />
             </div>
@@ -284,8 +284,8 @@ function Batalon() {
                 change={handleChangeEdit}
                 v={value2.name}
                 n="name"
-                label={tt("Nomi", "Имя")}
-                p={tt("Nom kiriting", "Введите имя")}
+                label={tt("Nomi", "Название")}
+                p={tt("Nom kiriting", "Введите название")}
               />
               <Input
                 change={handleChangeEdit}
@@ -309,21 +309,21 @@ function Batalon() {
                 v={value2.bank_name}
                 n="bank_name"
                 label={tt("Bank nomi", "Название банка")}
-                p={tt("Bank nomi kiritng", "Введите название банка")}
+                p={tt("Bank nomi kiriting", "Введите название банка")}
               />
               <Input
                 change={handleChangeEdit}
                 v={value2.mfo}
                 n="mfo"
                 t="number"
-                label={tt("MFO", latinToCyrillic("MFO"))}
-                p={tt("MFO kiriting", "Введите информацию")}
+                label={tt("MFO", "МФО")}
+                p={tt("MFO kiriting", "Введите МФО")}
               />
               <Input
                 change={handleChangeEdit}
                 v={value2.account_number}
                 n="account_number"
-                label={tt("Hisob raqam", "Счет номер")}
+                label={tt("Hisob raqam", "Номер счета")}
                 p={tt("Hisob raqam kiriting", "Введите номер счета")}
               />
             </div>

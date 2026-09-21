@@ -6,20 +6,20 @@ import React from "react";
 import { TableItem } from "../rasxod/rasxodcreateTable";
 
 const tablehead = [
-  { name: tt("Shartnoma №", "№ контракта"), className: "text-left" },
+  { name: tt("Shartnoma №", "№ договора"), className: "text-left" },
   { name: tt("Sana", "Дата"), className: "text-left" },
   { name: tt("Tashkilot", "Организация"), className: "text-left w-[170px] max-w-[170px]" },
-  { name: tt("FIO", "ФИО"), className: "text-left" },
+  { name: tt("F.I.Sh.", "ФИО"), className: "text-left" },
   { name: tt("Vaqt", "Время"), className: "text-center" },
-  { name: tt("Jami (100%)", "Жами (100%)"), className: "text-right min-w-[110px]" },
-  { name: tt("Boshqarma (10%)", "Бошқарма (10%)"), className: "text-right min-w-[110px]" },
-  { name: tt("Qolgan (90%)", "Қолган (90%)"), className: "text-right min-w-[110px]" },
-  { name: tt("Moddiy baza (65%)", "Моддий база (65%)"), className: "text-right min-w-[110px]" },
-  { name: tt("I-II guruh (25%)", "I-II гурух (25%)"), className: "text-right min-w-[110px]" },
-  { name: tt("Shaxsiy tarkib", "Шахсий таркиб"), className: "text-right min-w-[110px]" },
-  { name: tt("Ijtimoiy soliq (25%)", "Ижтимоий солиқ (25%)"), className: "text-right min-w-[110px]" },
-  { name: tt("Daromad solig’i (12%)", "Даромад солиғи (12%)"), className: "text-right min-w-[110px]" },
-  { name: tt("Kartaga o’tkazildi", "Картага ўтказилди"), className: "text-right min-w-[110px]" },
+  { name: tt("Jami (100%)", "Всего (100%)"), className: "text-right min-w-[110px]" },
+  { name: tt("Boshqarma (10%)", "Управление (10%)"), className: "text-right min-w-[110px]" },
+  { name: tt("Qolgan (90%)", "Остаток (90%)"), className: "text-right min-w-[110px]" },
+  { name: tt("Moddiy baza (65%)", "Материальная база (65%)"), className: "text-right min-w-[110px]" },
+  { name: tt("I-II guruh (25%)", "I-II группы (25%)"), className: "text-right min-w-[110px]" },
+  { name: tt("Shaxsiy tarkib", "Личный состав"), className: "text-right min-w-[110px]" },
+  { name: tt("Ijtimoiy soliq (25%)", "Социальный налог (25%)"), className: "text-right min-w-[110px]" },
+  { name: tt("Daromad solig'i (12%)", "Налог на доходы (12%)"), className: "text-right min-w-[110px]" },
+  { name: tt("Kartaga o'tkazildi", "Перечислено на карту"), className: "text-right min-w-[110px]" },
 ];
 
 interface Props {

@@ -1,6 +1,7 @@
 /** @format */
 
 import { useEffect, useRef, useState } from "react";
+import { usePagedFetch } from "@/hooks/usePagedFetch";
 import { useDispatch, useSelector } from "react-redux";
 import {
   CreateBatalonWorker,
@@ -78,15 +79,12 @@ function Workers() {
   };
   // Starting at page 2 for example
 
-  useEffect(() => {
-    // If search or filter changes and we're not on page 1, reset to page 1
-    if ((searchId || searchingText) && currentPage !== 1) {
-      setCurrentPage(1);
-    } else {
-      // Only fetch data if we're not in the middle of resetting the page
-      getInfo();
-    }
-  }, [currentPage, limet, searchId, searchingText]);
+  usePagedFetch({
+    page: currentPage,
+    setPage: setCurrentPage,
+    filters: [limet, searchId, searchingText],
+    fetch: getInfo,
+  });
 
   const closeModal = () => {
     setOpen(false);
@@ -209,9 +207,11 @@ function Workers() {
   });
   const onPrintClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    const get = await api.get(`batalon/worker/?page=1&limit=1000000000000000`);
+    const get: any = await api.get(`batalon/worker/?page=1&limit=1000000000000000`);
     if (get?.success) {
-      setForPdf(get as any);
+      // `total` javobning `meta` qismida keladi — ilgari butun javob
+      // berilib, bosma varaqning oxirida "undefinedta" deb chiqardi.
+      setForPdf({ total: get.meta?.count ?? get.data?.length ?? 0, data: get.data });
     }
   };
 
@@ -301,12 +301,12 @@ function Workers() {
               v={value.fio}
               change={(e: any) => setValue({ ...value, fio: e.target.value })}
               label={tt(
-                "Ism, familya, otasining ismi",
-                "Имя, фамилия, отчество"
+                "Familiya, ism, otasining ismi",
+                "Фамилия, имя, отчество"
               )}
               p={tt(
-                "Ism, familya, otasining ismini kiriting",
-                "Введите имя, фамилия и отчество"
+                "Familiya, ism, otasining ismini kiriting",
+                "Введите фамилию, имя и отчество"
               )}
             />
             <Input
@@ -341,7 +341,7 @@ function Workers() {
       <Modal
         open={open2}
         closeModal={() => setOpen2(false)}
-        title={tt("Xodim tahrirlash", "Сотрудник править")}
+        title={tt("Xodim tahrirlash", "Редактировать сотрудника")}
       >
         <form onSubmit={editInfo}>
           <div className="flex gap-3 flex-col w-full">
@@ -349,12 +349,12 @@ function Workers() {
               v={value2.fio}
               change={(e: any) => setValue2({ ...value2, fio: e.target.value })}
               label={tt(
-                "Ism, familya, otasining ismi",
-                "Имя, фамилия, отчество"
+                "Familiya, ism, otasining ismi",
+                "Фамилия, имя, отчество"
               )}
               p={tt(
-                "Ism, familya, otasining ismini kiriting",
-                "Введите имя, фамилия и отчество"
+                "Familiya, ism, otasining ismini kiriting",
+                "Введите фамилию, имя и отчество"
               )}
               className="w-full"
             />

@@ -368,7 +368,7 @@ const ContractPage = () => {
               qolmaydi. */}
           <div className="my-6 rounded-lg border border-border bg-card p-4">
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <Field label={tt("Shartnoma raqam", "Номер контракта")}>
+              <Field label={tt("Shartnoma raqami", "Номер договора")}>
                 <Input
                   name="doc_num"
                   value={contract.doc_num ?? ""}
@@ -383,7 +383,7 @@ const ContractPage = () => {
 
               <DateInput
                 className="w-full"
-                label={tt("Shartnoma sanasi", "Дата контракта")}
+                label={tt("Shartnoma sanasi", "Дата договора")}
                 name="doc_date"
                 defaultValue={contract.doc_date}
                 onChange={(event) =>

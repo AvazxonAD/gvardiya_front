@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { tt } from "../../../../utils";
 import { RegionApiData } from "../types";
 
 interface RegionModalProps {
@@ -55,19 +56,19 @@ export default function RegionModal({ isOpen, onClose, regionsData, selectedRegi
 
         <div className="grid grid-cols-3 gap-3 px-5 py-4 shrink-0" style={{ borderBottom: "1px solid var(--dash-modal-border)" }}>
           {[
-            { label: "Jami shartnomalar", count: totals.allCount, summa: totals.allSumma, border: "border-l-success", color: "" },
-            { label: "Puli to'lab berilgan", count: totals.paidCount, summa: totals.paidSumma, border: "border-l-success", color: "text-success" },
-            { label: "Qarzdorligi bor", count: totals.debtCount, summa: totals.debtSumma, border: "border-l-rose-500", color: "text-rose-500" },
+            { label: tt("Jami shartnomalar", "Всего договоров"), count: totals.allCount, summa: totals.allSumma, border: "border-l-success", color: "" },
+            { label: tt("Puli to'lab berilgan", "Оплаченные"), count: totals.paidCount, summa: totals.paidSumma, border: "border-l-success", color: "text-success" },
+            { label: tt("Qarzdorligi bor", "С задолженностью"), count: totals.debtCount, summa: totals.debtSumma, border: "border-l-rose-500", color: "text-rose-500" },
           ].map((card, i) => (
             <div key={i} className={`rounded-xl p-3 border-l-[3px] ${card.border}`} style={{ background: "var(--dash-table-row-alt)" }}>
               <p className="text-[10px] text-[var(--dash-text-muted)] uppercase tracking-wider">{card.label}</p>
               <div className="flex items-baseline gap-3 mt-1">
                 <div>
-                  <span className="text-[10px] text-[var(--dash-text-muted)]">Soni</span>
+                  <span className="text-[10px] text-[var(--dash-text-muted)]">{tt("Soni", "Количество")}</span>
                   <p className={`text-[20px] font-bold leading-none ${card.color || "text-[var(--dash-text)]"}`}>{card.count}</p>
                 </div>
                 <div>
-                  <span className="text-[10px] text-[var(--dash-text-muted)]">Summasi</span>
+                  <span className="text-[10px] text-[var(--dash-text-muted)]">{tt("Summasi", "Сумма")}</span>
                   <p className={`text-[14px] font-semibold leading-none mt-0.5 ${card.color || "text-[var(--dash-text-secondary)]"}`}>{formatAmount(card.summa)}</p>
                 </div>
               </div>
@@ -81,13 +82,13 @@ export default function RegionModal({ isOpen, onClose, regionsData, selectedRegi
               <thead style={{ background: "var(--dash-table-header-bg)" }}>
                 <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
                   <th className="px-4 py-3 font-semibold">№</th>
-                  <th className="px-4 py-3 font-semibold">Viloyat</th>
-                  <th className="px-4 py-3 font-semibold text-center">Jami</th>
-                  <th className="px-4 py-3 font-semibold text-right">Jami summa</th>
-                  <th className="px-4 py-3 font-semibold text-center">To'langan</th>
-                  <th className="px-4 py-3 font-semibold text-right">To'langan summa</th>
-                  <th className="px-4 py-3 font-semibold text-center">Qarzdor</th>
-                  <th className="px-4 py-3 font-semibold text-right">Qarzdor summa</th>
+                  <th className="px-4 py-3 font-semibold">{tt("Viloyat", "Регион")}</th>
+                  <th className="px-4 py-3 font-semibold text-center">{tt("Jami", "Всего")}</th>
+                  <th className="px-4 py-3 font-semibold text-right">{tt("Jami summa", "Общая сумма")}</th>
+                  <th className="px-4 py-3 font-semibold text-center">{tt("To'langan", "Оплачено")}</th>
+                  <th className="px-4 py-3 font-semibold text-right">{tt("To'langan summa", "Оплаченная сумма")}</th>
+                  <th className="px-4 py-3 font-semibold text-center">{tt("Qarzdor", "Должники")}</th>
+                  <th className="px-4 py-3 font-semibold text-right">{tt("Qarzdor summa", "Сумма задолженности")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -114,7 +115,7 @@ export default function RegionModal({ isOpen, onClose, regionsData, selectedRegi
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            Excel yuklab olish
+            {tt("Excel yuklab olish", "Скачать Excel")}
           </button>
         </div>
       </div>

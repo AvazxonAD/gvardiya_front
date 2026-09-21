@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { updateAuth } from "../api";
-import { latinToCyrillic, textNum, tt } from "../utils";
+import { textNum, tt } from "../utils";
 import Input from "./Input";
 // import { request } from "@/config/request";
 import Icon from "@/assets/icons";
@@ -345,7 +345,7 @@ function Header() {
                   n="login"
                   v={value.login}
                   error={isSub && !value.login}
-                  label={tt("Login", latinToCyrillic("Login"))}
+                  label={tt("Login", "Логин")}
                   p={tt("Login kiriting", "Введите логин")}
                   className="w-full"
                 />
@@ -364,7 +364,7 @@ function Header() {
                   error={isSub && !value.newPassword}
                   v={value.newPassword}
                   label={tt("Yangi parol", "Новый пароль")}
-                  p={tt("Yangi parol kiriting", "Введите новый  пароль")}
+                  p={tt("Yangi parol kiriting", "Введите новый пароль")}
                   className="w-full"
                 />
                 <div className="mt-5 flex justify-end">
@@ -377,21 +377,21 @@ function Header() {
       )}
 
       <Modal
-        title={tt("Standart sanani belgilash", " Настроить дату по умолчанию")}
+        title={tt("Standart sanani belgilash", "Настроить дату по умолчанию")}
         open={defaultDateOpen}
         closeModal={() => setDefaultDateOpen(false)}
         style={{ width: "500px" }}
       >
         <div className="flex flex-col gap-y-3">
           <SpecialDatePicker
-            label={tt("dan", latinToCyrillic("dan"))}
+            label={tt("dan", "с")}
             defaultValue={startDate}
             // onChange={(_, e) => dispatch(changeDefaultDate({ startDate: e }))}
             onChange={(a) => setStart(a)}
           />
 
           <SpecialDatePicker
-            label={tt("gacha", latinToCyrillic("do"))}
+            label={tt("gacha", "по")}
             defaultValue={endDate}
             onChange={(e) => setEnd(e)}
           />

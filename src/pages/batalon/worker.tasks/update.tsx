@@ -171,7 +171,7 @@ const EditForm: React.FC<EditFormProps> = ({
         <div className="flex items-center w-1/2">
           <div className="w-full me-5">
             <Input
-              p={tt("Ismlar bo'yicha qidiriuv", "Поиск по именам")}
+              p={tt("Ismlar bo'yicha qidiruv", "Поиск по именам")}
               className="border border-border rounded px-3 py-2 w-full"
               v={searchTerm}
               change={(e: any) => setSearchTerm(e.target.value)}

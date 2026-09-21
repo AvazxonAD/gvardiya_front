@@ -1,4 +1,5 @@
 import Input from "@/Components/Input";
+import { usePagedFetch } from "@/hooks/usePagedFetch";
 import BackButton from "@/Components/reusable/BackButton";
 import Button from "@/Components/reusable/button";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
@@ -138,13 +139,26 @@ const CreatePrixod = () => {
     if (get?.success) setContract({ meta: get.meta, data: get.data });
   };
 
-  useEffect(() => {
-    if (open) getOrganization();
-  }, [open, page, limit, searchText]);
+  // Tashkilot tanlash ro'yxati: qidiruv o'zgarsa 1-sahifaga qaytadi,
+  // aks holda 3-sahifada turib qidirilganda bo'sh ro'yxat ko'rinardi.
+  usePagedFetch({
+    page,
+    setPage,
+    filters: [open, limit, searchText],
+    fetch: () => {
+      if (open) getOrganization();
+    },
+  });
 
-  useEffect(() => {
-    if (docOpen) getContract();
-  }, [docOpen, cPage, cLimit, searchCText, contractFrom, contractTo]);
+  // Shartnoma tanlash ro'yxati
+  usePagedFetch({
+    page: cPage,
+    setPage: setCPage,
+    filters: [docOpen, cLimit, searchCText, contractFrom, contractTo],
+    fetch: () => {
+      if (docOpen) getContract();
+    },
+  });
 
   const userStore = localStorage.getItem("user");
   const userData = userStore ? JSON.parse(userStore) : undefined;
@@ -274,7 +288,7 @@ const CreatePrixod = () => {
       <SimpleText txt="To'lov hujjatlari" />
       <div className="flex items-center gap-x-5 mt-5">
         <div className="flex items-center gap-x-5">
-          <h5 className="font-[600]">{tt("Hujjat №", "Документ №")}</h5>
+          <h5 className="font-[600]">{tt("Hujjat №", "№ документа")}</h5>
           <Input
             v={docNum ?? currentPrixod?.prixod_doc_num ?? ""}
             change={(e: ChangeEvent<HTMLInputElement>) =>
@@ -384,7 +398,7 @@ const CreatePrixod = () => {
           <SimpleText txt={tt("Shartnoma", "Договор")} />
           <div className="flex items-center mt-5">
             <div className="flex items-center gap-x-3">
-              <h3>{tt("Hujjat №", "№ договора")}</h3>
+              <h3>{tt("Hujjat №", "№ документа")}</h3>
               <div className="w-1/2">
                 <Input
                   onDoubleClick={() => setDocOpen(true)}
@@ -396,7 +410,7 @@ const CreatePrixod = () => {
             </div>
 
             <div className="flex items-center gap-x-3">
-              <h3>{tt("Hujjat sanasi", "Дата договора")}</h3>
+              <h3>{tt("Hujjat sanasi", "Дата документа")}</h3>
               <div className="w-1/2">
                 <Input
                   onDoubleClick={() => setDocOpen(true)}

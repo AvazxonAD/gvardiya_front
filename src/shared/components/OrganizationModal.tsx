@@ -137,8 +137,8 @@ function OrganizationModal({
               change={handleChange}
               v={value.name}
               n="name"
-              label={tt("Nomi", "Имя")}
-              p={tt("Nom kiriting", "Введите имя")}
+              label={tt("Nomi", "Название")}
+              p={tt("Nom kiriting", "Введите название")}
               className="w-full"
             />
             <Input
@@ -154,7 +154,7 @@ function OrganizationModal({
               v={value.bank_name}
               n="bank_name"
               label={tt("Bank nomi", "Название банка")}
-              p={tt("Bank nomi kiritng", "Введите название банка")}
+              p={tt("Bank nomi kiriting", "Введите название банка")}
               className="w-full"
             />
             <Input
@@ -171,7 +171,7 @@ function OrganizationModal({
               v={value.boss}
               n="boss"
               label={tt("Direktor", "Директор")}
-              p={tt("Direktor kiriting", "Введите директора")}
+              p={tt("Direktorni kiriting", "Введите Ф.И.О. директора")}
               className="w-full"
             />
           </div>
@@ -179,7 +179,7 @@ function OrganizationModal({
             {/* Account numbers section */}
             <div className="mb-3">
               <label className="block text-sm font-medium text-foreground mb-1">
-                {tt("Hisob raqami", "Счет номер")}
+                {tt("Hisob raqami", "Номер счета")}
               </label>
               {value.account_numbers.map((accountNumber, index) => (
                 <div key={index} className="flex items-center mb-2">
@@ -215,7 +215,7 @@ function OrganizationModal({
             {/* Gazna numbers section */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-1">
-                {tt("Hisob raqami g'azna", "Счет номер казначейства")}
+                {tt("G'azna hisob raqami", "Казначейский счёт")}
               </label>
               {value.gazna_numbers.map((gazna, index) => (
                 <div key={index} className="flex items-center mb-2">
@@ -227,8 +227,8 @@ function OrganizationModal({
                       }
                       v={gazna}
                       p={tt(
-                        "Xazna raqam kiriting",
-                        "Введите номер казначейства"
+                        "G'azna raqamini kiriting",
+                        "Введите казначейский счёт"
                       )}
                       className="w-full"
                     />

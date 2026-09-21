@@ -1,5 +1,6 @@
 /** @format */
 
+import { usePagedFetch } from "@/hooks/usePagedFetch";
 import {
   getAllOrgans,
   getBat,
@@ -179,10 +180,6 @@ const ContractEdit = () => {
     handleOrganWorkers2();
   }, []);
 
-  useEffect(() => {
-    handleOrganWorkers();
-  }, [currentPage]);
-
   const handleSearch = async () => {
     const res = await getSearch(jwt, currentPage, searchValue.trim());
 
@@ -192,13 +189,18 @@ const ContractEdit = () => {
     }
   };
 
-  useEffect(() => {
-    if (searchValue) {
-      handleSearch();
-    } else {
-      handleOrganWorkers();
-    }
-  }, [searchValue]);
+  // Tashkilot ro'yxati: qidiruv o'zgarsa 1-sahifaga qaytadi.
+  // Ilgari qidiruv joriy sahifa raqami bilan yuborilardi va 3-sahifada
+  // turib qidirilganda bo'sh ro'yxat chiqardi.
+  usePagedFetch({
+    page: currentPage,
+    setPage: setCurrentPage,
+    filters: [searchValue],
+    fetch: () => {
+      if (searchValue) handleSearch();
+      else handleOrganWorkers();
+    },
+  });
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -375,7 +377,7 @@ const ContractEdit = () => {
               <div className="flex gap-x-5">
                 <div className="w-1/2">
                   <Input
-                    label={tt("Shartnoma raqam", "Номер контракта")}
+                    label={tt("Shartnoma raqami", "Номер договора")}
                     n="doc_num"
                     v={contract.doc_num}
                     change={(event: any) => {
@@ -389,7 +391,7 @@ const ContractEdit = () => {
                 </div>
 
                 <SpecialDatePicker
-                  label={tt("Shartnoma sanasi", "Дата контракта")}
+                  label={tt("Shartnoma sanasi", "Дата договора")}
                   name="doc_date"
                   defaultValue={contract.doc_date}
                   onChange={(event) => {
@@ -503,7 +505,7 @@ const ContractEdit = () => {
                 </div>
                 <div className="grid grid-cols-[4fr_3fr] gap-x-5">
                   <SpecialDatePicker
-                    label={tt("Tugash sana", "Дата начала")}
+                    label={tt("Tugash sanasi", "Дата окончания")}
                     defaultValue={contract.end_date?.slice(0, 10)}
                     name="end_date"
                     onChange={(event) => {

@@ -1,6 +1,7 @@
 /** @format */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { usePagedFetch } from "@/hooks/usePagedFetch";
 import { useSelector } from "react-redux";
 import { getTasks } from "../../../api";
 import Input from "../../../Components/Input";
@@ -68,13 +69,12 @@ function BatalonTasks() {
 
   const [searchingText] = useDebounce(search, 500);
 
-  useEffect(() => {
-    if ((searchingText || status) && currentPage !== 1) {
-      setCurrentPage(1);
-    } else {
-      getInfo();
-    }
-  }, [currentPage, limet, status, searchingText, dates.date1, dates.date2]);
+  usePagedFetch({
+    page: currentPage,
+    setPage: setCurrentPage,
+    filters: [limet, status, searchingText, dates.date1, dates.date2],
+    fetch: getInfo,
+  });
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
