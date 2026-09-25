@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { ChevronLeft, ChevronRight, Download, FileText } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileText } from "lucide-react";
 
-import { formatSum, tt } from "@/utils";
+import { formatDate, formatSum, tt } from "@/utils";
+import { DebtStatusBadge } from "@/lib/debtStatus";
+import ExportMenu, { reportItems } from "@/Components/ExportMenu";
 import useApi, { baseUri } from "@/services/api";
 import { authFetch } from "@/services/tokenManager";
 import { RootState } from "@/Redux/store";
@@ -25,19 +27,29 @@ const TITLES: Record<ContractType, [string, string]> = {
   all: ["Jami shartnomalar", "Все договоры"],
   paid: ["To'lab berilgan shartnomalar", "Оплаченные договоры"],
   debt: ["Qarzdorligi bor shartnomalar", "Договоры с задолженностью"],
+  not_due: ["Qarz — to'lov muddati kelmagan", "Долг — срок оплаты не наступил"],
+  late: ["Qarz — to'lov kechiktirilgan", "Долг — оплата просрочена"],
+  overdue: ["Qarz — muddati o'tgan", "Долг — просрочено"],
 };
 
 export default function ContractsModal({
   open,
   onClose,
   type,
+  from,
+  to,
 }: {
   open: boolean;
   onClose: () => void;
   type: ContractType;
+  /** Davr — berilmasa umumiy (redux) sana oralig'i */
+  from?: string;
+  to?: string;
 }) {
   const api = useApi();
-  const { startDate, endDate } = useSelector((s: RootState) => s.defaultDate);
+  const def = useSelector((s: RootState) => s.defaultDate);
+  const startDate = from ?? def.startDate;
+  const endDate = to ?? def.endDate;
 
   const [rows, setRows] = useState<ContractItem[]>([]);
   const [meta, setMeta] = useState<ContractsMeta | null>(null);
@@ -71,20 +83,11 @@ export default function ContractsModal({
     if (open) fetchContracts();
   }, [open, fetchContracts]);
 
-  const downloadExcel = () => {
-    const url = `${baseUri}/region/dashboard/contracts?from=${startDate}&to=${endDate}&type=${type}&page=1&limit=99999&excel=true`;
-    authFetch(url)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = `shartnomalar_${type}.xlsx`;
-        link.click();
-        URL.revokeObjectURL(blobUrl);
-      })
-      .catch((err) => console.error("Excel yuklashda xatolik:", err));
-  };
+  // Backend hisobot: joriy tur va davr bo'yicha BARCHA shartnomalar (Excel + xuddi o'sha PDF)
+  const fetchExcel = () =>
+    authFetch(
+      `${baseUri}/region/dashboard/contracts?from=${startDate}&to=${endDate}&type=${type}&page=1&limit=99999&excel=true`
+    ).then((res) => res.blob());
 
   const columns: TableColumn<ContractItem>[] = [
     {
@@ -159,6 +162,23 @@ export default function ContractsModal({
         </span>
       ),
     },
+    {
+      key: "debt_status",
+      header: tt("To'lov muddati", "Срок оплаты"),
+      width: "150px",
+      hideOnMobile: true,
+      cell: (r) =>
+        r.debt_status && r.debt_status !== "paid" ? (
+          <div className="flex flex-col gap-0.5">
+            <DebtStatusBadge status={r.debt_status} dueDate={r.payment_due_date} />
+            {r.event_date && (
+              <span className="text-[0.6875rem] tabular-nums text-muted-foreground">
+                {tt("Tadbir", "Мероприятие")}: {formatDate(r.event_date)}
+              </span>
+            )}
+          </div>
+        ) : null,
+    },
   ];
 
   return (
@@ -179,14 +199,17 @@ export default function ContractsModal({
       className="max-h-[88vh]"
       footer={
         <div className="flex w-full items-center justify-between gap-3">
-          <Button variant="secondary" size="sm" onClick={downloadExcel}>
-            <Download />
-            {tt("Excel", "Excel")}
-          </Button>
+          <ExportMenu
+            items={reportItems({
+              key: "contracts",
+              fetchBlob: fetchExcel,
+              fileName: `shartnomalar_${type}.xlsx`,
+            })}
+          />
 
           {meta && meta.pageCount > 1 && (
             <div className="flex items-center gap-2">
-              <span className="text-[12px] tabular-nums text-muted-foreground">
+              <span className="text-[0.75rem] tabular-nums text-muted-foreground">
                 {meta.currentPage} / {meta.pageCount}
               </span>
               <Button

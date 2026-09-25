@@ -9,15 +9,38 @@ import Paginatsiya from "../../../Components/Paginatsiya";
 import TaskTable from "./table";
 import { tt } from "../../../utils";
 
+import ExportButtons from "@/Components/ExportButtons";
+import { EXPORT_ALL_LIMIT, type ExportColumn } from "@/lib/tableExport";
 import { useDebounce } from "use-debounce";
 import { SpecialDatePicker } from "../../../Components/SpecialDatePicker";
-import { RotateCcw } from "lucide-react";
+import FilterActions from "@/Components/FilterActions";
+import { sortParams, useTableSort } from "@/hooks/useTableSort";
 import {
-  Button as UIButton,
   ListCard,
   Select as UISelect,
   Toolbar,
+  ToolbarSpacer,
 } from "@/ui";
+
+const round2 = (n: any) => Math.round((Number(n) || 0) * 100) / 100;
+
+// Funksiya: `tt` til tanlovini chaqirilgan paytda o'qiydi
+const exportColumns = (): ExportColumn<any>[] => [
+  { header: "№", value: (_, i) => i + 1, width: 6, align: "center" },
+  { header: tt("Shartnoma raqami", "Номер договора"), value: (t) => t.contract_info?.doc_num ?? "", align: "center" },
+  { header: tt("Xodimlar soni", "Количество сотрудников"), value: (t) => t.worker_number, align: "center" },
+  { header: tt("Tadbir vaqti", "Время мероприятия"), value: (t) => t.task_time, align: "center" },
+  {
+    header: tt("Umumiy vaqt", "Общее время"),
+    value: (t) => round2((Number(t.task_time) || 0) * (Number(t.worker_number) || 0)),
+    align: "center",
+  },
+  { header: tt("Qolgan", "Остаток"), value: (t) => round2(t.remaining_task_time), align: "center" },
+  { header: tt("Topshiriq muddati", "Крайний срок выполнения задания"), value: (t) => t.deadline ?? "", align: "center" },
+  { header: tt("Manzil", "Адрес"), value: (t) => t.address ?? "" },
+  { header: tt("Izoh", "Примечание"), value: (t) => t.comment ?? "" },
+  { header: tt("Topshiriq holati", "Статус задания"), value: (t) => t.status ?? "", align: "center" },
+];
 
 function BatalonTasks() {
   const now = new Date();
@@ -54,7 +77,8 @@ function BatalonTasks() {
       dates.date1,
       dates.date2,
       searchingText,
-      status
+      status,
+      sortParams(sort)
     );
 
     setData(res.data);
@@ -67,12 +91,20 @@ function BatalonTasks() {
     date2: endDate,
   });
 
-  const [searchingText] = useDebounce(search, 500);
+  const [searchingText] = useDebounce(search.trim(), 500);
+  const { sort, toggle: toggleSort, reset: resetSort } = useTableSort();
+
+  const clearFilters = () => {
+    setDates({ date1: startDate, date2: endDate });
+    setSearch("");
+    setStatus("");
+    resetSort();
+  };
 
   usePagedFetch({
     page: currentPage,
     setPage: setCurrentPage,
-    filters: [limet, status, searchingText, dates.date1, dates.date2],
+    filters: [limet, status, searchingText, dates.date1, dates.date2, sort],
     fetch: getInfo,
   });
 
@@ -86,12 +118,12 @@ function BatalonTasks() {
                 v={search}
                 change={(e: any) => setSearch(e.target.value)}
                 search={true}
-                p={tt("Ismlar bo’yicha qidiruv", "Поиск по имени")}
+                p={tt("Shartnoma №, manzil yoki izoh bo'yicha", "По № договора, адресу или примечанию")}
                 className="h-9 w-full"
               />
             </div>
 
-            <div className="w-[190px]">
+            <div className="w-[11.875rem]">
               <UISelect
                 selectSize="sm"
                 value={status}
@@ -117,18 +149,27 @@ function BatalonTasks() {
               />
             </div>
 
-            <UIButton
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setDates({ date1: startDate, date2: endDate });
-                setSearch("");
-                setStatus("");
+            <FilterActions onRefresh={getInfo} onClear={clearFilters} />
+
+            <ToolbarSpacer />
+
+            <ExportButtons
+              title={tt("Topshiriqlar", "Задания")}
+              columns={exportColumns()}
+              fetchRows={async () => {
+                const res = await getTasks(
+                  JWT,
+                  1,
+                  EXPORT_ALL_LIMIT,
+                  dates.date1,
+                  dates.date2,
+                  searchingText,
+                  status,
+                  sortParams(sort)
+                );
+                return res?.data ?? [];
               }}
-            >
-              <RotateCcw />
-              {tt("Tozalash", "Очистить")}
-            </UIButton>
+            />
           </Toolbar>
         }
         footer={
@@ -147,6 +188,8 @@ function BatalonTasks() {
           page={currentPage}
           itemsPerPage={10}
           data={data}
+          sort={sort}
+          onSort={toggleSort}
         />
       </ListCard>
     </div>

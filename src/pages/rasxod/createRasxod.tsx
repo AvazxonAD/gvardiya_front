@@ -15,6 +15,8 @@ import { useNavigate } from "react-router-dom";
 import Recipient from "../prixod/recipient";
 import RasxodModal from "./modal";
 import { RasxodcreateTable } from "./rasxodcreateTable";
+import ScreenLoader from "@/Components/ScreenLoader";
+import { validateRasxodForm } from "./validate";
 
 const SimpleText = ({ txt }: { txt: string }) => (
   <h3 className="opacity-[0.7] dark:opacity-[1] text-foreground font-[600]">
@@ -23,7 +25,7 @@ const SimpleText = ({ txt }: { txt: string }) => (
 );
 
 const OrganizationTD = ({ txt }: { txt: string }) => (
-  <td className="border px-3 py-3 text-left text-foreground font-[500] text-[14px]">
+  <td className="border px-3 py-3 text-left text-foreground font-[500] text-[0.875rem]">
     {txt}
   </td>
 );
@@ -76,9 +78,25 @@ export const CreateRasxod = () => {
     RasxodTabelInterface[]
   >([]);
   const [calculatedSum, setCalculatedSum] = useState<number>();
+  const [screenLoader, setScreenLoader] = useState<boolean>(false);
   const dispatch = useDispatch();
   const request = useRequest();
   const handleSubmit = async () => {
+    // Ikki marta bosilsa ikkita hujjat yaratilmasin
+    if (screenLoader) return;
+    const formError = validateRasxodForm({
+      docNum,
+      docDate,
+      batalonId: selectedO?.id,
+      from: rasxodfromdate,
+      to: rasxodtodate,
+      taskCount: rasxodRequestdata.length,
+    });
+    if (formError) {
+      dispatch(alertt({ success: false, text: formError }));
+      return;
+    }
+    setScreenLoader(true);
     try {
       const data = {
         doc_num: docNum,
@@ -93,23 +111,21 @@ export const CreateRasxod = () => {
           };
         }),
       };
-      const res = await api.post(`rasxod/?account_number_id=${accountNumber}`, data);
+      const res: any = await api.post(`rasxod/?account_number_id=${accountNumber}`, data);
 
-      if (res.code == 200 || res.code == 201) {
-        if (res.success) {
-          navigate("/rasxod");
-          dispatch(
-            alertt({
-              success: true,
-              text: tt("Chiqim yaratildi!", "Расход создан!"),
-            })
-          );
-        }
+      if (res?.success) {
+        navigate("/rasxod");
+        dispatch(
+          alertt({
+            success: true,
+            text: tt("Chiqim yaratildi!", "Расход создан!"),
+          })
+        );
       } else {
         dispatch(
           alertt({
             success: false,
-            text: res.message,
+            text: res?.message || tt("Saqlashda xatolik", "Ошибка при сохранении"),
           })
         );
       }
@@ -118,9 +134,11 @@ export const CreateRasxod = () => {
         alertt({
           success: false,
           //@ts-ignore
-          text: error?.response?.data?.error || error.message,
+          text: error?.response?.data?.message || error?.message,
         })
       );
+    } finally {
+      setScreenLoader(false);
     }
   };
 
@@ -148,6 +166,7 @@ export const CreateRasxod = () => {
       if (!selectedO?.id) {
         return;
       }
+      setScreenLoader(true);
       const res = await request.get("/rasxod/request", {
         params: {
           account_number_id: accountNumber,
@@ -157,10 +176,7 @@ export const CreateRasxod = () => {
         },
       });
       if (res.data.success) {
-        delete res.data.success;
-        setRasxodRequestData(res.data.data);
-        // setItogo(res.data.meta.itogo);
-        // setSum(res.data.meta.itogo);
+        setRasxodRequestData(res.data.data ?? []);
       }
     } catch (error) {
       dispatch(
@@ -170,6 +186,8 @@ export const CreateRasxod = () => {
           text: error?.response?.data?.message || error.message,
         })
       );
+    } finally {
+      setScreenLoader(false);
     }
   };
 
@@ -253,18 +271,19 @@ export const CreateRasxod = () => {
 
   return (
     <div className="relative">
-      <div className="flex items-center mb-[31px]">
+      {screenLoader && <ScreenLoader />}
+      <div className="flex items-center mb-[1.9375rem]">
         <div className="m-0 p-0">
           <BackButton />
         </div>
-        <h1 className="font-[700] text-[20px] block ms-8">
+        <h1 className="font-[700] text-[1.25rem] block ms-8">
           {tt("Chiqim hujjatini yaratish", "Создать расходный документ")}
         </h1>
       </div>
       {/* <SimpleText txt="To'lov hujjatlari" /> */}
-      <div className="flex items-center gap-x-5 mt-5">
+      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
         <div className="flex items-center gap-x-5">
-          <h5 className="font-[600]">{tt("Hujjat №", "№ документа")}</h5>
+          <h5 className="whitespace-nowrap font-[600]">{tt("Hujjat №", "№ документа")}</h5>
           <Input
             v={docNum ?? currentPrixod?.contract_doc_num ?? ""}
             change={(e: ChangeEvent<HTMLInputElement>) =>
@@ -273,7 +292,7 @@ export const CreateRasxod = () => {
           />
         </div>
         <div className="flex items-center gap-x-5">
-          <h5 className="font-[600]">{tt("Hujjat sanasi", "Дата проводки")}</h5>
+          <h5 className="whitespace-nowrap font-[600]">{tt("Hujjat sanasi", "Дата проводки")}</h5>
           <SpecialDatePicker
             defaultValue={docDate ?? currentPrixod?.contract_doc_date ?? ""}
             onChange={setDocDate}
@@ -281,8 +300,8 @@ export const CreateRasxod = () => {
         </div>
       </div>
       {/* organization  */}
-      <div className="flex mt-5">
-        <div className="border w-1/2 p-3">
+      <div className="mt-5 grid md:grid-cols-2">
+        <div className="min-w-0 border p-3">
           {/* <SimpleText
             txt={tt("To'lovchi ma'lumotlari", "Информация о плательщике")}
           /> */}
@@ -330,7 +349,7 @@ export const CreateRasxod = () => {
             ))}
           </RasxodModal>
         </div>
-        <div className="border w-1/2 p-3 bg-card">
+        <div className="min-w-0 border p-3 bg-card">
           <SimpleText
             txt={tt("To'lovchi ma'lumotlari", "Информация о плательщике")}
           />
@@ -342,12 +361,12 @@ export const CreateRasxod = () => {
         </div>
       </div>
       {/* prixod  */}
-      <div className="flex">
-        <div className="w-1/2 py-5 pr-5">
-          <div className="flex items-start gap-x-4 mt-5 w-full">
-            <h4 className="w-2/8">{tt("Summa", "Сумма")}</h4>
+      <div className="flex flex-col lg:flex-row">
+        <div className="w-full py-5 lg:w-1/2 lg:pr-5">
+          <div className="mt-5 flex w-full flex-wrap items-start gap-x-4 gap-y-2">
+            <h4 className="shrink-0 pt-2">{tt("Summa", "Сумма")}</h4>
 
-            <div className="w-[50%]">
+            <div className="w-[13rem] max-w-full shrink-0">
               {/* yigilgan pull */}
               <Input
                 // readonly={true}
@@ -362,14 +381,14 @@ export const CreateRasxod = () => {
               />
             </div>
             <textarea
-              className="w-full text-destructive uppercase bg-card border outline-none resize-none row-span-4 px-2 py-1 rounded-none"
+              className="min-w-[12rem] flex-1 text-destructive uppercase bg-card border outline-none resize-none row-span-4 px-2 py-1 rounded-none"
               placeholder="..."
               readOnly
               value={calculatedSum != 0 ? numberToWords(calculatedSum) : ""}
             />
           </div>
         </div>
-        <div className="w-1/2 py-5"></div>
+        <div className="hidden py-5 lg:block lg:w-1/2"></div>
       </div>
       {/* opisaniya  */}
       <div>
@@ -382,7 +401,7 @@ export const CreateRasxod = () => {
         ></textarea>
       </div>
 
-      <div className="flex justify-end my-[50px] items-center gap-[40px]">
+      <div className="my-[3.125rem] flex flex-wrap items-center justify-end gap-x-10 gap-y-3">
         <SpecialDatePicker
           label={tt("dan", "с")}
           defaultValue={rasxodfromdate}
@@ -395,9 +414,9 @@ export const CreateRasxod = () => {
           onChange={setRasxodToDate}
         />
         <Button
-          text="Ishga tushirish"
+          text={tt("Ishga tushirish", "Запустить")}
           type="button"
-          className="!h-10 !mt-[20px] border-success !bg-success text-success-foreground hover:!bg-success/90"
+          className="!h-10 !mt-[1.25rem] border-success !bg-success text-success-foreground hover:!bg-success/90"
           onClick={() => getRasxodRequest()}
         />
       </div>

@@ -64,7 +64,7 @@ const CertSelectModal = ({ open, certs, onSelect, onClose }: Props) => {
                   <div className="font-bold">
                     {tt("SERTIFIKAT №", "СЕРТИФИКАТ №")}: {cert.serialNumber}
                     {cert.expired && (
-                      <span className="ml-2 px-2 py-0.5 text-[10px] font-semibold rounded bg-destructive/10 text-destructive align-middle">
+                      <span className="ml-2 px-2 py-0.5 text-[0.625rem] font-semibold rounded bg-destructive/10 text-destructive align-middle">
                         {tt("Muddati o'tgan", "Истёк срок")}
                       </span>
                     )}

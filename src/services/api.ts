@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { getErrorMessage } from "@/lib/errorMessage";
 import { authFetch, clearTokens, getAccessToken, getRefreshToken } from "./tokenManager";
 
 export const baseUri = import.meta.env.VITE_API_URL;
@@ -15,6 +16,8 @@ const useApi = () => {
     success: boolean | number;
     message: string;
     data: Q;
+    /** Xatoda `message` bilan bir xil (ko'p sahifa `res.error` ni o'qiydi) */
+    error?: string;
   };
 
   type RequestOptions<T> = {
@@ -48,17 +51,27 @@ const useApi = () => {
       }
 
       if (!response.ok || (response.status !== 200 && response.status !== 201)) {
+        // JSON bo'lmagan javob (nginx 502/413 sahifasi) ham aniq matn olsin
+        const body = await response.json().catch(() => null);
+        const message = getErrorMessage({ response: { status: response.status, data: body } });
         return {
-          ...(await response.json()),
+          ...(body ?? {}),
           success: false,
+          message,
+          // Backend `error` maydonini yubormaydi, lekin ko'p sahifa
+          // `res.error` ni o'qiydi — o'sha ham server matnini ko'rsatsin
+          error: message,
         };
       }
 
       return await response.json();
     } catch (error) {
+      // Tarmoq uzilgan / server o'chiq: "TypeError: Failed to fetch" emas
+      const message = getErrorMessage(error);
       return {
         success: false,
-        message: String(error),
+        message,
+        error: message,
         data: null as T,
       };
     }

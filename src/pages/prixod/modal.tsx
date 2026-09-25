@@ -89,11 +89,11 @@ const PrixodModal = ({
                 ? [
                   {
                     text: tt("Shartnoma №", "№ договора"),
-                    className: "text-left w-[170px]",
+                    className: "text-left w-[10.625rem]",
                   },
                   {
                     text: tt("Sanasi", "Дата"),
-                    className: "text-left w-[130px]",
+                    className: "text-left w-[8.125rem]",
                   },
                   {
                     text: tt("Buyurtmachi", "Заказчик"),
@@ -105,11 +105,11 @@ const PrixodModal = ({
                   },
                   {
                     text: tt("Summa", "Сумма"),
-                    className: "text-left w-[200px]",
+                    className: "text-left w-[12.5rem]",
                   },
                   {
                     text: tt("Qoldiq", "Остаток"),
-                    className: "text-left w-[200px]",
+                    className: "text-left w-[12.5rem]",
                   },
                 ]
                 : [
@@ -143,7 +143,7 @@ const PrixodModal = ({
             {children}
           </Table>
 
-          <div className="mt-[30px]">
+          <div className="mt-[1.875rem]">
             <Paginatsiya
               currentPage={page}
               setCurrentPage={setPage}

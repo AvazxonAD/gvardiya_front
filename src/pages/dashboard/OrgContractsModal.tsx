@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Download, FileText } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileText } from "lucide-react";
 
-import { formatSum, tt } from "@/utils";
+import { formatDate, formatSum, tt } from "@/utils";
+import { DebtStatusBadge } from "@/lib/debtStatus";
+import ExportMenu, { reportItems } from "@/Components/ExportMenu";
 import useApi, { baseUri } from "@/services/api";
 import { authFetch } from "@/services/tokenManager";
 import type {
@@ -25,11 +27,14 @@ export default function OrgContractsModal({
   onClose,
   to,
   organization,
+  endpoint = "region/dashboard/organization-debt-contracts",
 }: {
   open: boolean;
   onClose: () => void;
   to: string;
   organization: OrganizationDebtRow | null;
+  /** Super-admin: admin/dashboard/organization-debt-contracts */
+  endpoint?: string;
 }) {
   const api = useApi();
   const [rows, setRows] = useState<OrgDebtContractItem[]>([]);
@@ -58,7 +63,7 @@ export default function OrgContractsModal({
     try {
       const qs = buildQs({ page: String(page), limit: String(LIMIT) });
       const res = await api.get<OrgDebtContractItem[]>(
-        `region/dashboard/organization-debt-contracts?${qs.toString()}`
+        `${endpoint}?${qs.toString()}`
       );
       if (res?.success) {
         setRows(res.data || []);
@@ -76,24 +81,11 @@ export default function OrgContractsModal({
     if (open) fetchContracts();
   }, [open, fetchContracts]);
 
-  const downloadExcel = () => {
-    if (!orgId) return;
-    const url = `${baseUri}/region/dashboard/organization-debt-contracts?${buildQs(
-      { excel: "true" }
-    ).toString()}`;
-
-    authFetch(url)
-      .then((r) => r.blob())
-      .then((blob) => {
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = `qarzdorlik_${orgId}.xlsx`;
-        link.click();
-        URL.revokeObjectURL(blobUrl);
-      })
-      .catch((err) => console.error("Excel yuklashda xatolik:", err));
-  };
+  // Backend hisobot: tashkilotning BARCHA qarzdor shartnomalari (Excel + xuddi o'sha PDF)
+  const fetchExcel = () =>
+    authFetch(
+      `${baseUri}/${endpoint}?${buildQs({ excel: "true" }).toString()}`
+    ).then((r) => r.blob());
 
   const columns: TableColumn<OrgDebtContractItem>[] = [
     {
@@ -116,7 +108,7 @@ export default function OrgContractsModal({
     {
       key: "date",
       header: tt("Sana", "Дата"),
-      width: "110px",
+      width: "7rem",
       cell: (r) => (
         <span className="tabular-nums text-muted-foreground">
           {r.doc_date?.slice(0, 10)}
@@ -161,13 +153,30 @@ export default function OrgContractsModal({
         </span>
       ),
     },
+    {
+      key: "debt_status",
+      header: tt("To'lov muddati", "Срок оплаты"),
+      width: "150px",
+      hideOnMobile: true,
+      cell: (r) =>
+        r.debt_status && r.debt_status !== "paid" ? (
+          <div className="flex flex-col gap-0.5">
+            <DebtStatusBadge status={r.debt_status} dueDate={r.payment_due_date} />
+            {r.event_date && (
+              <span className="text-[0.6875rem] tabular-nums text-muted-foreground">
+                {tt("Tadbir", "Мероприятие")}: {formatDate(r.event_date)}
+              </span>
+            )}
+          </div>
+        ) : null,
+    },
   ];
 
   return (
     <Modal
       open={open}
       onClose={onClose}
-      size="2xl"
+      size="full"
       title={organization?.organization_name || tt("Tashkilot", "Организация")}
       description={
         <>
@@ -175,20 +184,36 @@ export default function OrgContractsModal({
           <span className="font-medium text-destructive">
             {formatSum(organization?.debt_summa ?? 0)}
           </span>{" "}
+          {!!organization?.overdue_summa && (
+            <>
+              {" "}
+              · {tt("muddati o'tgan", "просрочено")}:{" "}
+              <span className="font-medium text-destructive">
+                {formatSum(organization.overdue_summa)}
+              </span>
+            </>
+          )}
           · {tt("shartnomalar", "договоров")}: {meta?.count ?? organization?.contract_count ?? 0}
         </>
       }
       className="max-h-[85vh]"
       footer={
         <div className="flex w-full items-center justify-between gap-3">
-          <Button variant="secondary" size="sm" onClick={downloadExcel}>
-            <Download />
-            Excel
-          </Button>
+          {orgId ? (
+            <ExportMenu
+              items={reportItems({
+                key: "org-debt-contracts",
+                fetchBlob: fetchExcel,
+                fileName: `qarzdorlik_${orgId}.xlsx`,
+              })}
+            />
+          ) : (
+            <span />
+          )}
 
           {meta && meta.pageCount > 1 && (
             <div className="flex items-center gap-2">
-              <span className="text-[12px] tabular-nums text-muted-foreground">
+              <span className="text-[0.75rem] tabular-nums text-muted-foreground">
                 {meta.currentPage} / {meta.pageCount}
               </span>
               <Button

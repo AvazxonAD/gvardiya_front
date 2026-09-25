@@ -6,6 +6,7 @@ import { Building2, Pencil, Trash2 } from "lucide-react";
 import Table from "@/Components/reusable/table/Table";
 import DeleteModal from "../Components/DeleteModal";
 import { IOrganization } from "@/types/organization";
+import { permBtn, usePermission } from "@/lib/permissions";
 import { formatInn, textNum, tt } from "../utils";
 import { Button, EmptyState } from "@/ui";
 
@@ -18,8 +19,12 @@ const OrganTAb = ({
   itemsPerPage,
   openEdit,
   variant,
+  // Saralash ixtiyoriy — tanlash oynalarida (shartnoma) berilmaydi
+  sort,
+  onSort,
 }: any) => {
   const [delOpen, setDelOpen] = useState(false);
+  const perm = usePermission("organisation");
 
   const rowNumber = (index: number) => (page - 1) * itemsPerPage + index + 1;
 
@@ -52,22 +57,25 @@ const OrganTAb = ({
         // jadval gorizontal aylanadi, kengida esa bo'sh joyni egallaydi.
         // Kenglik ichki `<table>` ga beriladi — tashqi quti aylanish
         // maydoni bo'lib qolishi kerak.
-        tableClassName="[&_table]:min-w-[1260px]"
+        tableClassName="[&_table]:min-w-[78.75rem]"
+        sort={sort}
+        onSort={onSort}
         thead={[
-          { text: "№", className: "w-[44px]" },
-          { text: tt("Nomi", "Название"), className: "whitespace-normal leading-[1.15]" },
-          { text: tt("Manzil", "Адрес"), className: "whitespace-normal leading-[1.15]" },
-          { text: "INN", className: "w-[92px]" },
-          { text: tt("Bank nomi", "Название банка"), className: "whitespace-normal leading-[1.15]" },
-          { text: "MFO", className: "w-[58px]" },
-          { text: tt("Rahbar", "Руководитель"), className: "whitespace-normal leading-[1.15]" },
-          { text: tt("Hisob raqami", "Номер счета"), className: "w-[124px] whitespace-normal leading-[1.15]" },
+          { text: "№", className: "w-[2.75rem]" },
+          { sortKey: "name", text: tt("Nomi", "Название"), className: "whitespace-normal leading-[1.15]" },
+          { sortKey: "address", text: tt("Manzil", "Адрес"), className: "whitespace-normal leading-[1.15]" },
+          { sortKey: "str", text: "INN", className: "w-[5.75rem]" },
+          { sortKey: "bank_name", text: tt("Bank nomi", "Название банка"), className: "whitespace-normal leading-[1.15]" },
+          { sortKey: "mfo", text: "MFO", className: "w-[3.625rem]" },
+          { sortKey: "boss", text: tt("Rahbar", "Руководитель"), className: "whitespace-normal leading-[1.15]" },
+          { sortKey: "account_numbers", text: tt("Hisob raqami", "Номер счета"), className: "w-[7.75rem] whitespace-normal leading-[1.15]" },
           {
+            sortKey: "gazna_numbers",
             text: tt("Hisob raqami (g'azna)", "Номер счета (казна)"),
-            className: "w-[124px] whitespace-normal leading-[1.15]",
+            className: "w-[7.75rem] whitespace-normal leading-[1.15]",
           },
           ...(!variant
-            ? [{ text: tt("Amallar", "Действия"), className: "w-[66px] text-center" }]
+            ? [{ text: tt("Amallar", "Действия"), className: "w-[4.125rem] text-center" }]
             : []),
         ]}
       >
@@ -104,8 +112,8 @@ const OrganTAb = ({
                 <div className="flex items-center justify-center gap-0.5">
                   <Button
                     variant="ghost"
-                    size="icon-xs"
-                    title={tt("Tahrirlash", "Редактировать")}
+                    size="icon-xs"
+                    {...permBtn(perm.update, tt("Tahrirlash", "Редактировать"))}
                     aria-label={tt("Tahrirlash", "Редактировать")}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -116,10 +124,9 @@ const OrganTAb = ({
                   </Button>
                   <Button
                     variant="ghost"
-                    size="icon-xs"
-                    title={tt("O'chirish", "Удалить")}
+                    size="icon-xs"
+                    {...permBtn(perm.delete, tt("O'chirish", "Удалить"), "hover:bg-destructive/10 hover:text-destructive")}
                     aria-label={tt("O'chirish", "Удалить")}
-                    className="hover:bg-destructive/10 hover:text-destructive"
                     onClick={(e) => {
                       e.stopPropagation();
                       setDelOpen(true);

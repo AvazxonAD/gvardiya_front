@@ -179,7 +179,7 @@ const EditForm: React.FC<EditFormProps> = ({
               search
             />
           </div>
-          <div className="w-[150px]">
+          <div className="w-[9.375rem]">
             <Button
               mode={type === "edit" ? "edit" : "add"}
               onClick={handleSave}
@@ -187,7 +187,7 @@ const EditForm: React.FC<EditFormProps> = ({
           </div>
         </div>
         <div className="w-1/2 flex justify-between items-center">
-          <p className="block ms-5 text-muted-foreground text-[16px]">
+          <p className="block ms-5 text-muted-foreground text-[1rem]">
             {tt(
               `Jami ${workers?.meta.count} ta xodimdan ${attachedWorkersCount} ta biriktirilgan`,
               `Всего из ${workers?.meta.count} сотрудников назначено ${attachedWorkersCount}`
@@ -213,7 +213,7 @@ const EditForm: React.FC<EditFormProps> = ({
         </div>
       </div>
 
-      <div className="space-y-4 mt-5 max-h-[600px] overflow-y-auto">
+      <div className="space-y-4 mt-5 max-h-[37.5rem] overflow-y-auto">
         {workersList
           .sort((a, b) => {
             const isAChecked = workersData.some((e) => e.worker_id === a.id);
@@ -244,7 +244,7 @@ const EditForm: React.FC<EditFormProps> = ({
                   </span>
                 </div>
 
-                <div className="ms-2 flex items-center gap-2 w-[300px]">
+                <div className="ms-2 flex items-center gap-2 w-[18.75rem]">
                   <h3 className="text-foreground w-full">
                     {tt("Topshiriq vaqti", "Время задачи")}:
                   </h3>
@@ -254,7 +254,7 @@ const EditForm: React.FC<EditFormProps> = ({
                     onChange={(e) =>
                       handleInputChange(worker.id, Number(e.target.value))
                     }
-                    className={`taskinput_${worker.id} border bg-card border-border text-foreground w-[100px] rounded px-2 py-1`}
+                    className={`taskinput_${worker.id} border bg-card border-border text-foreground w-[6.25rem] rounded px-2 py-1`}
                   />
                 </div>
               </div>

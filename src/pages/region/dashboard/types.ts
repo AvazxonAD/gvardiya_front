@@ -1,5 +1,7 @@
 // === API Response Types ===
 
+import type { DebtBreakdown, DebtStatus } from "@/lib/debtStatus";
+
 export interface ContractGroup {
   count: number;
   summa: number;
@@ -10,6 +12,8 @@ export interface DashboardCountResponse {
   all_contract: ContractGroup;
   prixod_contract: ContractGroup;
   rasxod_contract: ContractGroup;
+  /** Qarzdorlar to'lov muddati bo'yicha (summa — shartnoma, debt — qarz) */
+  debt_by_status?: DebtBreakdown;
 }
 
 // GET /region/dashboard/by-user
@@ -58,7 +62,7 @@ export interface RedWorkersResponse {
 }
 
 // GET /region/dashboard/contracts
-export type ContractType = "all" | "paid" | "debt";
+export type ContractType = "all" | "paid" | "debt" | "not_due" | "late" | "overdue";
 
 export interface ContractItem {
   id: number;
@@ -70,6 +74,9 @@ export interface ContractItem {
   region_name: string;
   paid_summa: number;
   debt_summa: number;
+  debt_status?: DebtStatus;
+  event_date?: string;
+  payment_due_date?: string;
 }
 
 export interface ContractsMeta {
@@ -130,12 +137,16 @@ export interface OrganizationDebtRow {
   total_summa: number;
   paid_summa: number;
   debt_summa: number;
+  not_due_summa?: number;
+  late_summa?: number;
+  overdue_summa?: number;
 }
 
 export interface OrgDebtMeta {
   pageCount: number;
   count: number;
   total_debt: number;
+  debt_by_status?: DebtBreakdown;
   currentPage: number;
   nextPage: number | null;
   backPage: number | null;
@@ -152,6 +163,9 @@ export interface OrgDebtContractItem {
   account_number: string | null;
   paid_summa: number;
   debt_summa: number;
+  debt_status?: DebtStatus;
+  event_date?: string;
+  payment_due_date?: string;
 }
 
 export interface AccountNumberOption {

@@ -1,5 +1,5 @@
 import { getContractId, getOrganId, getSpr } from "@/api";
-import { formatDateTime, textNum, tt, viewAndDownloadPdf } from "@/utils";
+import { formatDateTime, openAndDownloadBlob, textNum, tt } from "@/utils";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
@@ -12,15 +12,17 @@ import Button from "@/Components/reusable/button";
 import { useRequest } from "@/hooks/useRequest";
 import { SingleTemplateInterface, templateInterface } from "@/interface";
 import { replacer } from "@/lib/replace";
-import { getFullDate } from "@/lib/utils";
+import { getFullDate, pinPdfRootFontSize } from "@/lib/utils";
 import { alertt } from "@/Redux/LanguageSlice";
 import DocumentForPrint2 from "./DocumentForPrint2";
 import { EImzo, type EimzoCertificate } from "@/lib/eimzo";
-import { URL as API_URL } from "@/api";
 import html2pdf from "html2pdf.js";
+import { useRemScale } from "@/hooks/useRemScale";
 import VerificationHistoryModal from "./VerificationHistoryModal";
 import CertSelectModal from "./CertSelectModal";
 import { safeHtml } from "@/lib/safeHtml";
+import { usePermission } from "@/lib/permissions";
+import { blankMarkers, docAnnex, docNum, docText, monthRange, pickLang } from "@/lib/docText";
 
 interface VerificationInfo {
   id: number;
@@ -39,6 +41,8 @@ const LawyerDocument = () => {
   const [singleTemplate, setSingleTemplate] = React.useState<any>(null);
   const [data, setData] = useState<any>(null);
   const JWT = useSelector((s: any) => s.auth.jwt);
+  // Tasdiqlash / rad qilish — "sign" ruxsati
+  const canSign = usePermission("lawyer_contract").sign;
   const [info, setInfo] = useState({
     title: "",
     doer: "",
@@ -81,6 +85,11 @@ const LawyerDocument = () => {
   } | null>(null);
 
   const documentRef = useRef<HTMLDivElement>(null);
+  // A4 hujjat px da qotirilgan — PDF monitorga bog'liq bo'lmasligi uchun.
+  // Katta monitorda u faqat ko'rinishda interfeys bilan birga
+  // kattalashtiriladi: html2pdf hujjat nusxasini `body` ga olib chizadi,
+  // shuning uchun bu o'ramdagi `zoom` PDF ga tushmaydi.
+  const docZoom = useRemScale();
 
   const loadVerificationInfo = async () => {
     try {
@@ -134,15 +143,16 @@ const LawyerDocument = () => {
         getSpr(JWT, "bxm"),
       ]);
 
+      // Nomlar hujjat tilida (spravochnikdagi `_uz` / `_ru` ustunlari)
       setInfo({
         ...info,
-        title: resDoer.data.title,
-        doer: resDoer.data.doer,
-        boss: resBoss.data.boss,
-        bank: resBank.data.bank,
+        title: pickLang(resDoer.data, "title"),
+        doer: pickLang(resDoer.data, "doer"),
+        boss: pickLang(resBoss.data, "boss"),
+        bank: pickLang(resBank.data, "bank"),
         mfo: resBank.data.mfo,
         str: resStr.data.str,
-        address: resAddress.data.adress,
+        address: pickLang(resAddress.data, "adress"),
         account_number: resAccount.data.account_number,
         bxm: bxm.data.summa,
       });
@@ -177,8 +187,8 @@ const LawyerDocument = () => {
 
   const getSingleTemplate = async (print = null) => {
     function replaceBetween(text: string) {
-      const start = "«Бажарувчи»";
-      const end = "тасдиқланган";
+      // Belgilar shablon tiliga mos (uz / cyrl / ru)
+      const [start, end] = blankMarkers();
       const startIndex = text.indexOf(start);
       const endIndex = text.indexOf(end);
       if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
@@ -187,15 +197,6 @@ const LawyerDocument = () => {
       const before = text.slice(0, startIndex + start.length);
       const after = text.slice(endIndex);
       return `${before} ________________________ ${after}`;
-    }
-
-    function getMonthName(oyRaqami: number) {
-      const oylar = [
-        "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-        "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь",
-      ];
-      if (oyRaqami < 1 || oyRaqami > 12) return "Noto'g'ri oy raqami";
-      return oylar[oyRaqami - 1];
     }
 
     if (templatesData.length > 0) {
@@ -210,12 +211,12 @@ const LawyerDocument = () => {
           if (updatedtemplate.section_1) {
             updatedtemplate.section_1 = formatSectionText(updatedtemplate.section_1);
             if (updatedtemplate.section_1.includes("${start_month}")) {
-              const start_month = new Date(data.start_date).getMonth() + 1;
-              const end_month = new Date(data.end_date).getMonth() + 1;
-              const start_month_str = getMonthName(start_month);
-              const end_month_str = getMonthName(end_month);
-              const year = new Date(data.start_date).getFullYear();
-              const start_month_bold = `<span class="font-bold">${year}-йил ${start_month_str}</span>`;
+              // Oylar hujjat tilida
+              const [start_month_str, end_month_str] = monthRange(
+                new Date(data.start_date),
+                new Date(data.end_date)
+              );
+              const start_month_bold = `<span class="font-bold">${start_month_str}</span>`;
               const end_month_bold = `<span class="font-bold">${end_month_str}</span>`;
               updatedtemplate.section_1 = updatedtemplate.section_1.replace("${start_month}", start_month_bold);
               updatedtemplate.section_1 = updatedtemplate.section_1.replace("${end_month}", end_month_bold);
@@ -274,7 +275,12 @@ const LawyerDocument = () => {
       .set({
         margin: [5, 0, 5, 0], // top, left, bottom, right (mm)
         image: { type: "jpeg", quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true, scrollY: -window.scrollY },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          scrollY: -window.scrollY,
+          onclone: pinPdfRootFontSize,
+        },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
         pagebreak: { mode: "css", avoid: ["h1", "h2", "h3"] },
       })
@@ -489,14 +495,14 @@ const LawyerDocument = () => {
               verificationInfo={verificationInfo}
             />
           </div>
-          <div className="h-full  text-[#000000] text-[14px] leading-[19.2px]">
-            <div className="flex justify-between items-start">
+          <div className="h-full  text-[#000000] text-[0.875rem] leading-[1.2rem]">
+            <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <BackButton link="/lawyer-contract" />
               </div>
-              <div className="flex gap-2 justify-end mr-16">
+              <div className="flex flex-wrap justify-end gap-2 xl:mr-16">
                 {/* E-IMZO tasdiqlash tugmasi */}
-                {verificationStatus !== "success" && (
+                {verificationStatus !== "success" && canSign && (
                   <button
                     onClick={handleEimzoSign}
                     disabled={signing}
@@ -518,7 +524,7 @@ const LawyerDocument = () => {
                   </button>
                 )}
                 {/* Rad qilish tugmasi — tasdiqlanmagan va hali rad qilinmagan bo'lsa */}
-                {verificationStatus !== "success" && verificationStatus !== "rejected" && (
+                {verificationStatus !== "success" && verificationStatus !== "rejected" && canSign && (
                   <button
                     type="button"
                     onClick={() => setRejectOpen(true)}
@@ -531,15 +537,18 @@ const LawyerDocument = () => {
                     {tt("Rad qilish", "Отклонить")}
                   </button>
                 )}
-                {data?.file && (
+                {singleTemplate && (
                   <button
                     type="button"
-                    onClick={() =>
-                      viewAndDownloadPdf(
-                        API_URL + data.file,
-                        `shartnoma_${data?.doc_num || id}.pdf`
-                      )
-                    }
+                    // PDF joriy ko'rinishdan — tanlangan tilda (serverdagi fayl
+                    // yaratilgan paytdagi tilda qolgan bo'lishi mumkin)
+                    onClick={async () => {
+                      try {
+                        openAndDownloadBlob(await generatePdf(), `shartnoma_${data?.doc_num || id}.pdf`);
+                      } catch (e) {
+                        console.error("PDF yaratishda xatolik:", e);
+                      }
+                    }}
                     className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer"
                   >
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
@@ -563,14 +572,14 @@ const LawyerDocument = () => {
 
             {/* E-IMZO xatolik xabari */}
             {signError && (
-              <div className="mx-16 mt-2 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+              <div className="mt-2 px-4 py-3 xl:mx-16 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
                 {signError}
               </div>
             )}
 
             {/* Rad qilingan holat — sababi bilan */}
             {verificationStatus === "rejected" && rejectionInfo && (
-              <div className="mx-16 mt-2 px-4 py-3 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
+              <div className="mt-2 px-4 py-3 xl:mx-16 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
                 <div className="flex items-center gap-2 font-semibold">
                   <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="text-red-600">
                     <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z" />
@@ -591,26 +600,26 @@ const LawyerDocument = () => {
               </div>
             )}
 
-            <div className="mb-[100px] mt-5">
+            <div className="mb-[6.25rem] mt-5 overflow-x-auto leading-[19.2px]" style={{ zoom: docZoom }}>
               <div ref={documentRef} className="container mx-auto   text-wrap    text-[14px] overfloww my-auto w-[795px] bg-card text-foreground font__times">
-                <section className="pt-10 pr-[40px] pl-[80px] border border-gray-300">
-                  <h1 className="text-center font-bold text-lg mb-1">
+                <section className="pt-[40px] pr-[40px] pl-[80px] border border-gray-300">
+                  <h1 className="text-center font-bold text-[18px] leading-[28px] mb-[4px]">
                     {singleTemplate?.title}
                   </h1>
 
-                  <p className="text-center font-bold mb-1">{data.doc_num}-сон</p>
+                  <p className="text-center font-bold mb-[4px]">{docNum(data.doc_num)}</p>
 
-                  <div className="flex justify-between font-bold mb-6">
+                  <div className="flex justify-between font-bold mb-[24px]">
                     <p>{getFullDate(data.doc_date)}</p>
                     <p>{info.title}</p>
                   </div>
 
-                  <div className="mb-1 text-justify">
+                  <div className="mb-[4px] text-justify">
                     <p
                       dangerouslySetInnerHTML={{
                         __html: safeHtml(singleTemplate?.main_section),
                       }}
-                      className="mb-2   "
+                      className="mb-[8px]   "
                     />
                   </div>
 
@@ -618,7 +627,7 @@ const LawyerDocument = () => {
                     dangerouslySetInnerHTML={{
                       __html: safeHtml(singleTemplate?.section_1_title),
                     }}
-                    className="text-lg text-center font-semibold mt-1 -mb-1"
+                    className="text-[18px] leading-[28px] text-center font-semibold mt-[4px] -mb-[4px]"
                   ></h2>
                   <div className="">
                     <p
@@ -629,7 +638,7 @@ const LawyerDocument = () => {
                     />
                   </div>
 
-                  <h2 className="text-lg text-center font-semibold mt-1 -mb-1">{singleTemplate?.section_2_title}</h2>
+                  <h2 className="text-[18px] leading-[28px] text-center font-semibold mt-[4px] -mb-[4px]">{singleTemplate?.section_2_title}</h2>
                   <div className="">
                     <div
                       className="text-justify"
@@ -639,8 +648,8 @@ const LawyerDocument = () => {
                     />
                   </div>
 
-                  <h2 className="text-lg text-center font-semibold mt-1 -mb-1">{singleTemplate?.section_3_title}</h2>
-                  <div className="mb-6 ">
+                  <h2 className="text-[18px] leading-[28px] text-center font-semibold mt-[4px] -mb-[4px]">{singleTemplate?.section_3_title}</h2>
+                  <div className="mb-[24px] ">
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
@@ -652,9 +661,9 @@ const LawyerDocument = () => {
 
                 <div className="h-[16px] bg-card w-[100%]  "></div>
 
-                <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300">
+                <section className="pt-[32px] pr-[40px] pb-[20px] pl-[80px] border border-gray-300">
                   <div className="">
-                    <h2 className="text-lg text-center font-semibold mt-1 -mb-1">{singleTemplate?.section_4_title}</h2>
+                    <h2 className="text-[18px] leading-[28px] text-center font-semibold mt-[4px] -mb-[4px]">{singleTemplate?.section_4_title}</h2>
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
@@ -663,7 +672,7 @@ const LawyerDocument = () => {
                     />
                   </div>
                   <div className="">
-                    <h2 className="text-lg text-center font-semibold mt-1 -mb-1">{singleTemplate?.section_5_title}</h2>
+                    <h2 className="text-[18px] leading-[28px] text-center font-semibold mt-[4px] -mb-[4px]">{singleTemplate?.section_5_title}</h2>
                     <p
                       className="mb-0 text-justify"
                       dangerouslySetInnerHTML={{
@@ -672,7 +681,7 @@ const LawyerDocument = () => {
                     />
                   </div>
                   <div className="">
-                    <h2 className="text-lg text-center font-semibold mt-1 -mb-1">{singleTemplate?.section_6_title}</h2>
+                    <h2 className="text-[18px] leading-[28px] text-center font-semibold mt-[4px] -mb-[4px]">{singleTemplate?.section_6_title}</h2>
                     <p
                       className="text-justify"
                       dangerouslySetInnerHTML={{
@@ -681,7 +690,7 @@ const LawyerDocument = () => {
                     />
                   </div>
                   <div className="">
-                    <h2 className="text-lg text-center font-semibold mt-1 -mb-1">{singleTemplate?.section_7_title}</h2>
+                    <h2 className="text-[18px] leading-[28px] text-center font-semibold mt-[4px] -mb-[4px]">{singleTemplate?.section_7_title}</h2>
                     <p
                       className="text-justify"
                       dangerouslySetInnerHTML={{
@@ -693,67 +702,66 @@ const LawyerDocument = () => {
 
                 <div className="h-[16px] bg-card w-[100%]  "></div>
 
-                <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300">
-                  <h2 className="text-lg font-semibold text-center mb-4">8. Томонларнинг реквизитлари</h2>
+                <section className="pt-[32px] pr-[40px] pb-[20px] pl-[80px] border border-gray-300">
+                  <h2 className="text-[18px] leading-[28px] font-semibold text-center mb-[16px]">{docText("requisitesTitle")}</h2>
                   <div className="flex max-w-[85%]   font-semibold mx-auto justify-between">
                     <div className="max-w-[50%]">
-                      <h3 className="font-bold mb-2 text-center">Буюртмачи:</h3>
-                      <p className="font-semibold mb-3 text-center">"{organisation.name}"</p>
-                      <p>Манзил: {organisation.address}</p>
-                      <p>ИНН: {textNum(organisation.str, 3)}</p>
-                      <p>Банк реквизитлари: {organisation.bank_name}</p>
-                      <p>МФО: {organisation.mfo}</p>
-                      <p>х/р: {textNum(data.organization_account_number || organisation.account_number, 4)} </p>
+                      <h3 className="font-bold mb-[8px] text-center">{docText("customer")}</h3>
+                      <p className="font-semibold mb-[12px] text-center">"{organisation.name}"</p>
+                      <p>{docText("address")} {organisation.address}</p>
+                      <p>{docText("inn")} {textNum(organisation.str, 3)}</p>
+                      <p>{docText("bank")} {organisation.bank_name}</p>
+                      <p>{docText("mfo")} {organisation.mfo}</p>
+                      <p>{docText("account")} {textNum(data.organization_account_number || organisation.account_number, 4)} </p>
                       {(organisation.treasury1 || organisation.treasury2) && (
                         <p>
                           {" "}
-                          Ғазначилиги х/р: {textNum(organisation.treasury1, 4) || textNum(organisation.treasury2, 4)}
+                          {docText("treasury")}{" "}{textNum(organisation.treasury1, 4) || textNum(organisation.treasury2, 4)}
                         </p>
                       )}
                     </div>
                     <div className="max-w-[50%]">
-                      <h3 className="font-bold mb-2 text-center">Бажарувчи:</h3>
-                      <p className="font-semibold mb-3 text-center">"{info.doer}"</p>
-                      <p>Манзил: {info.address}</p>
-                      <p>ИНН: {textNum(info.str, 3)}</p>
-                      <p>Банк реквизитлари: {info.bank} </p>
-                      <p>МФО: {info.mfo}</p>
-                      <p>х/р: {textNum(info.account_number, 4)} </p>
+                      <h3 className="font-bold mb-[8px] text-center">{docText("executor")}</h3>
+                      <p className="font-semibold mb-[12px] text-center">"{info.doer}"</p>
+                      <p>{docText("address")} {info.address}</p>
+                      <p>{docText("inn")} {textNum(info.str, 3)}</p>
+                      <p>{docText("bank")} {info.bank} </p>
+                      <p>{docText("mfo")} {info.mfo}</p>
+                      <p>{docText("account")} {textNum(info.account_number, 4)} </p>
                     </div>
                   </div>
                   <div className="flex max-w-[85%]   font-semibold mx-auto justify-between">
                     <div className="max-w-[50%]">
-                      <p className="mt-2">Раҳбари:_____________________</p>
+                      <p className="mt-[8px]">{docText("head")}_____________________</p>
                     </div>
                     <div className="max-w-[50%]">
-                      <p className="mt-2 w-full">Раҳбари:___________{info.boss}</p>
+                      <p className="mt-[8px] w-full">{docText("head")}___________{info.boss}</p>
                     </div>
                   </div>
                 </section>
 
                 <div className="h-[16px] bg-card w-[100%]  "></div>
 
-                <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300" style={{ pageBreakBefore: "always" }}>
-                  <div className="flex flex-col justify-end text-lg font-semibold items-end gap-1">
+                <section className="pt-[32px] pr-[40px] pb-[20px] pl-[80px] border border-gray-300" style={{ pageBreakBefore: "always" }}>
+                  <div className="flex flex-col justify-end text-[18px] leading-[28px] font-semibold items-end gap-[4px]">
                     <span>{getFullDate(data.doc_date)}</span>
-                    <span>{data.doc_num} сонли шартномага илова</span>
+                    <span>{docAnnex(data.doc_num)}</span>
                   </div>
 
-                  <h1 className="text-center text-lg my-[70px] font-semibold">
-                    Оммавий тадбирни ўтказишда фуқаролар хавсизлигини таъминлаш ва жамоат тартибини сақлашни ташкил
-                    этишда
+                  <h1 className="text-center text-[18px] leading-[28px] my-[70px] font-semibold">
+                    {docText("smetaSubject")}
                   </h1>
 
-                  <h1 className="text-center text-lg mb-[50px] font-semibold ">Харажатлар сметаси</h1>
+                  <h1 className="text-center text-[18px] leading-[28px] mb-[50px] font-semibold ">{docText("smetaTitle")}</h1>
                   {data && <BudgetTable data={data} />}
-                  <div className="flex items-start justify-around mt-14">
+                  <div className="flex items-start justify-around mt-[56px]">
                     <div className="flex items-center flex-col">
-                      <h1 className="text-center text-lg  font-semibold">Буюртмачи:</h1>
-                      <span className="block mt-5">______________________________</span>
+                      <h1 className="text-center text-[18px] leading-[28px]  font-semibold">{docText("customer")}</h1>
+                      <span className="block mt-[20px]">______________________________</span>
                     </div>
                     <div className="flex items-center flex-col">
-                      <h1 className="text-center text-lg  font-semibold">Бажарувчи:</h1>
-                      <span className="block mt-5">______________________________</span>
+                      <h1 className="text-center text-[18px] leading-[28px]  font-semibold">{docText("executor")}</h1>
+                      <span className="block mt-[20px]">______________________________</span>
                     </div>
                   </div>
 
@@ -767,15 +775,15 @@ const LawyerDocument = () => {
                 {singleTemplate?.qoshimcha && (
                   <>
                     <div className="h-[16px] bg-card w-[100%]  "></div>
-                    <section className="pt-8 pr-[40px] pb-5 pl-[80px] border border-gray-300" style={{ pageBreakBefore: "always" }}>
+                    <section className="pt-[32px] pr-[40px] pb-[20px] pl-[80px] border border-gray-300" style={{ pageBreakBefore: "always" }}>
                       {singleTemplate?.qoshimcha_title && (
-                        <h1 className="text-center text-lg mt-[30px] mb-[50px] font-bold">
+                        <h1 className="text-center text-[18px] leading-[28px] mt-[30px] mb-[50px] font-bold">
                           {singleTemplate.qoshimcha_title}
                         </h1>
                       )}
 
                       <div
-                        className="mb-6 text-justify"
+                        className="mb-[24px] text-justify"
                         dangerouslySetInnerHTML={{ __html: safeHtml(singleTemplate.qoshimcha) }}
                       />
 

@@ -1,6 +1,9 @@
 import { ShieldCheck } from "lucide-react";
 
 import { formatSum, tt } from "@/utils";
+import ExportButtons from "@/Components/ExportButtons";
+import ExportMenu, { type ExportMenuItem } from "@/Components/ExportMenu";
+import type { ExportColumn } from "@/lib/tableExport";
 import type {
   RedWorker,
   RedWorkersResponse,
@@ -21,14 +24,32 @@ export default function RedWorkersModal({
   open,
   onClose,
   data,
-  footer,
+  reportItems,
 }: {
   open: boolean;
   onClose: () => void;
   data: RedWorkersResponse | null;
-  footer?: React.ReactNode;
+  /** Backend hisobot bandlari (Excel + xuddi o'sha PDF). Berilmasa — ro'yxatning PDF eksporti */
+  reportItems?: ExportMenuItem[];
 }) {
   const rows = data?.red_workers ?? [];
+
+  const title = tt("Qizil chegaradagi xodimlar", "Сотрудники в красной зоне");
+
+  // Ro'yxat to'liq (sahifalashsiz) yuklangan — shu ma'lumot eksport qilinadi
+  const exportColumns = (): ExportColumn<RedWorker>[] => [
+    { header: "№", value: (_r, i) => i + 1, width: 6, align: "center" },
+    { header: tt("Xodim", "Сотрудник"), value: (r) => r.worker_name, width: 32 },
+    { header: tt("Batalon", "Батальон"), value: (r) => r.batalon_name, width: 28 },
+    { header: tt("Summa", "Сумма"), value: (r) => formatSum(r.summa) || "0", align: "right", width: 16 },
+    { header: tt("O'rtacha", "Среднее"), value: (r) => formatSum(r.average) || "0", align: "right", width: 16 },
+    {
+      header: tt("Nisbat", "Отношение"),
+      value: (r) => `×${Number(r.times_average ?? 0).toFixed(1)}`,
+      align: "center",
+      width: 10,
+    },
+  ];
 
   const columns: TableColumn<RedWorker>[] = [
     {
@@ -94,13 +115,24 @@ export default function RedWorkersModal({
       open={open}
       onClose={onClose}
       size="2xl"
-      title={tt("Qizil chegaradagi xodimlar", "Сотрудники в красной зоне")}
+      title={title}
       description={tt(
         "Summasi batalon o'rtachasidan sezilarli oshgan xodimlar",
         "Сотрудники, чья сумма заметно превышает среднюю по батальону"
       )}
       className="max-h-[85vh]"
-      footer={footer}
+      footer={
+        reportItems?.length ? (
+          <ExportMenu items={reportItems} />
+        ) : (
+          <ExportButtons
+            kinds={["pdf"]}
+            title={title}
+            columns={exportColumns()}
+            fetchRows={async () => rows}
+          />
+        )
+      }
     >
       <div className="-mx-5 -my-4">
         <DataTable

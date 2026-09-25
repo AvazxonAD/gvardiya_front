@@ -22,7 +22,7 @@ import TaskColumn, { returnBxmSum } from "./taskColumn";
 import OrganizationModal from "@/shared/components/OrganizationModal";
 
 const SimpleText = ({ txt }: { txt: string }) => (
-  <h3 className="text-[14px] font-semibold text-foreground">{txt}</h3>
+  <h3 className="text-[0.875rem] font-semibold text-foreground">{txt}</h3>
 );
 
 const ContractPage = () => {
@@ -505,7 +505,7 @@ const ContractPage = () => {
                   />
                   <label
                     htmlFor="address_input"
-                    className="cursor-pointer select-none text-[13px] font-medium text-foreground"
+                    className="cursor-pointer select-none text-[0.8125rem] font-medium text-foreground"
                   >
                     {tt("Manzil", "Адрес")}
                   </label>
@@ -521,7 +521,7 @@ const ContractPage = () => {
                   />
                   <label
                     htmlFor="date_input"
-                    className="cursor-pointer select-none text-[13px] font-medium text-foreground"
+                    className="cursor-pointer select-none text-[0.8125rem] font-medium text-foreground"
                   >
                     {tt("Sana", "Дата")}
                   </label>
@@ -583,16 +583,16 @@ const ContractPage = () => {
                 qaysi raqam chegirma, qaysi biri summa ekanini bilib
                 bo'lmasdi va ular oddiy tahrirlanadigan maydonga o'xshab
                 ko'rinardi. Endi yorliqli jamlanma katakchalari.
-                (Joylashuvi ham `ms-[692px]` bilan qo'lda surilgan edi —
+                (Joylashuvi ham `ms-[43.25rem]` bilan qo'lda surilgan edi —
                 tor ekranda jadvaldan chiqib ketardi.) */}
             <div className="mt-3 flex flex-wrap justify-end gap-2">
               <SummaryTile
-                className="w-[200px] text-right"
+                className="w-[12.5rem] text-right"
                 label={tt("Jami chegirma", "Итого скидка")}
                 value={totals.dis || "0"}
               />
               <SummaryTile
-                className="w-[200px] text-right"
+                className="w-[12.5rem] text-right"
                 label={tt("Jami summa", "Итого сумма")}
                 value={totals.sum || "0"}
                 tone="primary"
@@ -601,7 +601,7 @@ const ContractPage = () => {
           </div>
         </div>
         {/* yuborish */}
-        <div className="w-full flex justify-center items-center gap-x-10 mt-4">
+        <div className="mt-4 flex w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 sm:gap-x-10">
           <Button
             variant="secondary"
             type="button"

@@ -5,7 +5,13 @@ import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import { RootState } from "@/Redux/store";
 import useApi from "@/services/api";
 import { IReport } from "@/types/report";
-import { formatDate, formatSum, textNum, tt } from "@/utils";
+import { formatDate, formatSum, textNum, toNumber, tt } from "@/utils";
+import ExportButtons from "@/Components/ExportButtons";
+import FilterActions from "@/Components/FilterActions";
+import Input from "@/Components/Input";
+import { sortParams, useTableSort } from "@/hooks/useTableSort";
+import { useDebounce } from "use-debounce";
+import { EXPORT_ALL_LIMIT, type ExportColumn } from "@/lib/tableExport";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
@@ -31,8 +37,28 @@ type IReportState = {
   data: IReport[];
 };
 
+// Funksiya: `tt` til tanlovini chaqirilgan paytda o'qiydi
+const exportColumns = (): ExportColumn<IReport>[] => [
+  { header: "№", value: (_, i) => i + 1, width: 6, align: "center" },
+  { header: tt("Hujjat raqami", "Номер документа"), value: (r) => r.doc_num, align: "center" },
+  { header: tt("Sana", "Дата"), value: (r) => formatDate(r.doc_date), align: "center" },
+  { header: tt("Tashkilot", "Организация"), value: (r) => r.tashkilot_name },
+  {
+    header: tt("Debet", "Дебет"),
+    value: (r) => formatSum(r.prixod_sum),
+    excelValue: (r) => toNumber(r.prixod_sum) || 0,
+    align: "right",
+  },
+  {
+    header: tt("Kredit", "Кредит"),
+    value: (r) => formatSum(r.rasxod_sum),
+    excelValue: (r) => toNumber(r.rasxod_sum) || 0,
+    align: "right",
+  },
+  { header: tt("Tavsif", "Описание"), value: (r) => r.opisanie },
+];
+
 function ReportUser() {
-  console.log('find index')
   const [data, setData] = useState<IReportState>();
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(15);
@@ -43,6 +69,22 @@ function ReportUser() {
     (state: any) => state.account.account_number_id
   );
   const api = useApi();
+  const [search, setSearch] = useState("");
+  const [searchText] = useDebounce(search.trim(), 500);
+  const { sort, toggle: toggleSort, reset: resetSort } = useTableSort();
+
+  // Joriy filtrlar — ro'yxat ham, eksport ham aynan shu shartlar bilan oladi
+  const listQuery = (p: number, l: number) =>
+    `monitoring/prixod/rasxod/?from=${startDate}&to=${endDate}&account_number_id=${account_id}&page=${p}&limit=${l}` +
+    (searchText ? `&search=${encodeURIComponent(searchText)}` : "") +
+    sortParams(sort);
+
+  const clearFilters = () => {
+    setSearch("");
+    resetSort();
+    setStartDate(defDate.startDate);
+    setEndDate(defDate.endDate);
+  };
 
   useEffect(() => {
     setStartDate(defDate.startDate);
@@ -50,9 +92,7 @@ function ReportUser() {
   }, [defDate]);
 
   const getData = async () => {
-    const response = await api.get(
-      `monitoring/prixod/rasxod/?from=${startDate}&to=${endDate}&account_number_id=${account_id}&page=${page}&limit=${limit}`
-    );
+    const response = await api.get(listQuery(page, limit));
     if (response?.success) {
       setData(response as any);
     }
@@ -67,7 +107,7 @@ function ReportUser() {
   usePagedFetch({
     page,
     setPage,
-    filters: [limit, startDate, endDate],
+    filters: [limit, startDate, endDate, searchText, sort],
     fetch: () => {
       if (!startDate || !endDate) return;
       getData();
@@ -86,8 +126,28 @@ function ReportUser() {
               <SpecialDatePicker defaultValue={endDate} onChange={setEndDate} />
             </div>
 
+            <div className="w-full sm:w-72">
+              <Input
+                v={search}
+                change={(e: any) => setSearch(e.target.value)}
+                search={true}
+                p={tt("Tashkilot, № yoki tavsif bo'yicha", "По организации, № или описанию")}
+                className="h-9 w-full"
+              />
+            </div>
+
+            <FilterActions onRefresh={getData} onClear={clearFilters} />
+
             <ToolbarSpacer />
 
+            <ExportButtons
+              title={tt("Hisobot", "Отчетность")}
+              columns={exportColumns()}
+              fetchRows={async () => {
+                const res = await api.get<IReport[]>(listQuery(1, EXPORT_ALL_LIMIT));
+                return Array.isArray(res?.data) ? res.data : [];
+              }}
+            />
           </Toolbar>
         }
         footer={
@@ -127,44 +187,55 @@ function ReportUser() {
         }
       >
           <Table
+            sort={sort}
+            onSort={toggleSort}
             thead={[
-              { text: "№", className: "text-left py-3 px-[8px]" },
               {
+                sortKey: "doc_num",
+                text: "№",
+                className: "text-left py-3 px-[0.5rem]",
+              },
+              {
+                sortKey: "doc_date",
                 text: tt("Sana", "Дата"),
-                className: "text-left py-3 px-[8px]",
+                className: "text-left py-3 px-[0.5rem]",
               },
               {
+                sortKey: "tashkilot_name",
                 text: tt("Tashkilot", "Организация"),
-                className: "text-left px-[8px]",
+                className: "text-left px-[0.5rem]",
               },
               {
+                sortKey: "prixod_sum",
                 text: tt("Debet", "Дебет"),
-                className: "text-right py-3 px-[8px] w-[200px]",
+                className: "text-right py-3 px-[0.5rem] w-[12.5rem]",
               },
               {
+                sortKey: "rasxod_sum",
                 text: tt("Kredit", "Кредит"),
-                className: "text-right py-3 px-[8px] w-[200px]",
+                className: "text-right py-3 px-[0.5rem] w-[12.5rem]",
               },
               {
+                sortKey: "opisanie",
                 text: tt("Tavsif", "Описание"),
-                className: "text-left py-3 px-[8px] w-[400px]",
+                className: "text-left py-3 px-[0.5rem] w-[25rem]",
               },
             ]}
           >
             {(Array.isArray(data?.data) ? data.data : []).map((r, ind) => (
               <tr
                 key={ind}
-                className="my-[25px] cursor-pointer font-[500] hover:text-primary transition-colors duration-300 border-b border-border"
+                className="my-[1.5625rem] cursor-pointer font-[500] hover:text-primary transition-colors duration-300 border-b border-border"
               >
-                <td className="px-[8px] py-3 border-b border-border">
+                <td className="px-[0.5rem] py-3 border-b border-border">
                   {r.doc_num}
                 </td>
-                <td className="px-[8px] py-3 border-b border-border">
+                <td className="px-[0.5rem] py-3 border-b border-border">
                   {formatDate(r.doc_date)}
                 </td>
-                <td className="rasxod-tooltip relative px-[8px] border-b border-border">
+                <td className="rasxod-tooltip relative px-[0.5rem] border-b border-border">
                   {r.tashkilot_name}
-                  <div className="text-foreground absolute rasxod-tooltip-wrap !top-[0] !left-[100px] w-[300px] z-10 bg-card border-b border-border rounded-md shadow-lg p-3">
+                  <div className="text-foreground absolute rasxod-tooltip-wrap !top-[0] !left-[6.25rem] w-[18.75rem] z-10 bg-card border-b border-border rounded-md shadow-lg p-3">
                     <h2>
                       {tt("Nomi", "Название")}: {r.tashkilot_name}
                     </h2>
@@ -180,13 +251,13 @@ function ReportUser() {
                     </h2>
                   </div>
                 </td>
-                <td className="px-[8px] py-3 border-b border-border text-right">
+                <td className="px-[0.5rem] py-3 border-b border-border text-right">
                   {formatSum(r.prixod_sum)}
                 </td>
-                <td className="px-[8px] py-3 border-b border-border text-right">
+                <td className="px-[0.5rem] py-3 border-b border-border text-right">
                   {formatSum(r.rasxod_sum)}
                 </td>
-                <td className="px-[8px] py-3 border-b border-border">
+                <td className="px-[0.5rem] py-3 border-b border-border">
                   {r.opisanie}
                 </td>
               </tr>

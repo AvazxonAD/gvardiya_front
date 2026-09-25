@@ -95,7 +95,7 @@ const TaskColumn = ({
         w={200}
       />
 
-      <div className="!w-[130px]">
+      <div className="!w-[8.125rem]">
         <Input
           className="!w-full"
           v={e.worker_number}
@@ -106,7 +106,7 @@ const TaskColumn = ({
           }
         />
       </div>
-      <div className="!w-[130px]">
+      <div className="!w-[8.125rem]">
         <Input
           className="!w-full"
           label={tt("Tadbir vaqti", "Время мероприятия")}
@@ -117,7 +117,7 @@ const TaskColumn = ({
           }
         />
       </div>
-      <div className="!w-[200px]">
+      <div className="!w-[12.5rem]">
         <Input
           className="!w-full"
           label={tt("Chegirma", "Скидка")}
@@ -126,7 +126,7 @@ const TaskColumn = ({
           readonly
         />
       </div>
-      <div className="!w-[200px]">
+      <div className="!w-[12.5rem]">
         <Input
           className="!w-full"
           label={tt("Summa", "Сумма")}
@@ -149,7 +149,7 @@ const TaskColumn = ({
         />
       )}
       {adressBox && (
-        <div className="!w-[200px]">
+        <div className="!w-[12.5rem]">
           {/* <p className="text-muted-foreground text-[12px] leading-[14.52px] font-[600]">Tadbir manzili</p>
               <ReadingInput
                 onChange={(txt: string) => handleChangeTask("address", e.id, txt)}
@@ -167,7 +167,7 @@ const TaskColumn = ({
           />
         </div>
       )}
-      <div className="!w-[200px]">
+      <div className="!w-[12.5rem]">
         {/* <p className="text-muted-foreground text-[12px] leading-[14.52px] font-[600]">Tadbir manzili</p>
               <ReadingInput
                 onChange={(txt: string) => handleChangeTask("address", e.id, txt)}

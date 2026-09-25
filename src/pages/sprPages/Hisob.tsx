@@ -6,8 +6,12 @@ import Input from "../../Components/Input";
 import Modal from "../../Components/Modal";
 import HisobTab from "../../pageCompoents/HisobTab";
 import { alertt } from "../../Redux/LanguageSlice";
-import { tt } from "../../utils";
+import { textNum, tt } from "../../utils";
+import ExportButtons from "@/Components/ExportButtons";
+import { sortParams, useTableSort } from "@/hooks/useTableSort";
+import { type ExportColumn } from "@/lib/tableExport";
 import { Plus } from "lucide-react";
+import { permBtn, usePermission } from "@/lib/permissions";
 import { Button as UIButton, ListCard, Toolbar, ToolbarSpacer } from "@/ui";
 
 // Bu funksiya foydalanuvchi kiritayotgan raqamlarni 3 belgidan keyin bo'sh joy qo'yib formatlaydi
@@ -25,6 +29,17 @@ const formatAccountNumber = (value: string) => {
   return formattedValue.trim(); // O'ng va chapdagi bo'sh joylarni tozalaymiz
 };
 
+// Funksiya: `tt` til tanlovini chaqirilgan paytda o'qiydi
+const exportColumns = (): ExportColumn<any>[] => [
+  { header: "№", value: (_, i) => i + 1, width: 6, align: "center" },
+  {
+    header: tt("Hisob raqami", "Номер счета"),
+    value: (h) => textNum(h.account_number, 4),
+    excelValue: (h) => String(h.account_number ?? "").replace(/\D/g, ""),
+    align: "center",
+  },
+];
+
 function Hisob() {
   const [data, setData] = useState([]);
   const [active, setActive] = useState(1);
@@ -34,9 +49,13 @@ function Hisob() {
   const [value2, setValue2] = useState("");
 
   const JWT = useSelector((s: any) => s.auth.jwt);
+  const perm = usePermission("spravochnik");
 
+  const { sort, toggle: toggleSort } = useTableSort();
+
+  // Saralash serverda bajariladi
   const getInfo = async () => {
-    const res = await getSpr(JWT, "account");
+    const res = await getSpr(JWT, "account", undefined, sortParams(sort));
     setData(res.data);
   };
 
@@ -49,7 +68,7 @@ function Hisob() {
 
   useEffect(() => {
     getInfo();
-  }, []);
+  }, [sort]);
 
   useEffect(() => {
     getInfoID();
@@ -146,9 +165,10 @@ function Hisob() {
   }, [open2])
 
   return (
-    <div className="flex min-w-0 flex-col gap-3">
+    // Sarlavha bilan birga ekranga sig'sin — jadval o'zi aylanadi (ListCard)
+    <div className="flex min-w-0 flex-col gap-3 lg:max-h-[max(24rem,calc(100dvh_-_6rem))]">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-[16px] font-semibold text-foreground">
+        <h1 className="text-[1rem] font-semibold text-foreground">
           {tt("Hisob raqami", "Номер счета")}
         </h1>
       </div>
@@ -157,7 +177,13 @@ function Hisob() {
         toolbar={
           <Toolbar>
             <ToolbarSpacer />
-            <UIButton size="sm" onClick={() => setOpen2(true)}>
+            {/* Ro'yxat sahifalanmaydi — hammasi allaqachon yuklangan */}
+            <ExportButtons
+              title={tt("Hisob raqami", "Номер счета")}
+              columns={exportColumns()}
+              fetchRows={async () => data ?? []}
+            />
+            <UIButton {...permBtn(perm.create)} size="sm" onClick={() => setOpen2(true)}>
               <Plus />
               {tt("Qo'shish", "Добавить")}
             </UIButton>
@@ -171,6 +197,8 @@ function Hisob() {
         setOpen={setOpen}
         titleM={tt("Hisob raqamini tahrirlash", "Изменить номер счета")}
         data={data}
+        sort={sort}
+        onSort={toggleSort}
       >
         <form onSubmit={handleSumbet}>
           <Input

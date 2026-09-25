@@ -5,6 +5,7 @@ import Button from "@/Components/reusable/button";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import { alertt } from "@/Redux/LanguageSlice";
 import useApi from "@/services/api";
+import { permBtn, usePermission } from "@/lib/permissions";
 import { IContract } from "@/types/contract";
 import { IOrganization, primaryAccountNumber, primaryGaznaNumber } from "@/types/organization";
 import { IPrixod } from "@/types/prixod";
@@ -24,7 +25,7 @@ const SimpleText = ({ txt }: { txt: string }) => (
 );
 
 const OrganizationTD = ({ txt }: { txt: string }) => (
-  <td className="border px-3 py-3 text-left text-foreground font-[500] text-[14px]">
+  <td className="border px-3 py-3 text-left text-foreground font-[500] text-[0.875rem]">
     {txt}
   </td>
 );
@@ -56,6 +57,9 @@ const CreatePrixod = () => {
   const navigate = useNavigate();
 
   const { id } = useParams<{ id: string }>();
+  const perm = usePermission("prixod");
+  // Tahrirlashda update, yangi yozuvda create ruxsati kerak
+  const canSave = id ? perm.update : perm.create;
   const [currentPrixod, setCurrentPrixod] = useState<IPrixod>();
   const { account_number_id } = useSelector((state: any) => state.account);
 
@@ -279,16 +283,16 @@ const CreatePrixod = () => {
         <div className="m-0 p-0">
           <BackButton />
         </div>
-        <h1 className="font-[700] text-foreground text-[20px] block ms-8">
+        <h1 className="font-[700] text-foreground text-[1.25rem] block ms-8">
           {pathname.includes("/create")
             ? tt("Hujjat yaratish", "Создать документ")
             : tt("Hujjat tahrirlash", "Редактировать документ")}
         </h1>
       </div>
       <SimpleText txt="To'lov hujjatlari" />
-      <div className="flex items-center gap-x-5 mt-5">
+      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
         <div className="flex items-center gap-x-5">
-          <h5 className="font-[600]">{tt("Hujjat №", "№ документа")}</h5>
+          <h5 className="whitespace-nowrap font-[600]">{tt("Hujjat №", "№ документа")}</h5>
           <Input
             v={docNum ?? currentPrixod?.prixod_doc_num ?? ""}
             change={(e: ChangeEvent<HTMLInputElement>) =>
@@ -297,7 +301,7 @@ const CreatePrixod = () => {
           />
         </div>
         <div className="flex items-center gap-x-5">
-          <h5 className="font-[600]">{tt("Hujjat sanasi", "Дата проводки")}</h5>
+          <h5 className="whitespace-nowrap font-[600]">{tt("Hujjat sanasi", "Дата проводки")}</h5>
           <SpecialDatePicker
             defaultValue={docDate ?? currentPrixod?.prixod_date ?? ""}
             onChange={setDocDate}
@@ -305,8 +309,8 @@ const CreatePrixod = () => {
         </div>
       </div>
       {/* organization  */}
-      <div className="flex mt-5">
-        <div className="border w-1/2 p-3">
+      <div className="mt-5 grid md:grid-cols-2">
+        <div className="min-w-0 border p-3">
           <SimpleText
             txt={tt("Qabul qiluvchi tafsilotlari", "Данные получателя")}
           />
@@ -316,7 +320,7 @@ const CreatePrixod = () => {
             ))}
           </div>
         </div>
-        <div className="border w-1/2 p-3 bg-card">
+        <div className="min-w-0 border p-3 bg-card">
           <SimpleText
             txt={tt("To'lovchi tafsilotlari", "Данные плательщика")}
           />
@@ -374,12 +378,12 @@ const CreatePrixod = () => {
         </div>
       </div>
       {/* prixod  */}
-      <div className="flex">
-        <div className="w-1/2 py-5 pr-5">
+      <div className="flex flex-col lg:flex-row">
+        <div className="w-full py-5 lg:w-1/2 lg:pr-5">
           <SimpleText txt={tt("Kirim", "Приход")} />
-          <div className="flex items-start gap-x-4 mt-5 w-full">
-            <h4 className="w-2/8">{tt("Summa", "Сумма")}</h4>
-            <div className="w-[50%]">
+          <div className="mt-5 flex w-full flex-wrap items-start gap-x-4 gap-y-2">
+            <h4 className="shrink-0 pt-2">{tt("Summa", "Сумма")}</h4>
+            <div className="w-[13rem] max-w-full shrink-0">
               <Input
                 className={`w-full text-right outline-none `}
                 v={sum}
@@ -387,19 +391,19 @@ const CreatePrixod = () => {
               />
             </div>
             <textarea
-              className="w-full text-destructive bg-card uppercase border outline-none resize-none row-span-4 px-2 py-1 rounded-none"
+              className="min-w-[12rem] flex-1 text-destructive bg-card uppercase border outline-none resize-none row-span-4 px-2 py-1 rounded-none"
               placeholder="..."
               readOnly
               value={numberToWords(sum)}
             />
           </div>
         </div>
-        <div className="w-1/2 py-5">
+        <div className="w-full py-5 lg:w-1/2">
           <SimpleText txt={tt("Shartnoma", "Договор")} />
-          <div className="flex items-center mt-5">
+          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
             <div className="flex items-center gap-x-3">
-              <h3>{tt("Hujjat №", "№ документа")}</h3>
-              <div className="w-1/2">
+              <h3 className="whitespace-nowrap">{tt("Hujjat №", "№ документа")}</h3>
+              <div className="w-[10rem]">
                 <Input
                   onDoubleClick={() => setDocOpen(true)}
                   className={`w-full ${"cursor-auto"}`}
@@ -410,8 +414,8 @@ const CreatePrixod = () => {
             </div>
 
             <div className="flex items-center gap-x-3">
-              <h3>{tt("Hujjat sanasi", "Дата документа")}</h3>
-              <div className="w-1/2">
+              <h3 className="whitespace-nowrap">{tt("Hujjat sanasi", "Дата документа")}</h3>
+              <div className="w-[10rem]">
                 <Input
                   onDoubleClick={() => setDocOpen(true)}
                   className={`w-full ${"cursor-auto"}`}
@@ -426,8 +430,8 @@ const CreatePrixod = () => {
               </div>
             </div>
             <div className="flex items-center gap-x-3">
-              <h3>{tt("Summa", "Сумма")}</h3>
-              <div className="w-1/2">
+              <h3 className="whitespace-nowrap">{tt("Summa", "Сумма")}</h3>
+              <div className="w-[10rem]">
                 <Input
                   className={`w-full ${"cursor-auto"}`}
                   readonly
@@ -506,7 +510,7 @@ const CreatePrixod = () => {
 
       {/* submit btn  */}
       <div className="mt-5 disabled">
-        <Button mode={!Boolean(id) ? "add" : "edit"} onClick={handleSubmit} />
+        <Button mode={!Boolean(id) ? "add" : "edit"} {...permBtn(canSave)} onClick={handleSubmit} />
       </div>
     </div>
   );

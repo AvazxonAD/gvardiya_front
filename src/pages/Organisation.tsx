@@ -1,16 +1,13 @@
 /** @format */
 
-import Download from "@/Components/Download";
 import { usePagedFetch } from "@/hooks/usePagedFetch";
-import useApi from "@/services/api";
-import { IOrganization } from "@/types/organization";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useReactToPrint } from "react-to-print";
 import { useDebounce } from "use-debounce";
 import {
   CreateOrgn,
   DeleteOrgan,
+  getExcel,
   getOrgan,
   getOrganId,
   getSearch,
@@ -21,9 +18,12 @@ import Paginatsiya from "../Components/Paginatsiya";
 import OrganTAb from "../pageCompoents/OrganTAb";
 import { alertt } from "../Redux/LanguageSlice";
 import { tt } from "../utils";
-import OrganizationForPrint from "./organization/print";
+import ExportMenu, { reportItems } from "@/Components/ExportMenu";
+import FilterActions from "@/Components/FilterActions";
+import { sortParams, useTableSort } from "@/hooks/useTableSort";
 import OrganizationModal from "@/shared/components/OrganizationModal";
-import { FileSpreadsheet, Plus, Printer } from "lucide-react";
+import { Plus } from "lucide-react";
+import { permBtn, usePermission } from "@/lib/permissions";
 import {
   Button as UIButton,
   ListCard,
@@ -47,6 +47,7 @@ export const formatAccountNumber = (value: string, count?: number) => {
 
 function Organisation() {
   const JWT = useSelector((s: any) => s.auth.jwt);
+  const perm = usePermission("organisation");
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // Starting at page 2 for example
   const [totalPages, setTotalPages] = useState(1);
@@ -55,7 +56,6 @@ function Organisation() {
   const [searchValue, setSearchValue] = useState("");
   const [limet, setLimet] = useState(15);
   const [all, setAll] = useState(10);
-  const [downOpen, setDownOpen] = useState(false);
   const [value2, setValue2] = useState<any>({
     name: "",
     address: "",
@@ -83,14 +83,20 @@ function Organisation() {
      (`query`) ataylab ajratilgan: har bosilgan harfda so'rov yuborilsa,
      javoblar bir-birini quvib yetib, ro'yxat noto'g'ri to'ldirilardi. */
   const [query] = useDebounce(searchValue.trim(), 400);
+  const { sort, toggle: toggleSort, reset: resetSort } = useTableSort();
+
+  const clearFilters = () => {
+    setSearchValue("");
+    resetSort();
+  };
 
   /* Qidiruv bo'sh bo'lsa oddiy ro'yxat, aks holda qidiruv chaqiriladi —
      ikkalasi ham bitta `organization` yo'liga boradi va bir xil `meta`
      qaytaradi. */
-  const readList = async () =>
+  const readList = async (page = currentPage, limit = limet) =>
     query
-      ? await getSearch(JWT, currentPage, query, limet)
-      : await getOrgan(JWT, currentPage, limet);
+      ? await getSearch(JWT, page, query, limit, sortParams(sort))
+      : await getOrgan(JWT, page, limit, sortParams(sort));
 
   const applyList = (res: any) => {
     if (!res?.data) return;
@@ -236,7 +242,7 @@ function Organisation() {
   usePagedFetch({
     page: currentPage,
     setPage: setCurrentPage,
-    filters: [limet, query],
+    filters: [limet, query, sort],
     fetch: () => {
       // Kechikkan javob yangisining ustidan yozib yubormasin
       let stale = false;
@@ -272,28 +278,6 @@ function Organisation() {
     }
     setOpen2(true);
   };
-
-  const api = useApi();
-  const [forPdf, setForPdf] = useState<{
-    total: number;
-    data: IOrganization[];
-  }>();
-  const fioRef = useRef<HTMLDivElement>(null);
-  const reactToPrintFn = useReactToPrint({
-    contentRef: fioRef,
-  });
-  const onPrintClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    const get = await api.get("organization/pdf");
-    if (get?.success) {
-      setForPdf(get.data as any);
-    }
-  };
-  useEffect(() => {
-    if (forPdf) {
-      reactToPrintFn();
-    }
-  }, [forPdf]);
 
 
   // Add new functions to handle account numbers and gazna_numbers
@@ -364,10 +348,6 @@ function Organisation() {
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <div className="hidden">
-        <OrganizationForPrint ref={fioRef} data={forPdf} />
-      </div>
-
       <ListCard
         toolbar={
           <Toolbar>
@@ -381,22 +361,24 @@ function Organisation() {
                   // sahifaga tushib qolardi
                   setCurrentPage(1);
                 }}
-                p={tt("Nomlar bo'yicha qidiruv", "Поиск по имени")}
+                p={tt("Nomi, INN, manzil yoki rahbar bo'yicha", "По названию, ИНН, адресу или руководителю")}
                 className="h-9 w-full"
               />
             </div>
 
+            <FilterActions onRefresh={getInfo} onClear={clearFilters} />
+
             <ToolbarSpacer />
 
-            <UIButton variant="secondary" size="sm" onClick={onPrintClick}>
-              <Printer />
-              {tt("Chop etish", "Печать")}
-            </UIButton>
-            <UIButton variant="secondary" size="sm" onClick={() => setDownOpen(true)}>
-              <FileSpreadsheet />
-              Excel
-            </UIButton>
-            <UIButton size="sm" onClick={() => setOpen(true)}>
+            {/* Bitta "⋮" menyu: backend Excel hisobot va aynan shu hisobotning PDF nusxasi */}
+            <ExportMenu
+              items={reportItems({
+                key: "organizations",
+                fetchBlob: () => getExcel(JWT, "/organization/excel"),
+                fileName: "excel_file.xlsx",
+              })}
+            />
+            <UIButton {...permBtn(perm.create)} size="sm" onClick={() => setOpen(true)}>
               <Plus />
               {tt("Qo'shish", "Добавить")}
             </UIButton>
@@ -420,6 +402,8 @@ function Organisation() {
           openEdit={openEdit}
           page={currentPage}
           itemsPerPage={10}
+          sort={sort}
+          onSort={toggleSort}
         />
       </ListCard>
 
@@ -469,12 +453,6 @@ function Organisation() {
               : prev.account_numbers,
           }))
         }
-      />
-
-      <Download
-        open={downOpen}
-        closeModal={() => setDownOpen(false)}
-        URL={"/organization/excel"}
       />
     </div>
   );

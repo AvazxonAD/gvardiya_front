@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import {
   AlertTriangle,
   Building2,
-  Download,
+  CalendarClock,
   FileText,
   HandCoins,
   PieChart,
@@ -33,9 +33,17 @@ import type {
   SoldierTaskRow,
   SoldierTasksResponse,
 } from "@/pages/region/dashboard/types";
+import {
+  DebtBreakdownStrip,
+  PAYMENT_DUE_DAYS,
+  debtStatusHint,
+} from "@/lib/debtStatus";
 import ContractsModal from "./ContractsModal";
 import OrgContractsModal from "./OrgContractsModal";
 import RedWorkersModal from "./RedWorkersModal";
+import ExportButtons from "@/Components/ExportButtons";
+import { reportItems } from "@/Components/ExportMenu";
+import type { ExportColumn } from "@/lib/tableExport";
 import {
   Badge,
   Button,
@@ -239,32 +247,26 @@ export default function RegionDashboard() {
 
   /* ── Yuklab olishlar ───────────────────────────────────────────── */
 
-  const download = (url: string, filename: string) =>
-    authFetch(url)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = filename;
-        link.click();
-        URL.revokeObjectURL(blobUrl);
-      })
-      .catch((err) => console.error("Excel yuklashda xatolik:", err));
+  // Backend hisobotlar: har biri Excel + xuddi o'sha hisobotning PDF varianti
+  const redReportItems = reportItems({
+    key: "red-workers",
+    fetchBlob: () =>
+      authFetch(
+        `${baseUri}/region/dashboard/red-border?from=${startDate}&to=${endDate}&excel=true`
+      ).then((res) => res.blob()),
+    fileName: "qizil_chegara_xodimlar.xlsx",
+  });
 
-  const downloadRedExcel = () =>
-    download(
-      `${baseUri}/region/dashboard/red-border?from=${startDate}&to=${endDate}&excel=true`,
-      "qizil_chegara_xodimlar.xlsx"
-    );
-
-  const downloadDebtExcel = () => {
-    const qs = new URLSearchParams({ to: endDate, excel: "true" });
-    download(
-      `${baseUri}/region/dashboard/organization-debt?${qs.toString()}`,
-      "qarzdor_tashkilotlar.xlsx"
-    );
-  };
+  const debtReportItems = reportItems({
+    key: "org-debt",
+    fetchBlob: () => {
+      const qs = new URLSearchParams({ to: endDate, excel: "true" });
+      return authFetch(
+        `${baseUri}/region/dashboard/organization-debt?${qs.toString()}`
+      ).then((res) => res.blob());
+    },
+    fileName: "qarzdor_tashkilotlar.xlsx",
+  });
 
   /* ── Qarzdorlik jadvali ustunlari ──────────────────────────────── */
 
@@ -354,6 +356,25 @@ export default function RegionDashboard() {
       sortValue: (r) => r.paid_summa,
     },
     {
+      key: "overdue",
+      header: tt("Muddati o'tgan", "Просрочено"),
+      align: "right",
+      width: "150px",
+      hideOnMobile: true,
+      cell: (r) =>
+        r.overdue_summa ? (
+          <span
+            className="whitespace-nowrap tabular-nums text-destructive"
+            title={debtStatusHint("overdue")}
+          >
+            {fullSum(r.overdue_summa)}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        ),
+      sortValue: (r) => r.overdue_summa ?? 0,
+    },
+    {
       key: "debt",
       header: tt("Qarzdorlik", "Задолженность"),
       align: "right",
@@ -367,6 +388,29 @@ export default function RegionDashboard() {
     },
   ];
 
+  // PDF: ro'yxat to'liq yuklangan — joriy qidiruv natijasi, qarzdorlik
+  // bo'yicha kamayish tartibida (jadvalning standart saralashi)
+  const debtExportColumns = (): ExportColumn<OrganizationDebtRow>[] => [
+    { header: "№", value: (_r, i) => i + 1, width: 6, align: "center" },
+    { header: tt("Tashkilot", "Организация"), value: (r) => r.organization_name || "—", width: 40 },
+    {
+      header: tt("INN", "ИНН"),
+      value: (r) => (r.organization_str ? formatInn(r.organization_str) : "—"),
+      excelValue: (r) => r.organization_str || "",
+      width: 14,
+    },
+    { header: tt("Manzil", "Адрес"), value: (r) => r.organization_address || "—", width: 36 },
+    { header: tt("Kelishilgan summa", "Согласованная сумма"), value: (r) => fullSum(r.total_summa), align: "right", width: 18 },
+    { header: tt("To'langan", "Оплачено"), value: (r) => fullSum(r.paid_summa), align: "right", width: 16 },
+    {
+      header: tt("Muddati o'tgan", "Просрочено"),
+      value: (r) => (r.overdue_summa ? fullSum(r.overdue_summa) : "—"),
+      align: "right",
+      width: 16,
+    },
+    { header: tt("Qarzdorlik", "Задолженность"), value: (r) => fullSum(r.debt_summa), align: "right", width: 16 },
+  ];
+
   const redCount = red?.red_count ?? 0;
   const paidPercent = pct(kpi.paid.summa, kpi.all.summa);
   const debtPercent = pct(kpi.debt.summa, kpi.all.summa);
@@ -376,7 +420,7 @@ export default function RegionDashboard() {
       {/* Sahifa nomi navbar'da turadi. Davr navbar'dagi sana
           tanlagichlaridan ko'rinadi — ular yashiringan kichik
           ekranlar uchun quyidagi qator. */}
-      <p className="text-[13px] text-muted-foreground md:hidden">
+      <p className="text-[0.8125rem] text-muted-foreground md:hidden">
         {tt("Davr", "Период")}: {startDate} — {endDate}
       </p>
 
@@ -434,6 +478,33 @@ export default function RegionDashboard() {
           onClick={redCount ? () => setRedOpen(true) : undefined}
         />
       </div>
+
+      {/* ═══ 1a. Qarzdorlik to'lov muddati bo'yicha ═════════════════
+          To'lov tadbirdan 3 kun oldin bo'lishi kerak. Bosilsa — shu
+          holatdagi shartnomalar ro'yxati ochiladi. */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2">
+            <CalendarClock className="size-4 shrink-0 text-muted-foreground" />
+            {tt("Qarzdorlik to'lov muddati bo'yicha", "Задолженность по срокам оплаты")}
+          </CardTitle>
+          <p className="mt-0.5 text-[0.75rem] text-muted-foreground">
+            {tt(
+              `To'lov tadbir boshlanishidan ${PAYMENT_DUE_DAYS} kun oldin bo'lishi kerak`,
+              `Оплата должна поступить за ${PAYMENT_DUE_DAYS} дня до начала мероприятия`
+            )}
+          </p>
+        </CardHeader>
+        <CardContent>
+          <DebtBreakdownStrip
+            data={count?.debt_by_status}
+            onSelect={(s) => {
+              setContractsType(s);
+              setContractsOpen(true);
+            }}
+          />
+        </CardContent>
+      </Card>
 
       {/* ═══ 2. Kesimlar — uchta diagramma bitta qatorda ══════════ */}
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -518,7 +589,7 @@ export default function RegionDashboard() {
               <Building2 className="size-4 shrink-0 text-muted-foreground" />
               {tt("Qarzdor tashkilotlar", "Организации-должники")}
             </CardTitle>
-            <p className="mt-0.5 text-[12px] text-muted-foreground">
+            <p className="mt-0.5 text-[0.75rem] text-muted-foreground">
               {filteredDebt.length}
               {debtSearch && ` / ${debtRows.length}`}{" "}
               {tt("ta tashkilot", "организаций")} ·{" "}
@@ -561,15 +632,18 @@ export default function RegionDashboard() {
             >
               <RotateCw />
             </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={downloadDebtExcel}
-              className="shrink-0"
-            >
-              <Download />
-              Excel
-            </Button>
+            {/* Excel ham, PDF ham ekrandagi ro'yxatni beradi: qidiruv bo'sh
+                bo'lsa — backenddagi to'liq hisobot (jami qarz bilan), qidiruv
+                bo'lsa — faqat topilgan tashkilotlar (backend qidiruvni bilmaydi) */}
+            <ExportButtons
+              extraItems={debtSearch.trim() ? [] : debtReportItems}
+              kinds={debtSearch.trim() ? ["excel", "pdf"] : []}
+              title={`${tt("Qarzdor tashkilotlar", "Организации-должники")} ${endDate}`}
+              columns={debtExportColumns()}
+              fetchRows={async () =>
+                [...filteredDebt].sort((a, b) => (b.debt_summa ?? 0) - (a.debt_summa ?? 0))
+              }
+            />
           </div>
         </CardHeader>
 
@@ -631,12 +705,7 @@ export default function RegionDashboard() {
         open={redOpen}
         onClose={() => setRedOpen(false)}
         data={red}
-        footer={
-          <Button variant="secondary" onClick={downloadRedExcel}>
-            <Download />
-            {tt("Excel yuklab olish", "Скачать Excel")}
-          </Button>
-        }
+        reportItems={redReportItems}
       />
 
       <OrgContractsModal
@@ -794,7 +863,7 @@ function DonutCard({
       <CardHeader>
         <div className="min-w-0">
           <CardTitle>{title}</CardTitle>
-          <p className="mt-0.5 text-[12px] text-muted-foreground">{subtitle}</p>
+          <p className="mt-0.5 text-[0.75rem] text-muted-foreground">{subtitle}</p>
         </div>
         <Icon className="size-4 shrink-0 text-muted-foreground" />
       </CardHeader>
@@ -805,7 +874,7 @@ function DonutCard({
       <CardContent className="flex min-h-0 flex-1 flex-col items-center gap-4">
         {loading ? (
           <>
-            <Skeleton className="size-[170px] shrink-0 rounded-full" />
+            <Skeleton className="size-[10.625rem] shrink-0 rounded-full" />
             <Skeleton className="h-28 w-full" />
           </>
         ) : slices.length ? (
@@ -863,10 +932,10 @@ function DetailTile({
         wide ? "col-span-2" : ""
       }`}
     >
-      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+      <p className="text-[0.6875rem] uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
-      <p className="mt-0.5 text-[15px] font-semibold tabular-nums text-foreground">
+      <p className="mt-0.5 text-[0.9375rem] font-semibold tabular-nums text-foreground">
         {value}
       </p>
     </div>

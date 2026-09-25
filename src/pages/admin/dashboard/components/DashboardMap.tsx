@@ -70,14 +70,14 @@ export default function DashboardMap({ selectedId, regionsData, onSelect }: Dash
   const selectedName = selectedId ? mapRegions.find((r) => r.id === selectedId)?.name : null;
 
   return (
-    <div className="dash-glass p-[12px] lg:col-span-2 flex flex-col relative z-10 min-h-0" ref={containerRef}>
+    <div className="dash-glass p-[0.75rem] flex flex-col relative z-10 min-h-0 [container-type:inline-size]" ref={containerRef}>
       <div className="flex items-center justify-between mb-1">
-        <h2 className="text-[16px] font-semibold flex items-center text-[var(--dash-text)]">
+        <h2 className="text-[1rem] font-semibold flex items-center text-[var(--dash-text)]">
           <div className="w-3 h-3 rounded-none bg-primary mr-3 animate-pulse" />
           {tt("Markazlashgan tizim monitoringi", "Мониторинг централизованной системы")}
         </h2>
         {selectedId && (
-          <button onClick={() => onSelect(null)} className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-primary-foreground text-[13px] font-semibold px-4 py-1.5 rounded-lg shadow-lg shadow-primary/40 transition-all">
+          <button onClick={() => onSelect(null)} className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-primary-foreground text-[0.8125rem] font-semibold px-4 py-1.5 rounded-lg shadow-lg shadow-primary/40 transition-all">
             {selectedName}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -85,10 +85,14 @@ export default function DashboardMap({ selectedId, regionsData, onSelect }: Dash
           </button>
         )}
       </div>
-      <p className="text-[var(--dash-text-secondary)] text-[12px] mb-1">{tt("Real vaqt rejimida viloyatlar kesimida mablag'lar harakati", "Движение средств по регионам в реальном времени")}</p>
+      <p className="text-[var(--dash-text-secondary)] text-[0.75rem] mb-1">{tt("Real vaqt rejimida viloyatlar kesimida mablag'lar harakati", "Движение средств по регионам в реальном времени")}</p>
 
-      <div className="flex-1 relative w-full flex items-center justify-center p-0 min-h-0 min-w-0 overflow-hidden">
-        <svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet" className="w-full h-full drop-shadow-[0_0_15px_rgba(56,189,248,0.3)]">
+      {/* xl dan boshlab balandlik kenglikdan olinadi (xarita nisbati 8:5),
+          lekin ekran bo'yidan oshmaydi. Aks holda ultra-keng monitorda
+          xarita kengayib, pastga — ekrandan tashqariga chiqib ketardi.
+          svg `absolute`: qator balandligini o'zi cho'zmasin. */}
+      <div className="relative flex h-[clamp(16rem,48vw,30rem)] w-full min-w-0 flex-1 items-center justify-center overflow-hidden p-0 xl:h-auto xl:min-h-[min(62.5cqw,calc(100vh_-_18.75rem))]">
+        <svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet" className="absolute inset-0 size-full drop-shadow-[0_0_15px_rgba(56,189,248,0.3)]">
           <defs>
             <linearGradient id="regionGrad" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" style={{ stopColor: "var(--dash-region-fill-start)", stopOpacity: 1 }} />
@@ -112,42 +116,42 @@ export default function DashboardMap({ selectedId, regionsData, onSelect }: Dash
       {tooltip.data && (() => {
         const r = tooltip.data;
         return (
-          <div className={`map-tooltip absolute z-50 w-[220px] rounded-xl shadow-2xl border backdrop-blur-md overflow-hidden ${tooltip.visible ? "opacity-100" : "opacity-0"}`}
+          <div className={`map-tooltip absolute z-50 w-[13.75rem] rounded-xl shadow-2xl border backdrop-blur-md overflow-hidden ${tooltip.visible ? "opacity-100" : "opacity-0"}`}
             style={{ left: tooltip.x, top: tooltip.y, transform: "translateY(-100%)", background: "var(--dash-tooltip-bg)", borderColor: "var(--dash-tooltip-border)", color: "var(--dash-tooltip-text)" }}>
             <div className="px-3 py-2" style={{ borderBottom: "1px solid var(--dash-tooltip-border)" }}>
-              <h4 className="font-bold text-primary text-[13px]">{r.region_name}</h4>
+              <h4 className="font-bold text-primary text-[0.8125rem]">{r.region_name}</h4>
             </div>
             <div className="px-3 py-2 border-l-[3px] border-l-success mx-2 mt-2 rounded-sm" style={{ background: "rgba(255,255,255,0.03)" }}>
-              <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider font-semibold">{tt("Jami shartnomalar", "Всего договоров")}</p>
+              <p className="text-[0.5625rem] text-[var(--dash-text-muted)] uppercase tracking-wider font-semibold">{tt("Jami shartnomalar", "Всего договоров")}</p>
               <div className="flex items-baseline gap-1 mt-0.5">
-                <span className="text-[9px] text-[var(--dash-text-muted)]">{tt("Soni:", "Количество:")}</span>
-                <span className="text-[14px] font-bold text-[var(--dash-text)]">{r.data.all_contract.count}</span>
+                <span className="text-[0.5625rem] text-[var(--dash-text-muted)]">{tt("Soni:", "Количество:")}</span>
+                <span className="text-[0.875rem] font-bold text-[var(--dash-text)]">{r.data.all_contract.count}</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-[9px] text-[var(--dash-text-muted)]">{tt("Summasi:", "Сумма:")}</span>
-                <span className="text-[12px] font-semibold text-[var(--dash-text-secondary)]">{formatNum(r.data.all_contract.summa)}</span>
+                <span className="text-[0.5625rem] text-[var(--dash-text-muted)]">{tt("Summasi:", "Сумма:")}</span>
+                <span className="text-[0.75rem] font-semibold text-[var(--dash-text-secondary)]">{formatNum(r.data.all_contract.summa)}</span>
               </div>
             </div>
             <div className="px-3 py-2 border-l-[3px] border-l-success mx-2 mt-1.5 rounded-sm" style={{ background: "rgba(255,255,255,0.03)" }}>
-              <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider font-semibold">{tt("Puli to'lab berilgan", "Оплаченные")}</p>
+              <p className="text-[0.5625rem] text-[var(--dash-text-muted)] uppercase tracking-wider font-semibold">{tt("Puli to'lab berilgan", "Оплаченные")}</p>
               <div className="flex items-baseline gap-1 mt-0.5">
-                <span className="text-[9px] text-[var(--dash-text-muted)]">{tt("Soni:", "Количество:")}</span>
-                <span className="text-[14px] font-bold text-[var(--dash-text)]">{r.data.prixod_contract.count}</span>
+                <span className="text-[0.5625rem] text-[var(--dash-text-muted)]">{tt("Soni:", "Количество:")}</span>
+                <span className="text-[0.875rem] font-bold text-[var(--dash-text)]">{r.data.prixod_contract.count}</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-[9px] text-[var(--dash-text-muted)]">{tt("Summasi:", "Сумма:")}</span>
-                <span className="text-[12px] font-semibold text-success">{formatNum(r.data.prixod_contract.summa)}</span>
+                <span className="text-[0.5625rem] text-[var(--dash-text-muted)]">{tt("Summasi:", "Сумма:")}</span>
+                <span className="text-[0.75rem] font-semibold text-success">{formatNum(r.data.prixod_contract.summa)}</span>
               </div>
             </div>
             <div className="px-3 py-2 border-l-[3px] border-l-rose-500 mx-2 mt-1.5 mb-2 rounded-sm" style={{ background: "rgba(255,255,255,0.03)" }}>
-              <p className="text-[9px] text-[var(--dash-text-muted)] uppercase tracking-wider font-semibold">{tt("Qarzdorligi bor", "С задолженностью")}</p>
+              <p className="text-[0.5625rem] text-[var(--dash-text-muted)] uppercase tracking-wider font-semibold">{tt("Qarzdorligi bor", "С задолженностью")}</p>
               <div className="flex items-baseline gap-1 mt-0.5">
-                <span className="text-[9px] text-[var(--dash-text-muted)]">{tt("Soni:", "Количество:")}</span>
-                <span className="text-[14px] font-bold text-rose-500">{r.data.rasxod_contract.count}</span>
+                <span className="text-[0.5625rem] text-[var(--dash-text-muted)]">{tt("Soni:", "Количество:")}</span>
+                <span className="text-[0.875rem] font-bold text-rose-500">{r.data.rasxod_contract.count}</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-[9px] text-[var(--dash-text-muted)]">{tt("Summasi:", "Сумма:")}</span>
-                <span className="text-[12px] font-semibold text-rose-500">{formatNum(r.data.rasxod_contract.summa)}</span>
+                <span className="text-[0.5625rem] text-[var(--dash-text-muted)]">{tt("Summasi:", "Сумма:")}</span>
+                <span className="text-[0.75rem] font-semibold text-rose-500">{formatNum(r.data.rasxod_contract.summa)}</span>
               </div>
             </div>
           </div>

@@ -176,11 +176,11 @@ function DateInput({
     // Ilgari kenglik inputda edi, tugma esa o'ramga nisbatan
     // `absolute right-0` — natijada keng katakda ikonka inputdan
     // uzilib, katak chetiga uchib ketardi.
-    <div className={cn("grid w-[140px] gap-1.5", className)}>
+    <div className={cn("grid w-[8.75rem] gap-1.5", className)}>
       {label && (
         <label
           className={cn(
-            "text-[13px] font-medium leading-none",
+            "text-[0.8125rem] font-medium leading-none",
             hasError && !selectedDate ? "text-destructive" : "text-foreground"
           )}
         >
@@ -239,7 +239,7 @@ function DateInput({
         {name && <input type="hidden" name={name} value={isoValue} />}
       </div>
       {hasError && typeof error === "string" && !selectedDate && (
-        <div className="text-[12px] leading-[14.52px] font-[600] text-destructive">
+        <div className="text-[0.75rem] leading-[0.9075rem] font-[600] text-destructive">
           {error}
         </div>
       )}

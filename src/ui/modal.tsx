@@ -13,7 +13,7 @@ const SIZES = {
   // Ma'lumot jadvallari uchun: 10 ta ustunli jadval 1200px da
   // qatorma-qator o'ralib ketardi. Katta ekranda kengroq joy beriladi,
   // kichigida esa oyna baribir ekranga sig'adi.
-  full: "max-w-[min(1600px,calc(100vw-2rem))]",
+  full: "max-w-[min(100rem,calc(100vw-2rem))]",
 } as const;
 
 export type ModalProps = {
@@ -93,8 +93,9 @@ function Modal({
     // tartibida birinchi bo'lgani uchun, butun panel bo'ylab qidirilsa
     // fokus doim o'shanga tushib qolardi.
     const raf = requestAnimationFrame(() => {
+      // Tanlagich — Radix tugmasi; uning yashirin `<select>` i fokus olmasin
       const controls =
-        "[data-autofocus], input:not([type=hidden]), textarea, select";
+        "[data-autofocus], input:not([type=hidden]), textarea, [data-slot=select-trigger]";
       const target =
         bodyRef.current?.querySelector<HTMLElement>(controls) ??
         panelRef.current?.querySelector<HTMLElement>(`${controls}, button`);
@@ -147,7 +148,7 @@ function Modal({
                 </h2>
               )}
               {description && (
-                <p id={descId} className="mt-1 text-[13px] text-muted-foreground">
+                <p id={descId} className="mt-1 text-[0.8125rem] text-muted-foreground">
                   {description}
                 </p>
               )}

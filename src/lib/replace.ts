@@ -6,6 +6,7 @@ import {
 } from "@/interface";
 import { formatNum } from "@/utils";
 import { getFullDate } from "./utils";
+import { formatDocDate } from "./docText";
 
 const fontBold = (text: string | number) => `<span class="font-bold">${text}</span>`
 
@@ -71,37 +72,10 @@ export const replacer = (
 };
 
 
+// `${period}` — shartnoma amal qilish muddati, hujjat tilida
 function formatDate(input: string): string {
-  try {
-    if (!input) {
-      return ""
-    }
-    const monthsUzbekCyrillic = [
-      "январь",
-      "февраль",
-      "март",
-      "апрель",
-      "май",
-      "июнь",
-      "июль",
-      "август",
-      "сентябрь",
-      "октябрь",
-      "ноябрь",
-      "декабрь"
-    ];
-
-    const date = new Date(input);
-    if (isNaN(date.getTime())) {
-      throw new Error("Invalid date");
-    }
-
-    const year = date.getFullYear();
-    const month = monthsUzbekCyrillic[date.getMonth()];
-    const day = date.getDate().toString().padStart(2, "0");
-
-    return `${year}-йил ${day}-${month}`;
-  } catch {
-    return "";
-  }
+  if (!input) return "";
+  const date = new Date(input);
+  if (isNaN(date.getTime())) return "";
+  return formatDocDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
 }

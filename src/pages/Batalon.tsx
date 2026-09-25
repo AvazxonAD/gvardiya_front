@@ -7,9 +7,15 @@ import Modal from "../Components/Modal";
 import BatTab from "../pageCompoents/BatTab";
 import ChangeSelect from "../pageCompoents/ChangeSelect";
 import { alertt } from "../Redux/LanguageSlice";
-import { tt } from "../utils";
+import { formatInn, tt } from "../utils";
 import { formatAccountNumber } from "./Organisation";
+import ExportButtons from "@/Components/ExportButtons";
+import FilterActions from "@/Components/FilterActions";
+import { sortParams, useTableSort } from "@/hooks/useTableSort";
+import { useDebounce } from "use-debounce";
+import { type ExportColumn } from "@/lib/tableExport";
 import { Plus } from "lucide-react";
+import { permBtn, usePermission } from "@/lib/permissions";
 import {
   Button as UIButton,
   ListCard,
@@ -17,10 +23,32 @@ import {
   ToolbarSpacer,
 } from "@/ui";
 
+// Funksiya: `tt` til tanlovini chaqirilgan paytda o'qiydi
+const exportColumns = (): ExportColumn<any>[] => [
+  { header: "№", value: (_, i) => i + 1, width: 6, align: "center" },
+  { header: tt("Nomi", "Название"), value: (b) => b.name },
+  {
+    header: tt("Turi", "Тип"),
+    value: (b) => (b.birgada ? tt("Brigada", "Бригада") : tt("Batalon", "Батальон")),
+    align: "center",
+  },
+  { header: tt("Manzil", "Адрес"), value: (b) => b.address },
+  { header: "INN", value: (b) => formatInn(b.str), align: "center" },
+  { header: tt("Bank nomi", "Название банка"), value: (b) => b.bank_name },
+  { header: "MFO", value: (b) => b.mfo, align: "center" },
+  {
+    header: tt("Hisob raqami", "Номер счета"),
+    value: (b) => b.account_number,
+    excelValue: (b) => String(b.account_number ?? "").replace(/\D/g, ""),
+    align: "center",
+  },
+];
+
 function Batalon() {
   const [data, setData] = useState([]);
   const dispatch = useDispatch();
   const JWT = useSelector((s: any) => s.auth.jwt);
+  const perm = usePermission("batalon");
   const [active, setActive] = useState(1);
 
   const [open, setOpen] = useState(false);
@@ -46,15 +74,29 @@ function Batalon() {
     address: "",
     str: "",
   });
+  const [search, setSearch] = useState("");
+  const [searchText] = useDebounce(search.trim(), 500);
+  const { sort, toggle: toggleSort, reset: resetSort } = useTableSort();
+
+  const clearFilters = () => {
+    setSearch("");
+    resetSort();
+  };
+
+  // Ro'yxat sahifalanmaydi, lekin qidiruv va saralash serverda bajariladi
   const getInfo = async () => {
-    const res = await getBat(JWT);
+    const res = await getBat(
+      JWT,
+      (searchText ? `search=${encodeURIComponent(searchText)}` : "") +
+        sortParams(sort)
+    );
 
     setData(res.data);
   };
 
   useEffect(() => {
     getInfo();
-  }, []);
+  }, [searchText, sort]);
 
   const handleDelete = async () => {
     const res = await getDEl(JWT, active);
@@ -182,8 +224,26 @@ function Batalon() {
       <ListCard
         toolbar={
           <Toolbar>
+            <div className="w-full sm:w-72">
+              <Input
+                v={search}
+                change={(e: any) => setSearch(e.target.value)}
+                search={true}
+                p={tt("Nomi, INN yoki manzil bo'yicha", "По названию, ИНН или адресу")}
+                className="h-9 w-full"
+              />
+            </div>
+
+            <FilterActions onRefresh={getInfo} onClear={clearFilters} />
+
             <ToolbarSpacer />
-            <UIButton size="sm" onClick={() => setOpen(true)}>
+            {/* Ro'yxat sahifalanmaydi — ekrandagi (qidirilgan, saralangan) ro'yxat */}
+            <ExportButtons
+              title={tt("Batalon", "Батальон")}
+              columns={exportColumns()}
+              fetchRows={async () => data}
+            />
+            <UIButton {...permBtn(perm.create)} size="sm" onClick={() => setOpen(true)}>
               <Plus />
               {tt("Qo'shish", "Добавить")}
             </UIButton>
@@ -195,6 +255,8 @@ function Batalon() {
           edit={edit}
           handleDelete={handleDelete}
           setActive={setActive}
+          sort={sort}
+          onSort={toggleSort}
         />
       </ListCard>
 
@@ -257,7 +319,7 @@ function Batalon() {
             </div>
           </div>
           <div className="flex flex-col mt-2 gap-2">
-            <span className="text-[12px] leading-[14.52px] font-[600] text-muted-foreground">
+            <span className="text-[0.75rem] leading-[0.9075rem] font-[600] text-muted-foreground">
               {tt("Batalon tanlang", "Выберите батальон")}
             </span>
             <ChangeSelect
@@ -329,7 +391,7 @@ function Batalon() {
             </div>
           </div>
           <div className="flex flex-col mt-2 gap-2">
-            <span className="text-[12px] leading-[14.52px] font-[600] text-muted-foreground">
+            <span className="text-[0.75rem] leading-[0.9075rem] font-[600] text-muted-foreground">
               {tt("Batalon tanlang", "Выберите батальон")}
             </span>
             <ChangeSelect

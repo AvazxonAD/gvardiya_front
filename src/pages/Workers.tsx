@@ -1,12 +1,13 @@
 /** @format */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePagedFetch } from "@/hooks/usePagedFetch";
 import { useDispatch, useSelector } from "react-redux";
 import {
   CreateWorker,
   deleteWorker,
   getSpr,
+  getExcel,
   getWorkerId,
   getWorkers,
   updateWorker,
@@ -17,17 +18,17 @@ import Paginatsiya from "../Components/Paginatsiya";
 import WorkerTab from "../pageCompoents/WorkerTab";
 import { tt } from "../utils";
 
-import Download from "@/Components/Download";
+import ExportMenu, { excelIcon, reportItems } from "@/Components/ExportMenu";
+import { saveBlob } from "@/lib/tableExport";
 import Button from "@/Components/reusable/button";
 import { Checkbox } from "@/Components/ui/checkbox";
-import useApi from "@/services/api";
-import { IWorker } from "@/types/worker";
-import { useReactToPrint } from "react-to-print";
 import { useDebounce } from "use-debounce";
 import Select from "../Components/Select";
 import { alertt } from "../Redux/LanguageSlice";
-import FIOForPrint from "./workers/FioForPrint";
-import { FileSpreadsheet, Plus, Printer, RotateCcw } from "lucide-react";
+import { Plus } from "lucide-react";
+import { permBtn, usePermission } from "@/lib/permissions";
+import FilterActions from "@/Components/FilterActions";
+import { sortParams, useTableSort } from "@/hooks/useTableSort";
 import {
   Button as UIButton,
   ListCard,
@@ -52,6 +53,7 @@ const formatAccountNumber = (value: string) => {
 function Workers() {
   const [data, setData] = useState<any[]>([]);
   const JWT = useSelector((s: any) => s.auth.jwt);
+  const perm = usePermission("workers");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalpage] = useState(10); // Example number of pages
   const [open, setOpen] = useState(false);
@@ -59,8 +61,6 @@ function Workers() {
   const [batalons, setBatalons] = useState<any>([]);
   const [search, setSearch] = useState("");
   const [searchId, setSearchID] = useState(0);
-  const [downOpen, setDownOpen] = useState(false);
-  const [downOpen2, setDownOpen2] = useState(false);
   const [limet, setLimet] = useState(15);
   const [all, setAll] = useState(10);
   const [value, setValue] = useState<any>({
@@ -68,6 +68,7 @@ function Workers() {
     batalon_id: 0,
     account_number: "",
     xisob_raqam: "",
+    pinfl: "",
     is_muddatli_harbiy: false,
   });
   const [open2, setOpen2] = useState(false);
@@ -75,16 +76,26 @@ function Workers() {
     fio: "",
     batalon_id: 0,
     account_number: "",
+    pinfl: "",
     is_muddatli_harbiy: false,
   });
-  const [searchingText] = useDebounce(search, 500);
+  const [searchingText] = useDebounce(search.trim(), 500);
+  const { sort, toggle: toggleSort, reset: resetSort } = useTableSort();
+
+  const clearFilters = () => {
+    setSearch("");
+    setSearchID(0);
+    resetSort();
+  };
+
   const getInfo = async () => {
     const res = await getWorkers(
       JWT,
       currentPage,
       limet,
       searchId,
-      searchingText
+      searchingText,
+      sortParams(sort)
     );
 
     setData(res.data);
@@ -100,7 +111,7 @@ function Workers() {
   usePagedFetch({
     page: currentPage,
     setPage: setCurrentPage,
-    filters: [limet, searchId, searchingText],
+    filters: [limet, searchId, searchingText, sort],
     fetch: getInfo,
   });
 
@@ -129,7 +140,21 @@ function Workers() {
   };
 
   const dispatch = useDispatch();
+  const pinflInvalid = (pinfl?: string | null) => {
+    if (!pinfl || /^\d{14}$/.test(pinfl)) return false;
+    dispatch(
+      alertt({
+        success: false,
+        text: tt(
+          "PINFL 14 ta raqamdan iborat bo'lishi kerak",
+          "ПИНФЛ должен состоять из 14 цифр"
+        ),
+      })
+    );
+    return true;
+  };
   const setInfo = async () => {
+    if (pinflInvalid(value.pinfl)) return;
     const res = await CreateWorker(
       {
         ...value,
@@ -158,6 +183,7 @@ function Workers() {
         batalon_id: 0,
         account_number: "",
         xisob_raqam: "",
+        pinfl: "",
         is_muddatli_harbiy: false,
       });
     } else {
@@ -185,6 +211,7 @@ function Workers() {
 
   const editInfo = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (pinflInvalid(value2.pinfl)) return;
 
     let newdata = value2;
     newdata.account_number = newdata.account_number.replaceAll(" ", "");
@@ -227,6 +254,7 @@ function Workers() {
         account_number: formatAccountNumber(res?.data?.account_number),
         xisob_raqam: formatAccountNumber(res?.data.xisob_raqam),
         batalon_id: batalon ? batalon.id : 0,
+        pinfl: res.data.pinfl ?? "",
         is_muddatli_harbiy: !!res.data.is_muddatli_harbiy,
       });
       setActive(e);
@@ -238,33 +266,9 @@ function Workers() {
     setSearchID(e);
   };
 
-  const api = useApi();
-  const [forPdf, setForPdf] = useState<{ total: number; data: IWorker[] }>();
-  const fioRef = useRef<HTMLDivElement>(null);
-  const reactToPrintFn = useReactToPrint({
-    contentRef: fioRef,
-  });
-  const onPrintClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    const batalonParam = searchId ? `?batalon_id=${searchId}` : "";
-    const get = await api.get(`worker/pdf${batalonParam}`);
-    if (get?.success) {
-      setForPdf(get.data as any);
-    }
-  };
-  useEffect(() => {
-    if (forPdf) {
-      reactToPrintFn();
-    }
-  }, [forPdf]);
-
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <div className="hidden">
-        <FIOForPrint ref={fioRef} data={forPdf} />
-      </div>
-
       <ListCard
         toolbar={
           <Toolbar>
@@ -273,7 +277,7 @@ function Workers() {
                 v={search}
                 change={(e: any) => setSearch(e.target.value)}
                 search={true}
-                p={tt("Ismlar bo’yicha qidiruv", "Поиск по имени")}
+                p={tt("F.I.Sh., PINFL yoki raqam bo'yicha", "По Ф.И.О., ПИНФЛ или номеру")}
                 className="h-9 w-full"
               />
             </div>
@@ -287,33 +291,37 @@ function Workers() {
               w={240}
             />
 
-            <UIButton
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setSearch("");
-                setSearchID(0);
-              }}
-            >
-              <RotateCcw />
-              {tt("Tozalash", "Очистить")}
-            </UIButton>
+            <FilterActions onRefresh={getInfo} onClear={clearFilters} />
 
             <ToolbarSpacer />
 
-            <UIButton variant="secondary" size="sm" onClick={onPrintClick}>
-              <Printer />
-              {tt("Chop etish", "Печать")}
-            </UIButton>
-            <UIButton variant="secondary" size="sm" onClick={() => setDownOpen(true)}>
-              <FileSpreadsheet />
-              Excel
-            </UIButton>
-            <UIButton variant="secondary" size="sm" onClick={() => setDownOpen2(true)}>
-              <FileSpreadsheet />
-              {tt("Shablon", "Шаблон")}
-            </UIButton>
-            <UIButton size="sm" onClick={() => setOpen(true)}>
+            {/* Bitta "⋮" menyu: xodimlar ro'yxati (backend Excel va aynan
+                shu hisobotning PDF nusxasi) + import shabloni */}
+            <ExportMenu
+              items={[
+                ...reportItems({
+                  key: "workers",
+                  name: tt("Xodimlar ro'yxati", "Список сотрудников"),
+                  fetchBlob: () => getExcel(JWT, "/worker/excel"),
+                  fileName: "excel_file.xlsx",
+                }),
+                // Import shabloni — qo'shish ruhsati bo'lmasa o'chirilgan holda
+                {
+                  key: "worker-template",
+                  disabled: !perm.create,
+                  disabledTitle: tt("Ruxsat yo'q", "Нет доступа"),
+                  icon: excelIcon,
+                  label: tt("Import shabloni (Excel)", "Шаблон импорта (Excel)"),
+                  hint: tt("Xodimlarni yuklash uchun bo'sh shablon", "Пустой шаблон для импорта сотрудников"),
+                  run: async () => {
+                    const blob = await getExcel(JWT, "/worker/template/");
+                    if (!blob || blob.size === 0 || blob.type.includes("json")) throw new Error("BAD_FILE");
+                    saveBlob(blob, "template_file.xlsx");
+                  },
+                },
+              ]}
+            />
+            <UIButton {...permBtn(perm.create)} size="sm" onClick={() => setOpen(true)}>
               <Plus />
               {tt("Qo'shish", "Добавить")}
             </UIButton>
@@ -337,6 +345,8 @@ function Workers() {
           itemsPerPage={10}
           data={data}
           edit={edit}
+          sort={sort}
+          onSort={toggleSort}
         />
       </ListCard>
 
@@ -380,6 +390,19 @@ function Workers() {
               }
               label={tt("Hisob raqam", "Номер счета")}
               p={tt("Hisob raqamini kiriting", "Введите номер счета")}
+            />
+            <Input
+              v={value.pinfl}
+              change={(e: any) =>
+                setValue({
+                  ...value,
+                  pinfl: e.target.value.replace(/\D/g, "").slice(0, 14),
+                })
+              }
+              label={tt("PINFL (JSHSHIR)", "ПИНФЛ")}
+              p={tt("14 xonali PINFL ni kiriting", "Введите 14-значный ПИНФЛ")}
+              inputMode="numeric"
+              maxLength={14}
             />
             <Select
               up
@@ -453,6 +476,20 @@ function Workers() {
               p={tt("Hisob raqamini kiriting", "Введите номер счета")}
               className="w-full"
             />
+            <Input
+              v={value2.pinfl}
+              change={(e: any) =>
+                setValue2({
+                  ...value2,
+                  pinfl: e.target.value.replace(/\D/g, "").slice(0, 14),
+                })
+              }
+              label={tt("PINFL (JSHSHIR)", "ПИНФЛ")}
+              p={tt("14 xonali PINFL ni kiriting", "Введите 14-значный ПИНФЛ")}
+              inputMode="numeric"
+              maxLength={14}
+              className="w-full"
+            />
             {value2 && (
               <Select
                 up
@@ -483,17 +520,6 @@ function Workers() {
           </div>
         </form>
       </Modal>
-
-      <Download
-        open={downOpen2}
-        closeModal={() => setDownOpen2(false)}
-        URL={"/worker/template/"}
-      />
-      <Download
-        open={downOpen}
-        closeModal={() => setDownOpen(false)}
-        URL={"/worker/excel"}
-      />
     </div>
   );
 }

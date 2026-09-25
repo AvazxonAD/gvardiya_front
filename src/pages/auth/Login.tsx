@@ -3,13 +3,11 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   AlertCircle,
-  BadgeCheck,
   Check,
   ChevronLeft,
   Eye,
   EyeOff,
   Globe,
-  KeyRound,
   Loader2,
   Lock,
   Moon,
@@ -40,6 +38,7 @@ import {
   useTheme,
 } from "@/ui";
 import { getHomePathForUser } from "@/layout/menu";
+import { AppFullName, appFullName } from "@/lib/appName";
 import Logo from "@/assets/logo.png";
 
 /** Login 2-bosqichi (E-IMZO) — 1-bosqich javobidan keladi */
@@ -197,7 +196,7 @@ export default function Login() {
   };
 
   return (
-    <div className="grid min-h-screen bg-background lg:grid-cols-[1.15fr_minmax(420px,0.85fr)]">
+    <div className="grid min-h-screen bg-background lg:grid-cols-[auto_minmax(22rem,1fr)]">
       <LoginHero />
 
       {/* Forma paneli — `bg-card` qorong'i banner yonida toza "qog'oz"
@@ -207,8 +206,8 @@ export default function Login() {
           {/* lg dan boshlab brend chap panelda ko'rinadi */}
           <div className="flex items-center gap-2 lg:hidden">
             <img src={Logo} alt="" className="size-7 rounded-md object-contain" />
-            <span className="text-[13px] font-semibold">
-              {tt("Tadbir-Hisob", "Тадбир-Ҳисоб")}
+            <span className="text-[0.75rem] leading-snug text-muted-foreground">
+              <AppFullName />
             </span>
           </div>
           <div className="ml-auto flex items-center gap-1">
@@ -218,7 +217,7 @@ export default function Login() {
         </div>
 
         <div className="flex flex-1 items-center justify-center px-5 py-8 sm:px-8">
-          <div className="w-full max-w-[380px]">
+          <div className="w-full max-w-[23.75rem]">
             {eimzo ? (
               <EimzoStepView
                 disabled={eimzo.disabled}
@@ -234,10 +233,10 @@ export default function Login() {
               />
             ) : (
               <form onSubmit={handleSubmit} noValidate>
-                <h1 className="text-[22px] font-semibold tracking-tight text-foreground">
+                <h1 className="text-[1.375rem] font-semibold tracking-tight text-foreground">
                   {tt("Tizimga kirish", "Вход в систему")}
                 </h1>
-                <p className="mt-1.5 text-[13px] text-muted-foreground">
+                <p className="mt-1.5 text-[0.8125rem] text-muted-foreground">
                   {tt(
                     "Davom etish uchun hisob ma'lumotlaringizni kiriting",
                     "Введите данные учётной записи для входа"
@@ -308,8 +307,8 @@ export default function Login() {
           </div>
         </div>
 
-        <p className="px-5 pb-5 text-center text-[11px] text-muted-foreground sm:px-8">
-          © {new Date().getFullYear()} {tt("Tadbir-Hisob", "Тадбир-Ҳисоб")}
+        <p className="px-5 pb-5 text-center text-[0.6875rem] text-muted-foreground sm:px-8">
+          © {new Date().getFullYear()} {appFullName()}
         </p>
       </main>
     </div>
@@ -321,98 +320,17 @@ export default function Login() {
    ═══════════════════════════════════════════════════════════════════ */
 
 function LoginHero() {
-  const points = [
-    {
-      icon: BadgeCheck,
-      uz: "Shartnoma va to'lovlar nazorati",
-      ru: "Контроль договоров и платежей",
-    },
-    {
-      icon: ShieldCheck,
-      uz: "E-IMZO orqali ikki bosqichli kirish",
-      ru: "Двухфакторный вход через E-IMZO",
-    },
-    {
-      icon: KeyRound,
-      uz: "Rol asosidagi kirish huquqlari",
-      ru: "Права доступа по ролям",
-    },
-  ];
-
+  // Banner rasmi — sarlavha, logo va afzalliklar rasmning o'zida. Panel
+  // kengligi rasm nisbatida (balandlik × 1672/940), shuning uchun rasm
+  // to'liq sig'adi. Tor ekranda login ustuniga 22rem qoladi va rasm
+  // o'ngdan kesiladi — matn chapda, shu sabab chap chetga yopishtirilgan.
   return (
-    <aside className="relative hidden overflow-hidden lg:block">
-      {/* Fon rasmi — matn o'qilishi uchun kuchli qatlam ostida */}
+    <aside className="relative hidden h-screen max-w-[calc(100vw-22rem)] overflow-hidden bg-slate-950 lg:sticky lg:top-0 lg:block lg:aspect-[1672/940]">
       <img
-        src="/homebanner.jpg"
-        alt=""
-        aria-hidden
-        className="absolute inset-0 size-full object-cover"
+        src="/login-banner.jpg?v=3"
+        alt={appFullName()}
+        className="absolute inset-0 size-full object-cover object-left"
       />
-      <div
-        className="absolute inset-0 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95"
-        aria-hidden
-      />
-      {/* Brend oltini — yumshoq yorug'lik dog'i */}
-      <div
-        className="absolute -left-24 top-1/4 size-[420px] rounded-full bg-brand/15 blur-[120px]"
-        aria-hidden
-      />
-      <div
-        className="absolute -bottom-32 right-0 size-[380px] rounded-full bg-primary/20 blur-[120px]"
-        aria-hidden
-      />
-
-      <div className="relative flex h-full flex-col justify-between p-10 xl:p-14">
-        <div className="flex items-center gap-3">
-          <img
-            src={Logo}
-            alt=""
-            className="size-11 rounded-lg object-contain ring-1 ring-white/15"
-          />
-          <div>
-            <p className="text-[15px] font-semibold leading-tight text-primary-foreground">
-              {tt("Tadbir-Hisob", "Тадбир-Ҳисоб")}
-            </p>
-            <p className="text-[12px] leading-tight text-primary-foreground/55">
-              {tt("Milliy gvardiya", "Национальная гвардия")}
-            </p>
-          </div>
-        </div>
-
-        <div className="max-w-[440px]">
-          <Badge
-            tone="brand"
-            className="mb-5 border-brand/40 bg-brand/15 text-brand"
-          >
-            {tt("Yagona axborot tizimi", "Единая информационная система")}
-          </Badge>
-
-          <h2 className="text-[32px] font-semibold leading-[1.2] tracking-tight text-primary-foreground xl:text-[38px]">
-            {tt(
-              "Moliyaviy hisob — bir joyda, nazorat ostida",
-              "Финансовый учёт — в одном месте, под контролем"
-            )}
-          </h2>
-
-          <ul className="mt-8 flex flex-col gap-3.5">
-            {points.map(({ icon: Icon, uz, ru }) => (
-              <li key={uz} className="flex items-center gap-3">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-card/[0.08] ring-1 ring-white/10">
-                  <Icon className="size-4 text-brand" />
-                </span>
-                <span className="text-[14px] text-primary-foreground/75">{tt(uz, ru)}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <p className="text-[12px] text-primary-foreground/40">
-          {tt(
-            "Tizimga faqat vakolatli xodimlar kira oladi",
-            "Доступ только для уполномоченных сотрудников"
-          )}
-        </p>
-      </div>
     </aside>
   );
 }
@@ -450,7 +368,7 @@ function EimzoStepView({
         type="button"
         onClick={onCancel}
         disabled={signing}
-        className="mb-5 inline-flex items-center gap-1 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+        className="mb-5 inline-flex items-center gap-1 text-[0.8125rem] font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
       >
         <ChevronLeft className="size-4" />
         {tt("Orqaga", "Назад")}
@@ -458,11 +376,11 @@ function EimzoStepView({
 
       <div className="mb-1.5 flex items-center gap-2">
         <ShieldCheck className="size-5 text-primary" />
-        <h1 className="text-[19px] font-semibold tracking-tight text-foreground">
+        <h1 className="text-[1.1875rem] font-semibold tracking-tight text-foreground">
           {tt("E-IMZO bilan tasdiqlash", "Подтверждение E-IMZO")}
         </h1>
       </div>
-      <p className="text-[13px] text-muted-foreground">
+      <p className="text-[0.8125rem] text-muted-foreground">
         {disabled
           ? tt(
               "Sinov rejimi — imzo talab qilinmaydi",
@@ -497,7 +415,7 @@ function EimzoStepView({
         )}
 
         {disabled ? (
-          <div className="flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3.5 py-3 text-[13px] text-amber-700 dark:text-amber-400">
+          <div className="flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3.5 py-3 text-[0.8125rem] text-amber-700 dark:text-amber-400">
             <AlertCircle className="mt-px size-4 shrink-0" />
             <p>
               {tt(
@@ -507,12 +425,12 @@ function EimzoStepView({
             </p>
           </div>
         ) : loading ? (
-          <div className="flex items-center gap-2.5 rounded-lg border border-border bg-muted/40 px-3.5 py-3 text-[13px] text-muted-foreground">
+          <div className="flex items-center gap-2.5 rounded-lg border border-border bg-muted/40 px-3.5 py-3 text-[0.8125rem] text-muted-foreground">
             <Loader2 className="size-4 animate-spin" />
             {tt("Kalitlar qidirilmoqda...", "Поиск ключей...")}
           </div>
         ) : (
-          <div className="flex max-h-[280px] flex-col gap-2 overflow-y-auto">
+          <div className="flex max-h-[17.5rem] flex-col gap-2 overflow-y-auto">
             {certs.map((c) => {
               const active = selected?.alias === c.alias;
               return (
@@ -543,10 +461,10 @@ function EimzoStepView({
                   </span>
 
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13px] font-semibold uppercase text-foreground">
+                    <span className="block truncate text-[0.8125rem] font-semibold uppercase text-foreground">
                       {c.fio}
                     </span>
-                    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
+                    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.6875rem] text-muted-foreground">
                       <span>
                         {tt("Amal qiladi", "Действует до")}: {c.validTo}
                       </span>
@@ -595,7 +513,7 @@ function ErrorNote({
   return (
     <div
       role="alert"
-      className="flex items-start gap-2.5 rounded-lg border border-destructive/25 bg-destructive/10 px-3.5 py-3 text-[13px] text-destructive"
+      className="flex items-start gap-2.5 rounded-lg border border-destructive/25 bg-destructive/10 px-3.5 py-3 text-[0.8125rem] text-destructive"
     >
       <AlertCircle className="mt-px size-4 shrink-0" />
       <div className="min-w-0 flex-1">
@@ -627,7 +545,7 @@ function LanguageMenu() {
   return (
     <Menu>
       <MenuTrigger
-        className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+        className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-[0.8125rem] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
         aria-label={tt("Til", "Язык")}
       >
         <Globe className="size-4" />

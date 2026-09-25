@@ -1,4 +1,9 @@
+import SecretText from "@/Components/SecretText";
 import DeleteModal from "@/Components/DeleteModal";
+import ExportButtons from "@/Components/ExportButtons";
+import FilterActions from "@/Components/FilterActions";
+import { sortParams, useTableSort } from "@/hooks/useTableSort";
+import { useDebounce } from "use-debounce";
 import Input from "@/Components/Input";
 import Modal from "@/Components/Modal";
 import Button from "@/Components/reusable/button";
@@ -6,6 +11,7 @@ import Table from "@/Components/reusable/table/Table";
 import Select from "@/Components/Select";
 import { alertt } from "@/Redux/LanguageSlice";
 import useApi, { baseUri } from "@/services/api";
+import type { ExportColumn } from "@/lib/tableExport";
 import { IUsers } from "@/types/user";
 import { tt } from "@/utils";
 import { FormikHelpers, useFormik } from "formik";
@@ -25,6 +31,94 @@ import {
 const userTypes = [
   { id: "admin", name: "Viloyat admin" },
   { id: "lawyer", name: "Viloyat yurist" },
+  { id: "accountant", name: "Viloyat buxgalter" },
+  // Viloyatsiz; faqat super-admin dashboardini ko'radi, bir nechta bo'lishi mumkin
+  { id: "jstb", name: "JSTB xodimi" },
+];
+
+// JSTB xodimi viloyatga biriktirilmaydi — hudud maydoni ko'rsatilmaydi
+const isJstb = (type?: string) => type === "jstb";
+
+// PINFL — faqat raqam, ko'pi bilan 14 ta: ortiqchasi yozilmaydi ham.
+// `maxLength` qo'yilmaydi: u "1234 5678 ..." kabi nusxalangan matnni
+// probellar bilan birga 14 belgida kesib, raqamlarni yo'qotib qo'yardi.
+const onlyPinfl = (v: string) => v.replace(/\D/g, "").slice(0, 14);
+
+/**
+ * Turi formada birinchi turadi: hudud kerakmi-yo'qligini u belgilaydi.
+ * JSTB xodimi hududga biriktirilmaydi (super-admin darajasida) — hudud
+ * maydoni o'rniga izoh chiqadi. Qo'shish va tahrirlash oynalari uchun umumiy.
+ */
+function TypeAndRegionFields({
+  form,
+  regions,
+}: {
+  form: any;
+  regions: { id: number; name: string }[];
+}) {
+  return (
+    <>
+      <div className="mb-4">
+        <Select
+          value={form.values.type}
+          data={userTypes}
+          onChange={(value: string) => {
+            form.setFieldValue("type", value);
+            if (isJstb(value)) form.setFieldValue("region_id", "");
+          }}
+          label={tt("Turi", "Тип")}
+          p={tt("Turni tanlang", "Выберите тип")}
+          error={form.touched?.type ? form.errors.type : undefined}
+          w={false}
+          className="!w-full"
+        />
+      </div>
+
+      {isJstb(form.values.type) ? (
+        <p className="mb-4 rounded-md border border-border bg-muted/40 px-3 py-2 text-[0.8125rem] text-muted-foreground">
+          {tt(
+            "JSTB xodimi hududga biriktirilmaydi — super-admin darajasida ishlaydi.",
+            "Сотрудник ЖСТБ не привязан к региону — работает на уровне супер-админа."
+          )}
+        </p>
+      ) : (
+        <div className="mb-4">
+          <Select
+            value={form.values.region_id}
+            data={regions}
+            onChange={(value: number) => form.setFieldValue("region_id", value)}
+            label={tt("Hudud", "Регион")}
+            p={tt("Hudud tanlang", "Выберите регион")}
+            error={form.touched?.region_id ? form.errors.region_id : undefined}
+            w={false}
+            className="!w-full"
+          />
+        </div>
+      )}
+    </>
+  );
+}
+
+// Funksiya: `tt` til tanlovini chaqirilgan paytda o'qiydi
+const exportColumns = (): ExportColumn<IUsers>[] => [
+  { header: "№", value: (_, i) => i + 1, width: 6, align: "center" },
+  { header: tt("F.I.Sh.", "ФИО"), value: (u) => u.fio },
+  { header: tt("Viloyat", "Регион"), value: (u) => u.name || "—" },
+  {
+    header: tt("Turi", "Тип"),
+    value: (u) =>
+      u.type === "admin"
+        ? tt("Viloyat admin", "Администратор")
+        : u.type === "lawyer"
+        ? tt("Viloyat yurist", "Юрист")
+        : u.type === "accountant"
+        ? tt("Viloyat buxgalter", "Бухгалтер")
+        : u.type === "jstb"
+        ? tt("JSTB xodimi", "Сотрудник ЖСТБ")
+        : "—",
+  },
+  { header: tt("Login", "Логин"), value: (u) => u.login },
+  { header: "PINFL", value: (u) => u.pinfl || "—", align: "center" },
 ];
 
 const UserTable: React.FC = () => {
@@ -37,10 +131,23 @@ const UserTable: React.FC = () => {
 
   const api = useApi();
   const dispatch = useDispatch();
+  const [search, setSearch] = useState("");
+  const [searchText] = useDebounce(search.trim(), 500);
+  const { sort, toggle: toggleSort, reset: resetSort } = useTableSort();
 
+  const clearFilters = () => {
+    setSearch("");
+    resetSort();
+  };
+
+  // Ro'yxat sahifalanmaydi, lekin qidiruv va saralash backendda
   const fetchUsers = async () => {
     try {
-      const response = await api.get<IUsers[]>("admin/user");
+      const response = await api.get<IUsers[]>(
+        "admin/user?" +
+          (searchText ? `search=${encodeURIComponent(searchText)}` : "") +
+          sortParams(sort)
+      );
       if (response?.success && response.data) {
         setUsers(response.data);
       }
@@ -63,9 +170,12 @@ const UserTable: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
     fetchRegions();
   }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [searchText, sort]);
 
   const handleDelete = async () => {
     if (userDeleted?.id) {
@@ -115,11 +225,13 @@ const UserTable: React.FC = () => {
         .required(tt("Parolni kiriting", "Введите пароль")),
       login: Yup.string().required(tt("Login kiriting", "Введите логин")),
       file: Yup.mixed().nullable(),
-      region_id: Yup.number().required(
-        tt("Hududni tanlang", "Выберите регион")
+      region_id: Yup.number().when("type", ([type], schema) =>
+        isJstb(type)
+          ? schema.notRequired()
+          : schema.required(tt("Hududni tanlang", "Выберите регион"))
       ),
       type: Yup.string()
-        .oneOf(["admin", "lawyer"])
+        .oneOf(["admin", "lawyer", "accountant", "jstb"])
         .required(tt("Turni tanlang", "Выберите тип")),
     }),
     onSubmit: async (values, { resetForm }) => {
@@ -129,7 +241,8 @@ const UserTable: React.FC = () => {
       formData.append("login", values.login);
       formData.append("pinfl", values.pinfl);
       if (values.file) formData.append("file", values.file);
-      formData.append("region_id", values.region_id.toString());
+      if (!isJstb(values.type))
+        formData.append("region_id", String(values.region_id ?? ""));
       formData.append("type", values.type);
 
       try {
@@ -202,11 +315,13 @@ const UserTable: React.FC = () => {
         )
       ),
       login: Yup.string().required(tt("Login kiriting", "Введите логин")),
-      region_id: Yup.number().required(
-        tt("Hududni tanlang", "Выберите регион")
+      region_id: Yup.number().when("type", ([type], schema) =>
+        isJstb(type)
+          ? schema.notRequired()
+          : schema.required(tt("Hududni tanlang", "Выберите регион"))
       ),
       type: Yup.string()
-        .oneOf(["admin", "lawyer"])
+        .oneOf(["admin", "lawyer", "accountant", "jstb"])
         .required(tt("Turni tanlang", "Выберите тип")),
     }),
     onSubmit: async (
@@ -219,7 +334,8 @@ const UserTable: React.FC = () => {
       if (values.password) formData.append("password", values.password);
       formData.append("login", values.login);
       formData.append("pinfl", values.pinfl);
-      formData.append("region_id", values.region_id.toString());
+      if (!isJstb(values.type))
+        formData.append("region_id", String(values.region_id ?? ""));
       formData.append("type", values.type);
       if (values.file) formData.append("file", values.file);
 
@@ -278,7 +394,28 @@ const UserTable: React.FC = () => {
       <ListCard
         toolbar={
           <Toolbar>
+            <div className="w-full sm:w-72">
+              <Input
+                v={search}
+                change={(e: any) => setSearch(e.target.value)}
+                search={true}
+                p={tt(
+                  "F.I.Sh., login, PINFL yoki viloyat",
+                  "ФИО, логин, ПИНФЛ или регион"
+                )}
+                className="h-9 w-full"
+              />
+            </div>
+
+            <FilterActions onRefresh={fetchUsers} onClear={clearFilters} />
+
             <ToolbarSpacer />
+            {/* Ro'yxat sahifalanmaydi — yuklangan qatorlar to'liq */}
+            <ExportButtons
+              title={tt("Foydalanuvchilar", "Пользователи")}
+              columns={exportColumns()}
+              fetchRows={async () => users}
+            />
             <UIButton size="sm" onClick={() => setAdd(true)}>
               <Plus />
               {tt("Qo'shish", "Добавить")}
@@ -288,14 +425,16 @@ const UserTable: React.FC = () => {
       >
         {users.length ? (
           <Table
+            sort={sort}
+            onSort={toggleSort}
             thead={[
-              { text: tt("Rasm", "Фото"), className: "w-[90px] text-center" },
-              { text: tt("F.I.Sh.", "ФИО"), className: "min-w-[200px]" },
-              { text: tt("Viloyat", "Регион"), className: "min-w-[150px]" },
-              { text: tt("Turi", "Тип"), className: "w-[150px]" },
-              { text: tt("Login", "Логин"), className: "min-w-[130px]" },
-              { text: "PINFL", className: "min-w-[140px]" },
-              { text: tt("Amallar", "Действия"), className: "w-[110px] text-center" },
+              { text: tt("Rasm", "Фото"), className: "w-[5.625rem] text-center" },
+              { sortKey: "fio", text: tt("F.I.Sh.", "ФИО"), className: "min-w-[12.5rem]" },
+              { sortKey: "name", text: tt("Viloyat", "Регион"), className: "min-w-[9.375rem]" },
+              { sortKey: "type", text: tt("Turi", "Тип"), className: "w-[9.375rem]" },
+              { sortKey: "login", text: tt("Login", "Логин"), className: "min-w-[8.125rem]" },
+              { text: "PINFL", className: "min-w-[8.75rem]" },
+              { text: tt("Amallar", "Действия"), className: "w-[6.875rem] text-center" },
             ]}
           >
             {users.map((user) => (
@@ -314,14 +453,14 @@ const UserTable: React.FC = () => {
                         className="size-10 rounded-none object-cover ring-1 ring-border"
                       />
                     ) : (
-                      <span className="flex size-10 items-center justify-center rounded-none bg-primary/10 text-[15px] font-semibold text-primary">
+                      <span className="flex size-10 items-center justify-center rounded-none bg-primary/10 text-[0.9375rem] font-semibold text-primary">
                         {user.fio?.charAt(0)?.toUpperCase() || "U"}
                       </span>
                     )}
                   </button>
                 </td>
                 <td className="font-medium">{user.fio}</td>
-                <td className="text-muted-foreground">{user.name}</td>
+                <td className="text-muted-foreground">{user.name || "—"}</td>
                 <td>
                   {user.type === "admin" ? (
                     <Badge tone="primary">
@@ -329,13 +468,17 @@ const UserTable: React.FC = () => {
                     </Badge>
                   ) : user.type === "lawyer" ? (
                     <Badge tone="brand">{tt("Viloyat yurist", "Юрист")}</Badge>
+                  ) : user.type === "accountant" ? (
+                    <Badge tone="neutral">{tt("Viloyat buxgalter", "Бухгалтер")}</Badge>
+                  ) : user.type === "jstb" ? (
+                    <Badge tone="success">{tt("JSTB xodimi", "Сотрудник ЖСТБ")}</Badge>
                   ) : (
                     <span className="text-muted-foreground">—</span>
                   )}
                 </td>
                 <td className="tabular-nums">{user.login}</td>
                 <td className="tabular-nums text-muted-foreground">
-                  {user.pinfl || "—"}
+                  <SecretText value={user.pinfl} group={0} />
                 </td>
                 <td>
                   <div className="flex items-center justify-center gap-0.5">
@@ -381,6 +524,8 @@ const UserTable: React.FC = () => {
         w="500px"
       >
         <form onSubmit={formik2.handleSubmit} className="w-full">
+          <TypeAndRegionFields form={formik2} regions={regions} />
+
           <div className="mb-4 w-full">
             <Input
               n="fio"
@@ -409,8 +554,12 @@ const UserTable: React.FC = () => {
               n="pinfl"
               label={tt("PINFL", "ПИНФЛ")}
               v={formik2.values.pinfl}
-              change={formik2.handleChange}
+              change={(e: any) =>
+                formik2.setFieldValue("pinfl", onlyPinfl(e.target.value))
+              }
               blur={formik2.handleBlur}
+              p={tt("14 xonali PINFL ni kiriting", "Введите 14-значный ПИНФЛ")}
+              inputMode="numeric"
               error={formik2.touched?.pinfl ? formik2.errors?.pinfl : undefined}
               className="w-full"
             />
@@ -434,42 +583,6 @@ const UserTable: React.FC = () => {
                 formik2.touched?.password ? formik2.errors?.password : undefined
               }
               className="w-full"
-            />
-          </div>
-
-          <div className="mb-4">
-            <Select
-              value={formik2.values.region_id}
-              data={regions}
-              onChange={(value: number) =>
-                formik2.setFieldValue("region_id", value)
-              }
-              label={tt("Hudud", "Регион")}
-              p={tt("Hudud tanlang", "Выберите регион")}
-              error={
-                formik2.touched?.region_id
-                  ? formik2.errors.region_id
-                  : undefined
-              }
-              up={true}
-              w={false}
-            />
-          </div>
-
-          <div className="mb-4">
-            <Select
-              value={formik2.values.type}
-              data={userTypes}
-              onChange={(value: string) =>
-                formik2.setFieldValue("type", value)
-              }
-              label={tt("Turi", "Тип")}
-              p={tt("Turni tanlang", "Выберите тип")}
-              error={
-                formik2.touched?.type ? formik2.errors.type : undefined
-              }
-              up={true}
-              w={false}
             />
           </div>
 
@@ -518,6 +631,8 @@ const UserTable: React.FC = () => {
         w="500px"
       >
         <form onSubmit={formik.handleSubmit} className="w-full">
+          <TypeAndRegionFields form={formik} regions={regions} />
+
           <div className="mb-4 w-full">
             <Input
               n="fio"
@@ -561,44 +676,14 @@ const UserTable: React.FC = () => {
               n="pinfl"
               label={tt("PINFL", "ПИНФЛ")}
               v={formik.values.pinfl}
-              change={formik.handleChange}
+              change={(e: any) =>
+                formik.setFieldValue("pinfl", onlyPinfl(e.target.value))
+              }
               blur={formik.handleBlur}
+              p={tt("14 xonali PINFL ni kiriting", "Введите 14-значный ПИНФЛ")}
+              inputMode="numeric"
               error={formik.touched?.pinfl ? formik.errors?.pinfl : undefined}
               className="w-full"
-            />
-          </div>
-
-          <div className="mb-4">
-            <Select
-              value={formik.values.region_id}
-              data={regions}
-              onChange={(value: number) =>
-                formik.setFieldValue("region_id", value)
-              }
-              label={tt("Hudud", "Регион")}
-              p={tt("Hudud tanlang", "Выберите регион")}
-              error={
-                formik.touched?.region_id ? formik.errors.region_id : undefined
-              }
-              up={true}
-              w={false}
-            />
-          </div>
-
-          <div className="mb-4">
-            <Select
-              value={formik.values.type}
-              data={userTypes}
-              onChange={(value: string) =>
-                formik.setFieldValue("type", value)
-              }
-              label={tt("Turi", "Тип")}
-              p={tt("Turni tanlang", "Выберите тип")}
-              error={
-                formik.touched?.type ? formik.errors.type : undefined
-              }
-              up={true}
-              w={false}
             />
           </div>
 
@@ -645,7 +730,7 @@ const UserTable: React.FC = () => {
       >
         <img
           src={baseUri + userSelected?.image}
-          className="w-[700px] mx-auto"
+          className="w-[43.75rem] mx-auto"
         />
       </Modal>
 

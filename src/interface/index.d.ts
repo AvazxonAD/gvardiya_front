@@ -199,6 +199,15 @@ export interface RasxodFioTaskInterface {
   summa: number;
   saved?: boolean;
   batalon_id?: number;
+  // Saqlangan qatorning bazadagi taqsimoti (yangi qatorda yo'q — hisoblanadi)
+  summa_10?: number;
+  summa_remaining?: number;
+  summa_65?: number;
+  summa_25?: number;
+  summa_1_25?: number;
+  summa_25_2?: number;
+  summa_12?: number;
+  worker_summa?: number;
 }
 
 export interface IRasxodFio {

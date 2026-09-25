@@ -17,19 +17,19 @@ const formatAmount = (num?: number): string => {
 
 function KpiCard({ title, count, amount, borderColor, icon, onDetail }: KpiCardProps) {
   return (
-    <div className={`dash-glass relative overflow-hidden flex items-center px-[16px] py-[12px] border-l-[4px] ${borderColor}`}>
+    <div className={`dash-glass relative overflow-hidden flex items-center px-[1rem] py-[0.75rem] border-l-[4px] ${borderColor}`}>
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] text-[var(--dash-text-secondary)] font-semibold uppercase tracking-wider mb-2 truncate">
+        <p className="text-[0.6875rem] text-[var(--dash-text-secondary)] font-semibold uppercase tracking-wider mb-2 truncate">
           {title}
         </p>
         <div className="flex items-baseline gap-4">
           <div>
-            <span className="text-[10px] text-[var(--dash-text-muted)] uppercase tracking-wider">{tt("Soni", "Количество")}</span>
-            <p className="text-[22px] font-bold text-[var(--dash-text)] leading-none">{count || 0}</p>
+            <span className="text-[0.625rem] text-[var(--dash-text-muted)] uppercase tracking-wider">{tt("Soni", "Количество")}</span>
+            <p className="text-[1.375rem] font-bold text-[var(--dash-text)] leading-none">{count || 0}</p>
           </div>
           <div>
-            <span className="text-[10px] text-[var(--dash-text-muted)] uppercase tracking-wider">{tt("Summasi", "Сумма")}</span>
-            <p className="text-[15px] font-semibold text-[var(--dash-text-secondary)] leading-none mt-0.5">{formatAmount(amount)}</p>
+            <span className="text-[0.625rem] text-[var(--dash-text-muted)] uppercase tracking-wider">{tt("Summasi", "Сумма")}</span>
+            <p className="text-[0.9375rem] font-semibold text-[var(--dash-text-secondary)] leading-none mt-0.5">{formatAmount(amount)}</p>
           </div>
         </div>
       </div>
@@ -37,7 +37,7 @@ function KpiCard({ title, count, amount, borderColor, icon, onDetail }: KpiCardP
         <div className="opacity-30">
           {icon}
         </div>
-        <button onClick={onDetail} className="text-[10px] text-primary hover:text-primary font-medium flex items-center gap-1 border border-primary/30/40 hover:border-primary/30/60 rounded-md px-2.5 py-1 transition">
+        <button onClick={onDetail} className="text-[0.625rem] text-primary hover:text-primary font-medium flex items-center gap-1 border border-primary/30/40 hover:border-primary/30/60 rounded-md px-2.5 py-1 transition">
           {tt("Batafsil", "Подробнее")}
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
@@ -89,7 +89,7 @@ export default function KpiCards({ data, onDetail }: { data: KpiData; onDetail: 
   ];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-[10px]">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-[0.625rem]">
       {cards.map((card, i) => (
         <KpiCard key={i} {...card} />
       ))}

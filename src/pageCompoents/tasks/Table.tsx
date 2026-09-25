@@ -4,6 +4,8 @@ import React, { useCallback, useState } from "react";
 import TableItem from "./TableItem";
 import Icon from "@/assets/icons";
 import { Info } from "lucide-react";
+import { SortLabel } from "@/Components/reusable/table/Table";
+import type { SortState } from "@/hooks/useTableSort";
 import {
   Button,
   DataTable,
@@ -14,11 +16,14 @@ import {
   type TableColumn,
 } from "@/ui";
 
-const Table: React.FC<{ data: ITask[]; getTasks: Function; contract?: any }> = ({
-  data: rawData,
-  getTasks,
-  contract,
-}) => {
+const Table: React.FC<{
+  data: ITask[];
+  getTasks: Function;
+  contract?: any;
+  /** Backend saralash (ixtiyoriy) — `useTableSort` dan */
+  sort?: SortState;
+  onSort?: (key: string) => void;
+}> = ({ data: rawData, getTasks, contract, sort, onSort }) => {
   // Javob kutilgan shaklda bo'lmasligi mumkin — `.reduce`/`.map` yiqilmasin
   const data: ITask[] = Array.isArray(rawData) ? rawData : [];
   const [creatingId, setCreatingId] = useState<number | null>(null);
@@ -37,6 +42,11 @@ const Table: React.FC<{ data: ITask[]; getTasks: Function; contract?: any }> = (
     },
     []
   );
+
+  // Saralanadigan sarlavha: bosilganda backendga yangi so'rov ketadi
+  const sortHead = (key: string, text: React.ReactNode) =>
+    onSort ? <SortLabel text={text} sortKey={key} sort={sort} /> : text;
+  const sortClick = (key: string) => (onSort ? () => onSort(key) : undefined);
 
   const totals = data.reduce(
     (acc, row) => {
@@ -172,30 +182,33 @@ const Table: React.FC<{ data: ITask[]; getTasks: Function; contract?: any }> = (
     <div className="w-full overflow-x-auto">
       <table className="table-grid w-full">
         <thead>
-          <tr className="bg-muted/60 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            <th className="py-3 px-6 text-left border-b border-border">
-              {tt(
-                "Batalon / Boshqarma nomi",
-                "Название батальона / организации"
+          <tr className="bg-muted/60 text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+            <th className="py-3 px-6 text-left border-b border-border" onClick={sortClick("batalon_name")}>
+              {sortHead(
+                "batalon_name",
+                tt(
+                  "Batalon / Boshqarma nomi",
+                  "Название батальона / организации"
+                )
               )}
             </th>
-            <th className="py-3 px-6 text-center border-b border-border">
-              {tt("Topshiriq vaqti", "Время задачи")}
+            <th className="py-3 px-6 text-center border-b border-border" onClick={sortClick("task_time")}>
+              {sortHead("task_time", tt("Topshiriq vaqti", "Время задачи"))}
             </th>
-            <th className="py-3 px-6 text-center border-b border-border">
+            <th className="py-3 px-6 text-center border-b border-border" onClick={sortClick("worker_number")}>
               <div className="flex items-center gap-2 justify-center">
                 <Icon name="ava" />
-                {tt("Xodimlar soni", "Количество сотрудников")}
+                {sortHead("worker_number", tt("Xodimlar soni", "Количество сотрудников"))}
               </div>
             </th>
-            <th className="py-3 px-6 text-center border-b border-border">
-              {tt("Jami soat", "Всего часов")}
+            <th className="py-3 px-6 text-center border-b border-border" onClick={sortClick("total_hours")}>
+              {sortHead("total_hours", tt("Jami soat", "Всего часов"))}
             </th>
-            <th className="py-3 px-6 text-left min-w-[170px] border-b border-border">
-              {tt("Summa", "Сумма")}
+            <th className="py-3 px-6 text-left min-w-[10.625rem] border-b border-border" onClick={sortClick("summa")}>
+              {sortHead("summa", tt("Summa", "Сумма"))}
             </th>
-            <th className="py-3 px-6 text-center border-b border-border">
-              {tt("Qolgan vaqt", "Оставшееся время")}
+            <th className="py-3 px-6 text-center border-b border-border" onClick={sortClick("remaining_task_time")}>
+              {sortHead("remaining_task_time", tt("Qolgan vaqt", "Оставшееся время"))}
             </th>
 <th className="py-3 px-6 text-center border-b border-border">
               {tt("Biriktirilgan jami xodimlar", "Всего прикреплённых сотрудников")}
@@ -203,8 +216,8 @@ const Table: React.FC<{ data: ITask[]; getTasks: Function; contract?: any }> = (
             <th className="py-3 px-6 text-center border-b border-border">
               {tt("Biriktirilgan jami soat", "Всего прикреплённых часов")}
             </th>
-            <th className="py-3 px-6 text-left min-w-[200px] border-b border-border">
-              {tt("Izoh", "Комментарий")}
+            <th className="py-3 px-6 text-left min-w-[12.5rem] border-b border-border" onClick={sortClick("comment")}>
+              {sortHead("comment", tt("Izoh", "Комментарий"))}
             </th>
             <th className="py-3 px-6 text-center border-b border-border">
               {tt("Amallar", "Действия")}
@@ -212,23 +225,22 @@ const Table: React.FC<{ data: ITask[]; getTasks: Function; contract?: any }> = (
           </tr>
         </thead>
         <tbody className="text-sm font-light">
-          {[...data]
-            .sort((a, b) => Number(a.birgada) - Number(b.birgada))
-            .map((row) => (
-              <TableItem
-                row={row}
-                key={row.id}
-                getTasks={getTasks}
-                creatingId={creatingId}
-                setCreatingId={setCreatingId}
-                contract={contract}
-                updateStats={updateStats}
-              />
-            ))}
+          {/* Tartib backenddan keladi (standart: avval batalonlar, keyin boshqarmalar) */}
+          {data.map((row) => (
+            <TableItem
+              row={row}
+              key={row.id}
+              getTasks={getTasks}
+              creatingId={creatingId}
+              setCreatingId={setCreatingId}
+              contract={contract}
+              updateStats={updateStats}
+            />
+          ))}
         </tbody>
         {data.length > 0 && (
           <tfoot>
-            <tr className="bg-muted/60 text-[13px] font-semibold text-foreground">
+            <tr className="bg-muted/60 text-[0.8125rem] font-semibold text-foreground">
               <td className="py-3 px-6 text-left border-b border-border uppercase">
                 {tt("Jami", "Итого")}
               </td>

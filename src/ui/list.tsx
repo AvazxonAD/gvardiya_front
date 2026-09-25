@@ -29,15 +29,40 @@ export function ListCard({
   bodyClassName?: string;
 }) {
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card
+      className={cn(
+        "overflow-hidden",
+        // Kompyuter ekranida karta ekrandan oshmaydi: filtrlar, jamlanma va
+        // sahifalash doim ko'rinib turadi, faqat jadval o'zi aylanadi (sahifa
+        // emas). 6rem — yuqori panel (h-14) va `main` ning tepa/past
+        // bo'shlig'i (py-5), AppShell bilan mos bo'lishi shart. 24rem dan
+        // pastga tushmaydi: juda past oynada jadval ko'rinmay qolmasin —
+        // unda sahifaning o'zi aylanadi. Qisqa ro'yxatda karta mazmunicha.
+        "lg:flex lg:max-h-[max(24rem,calc(100dvh_-_6rem))] lg:min-h-0 lg:flex-col",
+        className
+      )}
+    >
       {toolbar && (
-        <div className="border-b border-border px-3 py-3 sm:px-4">{toolbar}</div>
+        <div className="shrink-0 border-b border-border px-3 py-3 sm:px-4">{toolbar}</div>
       )}
 
-      <div className={cn("min-w-0", bodyClassName)}>{children}</div>
+      {/* Jadval qutisi shu yerda qisqaradi va o'zi aylanadi. `--table-max-h`
+          jadvallarning o'z balandlik chegarasini o'chiradi (`Table`,
+          `DataTable`), oradagi o'ramlar esa `index.css` dagi `list-body`
+          qoidasi bilan qisqaradi. `overflow-auto` — zaxira: nimadir
+          qisqarmasa ham mazmun kesilib qolmasin. */}
+      <div
+        data-slot="list-body"
+        className={cn(
+          "min-w-0 lg:flex lg:min-h-0 lg:flex-col lg:overflow-auto lg:[--table-max-h:none]",
+          bodyClassName
+        )}
+      >
+        {children}
+      </div>
 
       {footer && (
-        <div className="border-t border-border bg-muted/30">{footer}</div>
+        <div className="shrink-0 border-t border-border bg-muted/30">{footer}</div>
       )}
     </Card>
   );
@@ -93,12 +118,12 @@ export function SummaryTile({
         className
       )}
     >
-      <p className="truncate text-[11px] uppercase tracking-wide text-muted-foreground">
+      <p className="truncate text-[0.6875rem] uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
       <p
         className={cn(
-          "mt-0.5 truncate text-[14px] font-semibold tabular-nums",
+          "mt-0.5 truncate text-[0.875rem] font-semibold tabular-nums",
           TONES[tone]
         )}
       >

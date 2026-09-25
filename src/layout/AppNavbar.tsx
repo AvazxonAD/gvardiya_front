@@ -46,9 +46,13 @@ const LANGUAGES = [
   { id: "2", label: "Русский" },
 ];
 
-type Props = { onMenuClick: () => void };
+type Props = {
+  onMenuClick: () => void;
+  /** Sahifa o'z tablari/izohini chizadigan joy (`navbarSlot.tsx`) */
+  slotRef?: (el: HTMLDivElement | null) => void;
+};
 
-export default function AppNavbar({ onMenuClick }: Props) {
+export default function AppNavbar({ onMenuClick, slotRef }: Props) {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const request = useRequest();
@@ -149,6 +153,8 @@ export default function AppNavbar({ onMenuClick }: Props) {
           {pageTitle}
         </h1>
 
+        <div ref={slotRef} className="flex min-w-0 flex-1 items-center gap-3" />
+
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
           {/* Sana oralig'i — faqat asosiy sahifada */}
           {pathname === "/" && (
@@ -189,10 +195,10 @@ export default function AppNavbar({ onMenuClick }: Props) {
               >
                 <Landmark className="size-4 shrink-0 text-muted-foreground" />
                 <span className="leading-tight">
-                  <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">
+                  <span className="block text-[0.625rem] uppercase tracking-wide text-muted-foreground">
                     {tt("Hisob raqam", "Номер счета")}
                   </span>
-                  <span className="block text-[12px] font-medium tabular-nums text-foreground">
+                  <span className="block text-[0.75rem] font-medium tabular-nums text-foreground">
                     {textNum(account?.account_number, 4) || "—"}
                   </span>
                 </span>
@@ -241,7 +247,7 @@ export default function AppNavbar({ onMenuClick }: Props) {
               aria-label={tt("Foydalanuvchi", "Пользователь")}
             >
               <Avatar user={user} error={imageError} onError={setImageError} />
-              <span className="hidden max-w-[140px] truncate text-[13px] font-medium text-foreground xl:block">
+              <span className="hidden max-w-[8.75rem] truncate text-[0.8125rem] font-medium text-foreground xl:block">
                 {user?.fio}
               </span>
             </MenuTrigger>
@@ -322,7 +328,7 @@ function Avatar({
   }
 
   return (
-    <span className="flex size-7 shrink-0 items-center justify-center rounded-none bg-primary/12 text-[11px] font-semibold text-primary">
+    <span className="flex size-7 shrink-0 items-center justify-center rounded-none bg-primary/12 text-[0.6875rem] font-semibold text-primary">
       {initials}
     </span>
   );
@@ -404,7 +410,7 @@ function ProfileModal({
     >
       <form id="profile-form" onSubmit={submit} className="flex flex-col gap-3.5">
         {error && (
-          <p className="rounded-md bg-destructive/10 px-3 py-2 text-[13px] font-medium text-destructive">
+          <p className="rounded-md bg-destructive/10 px-3 py-2 text-[0.8125rem] font-medium text-destructive">
             {error}
           </p>
         )}

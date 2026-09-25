@@ -34,10 +34,10 @@ function DeleteModal({ closeModal, open, deletee }: any) {
         <span className="flex size-11 items-center justify-center rounded-none bg-destructive/10 text-destructive">
           <AlertTriangle className="size-5" />
         </span>
-        <h2 className="text-[15px] font-semibold text-foreground">
+        <h2 className="text-[0.9375rem] font-semibold text-foreground">
           {tt("Siz mutlaqo ishonchingiz komilmi?", "Вы абсолютно уверены?")}
         </h2>
-        <p className="max-w-xs text-[13px] text-muted-foreground">
+        <p className="max-w-xs text-[0.8125rem] text-muted-foreground">
           {tt(
             "Bu amalni ortga qaytarib bo'lmaydi.",
             "Это действие нельзя отменить."

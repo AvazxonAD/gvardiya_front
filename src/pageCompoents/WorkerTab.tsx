@@ -3,7 +3,9 @@ import { Pencil, Trash2, Users } from "lucide-react";
 
 import Table from "@/Components/reusable/table/Table";
 import DeleteModal from "../Components/DeleteModal";
-import { textNum, tt } from "../utils";
+import { permBtn, usePermission } from "@/lib/permissions";
+import { tt } from "../utils";
+import SecretText from "@/Components/SecretText";
 import { Badge, Button, EmptyState } from "@/ui";
 
 interface IWorker {
@@ -12,6 +14,7 @@ interface IWorker {
   account_number: string;
   xisob_raqam: string;
   batalon_name: string;
+  pinfl?: string | null;
   is_muddatli_harbiy?: boolean;
 }
 
@@ -29,8 +32,12 @@ const WorkerTab = ({
   page,
   itemsPerPage,
   edit,
+  // Saralash ixtiyoriy — berilmasa sarlavhalar bosilmaydi
+  sort,
+  onSort,
 }: any) => {
   const [delOpen, setDelOpen] = useState(false);
+  const perm = usePermission("workers");
 
   const rowNumber = (index: number) => (page - 1) * itemsPerPage + index + 1;
 
@@ -38,13 +45,21 @@ const WorkerTab = ({
     <>
       {data && data.length ? (
         <Table
+          sort={sort}
+          onSort={onSort}
           thead={[
             { text: "№", className: "w-[70px]" },
-            { text: tt("F.I.Sh.", "Ф.И.О"), className: "min-w-[220px]" },
+            { sortKey: "fio", text: tt("F.I.Sh.", "Ф.И.О"), className: "min-w-[220px]" },
+            // Shifrlangan maydonlar bo'yicha saralash yo'q (backend: helper/secure.field.js)
             { text: tt("Karta raqam", "Номер карты"), className: "text-center" },
             { text: tt("Hisob raqam", "Номер счета"), className: "text-center" },
-            { text: tt("Batalon", "Батальон"), className: "text-center" },
             {
+              text: tt("PINFL", "ПИНФЛ"),
+              className: "min-w-[150px] whitespace-nowrap text-center",
+            },
+            { sortKey: "batalon_name", text: tt("Batalon", "Батальон"), className: "text-center" },
+            {
+              sortKey: "is_muddatli_harbiy",
               text: tt("Muddatli harbiy", "Срочная служба"),
               className: "text-center",
             },
@@ -60,11 +75,14 @@ const WorkerTab = ({
                 {rowNumber(index)}
               </td>
               <td className="font-medium">{person.fio}</td>
-              <td className="text-center tabular-nums">
-                {textNum(person.account_number, 4)}
+              <td className="text-center">
+                <SecretText value={person.account_number} />
               </td>
-              <td className="text-center tabular-nums">
-                {textNum(person.xisob_raqam, 4)}
+              <td className="text-center">
+                <SecretText value={person.xisob_raqam} />
+              </td>
+              <td className="whitespace-nowrap text-center">
+                <SecretText value={person.pinfl} group={0} />
               </td>
               <td className="text-center text-muted-foreground">
                 {person.batalon_name}
@@ -81,7 +99,7 @@ const WorkerTab = ({
                   <Button
                     variant="ghost"
                     size="icon-xs"
-                    title={tt("Tahrirlash", "Редактировать")}
+                    {...permBtn(perm.update, tt("Tahrirlash", "Редактировать"))}
                     aria-label={tt("Tahrirlash", "Редактировать")}
                     onClick={() => edit(person.id)}
                   >
@@ -90,9 +108,8 @@ const WorkerTab = ({
                   <Button
                     variant="ghost"
                     size="icon-xs"
-                    title={tt("O'chirish", "Удалить")}
+                    {...permBtn(perm.delete, tt("O'chirish", "Удалить"), "hover:bg-destructive/10 hover:text-destructive")}
                     aria-label={tt("O'chirish", "Удалить")}
-                    className="hover:bg-destructive/10 hover:text-destructive"
                     onClick={() => {
                       setDelOpen(true);
                       setActive(person.id);

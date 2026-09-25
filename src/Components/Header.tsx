@@ -18,6 +18,7 @@ import Modal from "./Modal";
 import Button from "./reusable/button";
 import { SpecialDatePicker } from "./SpecialDatePicker";
 import SpecialMonthPicker from "./specialMonthPicker";
+import { AppFullName, appFullName } from "@/lib/appName";
 import Logo from "@/assets/logo.png";
 // import AvaSvgImg from "../assets/icons/icons";
 
@@ -140,9 +141,9 @@ function Header() {
           }}
           className="flex gap-2 cursor-pointer items-center"
         >
-          <img src={Logo} className="w-[40px] h-[40px]" alt="Tadbir-Hisob" />
+          <img src={Logo} className="w-[40px] h-[40px]" alt={appFullName()} />
           <span className="text-[20px] leading-[24.2px] text-foreground">
-            {tt("Tadbir-Hisob", "Тадбир-Ҳисоб")}
+            <AppFullName />
           </span>
         </div>
         <div className="flex gap-6 items-center">

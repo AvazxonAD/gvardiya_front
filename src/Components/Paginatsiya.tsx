@@ -39,7 +39,7 @@ const Paginatsiya = ({
 
   const stepClass = (disabled: boolean) =>
     cn(
-      "flex h-8 items-center gap-1 rounded-md px-2.5 text-[13px] font-medium",
+      "flex h-8 items-center gap-1 rounded-md px-2.5 text-[0.8125rem] font-medium",
       "transition-colors active:scale-[0.98]",
       disabled
         ? "cursor-not-allowed text-muted-foreground/50"
@@ -67,7 +67,7 @@ const Paginatsiya = ({
               aria-current={currentPage === page ? "page" : undefined}
               onClick={() => setCurrentPage(page)}
               className={cn(
-                "size-8 rounded-md text-[13px] font-medium tabular-nums",
+                "size-8 rounded-md text-[0.8125rem] font-medium tabular-nums",
                 "transition-colors active:scale-[0.98]",
                 currentPage === page
                   ? "bg-primary text-primary-foreground shadow-sm"
@@ -79,7 +79,7 @@ const Paginatsiya = ({
           ) : (
             <span
               key={index}
-              className="w-6 text-center text-[13px] text-muted-foreground"
+              className="w-6 text-center text-[0.8125rem] text-muted-foreground"
             >
               …
             </span>
@@ -98,7 +98,7 @@ const Paginatsiya = ({
       </div>
 
       {limet && (
-        <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
+        <div className="flex items-center gap-2 text-[0.8125rem] text-muted-foreground">
           <span>{tt("qatorlar:", "строк:")}</span>
           <Select
             value={limet}

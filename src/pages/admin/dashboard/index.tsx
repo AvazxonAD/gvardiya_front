@@ -9,6 +9,7 @@ import AlertCard from "./components/AlertCard";
 import RegionModal from "./components/RegionModal";
 import ContractsModal from "./components/ContractsModal";
 import { DashboardCountResponse, RegionApiData, DistributionResponse, RedWorkersResponse, KpiData, ContractType, mapRegions } from "./types";
+import { DebtBreakdownStrip } from "@/lib/debtStatus";
 import "./dashboard.css";
 
 export default function AdminDashboard() {
@@ -84,22 +85,34 @@ export default function AdminDashboard() {
     : null;
 
   return (
-    <div className="dashboard-content flex flex-col gap-[10px] pb-5">
+    <div className="dashboard-content flex flex-col gap-[0.625rem] pb-5">
       {loading && !countData ? (
-        <div className="flex items-center justify-center h-[400px]">
+        <div className="flex items-center justify-center h-[25rem]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary/30" />
         </div>
       ) : (
         <>
           <KpiCards data={kpiData} onDetail={(type) => { setContractsType(type); setContractsModalOpen(true); }} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-[10px] min-h-[500px]">
+          {/* Qarzdorlik to'lov muddati bo'yicha (to'lov tadbirdan 3 kun oldin) —
+              bosilsa shu holatdagi shartnomalar ochiladi */}
+          <DebtBreakdownStrip
+            data={countData?.debt_by_status}
+            onSelect={(s) => { setContractsType(s); setContractsModalOpen(true); }}
+          />
+
+          {/* Yon panel qat'iy kenglikda (rem — katta monitorda birga
+              kattalashadi), qolgan joy xaritaga. Ilgari `lg:grid-cols-3` edi:
+              1280px da panel juda ingichka bo'lib, halqa diagramma yozuvlari
+              sig'mas, katta monitorda esa halqa ulkan bo'lib ketardi.
+              xl dan kichikda xarita to'liq kenglikda, panel ostida. */}
+          <div className="grid grid-cols-1 gap-[0.625rem] xl:min-h-[31.25rem] xl:grid-cols-[minmax(0,1fr)_25rem]">
             <DashboardMap
               selectedId={selectedMapId}
               regionsData={regionsData}
               onSelect={handleSelectRegion}
             />
-            <div className="flex flex-col gap-[8px]">
+            <div className="grid gap-[0.5rem] md:grid-cols-2 xl:flex xl:flex-col">
               <StatusChart distData={distData} />
               <AlertCard redData={redData} from={startDate} to={endDate} regionId={selectedRegionId} />
             </div>

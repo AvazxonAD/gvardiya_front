@@ -45,14 +45,14 @@ export default class ErrorBoundary extends Component<Props, State> {
         <h2 className="text-lg font-semibold text-foreground">
           {tt("Sahifani ko'rsatib bo'lmadi", "Не удалось отобразить страницу")}
         </h2>
-        <p className="max-w-md text-[13px] text-muted-foreground">
+        <p className="max-w-md text-[0.8125rem] text-muted-foreground">
           {tt(
             "Kutilmagan xatolik yuz berdi. Qaytadan urinib ko'ring — muammo takrorlansa, ma'lumotlarni tekshirish kerak.",
             "Произошла непредвиденная ошибка. Попробуйте ещё раз — если повторится, нужно проверить данные."
           )}
         </p>
 
-        <pre className="max-w-full overflow-x-auto rounded-md border border-border bg-muted/50 px-3 py-2 text-left text-[11px] text-muted-foreground">
+        <pre className="max-w-full overflow-x-auto rounded-md border border-border bg-muted/50 px-3 py-2 text-left text-[0.6875rem] text-muted-foreground">
           {error.message}
         </pre>
 

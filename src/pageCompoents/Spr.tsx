@@ -4,9 +4,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { getSpr, updateSpr, updateSprPair } from "../api";
 import Input from "../Components/Input";
 import { alertt } from "../Redux/LanguageSlice";
-import { tt } from "../utils";
+import { formatNum, textNum, tt } from "../utils";
 import SprTab from "./SprTab";
-import { ListCard } from "@/ui";
+import ExportButtons from "@/Components/ExportButtons";
+import FilterActions from "@/Components/FilterActions";
+import { type ExportColumn } from "@/lib/tableExport";
+import { ListCard, Toolbar, ToolbarSpacer } from "@/ui";
+
+/** Ko'p maydonli bo'lim maydoni; `optional` — til varianti, majburiy emas */
+export type SprField = { key: string; label: string; optional?: boolean };
+
 function Spr({
   title,
   titleT,
@@ -39,18 +46,33 @@ function Spr({
    * `tt()` tilni localStorage'dan o'qigani uchun ro'yxat komponent
    * ichida quriladi — modul darajasida til qotib qolardi.
    */
-  const pairKey: string | undefined = bank ? "bank" : pair;
-  const pairFields =
+  /*
+   * Hujjatlarda chiqadigan nomlar (ijrochi, rahbar, bank, manzil) har bir
+   * til uchun alohida saqlanadi: asosiy maydon — kirill hujjat va zaxira,
+   * `_uz` — lotin, `_ru` — rus (backend 79.sql). Qo'shimcha maydonlar
+   * ixtiyoriy: to'ldirilmasa ("-") hujjatda asosiy qiymat chiqadi.
+   */
+  const withLang = (f: { key: string; label: string }): SprField[] => [
+    f,
+    { key: `${f.key}_uz`, label: `${f.label} (${tt("lotin", "латиница")})`, optional: true },
+    { key: `${f.key}_ru`, label: `${f.label} (${tt("rus tilida", "на русском")})`, optional: true },
+  ];
+  const pairKey: string | undefined = bank
+    ? "bank"
+    : pair ?? (path === "boss" || path === "adress" ? path : undefined);
+  const pairFields: SprField[] | null =
     pairKey === "bank"
       ? [
-          { key: "bank", label: tt("Bank nomi", "Название банка") },
+          ...withLang({ key: "bank", label: tt("Bank nomi", "Название банка") }),
           { key: "mfo", label: tt("MFO", "МФО") },
         ]
       : pairKey === "doer"
       ? [
-          { key: "doer", label: tt("Ijrochi nomi", "Название исполнителя") },
-          { key: "title", label: tt("Hujjat sarlavhasi", "Заголовок документа") },
+          ...withLang({ key: "doer", label: tt("Ijrochi nomi", "Название исполнителя") }),
+          ...withLang({ key: "title", label: tt("Hujjat sarlavhasi", "Заголовок документа") }),
         ]
+      : pairKey === "boss" || pairKey === "adress"
+      ? withLang({ key: pairKey, label })
       : null;
   const JWT = useSelector((s: any) => s.auth.jwt);
   const getInfo = async () => {
@@ -124,6 +146,38 @@ function Spr({
   const rows = ([] as any[]).concat((data as any) ?? []);
   const isEmpty = rows.length === 0;
 
+  // Eksport ustunlari SprTab dagi jadval ustunlari bilan bir xil
+  const exportColumns = (): ExportColumn<any>[] => [
+    { header: "№", value: (_, i) => i + 1, width: 6, align: "center" },
+    ...(pairFields
+      ? pairFields.map(
+          (f): ExportColumn<any> => ({ header: f.label, value: (r) => r?.[f.key] })
+        )
+      : deduction
+      ? [
+          { header: tt("Ushlanma nomi", "Название удержания"), value: (r: any) => r?.name },
+          {
+            header: tt("Foiz", "Процент"),
+            value: (r: any) => r?.percent,
+            align: "center" as const,
+          },
+        ]
+      : [
+          {
+            header: titleT,
+            value: (r: any) =>
+              number
+                ? textNum(r?.[text], number)
+                : format
+                ? formatNum(r?.[text])
+                : r?.[text],
+            excelValue: number
+              ? (r: any) => String(r?.[text] ?? "").replace(/\D/g, "")
+              : undefined,
+          },
+        ]),
+  ];
+
   const handleSumbet = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -132,7 +186,7 @@ function Spr({
     // bo'lgani uchun bu bo'sh yozuv hosil qilardi: har bir maydon
     // alohida tekshiriladi (serverda ham ikkalasi majburiy).
     const filled = pairFields
-      ? pairFields.every((f) => String(pairValue[f.key] ?? "").trim())
+      ? pairFields.every((f) => f.optional || String(pairValue[f.key] ?? "").trim())
       : Boolean(value);
 
     if (filled) {
@@ -141,10 +195,28 @@ function Spr({
   };
 
   return (
-    <div className="flex min-w-0 flex-col gap-3">
-      <h1 className="text-[16px] font-semibold text-foreground">{title}</h1>
+    // Sarlavha bilan birga ekranga sig'sin — jadval o'zi aylanadi (ListCard)
+    <div className="flex min-w-0 flex-col gap-3 lg:max-h-[max(24rem,calc(100dvh_-_6rem))]">
+      <h1 className="text-[1rem] font-semibold text-foreground">{title}</h1>
 
-      <ListCard>
+      <ListCard
+        toolbar={
+          path === "template" ? undefined : (
+            <Toolbar>
+              {/* Bu bo'limlarda viloyatga bitta qator — qidiruv/saralash
+                  ma'nosiz, faqat yangilash */}
+              <FilterActions onRefresh={getInfo} />
+              <ToolbarSpacer />
+              {/* Ro'yxat sahifalanmaydi — hammasi allaqachon yuklangan */}
+              <ExportButtons
+                title={title}
+                columns={exportColumns()}
+                fetchRows={async () => rows}
+              />
+            </Toolbar>
+          )
+        }
+      >
       <SprTab
         pairFields={pairFields}
         title={titleT}
@@ -174,6 +246,14 @@ function Spr({
                   className="w-full"
                 />
               ))}
+              {pairFields.some((f) => f.optional) && (
+                <p className="text-[0.75rem] text-muted-foreground">
+                  {tt(
+                    "Asosiy maydon kirill hujjatda chiqadi. Lotin va rus maydonlari to'ldirilmasa (\"-\"), hujjatda asosiy qiymat ishlatiladi.",
+                    "Основное поле выводится в документе на кириллице. Если поля латиницы и русского не заполнены («-»), в документе используется основное значение."
+                  )}
+                </p>
+              )}
             </div>
           ) : (
             <div className="w-full">

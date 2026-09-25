@@ -12,6 +12,7 @@ import {
 import RasxodModal from "@/pages/rasxod/modal";
 import { alertt } from "@/Redux/LanguageSlice";
 import useApi from "@/services/api";
+import { permBtn, usePermission } from "@/lib/permissions";
 import { primaryAccountNumber, OrganizationLike } from "@/types/organization";
 import { IPrixod } from "@/types/prixod";
 import {
@@ -26,6 +27,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import Recipient from "../prixod/recipient";
 import { RasxodcreateTableFio } from "./createRasxodTableFio";
+import { splitSumma } from "./splitSumma";
 import ScreenLoader from "@/Components/ScreenLoader";
 
 const SimpleText = ({ txt }: { txt: string }) => (
@@ -35,7 +37,7 @@ const SimpleText = ({ txt }: { txt: string }) => (
 );
 
 const OrganizationTD = ({ txt }: { txt: string }) => (
-  <td className="border px-3 py-3 text-left text-foreground font-[500] text-[14px]">
+  <td className="border px-3 py-3 text-left text-foreground font-[500] text-[0.875rem]">
     {txt}
   </td>
 );
@@ -48,6 +50,8 @@ export const EditRasxodFio = () => {
   const api = useApi();
   const navigate = useNavigate();
   const { id } = useParams();
+  // update ruxsati bo'lmasa sahifa faqat ko'rish uchun
+  const perm = usePermission("rasxod_workers");
 
   //@ts-ignore
   const accountNumber = useSelector((state) => state.account.account_number_id);
@@ -124,7 +128,7 @@ export const EditRasxodFio = () => {
       dispatch(
         alertt({
           success: false,
-          text: error.response.data.error || error.message,
+          text: error.response?.data?.message || error.message,
         })
       );
     }
@@ -210,7 +214,7 @@ export const EditRasxodFio = () => {
     } catch (error: any) {
       dispatch(
         alertt({
-          text: error.response.data.error || error.message,
+          text: error.response?.data?.message || error.message,
           success: false,
         })
       );
@@ -261,38 +265,13 @@ export const EditRasxodFio = () => {
           .map((el) => ({
             deduction_id: el.id,
           })),
-        worker_tasks: filtereddata.map((item) => {
-          if (item.saved && item.summa_10 != null) {
-            return {
-              worker_task_id: item.worker_task_id,
-              summa: item.summa,
-              summa_10: item.summa_10,
-              summa_remaining: item.summa_remaining,
-              summa_65: item.summa_65,
-              summa_25: item.summa_25,
-              summa_1_25: item.summa_1_25,
-              summa_25_2: item.summa_25_2,
-              summa_12: item.summa_12,
-              worker_summa: item.worker_summa,
-            };
-          }
-          const s10 = item.summa * 10 / 100;
-          const rem = item.summa - s10;
-          const s25 = item.summa * 0.25;
-          const s125 = s25 / 1.25;
-          return {
-            worker_task_id: item.worker_task_id,
-            summa: item.summa,
-            summa_10: s10,
-            summa_remaining: rem,
-            summa_65: item.summa * 0.65,
-            summa_25: s25,
-            summa_1_25: s125,
-            summa_25_2: s125 * 0.25,
-            summa_12: s125 * 0.12,
-            worker_summa: s125 - s125 * 0.12,
-          };
-        }),
+        // Saqlangan qatorlar bazadagi summasi bilan ketadi — eski hujjat qayta
+        // hisoblanmaydi. Yangi qo'shilgan qator joriy qoida bo'yicha hisoblanadi.
+        worker_tasks: filtereddata.map((item) => ({
+          worker_task_id: item.worker_task_id,
+          summa: item.summa,
+          ...splitSumma(item.summa, 10, item.saved ? item : undefined),
+        })),
       };
 
       setScreenLoader(true);
@@ -495,14 +474,14 @@ export const EditRasxodFio = () => {
   return (
     <div className="relative">
       {screenLoader && <ScreenLoader />}
-      <div className="flex items-center mb-[31px]">
+      <div className="flex items-center mb-[1.9375rem]">
         <div className="">
           <BackButton />
         </div>
-        <h1 className="font-[700] text-foreground text-[20px] block ms-8">
+        <h1 className="font-[700] text-foreground text-[1.25rem] block ms-8">
           {tt("Chiqim F.I.Sh. tahrirlash", "Редактирование расхода по Ф.И.О.")}
         </h1>
-        <div className="flex ml-[53px] gap-[32px] items-center">
+        <div className="flex ml-[3.3125rem] gap-[2rem] items-center">
           {/* {ustamaData?.map((item: UstamaInterFaceEdited, index: number) => (
             <Checkbox
               deleted={item.deleted}
@@ -521,9 +500,9 @@ export const EditRasxodFio = () => {
         </div>
       </div>
       {/* <SimpleText txt="To'lov hujjatlari" /> */}
-      <div className="flex items-center gap-x-5 mt-5">
+      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
         <div className="flex items-center gap-x-5">
-          <h5 className="font-[600]">{tt("Hujjat №", "№ документа")}</h5>
+          <h5 className="whitespace-nowrap font-[600]">{tt("Hujjat №", "№ документа")}</h5>
           <Input
             v={docNum ?? currentPrixod?.contract_doc_num ?? ""}
             change={(e: ChangeEvent<HTMLInputElement>) =>
@@ -532,7 +511,7 @@ export const EditRasxodFio = () => {
           />
         </div>
         <div className="flex items-center gap-x-5">
-          <h5 className="font-[600]">{tt("Hujjat sanasi", "Дата проводки")}</h5>
+          <h5 className="whitespace-nowrap font-[600]">{tt("Hujjat sanasi", "Дата проводки")}</h5>
           <SpecialDatePicker
             defaultValue={docDate ?? currentPrixod?.contract_doc_date ?? ""}
             onChange={setDocDate}
@@ -540,8 +519,8 @@ export const EditRasxodFio = () => {
         </div>
       </div>
       {/* organization  */}
-      <div className="flex mt-5">
-        <div className="border w-1/2 p-3">
+      <div className="mt-5 grid md:grid-cols-2">
+        <div className="min-w-0 border p-3">
           <SimpleText
             txt={tt("Qabul qiluvchi ma’lumotlari", "Информация о получателе")}
           />
@@ -587,7 +566,7 @@ export const EditRasxodFio = () => {
             ))}
           </RasxodModal>
         </div>
-        <div className="border w-1/2 p-3 bg-card">
+        <div className="min-w-0 border p-3 bg-card">
           <SimpleText
             txt={tt("To'lovchi ma'lumotlari", "Информация о плательщике")}
           />
@@ -599,12 +578,12 @@ export const EditRasxodFio = () => {
         </div>
       </div>
       {/* prixod  */}
-      <div className="flex">
-        <div className="w-1/2 py-5 pr-5">
-          <div className="flex items-start gap-x-4 mt-5 w-full">
-            <h4 className="w-2/8">{tt("Summa", "Сумма")}</h4>
+      <div className="flex flex-col lg:flex-row">
+        <div className="w-full py-5 lg:w-1/2 lg:pr-5">
+          <div className="mt-5 flex w-full flex-wrap items-start gap-x-4 gap-y-2">
+            <h4 className="shrink-0 pt-2">{tt("Summa", "Сумма")}</h4>
 
-            <div className="w-[50%]">
+            <div className="w-[13rem] max-w-full shrink-0">
               {/* yigilgan pull */}
               <Input
                 // readonly={true}
@@ -615,7 +594,7 @@ export const EditRasxodFio = () => {
               />
             </div>
             <textarea
-              className="w-full text-destructive bg-card uppercase border outline-none resize-none row-span-4 px-2 py-1 rounded-none"
+              className="min-w-[12rem] flex-1 text-destructive bg-card uppercase border outline-none resize-none row-span-4 px-2 py-1 rounded-none"
               placeholder="..."
               readOnly
               value={calculatedSum ? numberToWords(calculatedSum) : ""}
@@ -634,8 +613,8 @@ export const EditRasxodFio = () => {
         ></textarea>
       </div>
 
-      <div className="flex justify-end my-[50px] items-center gap-[40px]">
-        <div className="w-[280px]">
+      <div className="my-[3.125rem] flex flex-wrap items-center justify-end gap-x-10 gap-y-3">
+        <div className="w-[17.5rem]">
           <Input
             v={tableSearch}
             change={(e: ChangeEvent<HTMLInputElement>) =>
@@ -665,7 +644,7 @@ export const EditRasxodFio = () => {
         <Button
           text={tt("Summalarni yangilash", "Обновить суммы")}
           type="button"
-          className="!h-10 !mt-[20px] border-success !bg-success text-success-foreground hover:!bg-success/90"
+          {...permBtn(perm.update, undefined, "!h-10 !mt-[1.25rem] border-success !bg-success text-success-foreground hover:!bg-success/90")}
           onClick={() => getRasxodRequest()}
         />
       </div>
@@ -678,7 +657,7 @@ export const EditRasxodFio = () => {
 
       {/* submit btn  */}
       <div className="mt-5 mb-5 flex justify-center">
-        <Button mode="save" type="button" onClick={handleSubmit}></Button>
+        <Button mode="save" type="button" {...permBtn(perm.update)} onClick={handleSubmit}></Button>
       </div>
     </div>
   );

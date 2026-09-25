@@ -32,12 +32,12 @@ export default function EimzoBadges({ items }: { items?: VerificationItem[] }) {
   if (!items?.length) return null;
 
   return (
-    <div className="mt-10 flex justify-end">
-      <div className="flex flex-row flex-wrap justify-end gap-2">
+    <div className="mt-[40px] flex justify-end">
+      <div className="flex flex-row flex-wrap justify-end gap-[8px]">
         {items.map((v) => (
           <div
             key={v.id}
-            className="inline-flex items-center gap-2 rounded-md border border-green-400 bg-green-50 px-3 py-2 text-[12px] text-green-800"
+            className="inline-flex items-center gap-[8px] rounded-md border border-green-400 bg-green-50 px-[12px] py-[8px] text-[12px] text-green-800"
           >
             <svg
               viewBox="0 0 24 24"
@@ -52,7 +52,7 @@ export default function EimzoBadges({ items }: { items?: VerificationItem[] }) {
               <span className="font-semibold">
                 {v.signer_name}
                 {v.user_type && SIGNER_TYPE_LABEL[v.user_type] && (
-                  <span className="ml-2 rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700">
+                  <span className="ml-[8px] rounded bg-blue-100 px-[6px] py-[2px] text-[10px] font-bold text-blue-700">
                     {tt(
                       SIGNER_TYPE_LABEL[v.user_type].uz,
                       SIGNER_TYPE_LABEL[v.user_type].ru

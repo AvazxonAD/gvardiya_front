@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ArrowDown, ArrowUp, ChevronsUpDown, type LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, pxToRem } from "@/lib/utils";
 import { Skeleton } from "./skeleton";
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -26,11 +26,11 @@ export function PageHeader({
       )}
     >
       <div className="min-w-0">
-        <h2 className="truncate text-xl font-semibold tracking-tight text-foreground sm:text-[22px]">
+        <h2 className="truncate text-xl font-semibold tracking-tight text-foreground sm:text-[1.375rem]">
           {title}
         </h2>
         {description && (
-          <p className="mt-1 text-[13px] text-muted-foreground">{description}</p>
+          <p className="mt-1 text-[0.8125rem] text-muted-foreground">{description}</p>
         )}
       </div>
       {actions && (
@@ -96,26 +96,26 @@ export function StatCard({
           )}
           aria-hidden
         >
-          <Icon className="size-[18px]" />
+          <Icon className="size-[1.125rem]" />
         </span>
       )}
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[12px] font-medium text-muted-foreground">
+        <p className="truncate text-[0.75rem] font-medium text-muted-foreground">
           {label}
         </p>
         {loading ? (
           <Skeleton className="mt-1.5 h-6 w-24" />
         ) : (
           <div className="mt-0.5 flex items-baseline gap-2">
-            <p className="truncate text-[20px] font-semibold leading-tight tabular-nums text-foreground">
+            <p className="truncate text-[1.25rem] font-semibold leading-tight tabular-nums text-foreground">
               {value}
             </p>
             {badge}
           </div>
         )}
         {hint && !loading && (
-          <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+          <p className="mt-0.5 truncate text-[0.6875rem] text-muted-foreground">
             {hint}
           </p>
         )}
@@ -153,9 +153,9 @@ export function EmptyState({
           <Icon className="size-5" />
         </span>
       )}
-      <p className="text-[14px] font-medium text-foreground">{title}</p>
+      <p className="text-[0.875rem] font-medium text-foreground">{title}</p>
       {description && (
-        <p className="max-w-sm text-[13px] text-muted-foreground">{description}</p>
+        <p className="max-w-sm text-[0.8125rem] text-muted-foreground">{description}</p>
       )}
       {action && <div className="mt-2">{action}</div>}
     </div>
@@ -251,17 +251,21 @@ export function DataTable<T>({
 
   return (
     <div
+      data-slot="table-scroll"
       className={cn(
         "w-full overflow-auto",
         // Yopishqoq sarlavha faqat quti balandligi chegaralanganda ishlaydi:
         // aks holda sahifaning o'zi aylanadi va sarlavha u bilan ketadi.
-        stickyHeader && !maxHeight && "max-h-[calc(100vh-16rem)]",
+        // `ListCard` ichida chegara o'chadi — u yerda karta balandligi yetadi
+        stickyHeader && !maxHeight && "max-h-[var(--table-max-h,calc(100vh_-_16rem))]",
         className
       )}
-      style={maxHeight ? { maxHeight } : undefined}
+      // Raqam px deb qabul qilinadi va rem ga o'giriladi — katta monitorda
+      // jadval qutisi ham qolgan interfeys bilan birga kattalashadi
+      style={maxHeight ? { maxHeight: pxToRem(maxHeight) } : undefined}
     >
       <table
-        className={cn("table-grid w-full text-[13px]", fixedLayout && "table-fixed")}
+        className={cn("table-grid w-full text-[0.8125rem]", fixedLayout && "table-fixed")}
       >
         <thead
           className={cn(
@@ -274,7 +278,7 @@ export function DataTable<T>({
               const active = sort?.key === c.key;
               const headCls = cn(
                 "whitespace-nowrap border-b border-border px-3 py-2.5",
-                "text-[11px] font-semibold uppercase tracking-wide text-muted-foreground",
+                "text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground",
                 alignClass(c.align),
                 c.hideOnMobile && "hidden md:table-cell"
               );
@@ -284,7 +288,7 @@ export function DataTable<T>({
                   <th
                     key={c.key}
                     scope="col"
-                    style={c.width ? { width: c.width } : undefined}
+                    style={c.width ? { width: pxToRem(c.width) } : undefined}
                     className={headCls}
                   >
                     {c.header}
@@ -296,7 +300,7 @@ export function DataTable<T>({
                 <th
                   key={c.key}
                   scope="col"
-                  style={c.width ? { width: c.width } : undefined}
+                  style={c.width ? { width: pxToRem(c.width) } : undefined}
                   aria-sort={
                     active
                       ? sort!.dir === "asc"
@@ -409,7 +413,7 @@ export function MiniBar({
           style={{ width: `${p}%` }}
         />
       </span>
-      <span className="w-9 text-right text-[12px] tabular-nums text-muted-foreground">
+      <span className="w-9 text-right text-[0.75rem] tabular-nums text-muted-foreground">
         {p.toFixed(0)}%
       </span>
     </span>

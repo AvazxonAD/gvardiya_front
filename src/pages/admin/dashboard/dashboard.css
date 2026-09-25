@@ -20,7 +20,10 @@
 /* Yangi dizayn tokenlariga bog'lash — dashboard endi ilovaning qolgan
    qismi bilan bir xil palitradan foydalanadi. O'zgaruvchi nomlari saqlandi,
    shuning uchun komponentlarga tegilmadi. */
-.dashboard-content {
+/* .dash-modal-overlay — modal boshqa sahifalarda (masalan "Qarzdorlik") ham
+   ochiladi, u yerda .dashboard-content yo'q */
+.dashboard-content,
+.dash-modal-overlay {
   --dash-bg: hsl(var(--background));
   --dash-glass-bg: hsl(var(--card));
   --dash-glass-border: hsl(var(--border));

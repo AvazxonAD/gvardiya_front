@@ -51,7 +51,7 @@ export const TableItem = ({
   return (
     <td
       {...props}
-      className={`px-2 py-[6px] h-[47px] text-left ${
+      className={`px-2 py-[0.375rem] h-[2.9375rem] text-left ${
         className ? className : ""
       }`}
     >
@@ -102,23 +102,23 @@ export const RasxodcreateTable = ({ data, setRasxodRequestData }: Props) => {
 
   return (
     <div>
-      <div className="rounded-t-[6px] min-h-[300px] text-foreground text-[14px] leading-[16.94px]">
+      {/* Jadval o'z qutisida ikki yo'nalishda aylanadi: gorizontal — kichik
+          monitorda sahifa o'ngga surilmasin; vertikal — sarlavha (`sticky`)
+          aylantirganda tepada qotib tursin. Sahifa aylansa sticky ishlamaydi. */}
+      <div className="min-h-[18.75rem] max-h-[calc(100vh-14rem)] overflow-auto rounded-t-[6px] text-[0.875rem] leading-[1.05875rem] text-foreground">
         <table className="table-grid min-w-full">
-          <thead
-            style={
-              {
-                // position: "sticky",
-                // top: 0,
-              }
-            }
-            className="bg-muted/60 text-foreground border-b border-border text-[14px] leading-[16.94px] rounded-t-[6px]"
-          >
-            <tr className="h-[46px] rounded-t-[6px]">
+          {/* Fon to'liq (shaffof emas) — aks holda ostidan qatorlar ko'rinadi */}
+          <thead className="sticky top-0 z-20 bg-muted text-foreground border-b border-border text-[0.875rem] leading-[1.05875rem] rounded-t-[6px]">
+            <tr className="h-[2.875rem] rounded-t-[6px]">
               {tablehead.map((item, index) => (
+                // Qat'iy kenglik va `truncate` yo'q: 8 ta ustun × 12.5rem
+                // hech bir kichik monitorga sig'masdi. Sarlavha so'zlar
+                // orasidan o'raladi, kenglikni mazmun belgilaydi.
                 <th
                   key={index}
-                  style={{ width: "200px" }}
-                  className="px-4 py-[7px] text-left truncate"
+                  className={`px-4 py-[0.4375rem] text-left ${
+                    index === 2 ? "min-w-[14rem]" : "min-w-[6rem]"
+                  }`}
                 >
                   {item.name}
                 </th>
@@ -126,7 +126,7 @@ export const RasxodcreateTable = ({ data, setRasxodRequestData }: Props) => {
             </tr>
           </thead>
 
-          <tbody className="text-foreground text-[14px] leading-[16.94px]">
+          <tbody className="text-foreground text-[0.875rem] leading-[1.05875rem]">
             {data?.map((item, index) => (
               <tr
                 key={index}
@@ -138,19 +138,19 @@ export const RasxodcreateTable = ({ data, setRasxodRequestData }: Props) => {
                 <TableItem>{formatDate(item.doc_date)}</TableItem>
                 <TableItem className="rasxod-tooltip">
                   {item.organization_name}
-                  <div className="absolute rasxod-tooltip-wrap w-[250px] shadow-lg z-10 rounded-none p-3 bg-muted/60 text-foreground border-b border-border">
+                  <div className="absolute rasxod-tooltip-wrap w-[15.625rem] shadow-lg z-10 rounded-none p-3 bg-popover text-popover-foreground border border-border">
                     <ul className="space-y-1 text-left">
-                      <li className="opacity-[0.7] text-[14px]">
+                      <li className="opacity-[0.7] text-[0.875rem]">
                         {item.organization_name}
                       </li>
-                      <li className="opacity-[0.7] text-[12px]">
+                      <li className="opacity-[0.7] text-[0.75rem]">
                         {tt("Joriy hisob", "Текущий счет")}:{" "}
                         {textNum(item.organization_account_number, 4)}
                       </li>
-                      <li className="opacity-[0.7] text-[12px]">
+                      <li className="opacity-[0.7] text-[0.75rem]">
                         {tt("INN", "ИНН")}: {item.organization_str}
                       </li>
-                      <li className="opacity-[0.7] text-[12px]">
+                      <li className="opacity-[0.7] text-[0.75rem]">
                         {tt("MFO", "МФО")}: {item.organization_mfo}
                       </li>
                     </ul>
@@ -169,7 +169,7 @@ export const RasxodcreateTable = ({ data, setRasxodRequestData }: Props) => {
               </tr>
             ))}
             {/* Totals row */}
-            <tr className="bg-muted/60 font-medium border-t border-border">
+            <tr className="sticky bottom-0 z-10 bg-muted font-medium border-t border-border">
               <td colSpan={3} className="text-left"></td>
               <TableItem className="text-center">
                 {formatNum(task_time)}

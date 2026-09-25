@@ -1,6 +1,6 @@
 /** @format */
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { usePagedFetch } from "@/hooks/usePagedFetch";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -8,6 +8,7 @@ import {
   deleteBatalonWorker,
   getBatalonWorkerId,
   getBatalonWorkers,
+  getExcel,
   updateBatalonWorker,
 } from "../../../api";
 import Input from "../../../Components/Input";
@@ -16,15 +17,13 @@ import Paginatsiya from "../../../Components/Paginatsiya";
 import WorkerTab from "../../../pageCompoents/WorkerTab";
 import { tt } from "../../../utils";
 
-import Download from "@/Components/Download";
+import ExportMenu, { reportItems } from "@/Components/ExportMenu";
 import Button from "@/Components/reusable/button";
-import useApi from "@/services/api";
-import { IWorker } from "@/types/worker";
-import { useReactToPrint } from "react-to-print";
 import { useDebounce } from "use-debounce";
 import { alertt } from "../../../Redux/LanguageSlice";
-import FIOForPrint from "../.././workers/FioForPrint";
-import { FileSpreadsheet, Plus, Printer, RotateCcw } from "lucide-react";
+import FilterActions from "@/Components/FilterActions";
+import { sortParams, useTableSort } from "@/hooks/useTableSort";
+import { Plus } from "lucide-react";
 import { Button as UIButton, ListCard, Toolbar, ToolbarSpacer } from "@/ui";
 
 const formatAccountNumber = (value: string) => {
@@ -50,8 +49,6 @@ function Workers() {
   const [active, setActive] = useState(1);
   const [search, setSearch] = useState("");
   const [searchId, setSearchID] = useState(0);
-  const [downOpen, setDownOpen] = useState(false);
-  const [downOpen2, setDownOpen2] = useState(false);
   const [limet, setLimet] = useState(15);
   const [all, setAll] = useState(10);
 
@@ -68,10 +65,23 @@ function Workers() {
     account_number: "",
   });
 
-  const [searchingText] = useDebounce(search, 500);
+  const [searchingText] = useDebounce(search.trim(), 500);
+  const { sort, toggle: toggleSort, reset: resetSort } = useTableSort();
+
+  const clearFilters = () => {
+    setSearch("");
+    setSearchID(0);
+    resetSort();
+  };
 
   const getInfo = async () => {
-    const res = await getBatalonWorkers(JWT, currentPage, limet, searchingText);
+    const res = await getBatalonWorkers(
+      JWT,
+      currentPage,
+      limet,
+      searchingText,
+      sortParams(sort)
+    );
 
     setData(res.data);
     setTotalpage(res.meta.pageCount);
@@ -82,7 +92,7 @@ function Workers() {
   usePagedFetch({
     page: currentPage,
     setPage: setCurrentPage,
-    filters: [limet, searchId, searchingText],
+    filters: [limet, searchId, searchingText, sort],
     fetch: getInfo,
   });
 
@@ -199,35 +209,9 @@ function Workers() {
     }
   };
 
-  const api = useApi();
-  const [forPdf, setForPdf] = useState<{ total: number; data: IWorker[] }>();
-  const fioRef = useRef<HTMLDivElement>(null);
-  const reactToPrintFn = useReactToPrint({
-    contentRef: fioRef,
-  });
-  const onPrintClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    const get: any = await api.get(`batalon/worker/?page=1&limit=1000000000000000`);
-    if (get?.success) {
-      // `total` javobning `meta` qismida keladi — ilgari butun javob
-      // berilib, bosma varaqning oxirida "undefinedta" deb chiqardi.
-      setForPdf({ total: get.meta?.count ?? get.data?.length ?? 0, data: get.data });
-    }
-  };
-
-  useEffect(() => {
-    if (forPdf) {
-      reactToPrintFn();
-    }
-  }, [forPdf]);
-
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <div className="hidden">
-        <FIOForPrint ref={fioRef} data={forPdf} />
-      </div>
-
       <ListCard
         toolbar={
           <Toolbar>
@@ -236,33 +220,23 @@ function Workers() {
                 v={search}
                 change={(e: any) => setSearch(e.target.value)}
                 search={true}
-                p={tt("Ismlar bo’yicha qidiruv", "Поиск по имени")}
+                p={tt("F.I.Sh., PINFL yoki hisob raqam bo'yicha", "По Ф.И.О., ПИНФЛ или номеру счета")}
                 className="h-9 w-full"
               />
             </div>
 
-            <UIButton
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setSearch("");
-                setSearchID(0);
-              }}
-            >
-              <RotateCcw />
-              {tt("Tozalash", "Очистить")}
-            </UIButton>
+            <FilterActions onRefresh={getInfo} onClear={clearFilters} />
 
             <ToolbarSpacer />
 
-            <UIButton variant="secondary" size="sm" onClick={onPrintClick}>
-              <Printer />
-              {tt("Chop etish", "Печать")}
-            </UIButton>
-            <UIButton variant="secondary" size="sm" onClick={() => setDownOpen(true)}>
-              <FileSpreadsheet />
-              Excel
-            </UIButton>
+            {/* Bitta "⋮" menyu: backend Excel hisobot va aynan shu hisobotning PDF nusxasi */}
+            <ExportMenu
+              items={reportItems({
+                key: "workers",
+                fetchBlob: () => getExcel(JWT, "/worker/excel"),
+                fileName: "excel_file.xlsx",
+              })}
+            />
             <UIButton size="sm" onClick={() => setOpen(true)}>
               <Plus />
               {tt("Qo'shish", "Добавить")}
@@ -287,6 +261,8 @@ function Workers() {
           itemsPerPage={10}
           data={data}
           edit={edit}
+          sort={sort}
+          onSort={toggleSort}
         />
       </ListCard>
 
@@ -388,17 +364,6 @@ function Workers() {
           </div>
         </form>
       </Modal>
-
-      <Download
-        open={downOpen2}
-        closeModal={() => setDownOpen2(false)}
-        URL={"/worker/template/"}
-      />
-      <Download
-        open={downOpen}
-        closeModal={() => setDownOpen(false)}
-        URL={"/worker/excel"}
-      />
     </div>
   );
 }

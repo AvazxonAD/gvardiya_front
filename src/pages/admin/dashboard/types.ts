@@ -1,5 +1,7 @@
 // === API Response Types ===
 
+import type { DebtBreakdown, DebtStatus } from "@/lib/debtStatus";
+
 export interface ContractGroup {
   count: number;
   summa: number;
@@ -10,6 +12,8 @@ export interface DashboardCountResponse {
   all_contract: ContractGroup;
   prixod_contract: ContractGroup;
   rasxod_contract: ContractGroup;
+  /** Qarzdorlar to'lov muddati bo'yicha (summa — shartnoma, debt — qarz) */
+  debt_by_status?: DebtBreakdown;
 }
 
 // GET /admin/dashboard/by-region
@@ -74,7 +78,7 @@ export interface DistributionByRegion {
 }
 
 // GET /admin/dashboard/contracts
-export type ContractType = "all" | "paid" | "debt";
+export type ContractType = "all" | "paid" | "debt" | "not_due" | "late" | "overdue";
 
 export interface ContractItem {
   id: number;
@@ -86,6 +90,9 @@ export interface ContractItem {
   region_name: string;
   paid_summa: number;
   debt_summa: number;
+  debt_status?: DebtStatus;
+  event_date?: string;
+  payment_due_date?: string;
 }
 
 export interface ContractsMeta {

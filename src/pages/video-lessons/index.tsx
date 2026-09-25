@@ -52,7 +52,7 @@ export default function VideoLessons() {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <Card key={i} className="overflow-hidden">
-              <Skeleton className="h-[150px] w-full" />
+              <Skeleton className="h-[9.375rem] w-full" />
               <div className="flex flex-col gap-2 p-4">
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-3 w-full" />
@@ -109,7 +109,7 @@ export default function VideoLessons() {
                 "Ваш браузер не поддерживает видео."
               )}
             </video>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-muted-foreground">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-[0.75rem] text-muted-foreground">
               <span>{formatFileSize(active.file_size)}</span>
               <span>{formatDateTime(active.created_at)}</span>
               {active.author_fio && <span>{active.author_fio}</span>}
@@ -144,7 +144,7 @@ function LessonCard({
       interactive
       className="group overflow-hidden focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40"
     >
-      <div className="relative flex h-[150px] items-center justify-center overflow-hidden bg-muted">
+      <div className="relative flex h-[9.375rem] items-center justify-center overflow-hidden bg-muted">
         {/* `preload="metadata"` — brauzer birinchi kadrni ko'rsatadi, lekin
             butun faylni yuklamaydi. Alohida muqova rasmi shart emas. */}
         <video
@@ -158,21 +158,21 @@ function LessonCard({
         <span className="absolute inset-0 flex items-center justify-center bg-foreground/25 text-background transition-colors group-hover:bg-foreground/40">
           <PlayCircle className="size-11" strokeWidth={1.5} />
         </span>
-        <span className="absolute left-2 top-2 bg-foreground/75 px-2 py-0.5 text-[11px] font-semibold text-background tabular-nums">
+        <span className="absolute left-2 top-2 bg-foreground/75 px-2 py-0.5 text-[0.6875rem] font-semibold text-background tabular-nums">
           {index + 1}
         </span>
       </div>
 
       <div className="flex flex-col gap-1 p-4">
-        <h3 className="line-clamp-2 text-[14px] font-semibold text-foreground">
+        <h3 className="line-clamp-2 text-[0.875rem] font-semibold text-foreground">
           {lesson.title}
         </h3>
         {lesson.description && (
-          <p className="line-clamp-2 text-[12px] text-muted-foreground">
+          <p className="line-clamp-2 text-[0.75rem] text-muted-foreground">
             {lesson.description}
           </p>
         )}
-        <div className="mt-1 flex flex-wrap gap-x-3 text-[11px] text-muted-foreground tabular-nums">
+        <div className="mt-1 flex flex-wrap gap-x-3 text-[0.6875rem] text-muted-foreground tabular-nums">
           <span>{formatFileSize(lesson.file_size)}</span>
           <span>{formatDateTime(lesson.created_at)}</span>
         </div>

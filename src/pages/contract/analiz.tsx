@@ -37,7 +37,7 @@ const ContractAnaliz = () => {
                     <ArrowLeft />
                     {tt("Orqaga", "Назад")}
                 </UIButton>
-                <h1 className="text-[16px] font-semibold text-foreground">
+                <h1 className="text-[1rem] font-semibold text-foreground">
                     {tt("Shartnoma tahlili", "Анализ договора")}
                 </h1>
             </div>

@@ -53,19 +53,16 @@ const SprTab = ({
   const twoCols = Boolean(pairFields || deduction);
 
   const thead = [
-    { text: "№", className: "w-[70px]" },
+    { text: "№", className: "w-[4.375rem]" },
     ...(pairFields
-      ? [
-          { text: pairFields[0].label },
-          { text: pairFields[1].label, className: "w-[220px]" },
-        ]
+      ? pairFields.map((f) => ({ text: f.label }))
       : deduction
       ? [
           { text: tt("Ushlanma nomi", "Название удержания") },
-          { text: tt("Foiz", "Процент"), className: "w-[140px] text-center" },
+          { text: tt("Foiz", "Процент"), className: "w-[8.75rem] text-center" },
         ]
       : [{ text: title }]),
-    { text: tt("Amallar", "Действия"), className: "w-[110px] text-center" },
+    { text: tt("Amallar", "Действия"), className: "w-[6.875rem] text-center" },
   ];
 
   return (
@@ -76,14 +73,16 @@ const SprTab = ({
             <tr key={index}>
               <td className="text-muted-foreground tabular-nums">{index + 1}</td>
 
-              {twoCols ? (
+              {pairFields ? (
+                pairFields.map((f, i) => (
+                  <td key={f.key} className={i === 0 ? "font-medium" : undefined}>
+                    {person?.[f.key]}
+                  </td>
+                ))
+              ) : twoCols ? (
                 <>
-                  <td className="font-medium">
-                    {pairFields ? person?.[pairFields[0].key] : person?.name}
-                  </td>
-                  <td className="tabular-nums">
-                    {pairFields ? person?.[pairFields[1].key] : person?.percent}
-                  </td>
+                  <td className="font-medium">{person?.name}</td>
+                  <td className="tabular-nums">{person?.percent}</td>
                 </>
               ) : (
                 <td className="font-medium">
@@ -97,15 +96,18 @@ const SprTab = ({
 
               <td>
                 <div className="flex items-center justify-center gap-0.5">
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    title={tt("Tahrirlash", "Редактировать")}
-                    aria-label={tt("Tahrirlash", "Редактировать")}
-                    onClick={() => handleRowAction(person)}
-                  >
-                    <Pencil />
-                  </Button>
+                  {/* Shablonlar kodda saqlanadi — faqat ko'rish */}
+                  {!template && (
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      title={tt("Tahrirlash", "Редактировать")}
+                      aria-label={tt("Tahrirlash", "Редактировать")}
+                      onClick={() => handleRowAction(person)}
+                    >
+                      <Pencil />
+                    </Button>
+                  )}
                   {template && (
                     <Button
                       variant="ghost"

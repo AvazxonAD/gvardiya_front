@@ -91,7 +91,7 @@ function MenuContent({
     <div
       role="menu"
       className={cn(
-        "absolute top-[calc(100%+6px)] z-50 min-w-[13rem] animate-zoom-in",
+        "absolute top-[calc(100%+0.375rem)] z-50 min-w-[13rem] animate-zoom-in",
         "overflow-hidden rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-lg",
         align === "end" ? "right-0" : "left-0",
         className
@@ -141,7 +141,7 @@ function MenuItem({
         if (!keepOpen) setOpen(false);
       }}
       className={cn(
-        "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-[13px] font-medium",
+        "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-[0.8125rem] font-medium",
         "outline-none transition-colors",
         "[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground",
         tone === "danger"

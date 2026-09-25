@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ChevronDown, Lock, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { tt } from "@/utils";
@@ -9,7 +9,8 @@ import { removeAccountNumber } from "@/Redux/accountSlice";
 import { clearUserData } from "@/Redux/apiSlice";
 import { clearTokens, revokeRefreshToken } from "@/services/tokenManager";
 import Logo from "@/assets/logo.png";
-import { getMenuForUser, type MenuItem } from "./menu";
+import { AppFullName, appFullName } from "@/lib/appName";
+import { getHomePathForUser, getMenuForUser, type MenuItem } from "./menu";
 
 const SPR_OPEN_KEY = "sidebar:spravochnikOpen";
 
@@ -97,40 +98,46 @@ export default function AppSidebar({
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-sidebar-border bg-sidebar",
           "transition-[width,transform] duration-200 ease-out",
-          collapsed ? "w-[68px]" : "w-[260px]",
+          collapsed ? "w-[4.25rem]" : "w-[16.25rem]",
           // Mobil: sirg'alib chiqadi. lg dan boshlab doim ko'rinadi.
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
         aria-label={tt("Asosiy menyu", "Главное меню")}
       >
-        {/* ── Brend ─────────────────────────────────────────────── */}
-        <div
+        {/* ── Brend — bosilganda foydalanuvchining asosiy sahifasiga ── */}
+        <Link
+          to={getHomePathForUser(user)}
+          onClick={onMobileClose}
+          title={appFullName()}
+          aria-label={appFullName()}
           className={cn(
-            "flex h-14 shrink-0 items-center gap-2.5 border-b border-sidebar-border",
+            "flex min-h-14 shrink-0 items-center gap-2.5 border-b border-sidebar-border py-2",
+            "transition-colors hover:bg-accent/60",
             collapsed ? "justify-center px-2" : "px-4"
           )}
         >
           <img
             src={Logo}
             alt=""
-            className="size-8 shrink-0 rounded-md object-contain"
+            className="size-10 shrink-0 rounded-md object-contain"
           />
           {showLabels && (
             <div className="min-w-0">
-              <p className="truncate text-[13px] font-semibold leading-tight text-foreground">
-                {tt("Tadbir-Hisob", "Тадбир-Ҳисоб")}
-              </p>
-              <p className="truncate text-[11px] leading-tight text-muted-foreground">
-                {tt("Moliyaviy hisob tizimi", "Финансовый учёт")}
+              {/* To'liq nom ("Tadbir-Hisob" qalin) — sig'masa keyingi
+                  qatorga o'tadi, kesilmaydi */}
+              <p className="text-[0.8125rem] leading-snug text-muted-foreground">
+                <AppFullName />
               </p>
             </div>
           )}
-        </div>
+        </Link>
 
         {/* ── Menyu ─────────────────────────────────────────────── */}
         <nav className="flex-1 space-y-0.5 overflow-y-auto overflow-x-hidden p-2">
           {items.map((item) =>
-            item.subItems ? (
+            item.disabled ? (
+              <SidebarDisabled key={item.path} item={item} collapsed={collapsed} />
+            ) : item.subItems ? (
               <SidebarGroup
                 key={item.path}
                 item={item}
@@ -157,19 +164,19 @@ export default function AppSidebar({
             onClick={handleLogout}
             title={collapsed ? tt("Chiqish", "Выход") : undefined}
             className={cn(
-              "flex w-full items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium",
+              "flex w-full items-center gap-3 rounded-md px-3 py-2 text-[0.8125rem] font-medium",
               "text-destructive transition-colors hover:bg-destructive/10",
               collapsed && "justify-center px-0"
             )}
           >
-            <LogOut className="size-[18px] shrink-0" />
+            <LogOut className="size-[1.125rem] shrink-0" />
             {showLabels && tt("Chiqish", "Выход")}
           </button>
 
           <button
             onClick={() => onCollapsedChange(!collapsed)}
             className={cn(
-              "hidden w-full items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium",
+              "hidden w-full items-center gap-3 rounded-md px-3 py-2 text-[0.8125rem] font-medium",
               "text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground lg:flex",
               collapsed && "justify-center px-0"
             )}
@@ -180,9 +187,9 @@ export default function AppSidebar({
             }
           >
             {collapsed ? (
-              <PanelLeftOpen className="size-[18px] shrink-0" />
+              <PanelLeftOpen className="size-[1.125rem] shrink-0" />
             ) : (
-              <PanelLeftClose className="size-[18px] shrink-0" />
+              <PanelLeftClose className="size-[1.125rem] shrink-0" />
             )}
             {showLabels && tt("Yig'ish", "Свернуть")}
           </button>
@@ -196,7 +203,7 @@ export default function AppSidebar({
 
 const itemClass = (active: boolean, collapsed: boolean) =>
   cn(
-    "group relative flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium",
+    "group relative flex items-center gap-3 rounded-md px-3 py-2 text-[0.8125rem] font-medium",
     "transition-colors duration-150",
     collapsed && "justify-center px-0",
     active
@@ -209,9 +216,30 @@ function ActiveMark({ show }: { show: boolean }) {
   if (!show) return null;
   return (
     <span
-      className="absolute inset-y-1.5 left-0 w-[3px] rounded-r-full bg-sidebar-accent"
+      className="absolute inset-y-1.5 left-0 w-[0.1875rem] rounded-r-full bg-sidebar-accent"
       aria-hidden
     />
+  );
+}
+
+// Ruhsat berilmagan bo'lim (xodimda): ko'rinadi, lekin bosilmaydi
+function SidebarDisabled({ item, collapsed }: { item: MenuItem; collapsed: boolean }) {
+  const Icon = item.icon;
+  const label = tt(item.uz, item.ru);
+  return (
+    <div
+      aria-disabled
+      title={`${label} — ${tt("ruhsat yo'q", "нет доступа")}`}
+      className={cn(itemClass(false, collapsed), "cursor-not-allowed opacity-45 hover:bg-transparent")}
+    >
+      <Icon className="size-[1.125rem] shrink-0" />
+      {!collapsed && (
+        <>
+          <span className="flex-1 truncate">{label}</span>
+          <Lock className="size-3.5 shrink-0" aria-hidden />
+        </>
+      )}
+    </div>
   );
 }
 
@@ -234,7 +262,7 @@ function SidebarLink({
     >
       <ActiveMark show={active} />
       <Icon
-        className={cn("size-[18px] shrink-0", active && "text-sidebar-accent")}
+        className={cn("size-[1.125rem] shrink-0", active && "text-sidebar-accent")}
       />
       {!collapsed && <span className="truncate">{tt(item.uz, item.ru)}</span>}
     </Link>
@@ -272,7 +300,7 @@ function SidebarGroup({
         <ActiveMark show={groupActive} />
         <Icon
           className={cn(
-            "size-[18px] shrink-0",
+            "size-[1.125rem] shrink-0",
             groupActive && "text-sidebar-accent"
           )}
         />
@@ -290,7 +318,7 @@ function SidebarGroup({
       </button>
 
       {!collapsed && open && (
-        <div className="ml-[22px] mt-0.5 space-y-0.5 border-l border-sidebar-border pl-2.5">
+        <div className="ml-[1.375rem] mt-0.5 space-y-0.5 border-l border-sidebar-border pl-2.5">
           {item.subItems!.map((sub) => {
             const active = subPath === sub.path;
             return (
@@ -299,7 +327,7 @@ function SidebarGroup({
                 to={item.path + (sub.path === "/" ? "" : sub.path)}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px]",
+                  "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[0.8125rem]",
                   "transition-colors duration-150",
                   active
                     ? "bg-sidebar-accent/10 font-medium text-sidebar-accent-foreground"

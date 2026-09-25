@@ -277,24 +277,24 @@ const EditForm: React.FC<EditFormProps> = ({
     <div className="w-full border-y border-border bg-card p-4 shadow-inner">
       {/* Izoh */}
       <div className="mb-3 rounded-md border border-warning/30 bg-warning/10 p-2.5">
-        <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-warning">
+        <div className="mb-1 text-[0.6875rem] font-semibold uppercase tracking-wide text-warning">
           {tt("Izoh", "Комментарий")}
         </div>
-        <div className="whitespace-pre-wrap break-words text-[13px] text-foreground">
+        <div className="whitespace-pre-wrap break-words text-[0.8125rem] text-foreground">
           {row?.comment || "—"}
         </div>
       </div>
 
       {/* Boshqaruv qatori */}
       <div className="flex flex-wrap items-end gap-2">
-        <div className="w-[140px]">
+        <div className="w-[8.75rem]">
           <SpecialDatePicker
             label={tt("Sana", "Дата")}
             defaultValue={taskDate}
             onChange={(date) => setTaskDate(date)}
           />
         </div>
-        <Field label={tt("Boshlanish", "Начало")} className="w-[92px]">
+        <Field label={tt("Boshlanish", "Начало")} className="w-[5.75rem]">
           <Input
             inputSize="sm"
             value={startTime}
@@ -302,7 +302,7 @@ const EditForm: React.FC<EditFormProps> = ({
             placeholder="00:00"
           />
         </Field>
-        <Field label={tt("Tugash", "Конец")} className="w-[92px]">
+        <Field label={tt("Tugash", "Конец")} className="w-[5.75rem]">
           <Input
             inputSize="sm"
             value={endTime}
@@ -310,7 +310,7 @@ const EditForm: React.FC<EditFormProps> = ({
             placeholder="00:00"
           />
         </Field>
-        <Field label={tt("Soat", "Часы")} className="w-[76px]">
+        <Field label={tt("Soat", "Часы")} className="w-[4.75rem]">
           <Input
             type="number"
             inputSize="sm"
@@ -329,7 +329,7 @@ const EditForm: React.FC<EditFormProps> = ({
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder={tt("Qidiruv...", "Поиск...")}
           startIcon={<Search />}
-          className="w-[240px]"
+          className="w-[15rem]"
           endIcon={
             searchTerm ? (
               <button
@@ -513,10 +513,10 @@ function Chip({
       className={`flex items-center gap-2 rounded-md border px-2.5 py-1.5 ${TONES[tone]}`}
     >
       <Icon className="size-3.5 shrink-0" />
-      <span className="whitespace-nowrap text-[10px] font-medium text-muted-foreground">
+      <span className="whitespace-nowrap text-[0.625rem] font-medium text-muted-foreground">
         {label}:
       </span>
-      <span className="whitespace-nowrap text-[13px] font-semibold tabular-nums">
+      <span className="whitespace-nowrap text-[0.8125rem] font-semibold tabular-nums">
         {value}
       </span>
     </div>

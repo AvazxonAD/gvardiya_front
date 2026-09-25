@@ -4,8 +4,29 @@ import DeleteModal from "../../../Components/DeleteModal";
 import { tt } from "../../../utils";
 import { FaUserPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { SortLabel } from "@/Components/reusable/table/Table";
 
-const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
+// Saralanadigan ustunlar: [sortKey, sarlavha, className]
+const sortableColumns = (): [string, string, string][] => [
+  ["doc_num", tt("Shartnoma raqami", "Номер договора"), "w-[10rem]"],
+  ["worker_number", tt("Xodimlar soni", "Количество сотрудников"), "w-[8.75rem]"],
+  ["task_time", tt("Tadbir vaqti", "Время мероприятия"), "w-[11.25rem]"],
+  ["real_task_time", tt("Umumiy vaqt", "Общее время"), "w-[11.25rem]"],
+  ["remaining_task_time", tt("Qolgan", "Остаток"), "w-[11.25rem]"],
+  ["deadline", tt("Topshiriq muddati", "Крайний срок выполнения задания"), "w-[11.25rem]"],
+  ["address", tt("Manzil", "Адрес"), "w-[11.25rem]"],
+  ["comment", tt("Izoh", "Примечание"), "w-[18.75rem]"],
+  ["status", tt("Topshiriq holati", "Статус задания"), "w-[9.375rem]"],
+];
+
+const TasksTable = ({
+  data,
+  handleDelete,
+  page,
+  itemsPerPage,
+  sort,
+  onSort,
+}: any) => {
   const [delOpen, setDelOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
@@ -23,12 +44,12 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
     <>
       {showModal && selectedTask && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-card dark:bg-card p-6 rounded-2xl shadow-2xl w-[400px] animate-scale-in">
+          <div className="bg-card dark:bg-card p-6 rounded-2xl shadow-2xl w-[25rem] animate-scale-in">
             <h2 className="text-xl font-semibold text-center text-primary mb-6 border-b pb-3">
               Shartnoma tafsilotlari
             </h2>
 
-            <div className="space-y-3 text-foreground text-[15px]">
+            <div className="space-y-3 text-foreground text-[0.9375rem]">
               <div className="border-l-4 border-primary/30 pl-3">
                 <strong>Shartnoma raqami:</strong>{" "}
                 {selectedTask.contract_info?.doc_num}
@@ -69,41 +90,25 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
 
       {data ? (
         <div
-          className={`rounded-t-[6px] text-[14px] leading-[16.94px] border`}
+          className={`rounded-t-[6px] text-[0.875rem] leading-[1.05875rem] border`}
           style={{ maxHeight: fullHeight, overflowY: "auto" }}
         >
           <table className="table-grid min-w-full relative">
-            <thead className="bg-muted/60 sticky z-10 -top-1 text-[14px] leading-[16.94px] rounded-t-[6px] border-b border-border">
+            <thead className="bg-muted/60 sticky z-10 -top-1 text-[0.875rem] leading-[1.05875rem] rounded-t-[6px] border-b border-border">
               <tr className="text-foreground">
-                <th className="px-4 py-3 text-left w-[60px]">{tt("№", "№")}</th>
-                <th className="px-4 py-3 text-center w-[160px]">
-                  {tt("Shartnoma raqami", "Номер договора")}
-                </th>
-                <th className="px-4 py-3 text-center w-[140px]">
-                  {tt("Xodimlar soni", "Количество сотрудников")}
-                </th>
-                <th className="px-4 py-3 text-center w-[180px]">
-                  {tt("Tadbir vaqti", "Время мероприятия")}
-                </th>
-                <th className="px-4 py-3 text-center w-[180px]">
-                  {tt("Umumiy vaqt", "Общее время")}
-                </th>
-                <th className="px-4 py-3 text-center w-[180px]">
-                  {tt("Qolgan", "Остаток")}
-                </th>
-                <th className="px-4 py-3 text-center w-[180px]">
-                  {tt("Topshiriq muddati", "Крайний срок выполнения задания")}
-                </th>
-                <th className="px-4 py-3 text-center w-[180px]">
-                  {tt("Manzil", "Адрес")}
-                </th>
-                <th className="px-4 py-3 text-center w-[300px]">
-                  {tt("Izoh", "Примечание")}
-                </th>
-                <th className="px-4 py-3 text-center w-[150px]">
-                  {tt("Topshiriq holati", "Статус задания")}
-                </th>
-                <th className="px-4 py-3 text-right w-[100px]">
+                <th className="px-4 py-3 text-left w-[3.75rem]">{tt("№", "№")}</th>
+                {sortableColumns().map(([key, text, width]) => (
+                  <th
+                    key={key}
+                    className={`px-4 py-3 text-center ${width} ${
+                      onSort ? "cursor-pointer select-none" : ""
+                    }`}
+                    onClick={onSort ? () => onSort(key) : undefined}
+                  >
+                    <SortLabel text={text} sortKey={key} sort={sort} />
+                  </th>
+                ))}
+                <th className="px-4 py-3 text-right w-[6.25rem]">
                   {tt("Amallar", "Действия")}
                 </th>
               </tr>
@@ -168,7 +173,7 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
                         }}
                         className="hover:opacity-80 transition-opacity text-primary"
                       >
-                        <FaUserPlus size={20} className="inline mr-1" />
+                        <FaUserPlus className="mr-1 inline size-5" />
                       </button>
                     </div>
                   </td>
@@ -180,7 +185,7 @@ const TasksTable = ({ data, handleDelete, page, itemsPerPage, edit }: any) => {
       ) : (
         <div
           style={{ height: fullHeight }}
-          className="w-full text-foreground dark:text-foreground font-[500] text-[20px] flex justify-center items-center bg-muted dark:bg-muted/60 rounded-lg"
+          className="w-full text-foreground dark:text-foreground font-[500] text-[1.25rem] flex justify-center items-center bg-muted dark:bg-muted/60 rounded-lg"
         >
           {tt("Ma'lumot yo'q", "Нет данных")}
         </div>

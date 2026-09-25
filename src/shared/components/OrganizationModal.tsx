@@ -119,12 +119,12 @@ function OrganizationModal({
                   type="button"
                   onClick={handleInnSearch}
                   disabled={searching}
-                  className="mb-[2px] px-3 py-[9px] bg-primary text-primary-foreground rounded-md hover:bg-primary disabled:opacity-50 flex items-center gap-1 text-sm"
+                  className="mb-[0.125rem] px-3 py-[0.5625rem] bg-primary text-primary-foreground rounded-md hover:bg-primary disabled:opacity-50 flex items-center gap-1 text-sm"
                 >
                   {searching ? (
-                    <Loader2Icon size={16} className="animate-spin" />
+                    <Loader2Icon className="size-4 animate-spin" />
                   ) : (
-                    <SearchIcon size={16} />
+                    <SearchIcon className="size-4" />
                   )}
                 </button>
               </div>
@@ -208,7 +208,7 @@ function OrganizationModal({
                 onClick={addAccountNumber}
                 className="w-full py-2 border border-border rounded-md text-center text-sm flex items-center justify-center gap-2"
               >
-                <PlusIcon size={16} /> {tt("Qo'shish", "Добавить")}
+                <PlusIcon className="size-4" /> {tt("Qo'shish", "Добавить")}
               </button>
             </div>
 
@@ -247,7 +247,7 @@ function OrganizationModal({
                 onClick={addGazna}
                 className="w-full py-2 border border-border rounded-md text-center text-sm flex items-center justify-center gap-2"
               >
-                <PlusIcon size={16} /> {tt("Qo'shish", "Добавить")}
+                <PlusIcon className="size-4" /> {tt("Qo'shish", "Добавить")}
               </button>
             </div>
           </div>

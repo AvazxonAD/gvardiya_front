@@ -17,7 +17,7 @@ export type IUsers = {
     login: string;
     image: string | null;
     region_id: number;
-    type?: "admin" | "lawyer";
+    type?: "admin" | "lawyer" | "accountant";
     pinfl?: string | null;
     batalon_id?: number;
     batalon?: any;

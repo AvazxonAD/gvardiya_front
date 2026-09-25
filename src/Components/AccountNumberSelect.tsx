@@ -58,7 +58,7 @@ export const AccountNumberSelect = ({
         data={accountselection}
       />
 
-      <div className="flex justify-center mt-[50px]">
+      <div className="flex justify-center mt-[3.125rem]">
         <Button
           disabled={!accNumber}
           onClick={() => setOpenmodal(false)}

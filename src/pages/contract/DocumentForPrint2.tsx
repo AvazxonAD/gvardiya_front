@@ -3,6 +3,7 @@ import React from "react";
 import BudgetTable from "./Smeta";
 import EimzoBadges from "./EimzoBadges";
 import { safeHtml } from "@/lib/safeHtml";
+import { docAnnex, docNum, docText } from "@/lib/docText";
 
 const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
   (
@@ -22,7 +23,7 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                   </h1>
 
                   <p className="text-center font-bold mb-1">
-                    {data.doc_num}-сон
+                    {docNum(data.doc_num)}
                   </p>
 
                   <div className="flex justify-between font-bold mb-6">
@@ -126,47 +127,47 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                   </div>
 
                   <h2 className="text-lg font-semibold text-center mb-4">
-                    8. Томонларнинг реквизитлари
+                    {docText("requisitesTitle")}
                   </h2>
                   <div className="flex max-w-[100%]   font-semibold mx-auto justify-between">
                     <div className="max-w-[45%]">
-                      <h3 className="font-bold mb-2 text-center">Буюртмачи:</h3>
+                      <h3 className="font-bold mb-2 text-center">{docText("customer")}</h3>
                       <p className="font-semibold mb-3 text-center">
                         "{organisation.name}"
                       </p>
-                      <p>Манзил: {organisation.address}</p>
-                      <p>ИНН: {textNum(organisation.str, 3)}</p>
-                      <p>Банк реквизитлари: {organisation.bank_name}</p>
-                      <p>МФО: {organisation.mfo}</p>
-                      <p>х/р: {textNum(data.organization_account_number || organisation.account_number, 4)} </p>
+                      <p>{docText("address")} {organisation.address}</p>
+                      <p>{docText("inn")} {textNum(organisation.str, 3)}</p>
+                      <p>{docText("bank")} {organisation.bank_name}</p>
+                      <p>{docText("mfo")} {organisation.mfo}</p>
+                      <p>{docText("account")} {textNum(data.organization_account_number || organisation.account_number, 4)} </p>
 
                       {(organisation.treasury1 || organisation.treasury2) && (
                         <p>
                           {" "}
-                          Ғазначилиги х/р:
+                          {docText("treasury")}{" "}
                           {organisation.treasury1 || organisation.treasury2}
                         </p>
                       )}
                     </div>
                     <div className="max-w-[45%]">
-                      <h3 className="font-bold mb-2 text-center">Бажарувчи:</h3>
+                      <h3 className="font-bold mb-2 text-center">{docText("executor")}</h3>
                       <p className="font-semibold mb-3 text-center">
                         "{info.doer}"
                       </p>
-                      <p>Манзил: {info.address}</p>
-                      <p>ИНН: {textNum(info.str, 3)}</p>
-                      <p>Банк реквизитлари: {info.bank} </p>
-                      <p>МФО: {info.mfo}</p>
-                      <p>х/р: {textNum(info.account_number, 4)} </p>
+                      <p>{docText("address")} {info.address}</p>
+                      <p>{docText("inn")} {textNum(info.str, 3)}</p>
+                      <p>{docText("bank")} {info.bank} </p>
+                      <p>{docText("mfo")} {info.mfo}</p>
+                      <p>{docText("account")} {textNum(info.account_number, 4)} </p>
                     </div>
                   </div>
                   <div className="flex max-w-[100%]   font-semibold mx-auto justify-between">
                     <div className="max-w-[45%] w-full">
-                      <p className="mt-2">Раҳбари:_____________________</p>
+                      <p className="mt-2">{docText("head")}_____________________</p>
                     </div>
                     <div className="max-w-[45%] w-full">
                       <p className="mt-2 w-full">
-                        Раҳбари:___________{info.boss}
+                        {docText("head")}___________{info.boss}
                       </p>
                     </div>
                   </div>
@@ -175,22 +176,21 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                 <section className=" mt-[1000px] ">
                   <div className="flex flex-col justify-end text-lg font-semibold items-end gap-1">
                     <span>{getFullDate(data.doc_date)}</span>
-                    <span>{data.doc_num} сонли шартномага илова</span>
+                    <span>{docAnnex(data.doc_num)}</span>
                   </div>
 
                   <h1 className="text-center text-lg my-[70px] font-semibold">
-                    Оммавий тадбирни ўтказишда фуқаролар хавсизлигини таъминлаш
-                    ва жамоат тартибини сақлашни ташкил этишда
+                    {docText("smetaSubject")}
                   </h1>
 
                   <h1 className="text-center text-lg mb-[50px] font-semibold ">
-                    Харажатлар сметаси
+                    {docText("smetaTitle")}
                   </h1>
                   <BudgetTable data={data} />
                   <div className="flex items-start justify-around mt-14">
                     <div className="flex items-center flex-col">
                       <h1 className="text-center text-lg  font-semibold">
-                        Буюртмачи:
+                        {docText("customer")}
                       </h1>
                       <span className="block mt-5">
                         ______________________________
@@ -198,7 +198,7 @@ const DocumentForPrint2 = React.forwardRef<HTMLDivElement, any>(
                     </div>
                     <div className="flex items-center flex-col">
                       <h1 className="text-center text-lg  font-semibold">
-                        Бажарувчи:
+                        {docText("executor")}
                       </h1>
                       <span className="block mt-5">
                         ______________________________

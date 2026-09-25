@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import { tt } from "../../../../utils";
 import { RegionApiData } from "../types";
+import ExportButtons from "@/Components/ExportButtons";
+import type { ExportColumn } from "@/lib/tableExport";
 
 interface RegionModalProps {
   isOpen: boolean;
@@ -13,6 +15,24 @@ const formatAmount = (num?: number): string => {
   if (!num && num !== 0) return "0";
   return Number(num).toLocaleString("ru-RU");
 };
+
+const money = (header: string, get: (r: RegionApiData) => number): ExportColumn<RegionApiData> => ({
+  header,
+  value: (r) => formatAmount(get(r)),
+  excelValue: (r) => Number(get(r)) || 0,
+  align: "right",
+});
+
+const exportColumns = (): ExportColumn<RegionApiData>[] => [
+  { header: "№", value: (_, i) => i + 1, width: 6, align: "center" },
+  { header: tt("Viloyat", "Регион"), value: (r) => r.region_name },
+  { header: tt("Jami", "Всего"), value: (r) => r.data.all_contract.count, align: "center" },
+  money(tt("Jami summa", "Общая сумма"), (r) => r.data.all_contract.summa),
+  { header: tt("To'langan", "Оплачено"), value: (r) => r.data.prixod_contract.count, align: "center" },
+  money(tt("To'langan summa", "Оплаченная сумма"), (r) => r.data.prixod_contract.summa),
+  { header: tt("Qarzdor", "Должники"), value: (r) => r.data.rasxod_contract.count, align: "center" },
+  money(tt("Qarzdor summa", "Сумма задолженности"), (r) => r.data.rasxod_contract.summa),
+];
 
 export default function RegionModal({ isOpen, onClose, regionsData, selectedRegionId }: RegionModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -61,15 +81,15 @@ export default function RegionModal({ isOpen, onClose, regionsData, selectedRegi
             { label: tt("Qarzdorligi bor", "С задолженностью"), count: totals.debtCount, summa: totals.debtSumma, border: "border-l-rose-500", color: "text-rose-500" },
           ].map((card, i) => (
             <div key={i} className={`rounded-xl p-3 border-l-[3px] ${card.border}`} style={{ background: "var(--dash-table-row-alt)" }}>
-              <p className="text-[10px] text-[var(--dash-text-muted)] uppercase tracking-wider">{card.label}</p>
+              <p className="text-[0.625rem] text-[var(--dash-text-muted)] uppercase tracking-wider">{card.label}</p>
               <div className="flex items-baseline gap-3 mt-1">
                 <div>
-                  <span className="text-[10px] text-[var(--dash-text-muted)]">{tt("Soni", "Количество")}</span>
-                  <p className={`text-[20px] font-bold leading-none ${card.color || "text-[var(--dash-text)]"}`}>{card.count}</p>
+                  <span className="text-[0.625rem] text-[var(--dash-text-muted)]">{tt("Soni", "Количество")}</span>
+                  <p className={`text-[1.25rem] font-bold leading-none ${card.color || "text-[var(--dash-text)]"}`}>{card.count}</p>
                 </div>
                 <div>
-                  <span className="text-[10px] text-[var(--dash-text-muted)]">{tt("Summasi", "Сумма")}</span>
-                  <p className={`text-[14px] font-semibold leading-none mt-0.5 ${card.color || "text-[var(--dash-text-secondary)]"}`}>{formatAmount(card.summa)}</p>
+                  <span className="text-[0.625rem] text-[var(--dash-text-muted)]">{tt("Summasi", "Сумма")}</span>
+                  <p className={`text-[0.875rem] font-semibold leading-none mt-0.5 ${card.color || "text-[var(--dash-text-secondary)]"}`}>{formatAmount(card.summa)}</p>
                 </div>
               </div>
             </div>
@@ -80,7 +100,7 @@ export default function RegionModal({ isOpen, onClose, regionsData, selectedRegi
           <div className="overflow-x-auto rounded-xl" style={{ border: "1px solid var(--dash-table-border)" }}>
             <table className="table-grid w-full text-left text-sm whitespace-nowrap">
               <thead style={{ background: "var(--dash-table-header-bg)" }}>
-                <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
+                <tr className="text-[var(--dash-text-secondary)] uppercase text-[0.6875rem]">
                   <th className="px-4 py-3 font-semibold">№</th>
                   <th className="px-4 py-3 font-semibold">{tt("Viloyat", "Регион")}</th>
                   <th className="px-4 py-3 font-semibold text-center">{tt("Jami", "Всего")}</th>
@@ -110,13 +130,18 @@ export default function RegionModal({ isOpen, onClose, regionsData, selectedRegi
           </div>
         </div>
 
-        <div className="px-5 py-3 flex justify-end shrink-0" style={{ borderTop: "1px solid var(--dash-modal-border)" }}>
-          <button className="px-4 py-2 bg-success hover:bg-success text-primary-foreground text-[12px] font-medium rounded-lg transition flex items-center gap-1.5">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            {tt("Excel yuklab olish", "Скачать Excel")}
-          </button>
+        <div className="px-5 py-3 flex justify-end gap-2 shrink-0" style={{ borderTop: "1px solid var(--dash-modal-border)" }}>
+          {/* Avval bu yerda onClick'siz (ishlamaydigan) "Excel" tugmasi turardi —
+              ma'lumot to'liq state'da, shuning uchun Excel va PDF brauzerda yasaladi */}
+          <ExportButtons
+            title={
+              selectedRegionId
+                ? dataList[0]?.region_name || tt("Viloyat", "Регион")
+                : tt("Barcha hududlar bo'yicha", "По всем регионам")
+            }
+            columns={exportColumns()}
+            fetchRows={async () => dataList}
+          />
         </div>
       </div>
     </div>

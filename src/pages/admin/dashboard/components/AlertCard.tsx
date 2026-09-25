@@ -3,6 +3,7 @@ import { tt } from "@/utils";
 import { baseUri } from "@/services/api";
 import { authFetch } from "@/services/tokenManager";
 import { RedWorkersResponse } from "../types";
+import ExportMenu, { reportItems, type ExportMenuItem } from "@/Components/ExportMenu";
 
 interface AlertCardProps {
   redData: RedWorkersResponse | null;
@@ -19,28 +20,21 @@ const formatAmount = (num?: number): string => {
 export default function AlertCard({ redData, from, to, regionId }: AlertCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
-  const handleExcel = () => {
-    const regionParam = regionId ? `&region_id=${regionId}` : "";
-    const url = `${baseUri}/admin/dashboard/red-border?from=${from}&to=${to}${regionParam}&excel=true`;
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "qizil_chegara_xodimlar.xlsx");
-
-    authFetch(url)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const blobUrl = URL.createObjectURL(blob);
-        link.href = blobUrl;
-        link.click();
-        URL.revokeObjectURL(blobUrl);
-      })
-      .catch((err) => console.error("Excel yuklashda xatolik:", err));
-  };
+  // Backend hisobot: Excel va xuddi o'sha hisobotning PDF varianti
+  const redReportItems = reportItems({
+    key: "red-workers",
+    fetchBlob: () => {
+      const regionParam = regionId ? `&region_id=${regionId}` : "";
+      return authFetch(
+        `${baseUri}/admin/dashboard/red-border?from=${from}&to=${to}${regionParam}&excel=true`
+      ).then((res) => res.blob());
+    },
+    fileName: "qizil_chegara_xodimlar.xlsx",
+  });
 
   return (
     <>
-      <div className="dash-glass p-[14px] flex flex-col gap-3 shrink-0 border-l-[4px] border-l-rose-500">
+      <div className="dash-glass p-[0.875rem] flex flex-col gap-3 shrink-0 border-l-[4px] border-l-rose-500">
         <div className="flex items-start gap-3">
           <div className="p-2 bg-rose-500/20 rounded-lg shrink-0">
             <svg className="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,23 +43,23 @@ export default function AlertCard({ redData, from, to, regionId }: AlertCardProp
             </svg>
           </div>
           <div className="flex-1">
-            <h2 className="text-[14px] font-bold text-[var(--dash-text)] leading-snug">
+            <h2 className="text-[0.875rem] font-bold text-[var(--dash-text)] leading-snug">
               {tt("Qizil chegaraga tushgan xodimlar", "Сотрудники в красной зоне")}
             </h2>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-[28px] font-bold text-rose-500 leading-none">{redData?.red_count || 0}</span>
-              <span className="text-[var(--dash-text-muted)] text-[12px]">{tt("xodim aniqlandi", "сотрудников выявлено")}</span>
+              <span className="text-[1.75rem] font-bold text-rose-500 leading-none">{redData?.red_count || 0}</span>
+              <span className="text-[var(--dash-text-muted)] text-[0.75rem]">{tt("xodim aniqlandi", "сотрудников выявлено")}</span>
             </div>
-            <p className="text-[11px] text-[var(--dash-text-secondary)] leading-snug mt-1">
+            <p className="text-[0.6875rem] text-[var(--dash-text-secondary)] leading-snug mt-1">
               {tt("Tizim avtomatik ravishda qizil chegaraga tushgan xodimlarni aniqlaydi.", "Система автоматически выявляет сотрудников, попавших в красную зону.")}
             </p>
           </div>
         </div>
 
-        <div className="flex gap-[8px]">
+        <div className="flex gap-[0.5rem]">
           <button
             onClick={() => setModalOpen(true)}
-            className="flex-1 h-[36px] bg-transparent border border-success/30 rounded-lg text-success text-[12px] font-medium flex items-center justify-center gap-1.5 hover:bg-success/10 transition-all"
+            className="flex-1 h-[2.25rem] bg-transparent border border-success/30 rounded-lg text-success text-[0.75rem] font-medium flex items-center justify-center gap-1.5 hover:bg-success/10 transition-all"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -73,16 +67,7 @@ export default function AlertCard({ redData, from, to, regionId }: AlertCardProp
             </svg>
             {tt("Ro'yxatni ko'rsatish", "Показать список")}
           </button>
-          <button
-            onClick={handleExcel}
-            className="flex-1 h-[36px] bg-success rounded-lg text-primary-foreground text-[12px] font-medium flex items-center justify-center gap-1.5 hover:bg-success transition-all"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            {tt("Excel yuklab olish", "Скачать Excel")}
-          </button>
+          <ExportMenu items={redReportItems} className="size-[2.25rem] rounded-lg" title={tt("Yuklab olish", "Скачать")} />
         </div>
       </div>
 
@@ -91,16 +76,16 @@ export default function AlertCard({ redData, from, to, regionId }: AlertCardProp
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         redData={redData}
-        onExcel={handleExcel}
+        reportItems={redReportItems}
       />
     </>
   );
 }
 
 function RedWorkersModal({
-  isOpen, onClose, redData, onExcel,
+  isOpen, onClose, redData, reportItems,
 }: {
-  isOpen: boolean; onClose: () => void; redData: RedWorkersResponse | null; onExcel: () => void;
+  isOpen: boolean; onClose: () => void; redData: RedWorkersResponse | null; reportItems: ExportMenuItem[];
 }) {
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -115,7 +100,7 @@ function RedWorkersModal({
   return (
     <div ref={overlayRef} className="dash-modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4"
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}>
-      <div className="shadow-2xl rounded-2xl w-[95vw] max-w-[1600px] max-h-[85vh] flex flex-col"
+      <div className="shadow-2xl rounded-2xl w-[95vw] max-w-[100rem] max-h-[85vh] flex flex-col"
         style={{ background: "var(--dash-modal-bg)", border: "1px solid var(--dash-modal-border)" }}>
 
         {/* Header */}
@@ -130,7 +115,7 @@ function RedWorkersModal({
             </div>
             <div>
               <h3 className="text-lg font-bold text-[var(--dash-text)]">{tt("Qizil chegaraga tushgan xodimlar", "Сотрудники в красной зоне")}</h3>
-              <p className="text-[12px] text-[var(--dash-text-muted)]">{redData.red_count} xodim aniqlandi</p>
+              <p className="text-[0.75rem] text-[var(--dash-text-muted)]">{redData.red_count} xodim aniqlandi</p>
             </div>
           </div>
           <button onClick={onClose} className="text-[var(--dash-text-secondary)] hover:text-[var(--dash-text)] p-2 rounded-lg transition">
@@ -145,17 +130,17 @@ function RedWorkersModal({
           <div className="overflow-auto rounded-xl max-h-[60vh]" style={{ border: "1px solid var(--dash-table-border)" }}>
             <table className="table-grid w-full text-left text-sm whitespace-nowrap">
               <thead className="sticky top-0 z-10" style={{ background: "var(--dash-table-header-bg)" }}>
-                <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
-                  <th className="px-4 py-3 font-semibold w-[50px]">№</th>
-                  <th className="px-4 py-3 font-semibold min-w-[250px]">{tt("Xodim ismi", "Ф.И.О. сотрудника")}</th>
-                  <th className="px-4 py-3 font-semibold min-w-[100px]">{tt("Batalon", "Батальон")}</th>
-                  <th className="px-4 py-3 font-semibold text-center min-w-[100px]">{tt("Xodimlar soni", "Количество сотрудников")}</th>
-                  <th className="px-4 py-3 font-semibold text-right min-w-[130px]">{tt("Batalon summasi", "Сумма батальона")}</th>
-                  <th className="px-4 py-3 font-semibold min-w-[130px]">{tt("Viloyat", "Регион")}</th>
-                  <th className="px-4 py-3 font-semibold text-right min-w-[150px]">{tt("Xodimning olgan summasi", "Сумма, полученная сотрудником")}</th>
-                  <th className="px-4 py-3 font-semibold text-right min-w-[120px]">{tt("O'rtacha", "Среднее")}</th>
-                  <th className="px-4 py-3 font-semibold text-right min-w-[120px]">{tt("Chegara (×2)", "Порог (×2)")}</th>
-                  <th className="px-4 py-3 font-semibold text-center min-w-[110px]">{tt("Necha marta", "Во сколько раз")}</th>
+                <tr className="text-[var(--dash-text-secondary)] uppercase text-[0.6875rem]">
+                  <th className="px-4 py-3 font-semibold w-[3.125rem]">№</th>
+                  <th className="px-4 py-3 font-semibold min-w-[15.625rem]">{tt("Xodim ismi", "Ф.И.О. сотрудника")}</th>
+                  <th className="px-4 py-3 font-semibold min-w-[6.25rem]">{tt("Batalon", "Батальон")}</th>
+                  <th className="px-4 py-3 font-semibold text-center min-w-[6.25rem]">{tt("Xodimlar soni", "Количество сотрудников")}</th>
+                  <th className="px-4 py-3 font-semibold text-right min-w-[8.125rem]">{tt("Batalon summasi", "Сумма батальона")}</th>
+                  <th className="px-4 py-3 font-semibold min-w-[8.125rem]">{tt("Viloyat", "Регион")}</th>
+                  <th className="px-4 py-3 font-semibold text-right min-w-[9.375rem]">{tt("Xodimning olgan summasi", "Сумма, полученная сотрудником")}</th>
+                  <th className="px-4 py-3 font-semibold text-right min-w-[7.5rem]">{tt("O'rtacha", "Среднее")}</th>
+                  <th className="px-4 py-3 font-semibold text-right min-w-[7.5rem]">{tt("Chegara (×2)", "Порог (×2)")}</th>
+                  <th className="px-4 py-3 font-semibold text-center min-w-[6.875rem]">{tt("Necha marta", "Во сколько раз")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -175,7 +160,7 @@ function RedWorkersModal({
                     <td className="px-4 py-3 text-right text-[var(--dash-text-secondary)]">{formatAmount(w.average)}</td>
                     <td className="px-4 py-3 text-right text-warning">{formatAmount(w.threshold)}</td>
                     <td className="px-4 py-3 text-center">
-                      <span className="px-2 py-1 rounded text-[11px] border bg-rose-500/20 text-rose-500 border-rose-500/30 font-bold">
+                      <span className="px-2 py-1 rounded text-[0.6875rem] border bg-rose-500/20 text-rose-500 border-rose-500/30 font-bold">
                         ×{w.times_average}
                       </span>
                     </td>
@@ -187,14 +172,9 @@ function RedWorkersModal({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 flex justify-end shrink-0" style={{ borderTop: "1px solid var(--dash-modal-border)" }}>
-          <button onClick={onExcel}
-            className="px-4 py-2 bg-success hover:bg-success text-primary-foreground text-[12px] font-medium rounded-lg transition flex items-center gap-1.5">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            {tt("Excel yuklab olish", "Скачать Excel")}
-          </button>
+        <div className="px-5 py-3 flex justify-end items-center gap-2 shrink-0" style={{ borderTop: "1px solid var(--dash-modal-border)" }}>
+          {/* Excel va PDF — ikkalasi ham backenddagi bitta hisobot */}
+          <ExportMenu items={reportItems} />
         </div>
       </div>
     </div>

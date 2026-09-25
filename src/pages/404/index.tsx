@@ -13,13 +13,13 @@ const ErrorPage = () => {
         <Compass className="size-6" />
       </span>
 
-      <p className="text-[13px] font-semibold uppercase tracking-widest text-muted-foreground">
+      <p className="text-[0.8125rem] font-semibold uppercase tracking-widest text-muted-foreground">
         404
       </p>
       <h1 className="text-xl font-semibold text-foreground">
         {tt("Sahifa mavjud emas", "Страница не существует")}
       </h1>
-      <p className="max-w-sm text-[13px] text-muted-foreground">
+      <p className="max-w-sm text-[0.8125rem] text-muted-foreground">
         {tt(
           "Kechirasiz, siz izlayotgan sahifa topilmadi.",
           "Извините, страница не найдена."

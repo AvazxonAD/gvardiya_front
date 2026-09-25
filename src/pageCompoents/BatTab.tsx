@@ -4,41 +4,46 @@ import { Pencil, Shield, Trash2 } from "lucide-react";
 import Table from "@/Components/reusable/table/Table";
 import DeleteModal from "../Components/DeleteModal";
 import { IBatalon } from "@/types/batalon";
+import { permBtn, usePermission } from "@/lib/permissions";
 import { formatInn, tt } from "../utils";
 import { cn } from "@/lib/utils";
 import { Badge, Button, EmptyState } from "@/ui";
 
 /** Batalonlar va brigadalar jadvali */
-const BatTab = ({ data, setActive, edit, handleDelete }: any) => {
+// `sort`/`onSort` ixtiyoriy — berilmasa sarlavhalar bosilmaydi
+const BatTab = ({ data, setActive, edit, handleDelete, sort, onSort }: any) => {
   const [delOpen, setDelOpen] = useState(false);
+  const perm = usePermission("batalon");
 
   return (
     <>
       {data && data.length ? (
         <Table
+          sort={sort}
+          onSort={onSort}
           thead={[
-            { text: "№", className: "w-[44px]" },
-            { text: tt("Nomi", "Название"), className: "whitespace-normal leading-[1.15]" },
-            { text: tt("Turi", "Тип"), className: "w-[88px] whitespace-normal leading-[1.15]" },
-            { text: tt("Manzil", "Адрес"), className: "whitespace-normal leading-[1.15]" },
-            { text: "INN", className: "w-[92px]" },
-            { text: tt("Bank nomi", "Название банка"), className: "whitespace-normal leading-[1.15]" },
-            { text: "MFO", className: "w-[58px]" },
-            { text: tt("Hisob raqami", "Номер счета"), className: "w-[124px] whitespace-normal leading-[1.15]" },
-            { text: tt("Amallar", "Действия"), className: "w-[66px] text-center" },
+            { text: "№", className: "w-[2.75rem]" },
+            { sortKey: "name", text: tt("Nomi", "Название"), className: "whitespace-normal leading-[1.15]" },
+            { sortKey: "birgada", text: tt("Turi", "Тип"), className: "w-[9.5rem] whitespace-normal leading-[1.15]" },
+            { sortKey: "address", text: tt("Manzil", "Адрес"), className: "whitespace-normal leading-[1.15]" },
+            { sortKey: "str", text: "INN", className: "w-[5.75rem]" },
+            { sortKey: "bank_name", text: tt("Bank nomi", "Название банка"), className: "whitespace-normal leading-[1.15]" },
+            { sortKey: "mfo", text: "MFO", className: "w-[3.625rem]" },
+            { sortKey: "account_number", text: tt("Hisob raqami", "Номер счета"), className: "w-[7.75rem] whitespace-normal leading-[1.15]" },
+            { text: tt("Amallar", "Действия"), className: "w-[4.125rem] text-center" },
           ]}
         >
           {data.map((person: IBatalon, index: number) => (
             <tr
               key={person.id}
-              // Brigada qatorlari ohang bilan ajratiladi
+              // Hamkor tashkilot (bazada `birgada`) qatorlari ohang bilan ajratiladi
               className={cn(person.birgada && "bg-primary/[0.04]")}
             >
               <td className="text-muted-foreground tabular-nums">{index + 1}</td>
               <td className="font-medium">{person.name}</td>
               <td>
                 {person.birgada ? (
-                  <Badge tone="brand">{tt("Brigada", "Бригада")}</Badge>
+                  <Badge tone="brand" className="whitespace-nowrap">{tt("Hamkor tashkilot", "Партнёрская организация")}</Badge>
                 ) : (
                   <Badge tone="neutral">{tt("Batalon", "Батальон")}</Badge>
                 )}
@@ -53,7 +58,7 @@ const BatTab = ({ data, setActive, edit, handleDelete }: any) => {
                   <Button
                     variant="ghost"
                     size="icon-xs"
-                    title={tt("Tahrirlash", "Редактировать")}
+                    {...permBtn(perm.update, tt("Tahrirlash", "Редактировать"))}
                     aria-label={tt("Tahrirlash", "Редактировать")}
                     onClick={() => edit(person.id)}
                   >
@@ -62,9 +67,8 @@ const BatTab = ({ data, setActive, edit, handleDelete }: any) => {
                   <Button
                     variant="ghost"
                     size="icon-xs"
-                    title={tt("O'chirish", "Удалить")}
+                    {...permBtn(perm.delete, tt("O'chirish", "Удалить"), "hover:bg-destructive/10 hover:text-destructive")}
                     aria-label={tt("O'chirish", "Удалить")}
-                    className="hover:bg-destructive/10 hover:text-destructive"
                     onClick={() => {
                       setDelOpen(true);
                       setActive(person.id);
@@ -82,8 +86,8 @@ const BatTab = ({ data, setActive, edit, handleDelete }: any) => {
           icon={Shield}
           title={tt("Ma'lumot yo'q", "Нет данных")}
           description={tt(
-            "Hozircha batalon yoki brigada qo'shilmagan",
-            "Батальоны или бригады пока не добавлены"
+            "Hozircha batalon yoki hamkor tashkilot qo'shilmagan",
+            "Батальоны или партнёрские организации пока не добавлены"
           )}
         />
       )}

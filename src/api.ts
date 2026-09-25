@@ -1,9 +1,45 @@
 /** @format */
 
 import { handleStatus } from "./utils";
-import { authFetch, setTokens } from "./services/tokenManager";
+import { authFetch as fetchWithAuth, setTokens } from "./services/tokenManager";
+import { getErrorMessage } from "./lib/errorMessage";
 
 export const URL = import.meta.env.VITE_API_URL;
+
+/**
+ * Shu fayldagi barcha so'rovlar shu orqali. Tarmoq xatosi (server o'chiq,
+ * internet yo'q) va JSON bo'lmagan xato javobi (nginx 502/413 sahifasi)
+ * istisno emas — aniq `message` li JSON javobga aylanadi. Aks holda
+ * `res.json()` yiqilib, foydalanuvchi hech qanday xabar ko'rmasdi.
+ */
+const authFetch = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
+  const failure = (status: number, message: string) =>
+    new Response(JSON.stringify({ success: false, message }), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+
+  let res: Response;
+  try {
+    res = await fetchWithAuth(input, init);
+  } catch (error) {
+    return failure(503, getErrorMessage(error));
+  }
+
+  const isJson = (res.headers.get("content-type") || "").includes("application/json");
+  if (res.ok || isJson) return res;
+  return failure(res.status, getErrorMessage({ response: { status: res.status } }));
+};
+
+/**
+ * Ro'yxat so'rovlariga qo'shimcha parametrlar (saralash, yangi filtrlar):
+ * `extra` — "&sort_by=...&sort_dir=..." ko'rinishida. URL da `?` bo'lmasa
+ * o'zi qo'yiladi.
+ */
+const appendQuery = (url: string, extra = "") => {
+  const q = extra.replace(/^[?&]+/, "");
+  return q ? url + (url.includes("?") ? "&" : "?") + q : url;
+};
 
 export const jwt = localStorage.getItem("token");
 
@@ -64,9 +100,8 @@ export const updateAuth = async (value: any, JWT: any) => {
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getWorkers = async (JWT: any, page: any, limet: any, id: any, search: any) => {
-  const res = await authFetch(
-    URL + `/worker?page=${page}&limit=${limet}${id > 0 ? "&batalon_id=" + id : ""}${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}`,
+export const getWorkers = async (JWT: any, page: any, limet: any, id: any, search: any, extra: string = "") => {
+  const res = await authFetch(appendQuery(URL + `/worker?page=${page}&limit=${limet}${id > 0 ? "&batalon_id=" + id : ""}${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}`, extra),
     {
       method: "GET",
       headers: {
@@ -81,8 +116,8 @@ export const getWorkers = async (JWT: any, page: any, limet: any, id: any, searc
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getBatalonWorkers = async (JWT: any, page: any, limet: any, search: any) => {
-  const res = await authFetch(URL + `/batalon/worker?page=${page}&limit=${limet}${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}`, {
+export const getBatalonWorkers = async (JWT: any, page: any, limet: any, search: any, extra: string = "") => {
+  const res = await authFetch(appendQuery(URL + `/batalon/worker?page=${page}&limit=${limet}${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}`, extra), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -95,10 +130,9 @@ export const getBatalonWorkers = async (JWT: any, page: any, limet: any, search:
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getTasks = async (JWT: any, page: any, limet: any, from: any, to: any, search: any, status: any) => {
-  const res = await authFetch(
-    URL +
-      `/batalon/tasks?page=${page}&limit=${limet}&from=${from}&to=${to}${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}${status.length > 0 ? "&status=" + status : ""}`,
+export const getTasks = async (JWT: any, page: any, limet: any, from: any, to: any, search: any, status: any, extra: string = "") => {
+  const res = await authFetch(appendQuery(URL +
+      `/batalon/tasks?page=${page}&limit=${limet}&from=${from}&to=${to}${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}${status.length > 0 ? "&status=" + status : ""}`, extra),
     {
       method: "GET",
       headers: {
@@ -121,6 +155,12 @@ export const getExcel = async (JWT: any, url: any) => {
       "Content-Type": "application/json",
     },
   });
+
+  // Xato javobi fayl bo'lib yuklanib ketmasin — server matni bilan to'xtaydi
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(getErrorMessage({ response: { status: res.status, data: body } }));
+  }
 
   const data = await res.blob();
   return data;
@@ -182,9 +222,9 @@ export const deleteCont = async (JWT: any, id: any, account_id: number) => {
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getSpr = async (JWT: any, path: any, isWorkerTabBatalon?: boolean | null) => {
+export const getSpr = async (JWT: any, path: any, isWorkerTabBatalon?: boolean | null, extra: string = "") => {
   let url = URL + `/${path}${path === "batalon" && isWorkerTabBatalon ? "?birgada=false" : ""}`;
-  const res = await authFetch(url, {
+  const res = await authFetch(appendQuery(url, extra), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -196,8 +236,8 @@ export const getSpr = async (JWT: any, path: any, isWorkerTabBatalon?: boolean |
 
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
-export const getOrgan = async (JWT: any, page: any, limit?: number) => {
-  const res = await authFetch(URL + `/organization?page=${page}&limit=${limit || 10}`, {
+export const getOrgan = async (JWT: any, page: any, limit?: number, extra: string = "") => {
+  const res = await authFetch(appendQuery(URL + `/organization?page=${page}&limit=${limit || 10}`, extra), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -224,8 +264,8 @@ export const getAllOrgans = async (JWT: any, page?: any, limet?: any) => {
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getSearch = async (JWT: any, page: any, search: any, limet?: any) => {
-  const res = await authFetch(URL + `/organization?page=${page}&limit=${limet || 20}&search=${encodeURIComponent(search)}`, {
+export const getSearch = async (JWT: any, page: any, search: any, limet?: any, extra: string = "") => {
+  const res = await authFetch(appendQuery(URL + `/organization?page=${page}&limit=${limet || 20}&search=${encodeURIComponent(search)}`, extra), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -249,14 +289,14 @@ export const getCont = async (
   status: string = "",
   statusSumma: string = "",
   rasxodStatus: string = "",
+  extra: string = "",
 ) => {
   const batalonParam = batalon_id > 0 ? `&batalon_id=${batalon_id}` : "";
   const statusParam = status ? `&status=${status}` : "";
   const statusSummaParam = statusSumma ? `&status-summa=${statusSumma}` : "";
   const rasxodStatusParam = rasxodStatus ? `&rasxod-status=${rasxodStatus}` : "";
-  const res = await authFetch(
-    URL +
-      `/contract/?from=${date.date1}&to=${date.date2}&page=${page}&limit=${limet}${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}&account_number_id=${account_number}${batalonParam}${statusParam}${statusSummaParam}${rasxodStatusParam}`,
+  const res = await authFetch(appendQuery(URL +
+      `/contract/?from=${date.date1}&to=${date.date2}&page=${page}&limit=${limet}${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}&account_number_id=${account_number}${batalonParam}${statusParam}${statusSummaParam}${rasxodStatusParam}`, extra),
     {
       method: "GET",
       headers: {
@@ -309,8 +349,8 @@ export const putCont = async (JWT: any, id: string, account_number_id: number, d
   return { ...data, message: data?.message || handleStatus(res.status) };
 };
 
-export const getBat = async (JWT: any) => {
-  const res = await authFetch(URL + `/batalon`, {
+export const getBat = async (JWT: any, extra: string = "") => {
+  const res = await authFetch(appendQuery(URL + `/batalon`, extra), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

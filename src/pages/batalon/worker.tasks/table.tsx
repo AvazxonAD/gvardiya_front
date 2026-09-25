@@ -3,42 +3,41 @@ import { tt } from "@/utils";
 import TableItem from "./table.item";
 import Icon from "@/assets/icons";
 import BackButton from "@/Components/reusable/BackButton";
-import Button from "@/Components/reusable/button";
 import { useRequest } from "@/hooks/useRequest";
+import ExportMenu, { reportItems } from "@/Components/ExportMenu";
 
 const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
   data,
   getTasks,
 }) => {
   const request = useRequest();
+  const task: any = data;
   const [editingId, setEditingId] = useState<number | null>(null);
   const [creatingId, setCreatingId] = useState<number | null>(null);
-
-  const handleDownloadExel = async () => {
-    const response = await request({
-      url: `/batalon/worker-tasks/?task_id=${data.id}&excel=true`,
-      method: "GET",
-      responseType: "blob",
-    });
-
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `${data.contract_number}.xlsx`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-  };
 
   return (
     <div className="my-5">
       <div className="m-0 p-1 flex items-center gap-2">
         <BackButton />
-        <Button
-          mode="download"
-          onClick={handleDownloadExel}
-          text={tt("Excelga yuklash", "Выгрузить в Excel")}
+        {/* Bitta "⋮" menyu: backend Excel hisobot va aynan shu hisobotning PDF nusxasi */}
+        <ExportMenu
+          className="ml-auto"
+          items={reportItems({
+            key: "task-workers",
+            fetchBlob: async () => {
+              const response = await request({
+                url: `/batalon/worker-tasks/?task_id=${task?.id}&excel=true`,
+                method: "GET",
+                responseType: "blob",
+              });
+              return new Blob([response.data], {
+                type:
+                  response.data?.type ||
+                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              });
+            },
+            fileName: `${task?.contract_number}.xlsx`,
+          })}
         />
       </div>
 

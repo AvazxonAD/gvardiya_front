@@ -3,6 +3,7 @@ import axios, { AxiosInstance } from "axios";
 import { useSelector } from "react-redux";
 import { getValidAccessToken, refreshAccessToken } from "@/services/tokenManager";
 import { getAppLang, LANG_HEADER } from "@/lib/lang";
+import { getErrorMessage } from "@/lib/errorMessage";
 
 const getAxios = (jwt: string): AxiosInstance => {
   const instance = axios.create({
@@ -37,6 +38,21 @@ const getAxios = (jwt: string): AxiosInstance => {
           return instance.request(original);
         }
       }
+
+      // Xato matni — serverning o'z xabari ("Hujjat raqami" kiritilishi
+      // shart!). Chaqiruvchilar `... || error.message` ni ko'rsatadi, shunda
+      // axios'ning "Request failed with status code 400" matni chiqmaydi.
+      // Fayl so'rovlarida (responseType: "blob") xato tanasi ham Blob bo'ladi.
+      const data = error?.response?.data;
+      if (data instanceof Blob) {
+        try {
+          error.response.data = JSON.parse(await data.text());
+        } catch {
+          // JSON emas — matn status bo'yicha tanlanadi
+        }
+      }
+      if (error) error.message = getErrorMessage(error);
+
       return Promise.reject(error);
     },
   );

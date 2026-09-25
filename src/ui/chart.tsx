@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn, pxToRem } from "@/lib/utils";
 
 /**
  * Yengil grafik primitivlari.
@@ -48,7 +48,7 @@ export function BarList({
 
   if (!items.length) {
     return (
-      <p className={cn("py-8 text-center text-[13px] text-muted-foreground", className)}>
+      <p className={cn("py-8 text-center text-[0.8125rem] text-muted-foreground", className)}>
         {emptyText}
       </p>
     );
@@ -74,10 +74,10 @@ export function BarList({
             )}
           >
             <div className="flex items-baseline justify-between gap-3">
-              <span className="truncate text-[13px] font-medium text-foreground">
+              <span className="truncate text-[0.8125rem] font-medium text-foreground">
                 {item.label}
               </span>
-              <span className="shrink-0 text-[13px] font-semibold tabular-nums text-foreground">
+              <span className="shrink-0 text-[0.8125rem] font-semibold tabular-nums text-foreground">
                 {item.display ?? item.value.toLocaleString("ru-RU")}
               </span>
             </div>
@@ -90,7 +90,7 @@ export function BarList({
                 />
               </div>
               {item.meta && (
-                <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
+                <span className="shrink-0 text-[0.6875rem] tabular-nums text-muted-foreground">
                   {item.meta}
                 </span>
               )}
@@ -144,11 +144,18 @@ export function Donut({
   let offset = 0;
 
   return (
+    // `size` px deb beriladi, lekin quti `rem` da chiziladi va SVG `viewBox`
+    // orqali unga cho'ziladi — katta monitorda diagramma matn bilan birga
+    // kattalashadi (ilgari matn kattalashib, halqa joyida qolardi).
     <div
       className={cn("relative shrink-0", className)}
-      style={{ width: size, height: size }}
+      style={{ width: pxToRem(size), height: pxToRem(size) }}
     >
-      <svg width={size} height={size} className="-rotate-90 overflow-visible" role="img">
+      <svg
+        viewBox={`0 0 ${size} ${size}`}
+        className="size-full -rotate-90 overflow-visible"
+        role="img"
+      >
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -195,25 +202,25 @@ export function Donut({
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
         {hovered ? (
           <>
-            <span className="line-clamp-2 text-[10px] leading-tight text-muted-foreground">
+            <span className="line-clamp-2 text-[0.625rem] leading-tight text-muted-foreground">
               {hovered.label}
             </span>
-            <span className="mt-0.5 text-[15px] font-semibold leading-tight tabular-nums text-foreground">
+            <span className="mt-0.5 text-[0.9375rem] font-semibold leading-tight tabular-nums text-foreground">
               {formatValue(hovered.value)}
             </span>
-            <span className="text-[11px] tabular-nums text-muted-foreground">
+            <span className="text-[0.6875rem] tabular-nums text-muted-foreground">
               {total > 0 ? ((hovered.value / total) * 100).toFixed(1) : 0}%
             </span>
           </>
         ) : (
           <>
             {centerValue && (
-              <span className="text-[16px] font-semibold leading-tight tabular-nums text-foreground">
+              <span className="text-[1rem] font-semibold leading-tight tabular-nums text-foreground">
                 {centerValue}
               </span>
             )}
             {centerLabel && (
-              <span className="mt-0.5 text-[11px] leading-tight text-muted-foreground">
+              <span className="mt-0.5 text-[0.6875rem] leading-tight text-muted-foreground">
                 {centerLabel}
               </span>
             )}
@@ -260,7 +267,7 @@ export function Legend({
                 ? { type: "button" as const, onClick: () => onSelect(it, i) }
                 : {})}
               className={cn(
-                "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors",
+                "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[0.8125rem] transition-colors",
                 onSelect && "hover:bg-accent",
                 active && "bg-accent"
               )}
@@ -312,7 +319,11 @@ export function ColumnChart({
 
   return (
     <div className={cn("w-full", className)}>
-      <div className="flex items-end gap-1 sm:gap-1.5" style={{ height }} role="img">
+      <div
+        className="flex items-end gap-1 sm:gap-1.5"
+        style={{ height: pxToRem(height) }}
+        role="img"
+      >
         {data.map((d, i) => {
           const pct = (d.value / max) * 100;
           return (
@@ -322,7 +333,7 @@ export function ColumnChart({
               title={`${d.label}: ${formatValue(d.value)}`}
             >
               <span className="pointer-events-none absolute inset-x-0 -top-1 z-10 hidden -translate-y-full justify-center group-hover:flex">
-                <span className="whitespace-nowrap rounded-md border border-border bg-popover px-2 py-1 text-[11px] font-medium tabular-nums text-popover-foreground shadow-md">
+                <span className="whitespace-nowrap rounded-md border border-border bg-popover px-2 py-1 text-[0.6875rem] font-medium tabular-nums text-popover-foreground shadow-md">
                   {formatValue(d.value)}
                 </span>
               </span>
@@ -346,7 +357,7 @@ export function ColumnChart({
           <span
             key={i}
             className={cn(
-              "flex-1 text-center text-[10px] uppercase tracking-wide",
+              "flex-1 text-center text-[0.625rem] uppercase tracking-wide",
               d.highlight
                 ? "font-semibold text-foreground"
                 : "text-muted-foreground"

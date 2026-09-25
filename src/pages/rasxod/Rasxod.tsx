@@ -1,22 +1,25 @@
 import Paginatsiya from "@/Components/Paginatsiya";
+import ExportButtons from "@/Components/ExportButtons";
+import { reportItems } from "@/Components/ExportMenu";
+import { EXPORT_ALL_LIMIT, type ExportColumn } from "@/lib/tableExport";
 import { usePagedFetch } from "@/hooks/usePagedFetch";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
+import FilterActions from "@/Components/FilterActions";
+import Input from "@/Components/Input";
+import { sortParamsObject, useTableSort } from "@/hooks/useTableSort";
+import { useDebounce } from "use-debounce";
 import { useRequest } from "@/hooks/useRequest";
 import { RasxodInterface, RasxodPaginationMetaInterface } from "@/interface";
 import { RasxodTable } from "@/pageCompoents/rasxod/rasxodTable";
 import { alertt } from "@/Redux/LanguageSlice";
+import { permBtn, usePermission } from "@/lib/permissions";
 import { RootState } from "@/Redux/store";
-import useApi from "@/services/api";
-import { formatSum, tt } from "@/utils";
-import React, { useEffect, useRef, useState } from "react";
+import { formatDate, formatNum, formatSum, toNumber, tt } from "@/utils";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useReactToPrint } from "react-to-print";
-import RasxodForPrint from "./print";
 import {
-  FileSpreadsheet,
   Plus,
-  Printer,
 } from "lucide-react";
 import {
   Button as UIButton,
@@ -26,6 +29,20 @@ import {
   Toolbar,
   ToolbarSpacer,
 } from "@/ui";
+
+// Funksiya: `tt` til tanlovini chaqirilgan paytda o'qiydi
+const exportColumns = (): ExportColumn<RasxodInterface>[] => [
+  { header: "№", value: (r) => r.doc_num, width: 8, align: "center" },
+  { header: tt(`Hujjat sanasi`, "Дата документа"), value: (r) => formatDate(r.doc_date), align: "center" },
+  { header: tt("Qabul qiluvchi", "Получатель"), value: (r) => r.batalon_name },
+  { header: tt("Izoh", "Примечание"), value: (r) => r.opisanie || "" },
+  {
+    header: tt("Summa", "Сумма"),
+    value: (r) => formatNum(r.summa),
+    excelValue: (r) => toNumber(r.summa) || 0,
+    align: "right",
+  },
+];
 
 export const Rasxod = () => {
   const { startDate, endDate } = useSelector(
@@ -63,17 +80,33 @@ export const Rasxod = () => {
   const dispatch = useDispatch();
 
   const { account_number_id } = useSelector((state: any) => state.account);
+
+  // Qidiruv matni (`search` — sana oralig'i uchun band) va saralash
+  const [q, setQ] = useState("");
+  const [searchText] = useDebounce(q.trim(), 500);
+  const { sort, toggle: toggleSort, reset: resetSort } = useTableSort();
+
+  // Joriy filtrlar — ro'yxat ham, eksport ham aynan shu shartlar bilan oladi
+  const listParams = (page: number, limit: number) => ({
+    from: search.fromDate,
+    to: search.toDate,
+    account_number_id: account_number_id,
+    limit,
+    page,
+    ...(searchText ? { search: searchText } : {}),
+    ...sortParamsObject(sort),
+  });
+
+  const clearFilters = () => {
+    setQ("");
+    resetSort();
+    setSearch({ fromDate: startDate, toDate: endDate });
+  };
   const getRasxod = async () => {
     try {
       if (!search.fromDate && !search.toDate) return;
       const res = await request.get("/rasxod", {
-        params: {
-          from: search.fromDate,
-          to: search.toDate,
-          account_number_id: account_number_id,
-          limit: limet,
-          page: currentPage,
-        },
+        params: listParams(currentPage, limet),
       });
       if (res.data.success) {
         let paginationmeta = res.data.meta as RasxodPaginationMetaInterface;
@@ -86,85 +119,34 @@ export const Rasxod = () => {
       dispatch(
         alertt({
           //@ts-ignore
-          text: error.response.data.message || error.message,
+          text: error.response?.data?.message || error.message,
         })
       );
     }
   };
-  const handleDownloadExel = async () => {
+  // Backend hisoboti (Excel) — ⋮ menyuda Excel va xuddi o'sha hisobotning PDF varianti
+  const fetchRasxodReport = async (): Promise<Blob> => {
     const response = await request({
       url: "/rasxod/export",
       method: "GET",
-      params: {
-        from: search.fromDate,
-        to: search.toDate,
-        account_number_id: account_number_id,
-        limit: limet,
-        page: currentPage,
-      },
+      params: listParams(currentPage, limet),
       responseType: "blob",
     });
-
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute(
-      "download",
-      `rasxod-${search.fromDate}-dan-${search.toDate}-gacha.xlsx`
-    );
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-    // link.href = url;
-    // link.setAttribute("download", "rasxod.xlsx");
-    // document.body.appendChild(link);
-    // link.click();
+    return response.data;
   };
   // Sana oralig'i o'zgarganda ro'yxat yangilanadi va 1-sahifaga qaytadi
   usePagedFetch({
     page: currentPage,
     setPage: setCurrentPage,
-    filters: [limet, search.fromDate, search.toDate],
+    filters: [limet, search.fromDate, search.toDate, searchText, sort],
     fetch: getRasxod,
   });
 
   const navigate = useNavigate();
-  const api = useApi();
-
-  const [forPdf, setForPdf] = useState<{ data: RasxodInterface[] }>();
-  const fioRef = useRef<HTMLDivElement>(null);
-  const reactToPrintFn = useReactToPrint({
-    contentRef: fioRef,
-  });
-  const onPrintClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    const get = await api.get(
-      `rasxod/pdf/?from=${search.fromDate}&to=${search.toDate}&account_number_id=${account_number_id}`
-    );
-    if (get?.success) {
-      setForPdf(get.data as any);
-    }
-  };
-  useEffect(() => {
-    if (forPdf) {
-      reactToPrintFn();
-    }
-  }, [forPdf]);
+  const perm = usePermission("rasxod");
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      {forPdf?.data && (
-        <div className="hidden">
-          <RasxodForPrint
-            ref={fioRef}
-            data={forPdf.data}
-            fromDate={search.fromDate}
-            endDate={search.toDate}
-          />
-        </div>
-      )}
-
       <ListCard
         toolbar={
           <Toolbar>
@@ -180,17 +162,39 @@ export const Rasxod = () => {
               />
             </div>
 
+            <div className="w-full sm:w-64">
+              <Input
+                v={q}
+                change={(e: any) => setQ(e.target.value)}
+                removeValue={() => setQ("")}
+                search={true}
+                p={tt("№, qabul qiluvchi yoki izoh", "№, получатель или примечание")}
+                className="h-9 w-full"
+              />
+            </div>
+
+            <FilterActions onRefresh={getRasxod} onClear={clearFilters} />
+
             <ToolbarSpacer />
 
-            <UIButton variant="secondary" size="sm" onClick={onPrintClick}>
-              <Printer />
-              {tt("Chop etish", "Печать")}
-            </UIButton>
-            <UIButton variant="secondary" size="sm" onClick={handleDownloadExel}>
-              <FileSpreadsheet />
-              Excel
-            </UIButton>
-            <UIButton size="sm" onClick={() => navigate("/rasxod/create")}>
+            {/* Backend hisoboti filtrlarni hisobga oladi — Excel ham, PDF ham o'sha hisobot */}
+            <ExportButtons
+              kinds={[]}
+              extraItems={reportItems({
+                key: "rasxod",
+                fetchBlob: fetchRasxodReport,
+                fileName: `rasxod-${search.fromDate}-dan-${search.toDate}-gacha.xlsx`,
+              })}
+              title={tt("Chiqim", "Расход")}
+              columns={exportColumns()}
+              fetchRows={async () => {
+                const res = await request.get("/rasxod", {
+                  params: listParams(1, EXPORT_ALL_LIMIT),
+                });
+                return res?.data?.data ?? [];
+              }}
+            />
+            <UIButton {...permBtn(perm.create)} size="sm" onClick={() => navigate("/rasxod/create")}>
               <Plus />
               {tt("Qo'shish", "Добавить")}
             </UIButton>
@@ -221,7 +225,7 @@ export const Rasxod = () => {
           ) : null
         }
       >
-        <RasxodTable data={rasxoddata} getAllFn={getRasxod} />
+        <RasxodTable data={rasxoddata} getAllFn={getRasxod} sort={sort} onSort={toggleSort} />
       </ListCard>
     </div>
   );

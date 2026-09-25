@@ -1,27 +1,30 @@
-import Icon from "@/assets/icons";
 import { usePagedFetch } from "@/hooks/usePagedFetch";
 import Input from "@/Components/Input";
 import Modal from "@/Components/Modal";
 import Paginatsiya from "@/Components/Paginatsiya";
+import ExportButtons from "@/Components/ExportButtons";
+import { reportItems } from "@/Components/ExportMenu";
+import { EXPORT_ALL_LIMIT, type ExportColumn } from "@/lib/tableExport";
 import Button from "@/Components/reusable/button";
 import Table from "@/Components/reusable/table/Table";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
+import FilterActions from "@/Components/FilterActions";
+import { sortParams, useTableSort } from "@/hooks/useTableSort";
 import { useRequest } from "@/hooks/useRequest";
 import { alertt } from "@/Redux/LanguageSlice";
 import { RootState } from "@/Redux/store";
 import useApi from "@/services/api";
+import { permBtn, usePermission } from "@/lib/permissions";
 import { IPrixod } from "@/types/prixod";
-import { formatDate, formatSum, textNum, tt } from "@/utils";
-import { useEffect, useRef, useState } from "react";
+import { formatDate, formatSum, textNum, toNumber, tt } from "@/utils";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useDebounce } from "use-debounce";
 import { Outlet, useNavigate } from "react-router-dom";
-import { useReactToPrint } from "react-to-print";
-import PrixodForPrint from "./print";
 import {
-  FileSpreadsheet,
+  Pencil,
   Plus,
-  Printer,
+  Trash2,
 } from "lucide-react";
 import {
   Button as UIButton,
@@ -39,6 +42,21 @@ export const RenderPrixod = () => {
     </div>
   );
 };
+
+// Funksiya: `tt` til tanlovini chaqirilgan paytda o'qiydi
+const exportColumns = (): ExportColumn<IPrixod>[] => [
+  { header: tt("№", "№"), value: (p) => p.prixod_doc_num, width: 8, align: "center" },
+  { header: tt("Shartnoma №", "№ договора"), value: (p) => p.contract_doc_num, align: "center" },
+  { header: tt("O‘tkazma sanasi", "Дата проводки"), value: (p) => formatDate(p.prixod_date), align: "center" },
+  { header: tt("To'lovchi haqida", "О плательщике"), value: (p) => p.organization_name },
+  {
+    header: tt("summa", "Сумма"),
+    value: (p) => formatSum(p.prixod_summa),
+    excelValue: (p) => toNumber(p.prixod_summa) || 0,
+    align: "right",
+  },
+  { header: tt("Tavsiflar", "Описания"), value: (p) => p.opisanie },
+];
 
 type IPrixodState = {
   meta?: {
@@ -71,16 +89,27 @@ const Prixod = () => {
   }, [defDate]);
 
   const navigate = useNavigate();
+  const perm = usePermission("prixod");
 
   /* Maydonga yozilgan matn (`searchTerm`) va so'rovga ketadigan matn
      (`query`) ataylab ajratilgan: har bosilgan harfda so'rov yuborilsa,
      javoblar bir-birini quvib yetib, ro'yxat noto'g'ri to'ldirilardi. */
   const [query] = useDebounce(searchTerm.trim(), 400);
+  const { sort, toggle: toggleSort, reset: resetSort } = useTableSort();
 
-  const fetchPrixod = () =>
-    api.get<IPrixodState>(
-      `prixod?from=${startDate}&to=${endDate}&account_number_id=${account_number_id}&limit=${limet}&page=${currentPage}&search=${encodeURIComponent(query)}`
-    );
+  // Joriy filtrlar — ro'yxat ham, eksport ham aynan shu shartlar bilan oladi
+  const listQuery = (p: number, l: number) =>
+    `prixod?from=${startDate}&to=${endDate}&account_number_id=${account_number_id}&limit=${l}&page=${p}&search=${encodeURIComponent(query)}` +
+    sortParams(sort);
+
+  const fetchPrixod = () => api.get<IPrixodState>(listQuery(currentPage, limet));
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    resetSort();
+    setStartDate(defDate.startDate);
+    setEndDate(defDate.endDate);
+  };
 
   /** O'chirishdan keyin ro'yxatni yangilaydi */
   const getData = async () => {
@@ -92,7 +121,7 @@ const Prixod = () => {
   usePagedFetch({
     page: currentPage,
     setPage: setCurrentPage,
-    filters: [limet, query, startDate, endDate],
+    filters: [limet, query, startDate, endDate, sort],
     fetch: () => {
       if (!((startDate && endDate) || query)) return;
 
@@ -137,28 +166,9 @@ const Prixod = () => {
     setShowTooltipId(id);
   };
 
-  const [forPdf, setForPdf] = useState<{ data: IPrixod[] }>();
-  const fioRef = useRef<HTMLDivElement>(null);
-  const reactToPrintFn = useReactToPrint({
-    contentRef: fioRef,
-  });
-  const onPrintClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    const get = await api.get(
-      `prixod/pdf/?from=${startDate}&to=${endDate}&account_number_id=${account_number_id}`
-    );
-    if (get?.success) {
-      setForPdf(get.data as any);
-    }
-  };
-  useEffect(() => {
-    if (forPdf) {
-      reactToPrintFn();
-    }
-  }, [forPdf]);
-
   const request = useRequest();
-  const handleDownloadExel = async () => {
+  // Backend hisoboti (Excel) — ⋮ menyuda Excel va xuddi o'sha hisobotning PDF varianti
+  const fetchPrixodReport = async (): Promise<Blob> => {
     const response = await request({
       url: "/prixod/export",
       method: "GET",
@@ -166,42 +176,22 @@ const Prixod = () => {
         from: startDate,
         to: endDate,
         account_number_id: account_number_id,
+        ...(query ? { search: query } : {}),
+        ...(sort ? { sort_by: sort.by, sort_dir: sort.dir } : {}),
       },
       responseType: "blob",
     });
-
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute(
-      "download",
-      `prixod-${startDate}-dan-${endDate}-gacha.xlsx`
-    );
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
+    return response.data;
   };
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      {forPdf?.data && (
-        <div className="hidden">
-          <PrixodForPrint
-            ref={fioRef}
-            data={forPdf.data}
-            fromDate={startDate}
-            endDate={endDate}
-          />
-        </div>
-      )}
-
       <ListCard
         toolbar={
           <Toolbar>
             <div className="w-full sm:w-64">
               <Input
-                p={tt("Qidirish", "Поиск")}
+                p={tt("№, tashkilot yoki tavsif", "№, организация или описание")}
                 className="h-9 w-full"
                 v={searchTerm}
                 change={(e: any) => {
@@ -224,17 +214,27 @@ const Prixod = () => {
               <SpecialDatePicker defaultValue={endDate} onChange={setEndDate} />
             </div>
 
+            <FilterActions onRefresh={getData} onClear={clearFilters} />
+
             <ToolbarSpacer />
 
-            <UIButton variant="secondary" size="sm" onClick={onPrintClick}>
-              <Printer />
-              {tt("Chop etish", "Печать")}
-            </UIButton>
-            <UIButton variant="secondary" size="sm" onClick={handleDownloadExel}>
-              <FileSpreadsheet />
-              Excel
-            </UIButton>
-            <UIButton size="sm" onClick={() => navigate("/prixod/create")}>
+            {/* Backend hisoboti filtr va saralashni hisobga oladi — ro'yxat
+                eksporti shart emas: Excel ham, PDF ham o'sha hisobot */}
+            <ExportButtons
+              kinds={[]}
+              extraItems={reportItems({
+                key: "prixod",
+                fetchBlob: fetchPrixodReport,
+                fileName: `prixod-${startDate}-dan-${endDate}-gacha.xlsx`,
+              })}
+              title={tt("Kirim", "Приход")}
+              columns={exportColumns()}
+              fetchRows={async () => {
+                const get = await api.get<IPrixodState>(listQuery(1, EXPORT_ALL_LIMIT));
+                return (get as any)?.data ?? [];
+              }}
+            />
+            <UIButton {...permBtn(perm.create)} size="sm" onClick={() => navigate("/prixod/create")}>
               <Plus />
               {tt("Qo'shish", "Добавить")}
             </UIButton>
@@ -266,31 +266,38 @@ const Prixod = () => {
         }
       >
           <Table
+            sort={sort}
+            onSort={toggleSort}
             thead={[
               {
-                className: "w-[50px]",
+                className: "w-[3.125rem]",
+                sortKey: "prixod_doc_num",
                 text: tt("№", "№"),
               },
               {
-                className: "w-[200px]",
+                className: "w-[12.5rem]",
+                sortKey: "contract_doc_num",
                 text: tt("Shartnoma №", "№ договора"),
               },
               {
+                sortKey: "prixod_date",
                 text: tt("O‘tkazma sanasi", "Дата проводки"),
-                className: "w-[200px]",
+                className: "w-[12.5rem]",
               },
               {
+                sortKey: "organization_name",
                 text: tt("To'lovchi haqida", "О плательщике"),
-                className: "w-[400px]",
+                className: "w-[25rem]",
               },
               {
+                sortKey: "prixod_summa",
                 text: tt("summa", "Сумма"),
-                className: "w-[200px]",
+                className: "w-[12.5rem]",
               },
-              { text: tt("Tavsiflar", "Описания") },
+              { sortKey: "opisanie", text: tt("Tavsiflar", "Описания") },
               {
                 text: tt("Amallar", "Действия"),
-                className: "w-[50px]",
+                className: "w-[3.125rem]",
               },
             ]}
           >
@@ -314,13 +321,13 @@ const Prixod = () => {
                       <h3>{p.organization_name}</h3>
                       {showTooltipId === p.id && (
                         <div
-                          className="absolute bg-card bottom-full mb-0 w-[250px] shadow-lg z-10 rounded-none"
+                          className="absolute bg-card bottom-full mb-0 w-[15.625rem] shadow-lg z-10 rounded-none"
                           style={{
                             top: tooltipPosition.y,
                             left: tooltipPosition.x,
                           }}
                         >
-                          <div className="text-[13px] space-y-1 p-3 text-left bg-card border-b border-border shadow-xl">
+                          <div className="text-[0.8125rem] space-y-1 p-3 text-left bg-card border-b border-border shadow-xl">
                             <h2>
                               {tt("Nomi", "Название")}: {p.organization_name}
                             </h2>
@@ -346,13 +353,25 @@ const Prixod = () => {
                       {p.opisanie}
                     </td>
                     <td className="border-b border-border px-1 py-3">
-                      <div className="flex justify-center items-center gap-x-2">
-                        <button onClick={() => setOpen(p.id)}>
-                          <Icon name="delete" />
-                        </button>
-                        <button onClick={() => navigate(`/prixod/${p.id}`)}>
-                          <Icon name="pencil" />
-                        </button>
+                      <div className="flex items-center justify-center gap-0.5">
+                        <UIButton
+                          variant="ghost"
+                          size="icon-xs"
+                          {...permBtn(perm.update, tt("Tahrirlash", "Редактировать"))}
+                          aria-label={tt("Tahrirlash", "Редактировать")}
+                          onClick={() => navigate(`/prixod/${p.id}`)}
+                        >
+                          <Pencil />
+                        </UIButton>
+                        <UIButton
+                          variant="ghost"
+                          size="icon-xs"
+                          {...permBtn(perm.delete, tt("O'chirish", "Удалить"), "hover:bg-destructive/10 hover:text-destructive")}
+                          aria-label={tt("O'chirish", "Удалить")}
+                          onClick={() => setOpen(p.id)}
+                        >
+                          <Trash2 />
+                        </UIButton>
                       </div>
                     </td>
                 </tr>

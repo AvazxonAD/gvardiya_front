@@ -8,6 +8,10 @@ import useApi from "@/services/api";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { tt } from "../../utils";
+import ExportButtons from "@/Components/ExportButtons";
+import FilterActions from "@/Components/FilterActions";
+import { sortParams, useTableSort } from "@/hooks/useTableSort";
+import { type ExportColumn } from "@/lib/tableExport";
 import Table from "@/Components/reusable/table/Table";
 import { Coins, Pencil, Plus, Trash2 } from "lucide-react";
 import {
@@ -17,6 +21,17 @@ import {
   Toolbar,
   ToolbarSpacer,
 } from "@/ui";
+
+// Funksiya: `tt` til tanlovini chaqirilgan paytda o'qiydi
+const exportColumns = (): ExportColumn<any>[] => [
+  { header: "№", value: (_, i) => i + 1, width: 6, align: "center" },
+  {
+    header: tt("BXM summa", "Сумма БХМ"),
+    value: (b) => b.summa,
+    excelValue: (b) => Number(b.summa),
+    align: "right",
+  },
+];
 
 function Bxm() {
   const [data, setData] = useState([]);
@@ -31,8 +46,11 @@ function Bxm() {
   const api = useApi();
   const dispatch = useDispatch();
 
+  const { sort, toggle: toggleSort, reset: resetSort } = useTableSort();
+
+  // Saralash serverda bajariladi
   const getInfo = async () => {
-    const res = await getSpr(JWT, "bxm");
+    const res = await getSpr(JWT, "bxm", undefined, sortParams(sort));
     if (res?.data) {
       setData(res.data);
     }
@@ -49,7 +67,7 @@ function Bxm() {
 
   useEffect(() => {
     getInfo();
-  }, []);
+  }, [sort]);
 
 
   const handleDelete = async () => {
@@ -106,15 +124,24 @@ function Bxm() {
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-3">
-      <h1 className="text-[16px] font-semibold text-foreground">
+    // Sarlavha bilan birga ekranga sig'sin — jadval o'zi aylanadi (ListCard)
+    <div className="flex min-w-0 flex-col gap-3 lg:max-h-[max(24rem,calc(100dvh_-_6rem))]">
+      <h1 className="text-[1rem] font-semibold text-foreground">
         {tt("BXM", "БХМ")}
       </h1>
 
       <ListCard
         toolbar={
           <Toolbar>
+            <FilterActions onRefresh={getInfo} onClear={resetSort} />
+
             <ToolbarSpacer />
+            {/* Ro'yxat sahifalanmaydi — hammasi allaqachon yuklangan */}
+            <ExportButtons
+              title={tt("BXM", "БХМ")}
+              columns={exportColumns()}
+              fetchRows={async () => data}
+            />
             <UIButton size="sm" onClick={() => setOpen2(true)}>
               <Plus />
               {tt("Qo'shish", "Добавить")}
@@ -124,12 +151,14 @@ function Bxm() {
       >
         {data && data.length ? (
           <Table
+            sort={sort}
+            onSort={toggleSort}
             thead={[
-              { text: "№", className: "w-[70px]" },
-              { text: tt("BXM summa", "Сумма БХМ") },
+              { text: "№", className: "w-[4.375rem]" },
+              { sortKey: "summa", text: tt("BXM summa", "Сумма БХМ") },
               {
                 text: tt("Amallar", "Действия"),
-                className: "w-[110px] text-center",
+                className: "w-[6.875rem] text-center",
               },
             ]}
           >

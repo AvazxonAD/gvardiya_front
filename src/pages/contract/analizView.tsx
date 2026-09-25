@@ -9,6 +9,8 @@ import {
 import { IContractAnaliz } from "@/types/contract";
 import { formatDate, formatSum, tt } from "@/utils";
 import { DataTable, EmptyState, type TableColumn } from "@/ui";
+import ExportButtons from "@/Components/ExportButtons";
+import type { ExportColumn } from "@/lib/tableExport";
 
 type Props = {
   data: IContractAnaliz;
@@ -29,12 +31,12 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-border/60 py-2 last:border-b-0">
-      <span className="shrink-0 text-[13px] text-muted-foreground">{label}</span>
+      <span className="shrink-0 text-[0.8125rem] text-muted-foreground">{label}</span>
       <span
         className={
           strong
-            ? "text-right text-[14px] font-semibold tabular-nums text-foreground"
-            : "text-right text-[13px] font-medium tabular-nums text-foreground"
+            ? "text-right text-[0.875rem] font-semibold tabular-nums text-foreground"
+            : "text-right text-[0.8125rem] font-medium tabular-nums text-foreground"
         }
       >
         {value}
@@ -53,6 +55,8 @@ function Section<T>({
   total,
   totalLabel,
   emptyTitle,
+  exportTitle,
+  exportColumns,
 }: {
   title: string;
   icon: LucideIcon;
@@ -62,13 +66,26 @@ function Section<T>({
   total: React.ReactNode;
   totalLabel: string;
   emptyTitle: string;
+  /** Eksport fayli sarlavhasi (bo'lim + shartnoma raqami) */
+  exportTitle: string;
+  /** Tugma bosilganda chaqiriladi — tt() joriy tilda hisoblanadi */
+  exportColumns: () => ExportColumn<T>[];
 }) {
   return (
     <section className="flex min-w-0 flex-col">
-      <h3 className="mb-2 flex items-center gap-2 text-[14px] font-semibold text-foreground">
-        <Icon className="size-4 shrink-0 text-muted-foreground" />
-        {title}
-      </h3>
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="flex items-center gap-2 text-[0.875rem] font-semibold text-foreground">
+          <Icon className="size-4 shrink-0 text-muted-foreground" />
+          {title}
+        </h3>
+        <div className="flex items-center gap-2">
+          <ExportButtons
+            title={exportTitle}
+            columns={exportColumns()}
+            fetchRows={async () => rows}
+          />
+        </div>
+      </div>
 
       <div className="overflow-hidden rounded-lg border border-border">
         <DataTable
@@ -80,8 +97,8 @@ function Section<T>({
         />
 
         <div className="flex items-baseline justify-end gap-3 border-t border-border bg-muted/30 px-3 py-2.5">
-          <span className="text-[12px] text-muted-foreground">{totalLabel}</span>
-          <span className="text-[14px] font-semibold tabular-nums text-foreground">
+          <span className="text-[0.75rem] text-muted-foreground">{totalLabel}</span>
+          <span className="text-[0.875rem] font-semibold tabular-nums text-foreground">
             {total}
           </span>
         </div>
@@ -103,6 +120,34 @@ const AnalizView = React.forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
     align: "center" as const,
     width: "72px",
   };
+
+  const exportTitle = (section: string) =>
+    contract.doc_num
+      ? `${section} — ${tt("Shartnoma", "Договор")} № ${contract.doc_num}`
+      : section;
+
+  const prixodExport = (): ExportColumn<(typeof prixods)[number]>[] => [
+    { header: "№", value: (r) => r.prixod_doc_num, width: 8, align: "center" },
+    { header: tt("Sanasi", "Дата"), value: (r) => formatDate(r.prixod_date), align: "center" },
+    { header: tt("Tashkilot", "Организация"), value: (r) => r.organization_name || "—" },
+    { header: tt("Summa", "Сумма"), value: (r) => sum(r.prixod_summa), align: "right" },
+  ];
+
+  const rasxodExport = (): ExportColumn<(typeof rasxods)[number]>[] => [
+    { header: "№", value: (r) => r.doc_num, width: 8, align: "center" },
+    { header: tt("Sanasi", "Дата"), value: (r) => formatDate(r.rasxod_date), align: "center" },
+    { header: tt("Birgada №", "Бригада №"), value: (r) => r.batalon_account_number || "—", align: "center" },
+    { header: tt("Summa", "Сумма"), value: (r) => sum(r.result_summa), align: "right" },
+  ];
+
+  const fioExport = (): ExportColumn<(typeof rasxodFios)[number]>[] => [
+    { header: "№", value: (r) => r.doc_num, width: 8, align: "center" },
+    { header: tt("Sanasi", "Дата"), value: (r) => formatDate(r.rasxod_date), align: "center" },
+    { header: tt("Batalon", "Батальон"), value: (r) => r.batalon || "—", align: "center" },
+    { header: tt("F.I.Sh.", "ФИО"), value: (r) => r.fio || "—" },
+    { header: tt("Tadbir vaqti", "Время мероприятия"), value: (r) => r.task_time ?? 0, align: "center" },
+    { header: tt("Summa", "Сумма"), value: (r) => sum(r.summa), align: "right" },
+  ];
 
   const prixodColumns: TableColumn<(typeof prixods)[number]>[] = [
     { ...numCol, cell: (r) => <span className="tabular-nums">{r.prixod_doc_num}</span> },
@@ -274,6 +319,8 @@ const AnalizView = React.forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
           total={sum(contract.debit)}
           totalLabel={tt("Jami", "Итого")}
           emptyTitle={tt("Kirim yo'q", "Приходов нет")}
+          exportTitle={exportTitle(tt("Kirim", "Приход"))}
+          exportColumns={prixodExport}
         />
 
         <Section
@@ -285,6 +332,8 @@ const AnalizView = React.forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
           total={sum(contract.rasxod)}
           totalLabel={tt("Jami", "Итого")}
           emptyTitle={tt("Chiqim yo'q", "Расходов нет")}
+          exportTitle={exportTitle(tt("Chiqim", "Расход"))}
+          exportColumns={rasxodExport}
         />
       </div>
 
@@ -298,6 +347,8 @@ const AnalizView = React.forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
         total={sum(contract.rasxod_fio)}
         totalLabel={tt("Jami", "Итого")}
         emptyTitle={tt("Xodimlar bo'yicha chiqim yo'q", "Расходов по сотрудникам нет")}
+        exportTitle={exportTitle(tt("Chiqim F.I.Sh.", "Расход ФИО"))}
+        exportColumns={fioExport}
       />
     </div>
   );

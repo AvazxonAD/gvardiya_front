@@ -4,6 +4,7 @@ import { Landmark, Pencil, Trash2 } from "lucide-react";
 import Table from "@/Components/reusable/table/Table";
 import DeleteModal from "../Components/DeleteModal";
 import Modal from "../Components/Modal";
+import { permBtn, usePermission } from "@/lib/permissions";
 import { textNum, tt } from "../utils";
 import { Button, EmptyState } from "@/ui";
 
@@ -16,17 +17,23 @@ const HisobTab = ({
   open,
   titleM,
   handleDelete,
+  // Saralash ixtiyoriy
+  sort,
+  onSort,
 }: any) => {
   const [delOpen, setDelOpen] = useState(false);
+  const perm = usePermission("spravochnik");
 
   return (
     <>
       {data && data.length ? (
         <Table
+          sort={sort}
+          onSort={onSort}
           thead={[
-            { text: "№", className: "w-[70px]" },
-            { text: tt("Hisob raqami", "Номер счета") },
-            { text: tt("Amallar", "Действия"), className: "w-[110px] text-center" },
+            { text: "№", className: "w-[4.375rem]" },
+            { sortKey: "account_number", text: tt("Hisob raqami", "Номер счета") },
+            { text: tt("Amallar", "Действия"), className: "w-[6.875rem] text-center" },
           ]}
         >
           {data.map((person: any, index: number) => (
@@ -40,7 +47,7 @@ const HisobTab = ({
                   <Button
                     variant="ghost"
                     size="icon-xs"
-                    title={tt("Tahrirlash", "Редактировать")}
+                    {...permBtn(perm.update, tt("Tahrirlash", "Редактировать"))}
                     aria-label={tt("Tahrirlash", "Редактировать")}
                     onClick={() => {
                       setActive(person.id);
@@ -52,9 +59,8 @@ const HisobTab = ({
                   <Button
                     variant="ghost"
                     size="icon-xs"
-                    title={tt("O'chirish", "Удалить")}
+                    {...permBtn(perm.delete, tt("O'chirish", "Удалить"), "hover:bg-destructive/10 hover:text-destructive")}
                     aria-label={tt("O'chirish", "Удалить")}
-                    className="hover:bg-destructive/10 hover:text-destructive"
                     onClick={() => {
                       setDelOpen(true);
                       setActive(person.id);

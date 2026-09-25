@@ -247,7 +247,7 @@ const ContractEdit = () => {
       localStorage.setItem(`pdf_stale_${id}`, "1");
       navigate(`/contract/view/${id}`, { state: { generatePdf: true } });
     } else {
-      dispatch(alertt({ text: resp?.error, success: false }));
+      dispatch(alertt({ text: resp?.message, success: false }));
     }
   };
 
@@ -456,7 +456,7 @@ const ContractEdit = () => {
                   />
                   <label
                     htmlFor="address_input"
-                    className="cursor-pointer block text-muted-foreground text-[16px] leading-[14.52px] font-[600]"
+                    className="cursor-pointer block text-muted-foreground text-[1rem] leading-[0.9075rem] font-[600]"
                   >
                     {tt("Manzil", "Адрес")}
                   </label>
@@ -472,7 +472,7 @@ const ContractEdit = () => {
                   />
                   <label
                     htmlFor="date_input"
-                    className="cursor-pointer block text-muted-foreground text-[16px] leading-[14.52px] font-[600]"
+                    className="cursor-pointer block text-muted-foreground text-[1rem] leading-[0.9075rem] font-[600]"
                   >
                     {tt("Sana", "Дата")}
                   </label>
@@ -570,17 +570,17 @@ const ContractEdit = () => {
                 />
               ))}
             </div>
-            <div className="flex gap-2 ms-[692px]">
-              <div className="!w-[200px]">
+            <div className="flex gap-2 ms-[43.25rem]">
+              <div className="!w-[12.5rem]">
                 <Input v={allDiscount().dis} className="w-full mt-3" readonly />
               </div>
-              <div className="!w-[200px]">
+              <div className="!w-[12.5rem]">
                 <Input v={allDiscount().sum} className="w-full mt-3" readonly />
               </div>
             </div>
           </div>
         </div>
-        <div className="w-full flex justify-center items-center gap-x-10 mt-4">
+        <div className="mt-4 flex w-full flex-wrap items-center justify-center gap-x-3 gap-y-2 sm:gap-x-10">
           <Button
             mode="cancel"
             type="button"

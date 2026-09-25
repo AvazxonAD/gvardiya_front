@@ -21,10 +21,15 @@ import {
   formatInn,
   formatSum,
   textNum,
+  toNumber,
   tt,
   viewAndDownloadPdf,
 } from "../utils";
 import { Button, EmptyState } from "@/ui";
+import { DebtStatusBadge, debtStatusLabel } from "@/lib/debtStatus";
+import type { ExportColumn } from "@/lib/tableExport";
+import type { SortState } from "@/hooks/useTableSort";
+import { permBtn, usePermission } from "@/lib/permissions";
 
 interface ContTabProps {
   data: any[];
@@ -32,7 +37,59 @@ interface ContTabProps {
   setActive?: Dispatch<SetStateAction<any>>;
   hideActions?: boolean;
   isLawyer?: boolean;
+  /** Backend saralash (ixtiyoriy) — `useTableSort` dan */
+  sort?: SortState;
+  onSort?: (key: string) => void;
 }
+
+/* ── Eksport ustunlari (ContractHome va LawyerContract uchun) ─────── */
+
+// Funksiya: `tt` til tanlovini chaqirilgan paytda o'qiydi
+export const contExportColumns = (): ExportColumn<any>[] => {
+  const yes = tt("Ha", "Да");
+  const no = tt("Yo'q", "Нет");
+  const edited = tt("O'zgartirilgan", "Изменено");
+  return [
+    { header: "№", value: (_, i) => i + 1, width: 6, align: "center" },
+    { header: tt("Shartnoma raqami", "Номер договора"), value: (c) => c.doc_num, align: "center" },
+    { header: tt("Sana", "Дата"), value: (c) => formatDate(c.doc_date), align: "center" },
+    { header: tt("Buyurtmachi", "Заказчик"), value: (c) => c.organization_name },
+    { header: tt("Tadbir manzili", "Место проведения"), value: (c) => c.adress },
+    { header: tt("Hisoblangan", "Начислено"), value: (c) => formatSum(c.result_summa), excelValue: (c) => toNumber(c.result_summa), align: "right" },
+    { header: tt("Kelib tushgan", "Поступило"), value: (c) => formatSum(c.remaining_summa), excelValue: (c) => toNumber(c.remaining_summa), align: "right" },
+    { header: tt("Qarzdorlik", "Задолженность"), value: (c) => formatSum(c.remaining_balance), excelValue: (c) => toNumber(c.remaining_balance), align: "right" },
+    {
+      header: tt("To'lov muddati", "Срок оплаты"),
+      value: (c) => (Number(c.remaining_balance) > 0 ? debtStatusLabel(c.debt_status) : ""),
+      align: "center",
+    },
+    { header: tt("Chiqim", "Расход"), value: (c) => formatSum(c.rasxod_summa), excelValue: (c) => toNumber(c.rasxod_summa), align: "right" },
+    {
+      header: tt("Xodim", "Сотрудник"),
+      value: (c) => (c.worker_task_status === "Bajarilmagan" ? no : yes),
+      align: "center",
+    },
+    {
+      header: tt("Boshliq T", "Утв. рук."),
+      value: (c) =>
+        c.verification_boss === "success" ? yes : c.verification_boss === "update" ? edited : no,
+      align: "center",
+    },
+    {
+      header: tt("Yurist T", "Утв. юр."),
+      value: (c) =>
+        c.verification_lawyer === "success"
+          ? yes
+          : c.verification_lawyer === "update"
+          ? edited
+          : c.verification_lawyer === "rejected"
+          ? tt("Rad qilingan", "Отклонено")
+          : no,
+      align: "center",
+    },
+    { header: tt("Yuristga", "Юристу"), value: (c) => (c.send_lawyer ? yes : no), align: "center" },
+  ];
+};
 
 /* ── Tasdiq holatlari ─────────────────────────────────────────────── */
 
@@ -78,6 +135,8 @@ const ContTab: React.FC<ContTabProps> = ({
   setActive,
   hideActions,
   isLawyer,
+  sort,
+  onSort,
 }) => {
   const navigate = useNavigate();
   const [delOpen, setDelOpen] = useState(false);
@@ -107,24 +166,28 @@ const ContTab: React.FC<ContTabProps> = ({
   return (
     <>
       <Table
-        theadClassName="[&>tr>th]:px-2 [&>tr>th]:py-1.5 [&>tr>th]:text-[9px] [&>tr>th]:leading-[1.15]"
-        tbodyClassName="text-[10px] min-[1360px]:text-[11px] [&>tr>td]:px-2 [&>tr>td]:py-1.5"
+        sort={sort}
+        onSort={onSort}
+        // Mayda shrift faqat tor ekranda (13 ustun sig'sin). Keng ekranda
+        // joy yetarli — matn oddiy jadval o'lchamiga qaytadi.
+        theadClassName="[&>tr>th]:px-2 [&>tr>th]:py-1.5 [&>tr>th]:text-[0.5625rem] [&>tr>th]:leading-[1.15] min-[1700px]:[&>tr>th]:text-[0.6875rem]"
+        tbodyClassName="text-[0.625rem] min-[1360px]:text-[0.6875rem] min-[1700px]:text-[0.8125rem] [&>tr>td]:px-2 [&>tr>td]:py-1.5"
         thead={[
-          { text: "№", className: "w-[44px]" },
-          { text: tt("Sana", "Дата"), className: "w-[70px]" },
-          { text: tt("Buyurtmachi", "Заказчик"), className: "whitespace-normal leading-[1.15]" },
-          { text: tt("Tadbir manzili", "Место проведения"), className: "whitespace-normal leading-[1.15]" },
-          { text: tt("Hisoblangan", "Начислено"), className: "text-right whitespace-normal leading-[1.15]" },
-          { text: tt("Kelib tushgan", "Поступило"), className: "text-right whitespace-normal leading-[1.15]" },
-          { text: tt("Qarzdorlik", "Задолженность"), className: "text-right whitespace-normal leading-[1.15]" },
-          { text: tt("Chiqim", "Расход"), className: "text-right whitespace-normal leading-[1.15]" },
-          { text: tt("Xodim", "Сотрудник"), className: "text-center whitespace-normal leading-[1.15]" },
-          { text: tt("Boshliq T", "Утв. рук."), className: "text-center whitespace-normal leading-[1.15]" },
-          { text: tt("Yurist T", "Утв. юр."), className: "text-center whitespace-normal leading-[1.15]" },
-          { text: tt("Yuristga", "Юристу"), className: "text-center whitespace-normal leading-[1.15]" },
+          { sortKey: "doc_num", text: "№", className: "w-[2.75rem]" },
+          { sortKey: "doc_date", text: tt("Sana", "Дата"), className: "w-[4.375rem]" },
+          { sortKey: "organization_name", text: tt("Buyurtmachi", "Заказчик"), className: "whitespace-normal leading-[1.15]" },
+          { sortKey: "adress", text: tt("Tadbir manzili", "Место проведения"), className: "whitespace-normal leading-[1.15]" },
+          { sortKey: "result_summa", text: tt("Hisoblangan", "Начислено"), className: "text-right whitespace-normal leading-[1.15]" },
+          { sortKey: "remaining_summa", text: tt("Kelib tushgan", "Поступило"), className: "text-right whitespace-normal leading-[1.15]" },
+          { sortKey: "remaining_balance", text: tt("Qarzdorlik", "Задолженность"), className: "text-right whitespace-normal leading-[1.15]" },
+          { sortKey: "rasxod_summa", text: tt("Chiqim", "Расход"), className: "text-right whitespace-normal leading-[1.15]" },
+          { sortKey: "worker_task_status", text: tt("Xodim", "Сотрудник"), className: "text-center whitespace-normal leading-[1.15]" },
+          { sortKey: "verification_boss", text: tt("Boshliq T", "Утв. рук."), className: "text-center whitespace-normal leading-[1.15]" },
+          { sortKey: "verification_lawyer", text: tt("Yurist T", "Утв. юр."), className: "text-center whitespace-normal leading-[1.15]" },
+          { sortKey: "send_lawyer", text: tt("Yuristga", "Юристу"), className: "text-center whitespace-normal leading-[1.15]" },
           ...(isLawyer ? [{ text: "PDF", className: "text-center" }] : []),
           ...(!hideActions
-            ? [{ text: tt("Amallar", "Действия"), className: "w-[112px] text-center" }]
+            ? [{ text: tt("Amallar", "Действия"), className: "w-[7rem] text-center" }]
             : []),
         ]}
       >
@@ -155,9 +218,11 @@ const ContTab: React.FC<ContTabProps> = ({
               <span className="peer cursor-help">{item.organization_name}</span>
               <div
                 className={cn(
-                  "pointer-events-none absolute left-3 top-full z-20 w-[260px] -translate-y-1 rounded-md border border-border",
-                  "bg-popover p-3 text-[12px] text-popover-foreground opacity-0 shadow-lg transition-opacity",
-                  "peer-hover:pointer-events-auto peer-hover:opacity-100"
+                  "pointer-events-none absolute left-3 top-full z-20 w-[16.25rem] -translate-y-1 rounded-md border border-border",
+                  // `opacity-0` emas `hidden`: shaffof bo'lsa ham joy egallab,
+                  // jadval ostida bo'sh aylanadigan joy qoldirardi
+                  "hidden bg-popover p-3 text-[0.75rem] text-popover-foreground shadow-lg",
+                  "peer-hover:pointer-events-auto peer-hover:block"
                 )}
               >
                 <p>
@@ -196,6 +261,13 @@ const ContTab: React.FC<ContTabProps> = ({
               )}
             >
               {formatSum(item.remaining_balance)}
+              {Number(item.remaining_balance) > 0 && item.debt_status && (
+                <DebtStatusBadge
+                  status={item.debt_status}
+                  dueDate={item.payment_due_date}
+                  className="ml-auto mt-0.5 flex px-1 py-0 text-[0.5625rem] min-[1700px]:text-[0.6875rem]"
+                />
+              )}
             </td>
             <td className={num}>{formatSum(item.rasxod_summa)}</td>
 
@@ -317,14 +389,14 @@ type Props = {
  */
 export const RowMenu = ({ id, setDelOpen, setActive }: Props) => {
   const navigate = useNavigate();
+  const perm = usePermission("contract");
 
   return (
     <div className="flex items-center justify-center">
       <Button
         variant="ghost"
-        size="icon-xs"
-        className="h-6 w-6 [&_svg]:size-3"
-        title={tt("Tahrirlash", "Редактировать")}
+        size="icon-xs"
+        {...permBtn(perm.update, tt("Tahrirlash", "Редактировать"), "h-6 w-6 [&_svg]:size-3")}
         aria-label={tt("Tahrirlash", "Редактировать")}
         onClick={() => navigate("/contract/" + id)}
       >
@@ -352,9 +424,8 @@ export const RowMenu = ({ id, setDelOpen, setActive }: Props) => {
       </Button>
       <Button
         variant="ghost"
-        size="icon-xs"
-        className="h-6 w-6 [&_svg]:size-3 hover:bg-destructive/10 hover:text-destructive"
-        title={tt("O'chirish", "Удалить")}
+        size="icon-xs"
+        {...permBtn(perm.delete, tt("O'chirish", "Удалить"), "h-6 w-6 [&_svg]:size-3 hover:bg-destructive/10 hover:text-destructive")}
         aria-label={tt("O'chirish", "Удалить")}
         onClick={() => {
           setDelOpen(true);

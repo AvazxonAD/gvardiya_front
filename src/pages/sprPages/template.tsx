@@ -1,19 +1,13 @@
-import Button from "@/Components/reusable/button";
 import Spr from "@/pageCompoents/Spr";
 import { tt } from "@/utils";
-import { useNavigate } from "react-router-dom";
 
+// Shartnoma shablonlari kodda saqlanadi (backend `contract.shablon/templates/`)
+// va tanlangan tilda keladi — bu yerda faqat ko'rish mumkin.
 const Template = () => {
-  const navigate = useNavigate();
-
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold">{tt("Shablonlar", "Шаблоны")}</h2>
-        <Button
-          mode="add"
-          onClick={() => navigate("/spravichnik/template/create")}
-        />
       </div>
       <Spr
         titleT={tt("Shablon nomi", "Название шаблона")}

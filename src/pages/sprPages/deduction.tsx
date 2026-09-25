@@ -6,10 +6,16 @@ import Button from "@/Components/reusable/button";
 import { alertt } from "@/Redux/LanguageSlice";
 import useApi from "@/services/api";
 import { IDeduction } from "@/types/deduction";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
+import { usePagedFetch } from "@/hooks/usePagedFetch";
+import { sortParams, useTableSort } from "@/hooks/useTableSort";
+import FilterActions from "@/Components/FilterActions";
+import { useDebounce } from "use-debounce";
 import { useDispatch } from "react-redux";
 import Table, { ITheadItem } from "../../Components/reusable/table/Table"; // Assuming Table is in the same directory
 import { tt } from "../../utils";
+import ExportButtons from "@/Components/ExportButtons";
+import { EXPORT_ALL_LIMIT, type ExportColumn } from "@/lib/tableExport";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import {
   Button as UIButton,
@@ -28,6 +34,18 @@ type IDeductionState = {
   data?: IDeduction[];
 };
 
+// Funksiya: `tt` til tanlovini chaqirilgan paytda o'qiydi
+const exportColumns = (): ExportColumn<IDeduction>[] => [
+  { header: "№", value: (_, i) => i + 1, width: 6, align: "center" },
+  { header: tt("Ushlanma nomi", "Название удержания"), value: (d) => d.name },
+  {
+    header: tt("Foiz", "Процент"),
+    value: (d) => `${d.percent}%`,
+    excelValue: (d) => Number(d.percent),
+    align: "center",
+  },
+];
+
 function Deduction() {
   const [data, setData] = useState<IDeductionState>();
   const [limit, setLimit] = useState(15);
@@ -41,38 +59,55 @@ function Deduction() {
   const [addValue2, setAddValue2] = useState<string>("");
   const api = useApi();
   const dispatch = useDispatch();
+  const [search, setSearch] = useState("");
+  const [searchText] = useDebounce(search.trim(), 500);
+  const { sort, toggle: toggleSort, reset: resetSort } = useTableSort();
+
+  // Joriy filtrlar — ro'yxat ham, eksport ham aynan shu shartlar bilan oladi
+  const listQuery = (p: number, l: number) =>
+    `deduction?page=${p}&limit=${l}` +
+    (searchText ? `&search=${encodeURIComponent(searchText)}` : "") +
+    sortParams(sort);
+
+  const clearFilters = () => {
+    setSearch("");
+    resetSort();
+  };
 
   const tableHeaders: ITheadItem[] = [
     {
       text: tt("№", "№"),
-      className: "w-[100px] text-left",
+      className: "w-[6.25rem] text-left",
     },
     {
+      sortKey: "name",
       text: tt("Ushlanma nomi", "Название удержания"),
-      className: "w-[250px] text-left",
+      className: "w-[15.625rem] text-left",
     },
     {
+      sortKey: "percent",
       text: tt("Foiz", "Процент"),
-      className: "w-[200px] text-center",
+      className: "w-[12.5rem] text-center",
     },
     {
       text: tt("Amallar", "Действия"),
-      className: "w-[120px] text-right",
+      className: "w-[7.5rem] text-right",
     },
   ];
 
   const getData = async () => {
-    const get = await api.get<IDeductionState>(
-      `deduction?page=${currentPage}&limit=${limit}`
-    );
+    const get = await api.get<IDeductionState>(listQuery(currentPage, limit));
     if (get?.success) {
       setData(get as any);
     }
   };
 
-  useEffect(() => {
-    getData();
-  }, [currentPage, limit]);
+  usePagedFetch({
+    page: currentPage,
+    setPage: setCurrentPage,
+    filters: [limit, searchText, sort],
+    fetch: getData,
+  });
 
   const handleRemove = async (id: number) => {
     const remove: any = await api.remove(`deduction/${id}`);
@@ -129,15 +164,38 @@ function Deduction() {
   };
 
   return (
-    <div className="flex min-w-0 flex-col gap-3">
-      <h1 className="text-[16px] font-semibold text-foreground">
+    // Sarlavha bilan birga ekranga sig'sin — jadval o'zi aylanadi (ListCard)
+    <div className="flex min-w-0 flex-col gap-3 lg:max-h-[max(24rem,calc(100dvh_-_6rem))]">
+      <h1 className="text-[1rem] font-semibold text-foreground">
         {tt("Ushlanma", "Удержание")}
       </h1>
 
       <ListCard
         toolbar={
           <Toolbar>
+            <div className="w-full sm:w-64">
+              <Input
+                v={search}
+                change={(e: any) => setSearch(e.target.value)}
+                search={true}
+                p={tt("Nomi yoki foiz bo'yicha", "По названию или проценту")}
+                className="h-9 w-full"
+              />
+            </div>
+
+            <FilterActions onRefresh={getData} onClear={clearFilters} />
+
             <ToolbarSpacer />
+            <ExportButtons
+              title={tt("Ushlanma", "Удержание")}
+              columns={exportColumns()}
+              fetchRows={async () => {
+                const get = await api.get<IDeduction[]>(
+                  listQuery(1, EXPORT_ALL_LIMIT)
+                );
+                return get?.success ? get.data ?? [] : [];
+              }}
+            />
             <UIButton size="sm" onClick={() => setAdd(true)}>
               <Plus />
               {tt("Qo'shish", "Добавить")}
@@ -155,7 +213,7 @@ function Deduction() {
           />
         }
       >
-        <Table thead={tableHeaders}>
+        <Table thead={tableHeaders} sort={sort} onSort={toggleSort}>
           {data?.data?.map((item, index) => (
             <tr
               key={item.id}

@@ -59,7 +59,8 @@ export function initTokenManager() {
 }
 
 // Decode JWT payload without validating the signature. Returns null on failure.
-function decodeJwt(token: string): { exp?: number } | null {
+// The payload is the user row (see backend generate.token.js), so `id` is its owner.
+export function decodeJwt(token: string): { exp?: number; id?: number } | null {
   try {
     const part = token.split(".")[1];
     if (!part) return null;

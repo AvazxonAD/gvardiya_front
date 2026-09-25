@@ -609,22 +609,26 @@ export async function viewAndDownloadPdf(url: string, fileName: string) {
     if (!res.ok) {
       throw new Error(`PDF yuklanmadi: ${res.status}`);
     }
-    const blob = await res.blob();
-    const blobUrl = URL.createObjectURL(blob);
-
-    window.open(blobUrl, "_blank", "noopener,noreferrer");
-
-    const a = document.createElement("a");
-    a.href = blobUrl;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    openAndDownloadBlob(await res.blob(), fileName);
   } catch (e) {
     console.error("Yuklab olishda xatolik:", e);
   }
+}
+
+/** Tayyor fayl (masalan, joriy tilda yaratilgan PDF) — yangi oynada ochadi va yuklab beradi */
+export function openAndDownloadBlob(blob: Blob, fileName: string) {
+  const blobUrl = URL.createObjectURL(blob);
+
+  window.open(blobUrl, "_blank", "noopener,noreferrer");
+
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
 }
 
 // Sana-vaqtni "kun.oy.yil soat:daqiqa:soniya" (03.06.2026 11:52:17) formatida qaytaradi

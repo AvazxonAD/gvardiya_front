@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn, pxToRem } from "@/lib/utils";
 import { Button } from "@/ui";
 
 /**
@@ -69,7 +69,7 @@ function Modal({
       <div
         role="dialog"
         aria-modal="true"
-        style={{ width: w ? w : "400px", ...style }}
+        style={{ width: pxToRem(w) ?? "25rem", ...style }}
         className={cn(
           "relative z-10 flex max-h-[calc(100vh-3rem)] max-w-full animate-zoom-in flex-col",
           "rounded-xl border border-border bg-card text-card-foreground shadow-xl",

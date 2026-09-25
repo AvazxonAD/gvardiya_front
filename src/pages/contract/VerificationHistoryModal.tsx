@@ -142,7 +142,7 @@ const VerificationHistoryModal = ({ contractId, docNum, open, onClose }: Props) 
                 };
                 return (
                   <li key={item.id} className="ml-6">
-                    <span className={`absolute -left-[9px] flex items-center justify-center w-4 h-4 rounded-none ${meta.bg} ring-4 ring-white`}>
+                    <span className={`absolute -left-[0.5625rem] flex items-center justify-center w-4 h-4 rounded-none ${meta.bg} ring-4 ring-white`}>
                       <span className={`w-2 h-2 rounded-none ${meta.text.replace("text-", "bg-")}`} />
                     </span>
 
@@ -184,7 +184,7 @@ const VerificationHistoryModal = ({ contractId, docNum, open, onClose }: Props) 
                             </span>{" "}
                             {item.signer_name}
                             {item.user_type && USER_TYPE_LABEL[item.user_type] && (
-                              <span className="ml-2 inline-block px-2 py-0.5 text-[10px] font-semibold rounded bg-primary/10 text-primary">
+                              <span className="ml-2 inline-block px-2 py-0.5 text-[0.625rem] font-semibold rounded bg-primary/10 text-primary">
                                 {tt(USER_TYPE_LABEL[item.user_type].uz, USER_TYPE_LABEL[item.user_type].ru)}
                               </span>
                             )}

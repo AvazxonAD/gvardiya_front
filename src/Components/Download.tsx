@@ -3,6 +3,7 @@ import { Download as DownloadIcon, FileSpreadsheet } from "lucide-react";
 
 import { alertt } from "@/Redux/LanguageSlice";
 import { getExcel } from "@/api";
+import { getErrorMessage } from "@/lib/errorMessage";
 import { tt } from "@/utils";
 import { Button, Modal } from "@/ui";
 
@@ -34,9 +35,10 @@ function Download({ open, URL: url, closeModal }: any) {
     } catch (error) {
       dispatch(
         alertt({
-          text: tt(
-            "Excel faylni yuklashda muammo yuz berdi",
-            "Проблема с загрузкой файла Excel"
+          // Server sababi bo'lsa o'sha, umumiy matn emas
+          text: getErrorMessage(
+            error,
+            tt("Excel faylni yuklashda muammo yuz berdi", "Проблема с загрузкой файла Excel")
           ),
           success: false,
         })
@@ -71,7 +73,7 @@ function Download({ open, URL: url, closeModal }: any) {
         <span className="flex size-10 shrink-0 items-center justify-center rounded-none bg-success/10 text-success">
           <FileSpreadsheet className="size-5" />
         </span>
-        <p className="text-[13px] leading-relaxed text-muted-foreground">
+        <p className="text-[0.8125rem] leading-relaxed text-muted-foreground">
           {tt(
             "Ma'lumotlar Excel faylga yuklab olinadi. Davom etish uchun “Yuklash” tugmasini bosing.",
             "Данные будут выгружены в файл Excel. Нажмите «Загрузить», чтобы продолжить."

@@ -63,12 +63,16 @@ const apiSlice = createSlice({
     giveUserData: (state, { payload }) => {
       if (isRealUser(payload?.user)) state.user = payload.user;
     },
+    // Xodim ruhsatlari serverdan qayta o'qilganda (admin o'zgartirgan bo'lishi mumkin)
+    setPermissions: (state, { payload }) => {
+      if (isRealUser(state.user)) (state.user as any).permissions = payload ?? {};
+    },
     clearUserData: (state) => {
       state.user = EMPTY_USER;
     },
   },
 });
 
-export const { putJwt, giveUserData, setUserData, clearUserData } =
+export const { putJwt, giveUserData, setUserData, clearUserData, setPermissions } =
   apiSlice.actions;
 export default apiSlice.reducer;

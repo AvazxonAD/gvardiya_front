@@ -4,15 +4,17 @@ import { useSelector } from "react-redux";
 import Input from "../../Components/Input";
 import Paginatsiya from "../../Components/Paginatsiya";
 import { getCont } from "../../api";
-import ContTab from "../../pageCompoents/ContTab";
+import ContTab, { contExportColumns } from "../../pageCompoents/ContTab";
 import { tt } from "../../utils";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
+import ExportButtons from "@/Components/ExportButtons";
+import FilterActions from "@/Components/FilterActions";
+import { sortParams, useTableSort } from "@/hooks/useTableSort";
+import { EXPORT_ALL_LIMIT } from "@/lib/tableExport";
 import { RootState } from "@/Redux/store";
 import { useDebounce } from "use-debounce";
-import { RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  Button as UIButton,
   ListCard,
   Toolbar,
   ToolbarSpacer,
@@ -26,7 +28,7 @@ function LawyerContract() {
   const JWT = useSelector((s: any) => s.auth.jwt);
 
   const [value, setValue] = useState("");
-  const [searchText] = useDebounce(value, 500);
+  const [searchText] = useDebounce(value.trim(), 500);
   const [limet, setLimet] = useState(50);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -36,6 +38,7 @@ function LawyerContract() {
     date2: endDate,
   });
   const [filter, setFilter] = useState<"all" | "verified" | "pending">("all");
+  const { sort, toggle: toggleSort, reset: resetSort } = useTableSort();
 
   useEffect(() => {
     setDates({ date1: startDate, date2: endDate });
@@ -43,6 +46,14 @@ function LawyerContract() {
 
   //@ts-ignore
   const account_id = useSelector((state) => state.account.account_number_id);
+
+  // Tasdiq filtri backendda — butun ro'yxat bo'yicha, faqat joriy sahifada emas
+  // lawyer_view — bu sahifada faqat yuristga yuborilgan shartnomalar
+  // (yuristga "Shartnomalar" bo'limi ham berilgan bo'lsa ham)
+  const extraParams = () =>
+    "&lawyer_view=true" +
+    sortParams(sort) +
+    (filter !== "all" ? `&lawyer_status=${filter}` : "");
 
   const getInfo = async (dates?: any) => {
     const res = await getCont(
@@ -55,26 +66,28 @@ function LawyerContract() {
       0,
       "",
       "",
-      ""
+      "",
+      extraParams()
     );
     setData(res.data || []);
     setTotalPages(res.meta.pageCount);
-    setAll(res.meta?.total || (res.data || []).length);
+    setAll(res.meta?.count ?? (res.data || []).length);
   };
-
-  const filteredData = data.filter((item: any) => {
-    if (filter === "verified") return item.verification_lawyer === "success";
-    if (filter === "pending") return item.verification_lawyer !== "success";
-    return true;
-  });
 
   // Filtrlar o'zgarishi bilan ro'yxat o'zi yangilanadi va 1-sahifaga qaytadi
   usePagedFetch({
     page: currentPage,
     setPage: setCurrentPage,
-    filters: [limet, searchText, account_id, dates.date1, dates.date2],
+    filters: [limet, searchText, account_id, dates.date1, dates.date2, sort, filter],
     fetch: () => getInfo(dates),
   });
+
+  const clearFilters = () => {
+    setDates({ date1: startDate, date2: endDate });
+    setValue("");
+    setFilter("all");
+    resetSort();
+  };
 
 
   const FILTERS: { id: "all" | "verified" | "pending"; label: string }[] = [
@@ -93,7 +106,7 @@ function LawyerContract() {
                 v={value}
                 change={(e: any) => setValue(e.target.value)}
                 search={true}
-                p={tt("Ma'lumotlarni qidirish", "Поиск данных")}
+                p={tt("№, tashkilot, INN, manzil yoki batalon", "№, организация, ИНН, адрес или батальон")}
                 className="h-9 w-full"
               />
             </div>
@@ -107,7 +120,7 @@ function LawyerContract() {
                   onClick={() => setFilter(f.id)}
                   aria-pressed={filter === f.id}
                   className={cn(
-                    "rounded-none px-3 py-1.5 text-[13px] font-medium transition-colors",
+                    "rounded-none px-3 py-1.5 text-[0.8125rem] font-medium transition-colors",
                     filter === f.id
                       ? "bg-card text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
@@ -130,20 +143,30 @@ function LawyerContract() {
               />
             </div>
 
+            <FilterActions onRefresh={() => getInfo(dates)} onClear={clearFilters} />
+
             <ToolbarSpacer />
 
-            <UIButton
-              variant="ghost"
-              size="sm"
-              onClick={async () => {
-                setDates({ date1: startDate, date2: endDate });
-                setValue("");
-                getInfo({ date1: startDate, date2: endDate });
+            <ExportButtons
+              title={tt("Yurist shartnoma", "Договор юриста")}
+              columns={contExportColumns()}
+              fetchRows={async () => {
+                const res = await getCont(
+                  JWT,
+                  dates,
+                  1,
+                  EXPORT_ALL_LIMIT,
+                  searchText,
+                  account_id,
+                  0,
+                  "",
+                  "",
+                  "",
+                  extraParams()
+                );
+                return res?.data ?? [];
               }}
-            >
-              <RotateCcw />
-              {tt("Tozalash", "Очистить")}
-            </UIButton>
+            />
           </Toolbar>
         }
         footer={
@@ -159,7 +182,13 @@ function LawyerContract() {
           ) : null
         }
       >
-        <ContTab data={filteredData} hideActions isLawyer />
+        <ContTab
+          data={data}
+          hideActions
+          isLawyer
+          sort={sort}
+          onSort={toggleSort}
+        />
       </ListCard>
     </div>
   );

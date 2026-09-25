@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { alertt } from "@/Redux/LanguageSlice";
 import { useDispatch } from "react-redux";
+import { permBtn, usePermission } from "@/lib/permissions";
 import {
   Badge,
   Button,
@@ -39,6 +40,8 @@ const TableItem = ({
   updateStats,
 }: any) => {
   const dispatch = useDispatch();
+  // Xodim biriktirish / o'chirish — shartnomani tahrirlash ruxsati
+  const canEdit = usePermission("contract").update;
   const [open, setOpen] = useState<boolean>(false);
   const [taskWorkers, setTaskWorkers] = useState<ITaskWorker[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -153,13 +156,13 @@ const TableItem = ({
       cell: (w) => (
         <div className="flex flex-col items-start gap-1">
           {w.task_date && (
-            <span className="flex items-center gap-1.5 text-[13px] font-medium tabular-nums">
+            <span className="flex items-center gap-1.5 text-[0.8125rem] font-medium tabular-nums">
               <CalendarDays className="size-3.5 text-muted-foreground" />
               {formatDate(w.task_date)}
             </span>
           )}
           {(w.start_time || w.end_time) && (
-            <span className="flex items-center gap-1.5 text-[12px] tabular-nums text-muted-foreground">
+            <span className="flex items-center gap-1.5 text-[0.75rem] tabular-nums text-muted-foreground">
               <Clock className="size-3.5" />
               {w.start_time && w.end_time
                 ? `${w.start_time} — ${w.end_time}`
@@ -185,8 +188,7 @@ const TableItem = ({
           size="icon-sm"
           onClick={() => handleDelete(w.id, row.id)}
           aria-label={tt("O'chirish", "Удалить")}
-          title={tt("O'chirish", "Удалить")}
-          className="hover:text-destructive"
+          {...permBtn(canEdit, tt("O'chirish", "Удалить"), "hover:text-destructive")}
         >
           <Trash2 />
         </Button>
@@ -197,23 +199,23 @@ const TableItem = ({
   return (
     <React.Fragment>
       <tr className="text-foreground">
-        <td className="border-b border-border px-6 py-3 text-left text-[14px] font-medium">
+        <td className="border-b border-border px-6 py-3 text-left text-[0.875rem] font-medium">
           {row.batalon_name}
         </td>
-        <td className="border-b border-border px-6 py-3 text-center text-[14px] font-medium tabular-nums">
+        <td className="border-b border-border px-6 py-3 text-center text-[0.875rem] font-medium tabular-nums">
           {row.task_time}
         </td>
-        <td className="border-b border-border px-6 py-3 text-center text-[14px] font-medium tabular-nums">
+        <td className="border-b border-border px-6 py-3 text-center text-[0.875rem] font-medium tabular-nums">
           {row.worker_number}
         </td>
-        <td className="border-b border-border px-6 py-3 text-center text-[14px] font-medium tabular-nums">
+        <td className="border-b border-border px-6 py-3 text-center text-[0.875rem] font-medium tabular-nums">
           {totalHours}
         </td>
-        <td className="border-b border-border px-6 py-3 text-left text-[14px] font-medium tabular-nums">
+        <td className="border-b border-border px-6 py-3 text-left text-[0.875rem] font-medium tabular-nums">
           {formatSum(row.summa)}
         </td>
         <td
-          className={`border-b border-border px-6 py-3 text-[14px] font-medium ${
+          className={`border-b border-border px-6 py-3 text-[0.875rem] font-medium ${
             overdue ? "text-destructive" : "text-success"
           }`}
         >
@@ -234,7 +236,7 @@ const TableItem = ({
           {!row.birgada ? attachedHours : ""}
         </td>
         <td
-          className="max-w-[280px] border-b border-border px-6 py-3 text-left text-[13px] text-foreground"
+          className="max-w-[17.5rem] border-b border-border px-6 py-3 text-left text-[0.8125rem] text-foreground"
           title={row.comment || ""}
         >
           <div className="line-clamp-2 whitespace-pre-wrap break-words">
@@ -248,12 +250,12 @@ const TableItem = ({
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  disabled={!(row.remaining_task_time > 0)}
                   onClick={() =>
                     setCreatingId(creatingId === row.id ? null : row.id)
                   }
                   aria-label={tt("Xodim biriktirish", "Прикрепить сотрудника")}
-                  title={tt("Xodim biriktirish", "Прикрепить сотрудника")}
+                  {...permBtn(canEdit, tt("Xodim biriktirish", "Прикрепить сотрудника"))}
+                  disabled={!canEdit || !(row.remaining_task_time > 0)}
                 >
                   <Plus />
                 </Button>

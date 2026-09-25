@@ -4,22 +4,23 @@ import "@/pages/rasxod/rasxod.css";
 import { formatDate, formatNum, textNum, tt } from "@/utils";
 import React from "react";
 import { TableItem } from "../rasxod/rasxodcreateTable";
+import { splitSumma } from "./splitSumma";
 
 const tablehead = [
   { name: tt("Shartnoma №", "№ договора"), className: "text-left" },
   { name: tt("Sana", "Дата"), className: "text-left" },
-  { name: tt("Tashkilot", "Организация"), className: "text-left w-[170px] max-w-[170px]" },
+  { name: tt("Tashkilot", "Организация"), className: "text-left w-[10.625rem] max-w-[10.625rem]" },
   { name: tt("F.I.Sh.", "ФИО"), className: "text-left" },
   { name: tt("Vaqt", "Время"), className: "text-center" },
-  { name: tt("Jami (100%)", "Всего (100%)"), className: "text-right min-w-[110px]" },
-  { name: tt("Boshqarma (10%)", "Управление (10%)"), className: "text-right min-w-[110px]" },
-  { name: tt("Qolgan (90%)", "Остаток (90%)"), className: "text-right min-w-[110px]" },
-  { name: tt("Moddiy baza (65%)", "Материальная база (65%)"), className: "text-right min-w-[110px]" },
-  { name: tt("I-II guruh (25%)", "I-II группы (25%)"), className: "text-right min-w-[110px]" },
-  { name: tt("Shaxsiy tarkib", "Личный состав"), className: "text-right min-w-[110px]" },
-  { name: tt("Ijtimoiy soliq (25%)", "Социальный налог (25%)"), className: "text-right min-w-[110px]" },
-  { name: tt("Daromad solig'i (12%)", "Налог на доходы (12%)"), className: "text-right min-w-[110px]" },
-  { name: tt("Kartaga o'tkazildi", "Перечислено на карту"), className: "text-right min-w-[110px]" },
+  { name: tt("Jami (100%)", "Всего (100%)"), className: "text-right min-w-[6.875rem]" },
+  { name: tt("Boshqarma (10%)", "Управление (10%)"), className: "text-right min-w-[6.875rem]" },
+  { name: tt("Qolgan (90%)", "Остаток (90%)"), className: "text-right min-w-[6.875rem]" },
+  { name: tt("Moddiy baza (75%)", "Материальная база (75%)"), className: "text-right min-w-[6.875rem]" },
+  { name: tt("I-II guruh (25%)", "I-II группы (25%)"), className: "text-right min-w-[6.875rem]" },
+  { name: tt("Shaxsiy tarkib", "Личный состав"), className: "text-right min-w-[6.875rem]" },
+  { name: tt("Ijtimoiy soliq (25%)", "Социальный налог (25%)"), className: "text-right min-w-[6.875rem]" },
+  { name: tt("Daromad solig'i (12%)", "Налог на доходы (12%)"), className: "text-right min-w-[6.875rem]" },
+  { name: tt("Kartaga o'tkazildi", "Перечислено на карту"), className: "text-right min-w-[6.875rem]" },
 ];
 
 interface Props {
@@ -49,6 +50,10 @@ export const RasxodcreateTableFio = ({
     return formatDate(formattedDate);
   };
 
+  // Saqlangan qatorda bazadagi summalar, yangisida — joriy qoida bo'yicha
+  const amountsOf = (task: RasxodFioTaskInterface) =>
+    splitSumma(task.summa, summa_10_percent, task.saved ? task : undefined);
+
   // Calculate totals for the required columns
   const calculateTotals = () => {
     let totalSumma = 0;
@@ -63,24 +68,17 @@ export const RasxodcreateTableFio = ({
     let worker_summa = 0
 
     data?.forEach((task) => {
-      const s10 = task.saved && task.summa_10 != null ? task.summa_10 : task.summa * summa_10_percent / 100;
-      const rem = task.saved && task.summa_remaining != null ? task.summa_remaining : task.summa - s10;
-      const s65 = task.saved && task.summa_65 != null ? task.summa_65 : task.summa * 0.65;
-      const s25 = task.saved && task.summa_25 != null ? task.summa_25 : task.summa * 0.25;
-      const s125 = task.saved && task.summa_1_25 != null ? task.summa_1_25 : s25 / 1.25;
-      const s252 = task.saved && task.summa_25_2 != null ? task.summa_25_2 : s125 * 0.25;
-      const s12 = task.saved && task.summa_12 != null ? task.summa_12 : s125 * 0.12;
-      const ws = task.saved && task.worker_summa != null ? task.worker_summa : s125 - s12;
+      const s = amountsOf(task);
       task_time += task.task_time;
       totalSumma += task.summa;
-      total_summa_10 += s10;
-      total_summa_remaining += rem;
-      summa_65 += s65;
-      summa_25 += s25;
-      summa_1_25 += s125;
-      summa_25_2 += s252;
-      summa_12 += s12;
-      worker_summa += ws;
+      total_summa_10 += s.summa_10;
+      total_summa_remaining += s.summa_remaining;
+      summa_65 += s.summa_65;
+      summa_25 += s.summa_25;
+      summa_1_25 += s.summa_1_25;
+      summa_25_2 += s.summa_25_2;
+      summa_12 += s.summa_12;
+      worker_summa += s.worker_summa;
     });
 
     return {
@@ -101,9 +99,9 @@ export const RasxodcreateTableFio = ({
 
   return (
     <div>
-      <div className="rounded-t-[6px] max-h-[400px] overflow-y-auto overflow-x-auto text-foreground text-[11px] leading-[14px]">
+      <div className="rounded-t-[6px] max-h-[25rem] overflow-y-auto overflow-x-auto text-foreground text-[0.6875rem] leading-[0.875rem]">
         <table className="table-grid min-w-full table-auto relative">
-          <thead className="bg-muted/60 text-foreground text-[11px] leading-[14px] rounded-t-[6px] sticky -top-1 z-[2]">
+          <thead className="bg-muted text-foreground text-[0.6875rem] leading-[0.875rem] rounded-t-[6px] sticky top-0 z-20">
             <tr className="rounded-t-[6px]">
               {tablehead.map((item, index) => (
                 <th
@@ -116,7 +114,7 @@ export const RasxodcreateTableFio = ({
             </tr>
           </thead>
 
-          <tbody className="text-foreground bg-card text-[11px] leading-[14px] relative z-[1]">
+          <tbody className="text-foreground bg-card text-[0.6875rem] leading-[0.875rem] relative z-[1]">
             {data?.map((item, index) => {
               const activeUstama = ustamaData.filter(
                 (el) => el.active === true
@@ -133,22 +131,14 @@ export const RasxodcreateTableFio = ({
                 >
                   {(() => {
                     const r = (v: number) => Math.round(v * 100) / 100;
-                    // Saved items use DB values, new items calculate with percent
-                    const s10 = item.saved && item.summa_10 != null ? item.summa_10 : item.summa * summa_10_percent / 100;
-                    const rem = item.saved && item.summa_remaining != null ? item.summa_remaining : item.summa - s10;
-                    const s65 = item.saved && item.summa_65 != null ? item.summa_65 : item.summa * 0.65;
-                    const s25 = item.saved && item.summa_25 != null ? item.summa_25 : item.summa * 0.25;
-                    const s125 = item.saved && item.summa_1_25 != null ? item.summa_1_25 : s25 / 1.25;
-                    const s252 = item.saved && item.summa_25_2 != null ? item.summa_25_2 : s125 * 0.25;
-                    const s12 = item.saved && item.summa_12 != null ? item.summa_12 : s125 * 0.12;
-                    const ws = item.saved && item.worker_summa != null ? item.worker_summa : s125 - s12;
+                    const s = amountsOf(item);
                     const c = "px-2 py-1 border-b border-border";
                     return (<>
                       <td className={`${c} text-left`}>{item.contract_doc_num}</td>
                       <td className={`${c} text-left`}>{newdate(item.contract_doc_date)}</td>
-                      <td className={`${c} text-left relative group cursor-pointer max-w-[170px]`}>
+                      <td className={`${c} text-left relative group cursor-pointer max-w-[10.625rem]`}>
                         <p className="truncate">{item.organization_name}</p>
-                        <div className="hidden group-hover:block absolute left-[100px] -mt-4 w-[220px] shadow-lg z-10 rounded-md bg-card border-b border-border text-foreground p-2 text-[10px]">
+                        <div className="hidden group-hover:block absolute left-[6.25rem] -mt-4 w-[13.75rem] shadow-lg z-10 rounded-md bg-card border-b border-border text-foreground p-2 text-[0.625rem]">
                           <p>{item.organization_name}</p>
                           <p>{tt("Hisob", "Счет")}: {textNum(item.organization_account_number, 4)}</p>
                           <p>{tt("INN", "ИНН")}: {item.organization_str}</p>
@@ -158,14 +148,14 @@ export const RasxodcreateTableFio = ({
                       <td className={`${c} text-left`}>{item.fio}</td>
                       <td className={`${c} text-center`}>{item.task_time}</td>
                       <td className={`${c} text-right whitespace-nowrap`}>{formatNum(item.summa)}</td>
-                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s10))}</td>
-                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(rem))}</td>
-                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s65))}</td>
-                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s25))}</td>
-                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s125))}</td>
-                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s252))}</td>
-                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s12))}</td>
-                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(ws))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s.summa_10))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s.summa_remaining))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s.summa_65))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s.summa_25))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s.summa_1_25))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s.summa_25_2))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s.summa_12))}</td>
+                      <td className={`${c} text-right whitespace-nowrap`}>{formatNum(r(s.worker_summa))}</td>
                     </>);
                   })()}
                 </tr>

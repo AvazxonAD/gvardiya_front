@@ -1,6 +1,8 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { tt } from "@/utils";
 
 const fieldBase = [
   "w-full min-w-0 rounded-md border border-input bg-card text-foreground",
@@ -15,7 +17,7 @@ const fieldBase = [
 const inputVariants = cva(fieldBase, {
   variants: {
     inputSize: {
-      sm: "h-8 px-2.5 text-[13px]",
+      sm: "h-8 px-2.5 text-[0.8125rem]",
       md: "h-9 px-3 text-sm",
       lg: "h-10 px-3.5 text-sm",
     },
@@ -44,23 +46,46 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
     [type, onWheel]
   );
 
+  // Har bir parol maydonida ko'z tugmasi — yozilganini tekshirib olish
+  // uchun. Chaqiruvchi o'z `endIcon` ini bergan bo'lsa (kirish sahifasi),
+  // o'shanisi qoladi. Tugma va yorliqlar kirish sahifasidagi bilan bir xil.
+  const [revealed, setRevealed] = React.useState(false);
+  const passwordToggle = type === "password" && endIcon === undefined;
+  const trailing = passwordToggle ? (
+    <button
+      type="button"
+      tabIndex={-1}
+      onClick={() => setRevealed((v) => !v)}
+      aria-label={
+        revealed
+          ? tt("Parolni yashirish", "Скрыть пароль")
+          : tt("Parolni ko'rsatish", "Показать пароль")
+      }
+      className="rounded p-0.5 transition-colors hover:text-foreground"
+    >
+      {revealed ? <EyeOff /> : <Eye />}
+    </button>
+  ) : (
+    endIcon
+  );
+
   const field = (
     <input
       ref={ref}
-      type={type}
+      type={passwordToggle && revealed ? "text" : type}
       data-slot="input"
       onWheel={handleWheel}
       className={cn(
         inputVariants({ inputSize }),
         startIcon && "pl-9",
-        endIcon && "pr-9",
+        trailing && "pr-9",
         className
       )}
       {...props}
     />
   );
 
-  if (!startIcon && !endIcon) return field;
+  if (!startIcon && !trailing) return field;
 
   return (
     <div className="relative w-full">
@@ -70,9 +95,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
         </span>
       )}
       {field}
-      {endIcon && (
+      {trailing && (
         <span className="absolute right-2.5 top-1/2 flex -translate-y-1/2 items-center text-muted-foreground [&_svg]:size-4">
-          {endIcon}
+          {trailing}
         </span>
       )}
     </div>
@@ -102,7 +127,7 @@ const Label = React.forwardRef<
       ref={ref}
       data-slot="label"
       className={cn(
-        "flex select-none items-center gap-1 text-[13px] font-medium leading-none text-foreground",
+        "flex select-none items-center gap-1 text-[0.8125rem] font-medium leading-none text-foreground",
         className
       )}
       {...props}

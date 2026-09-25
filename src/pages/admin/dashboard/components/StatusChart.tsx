@@ -5,6 +5,8 @@ import { RootState } from "@/Redux/store";
 import useApi from "@/services/api";
 import { Chart, DoughnutController, ArcElement, Tooltip, Legend } from "chart.js";
 import { DistributionResponse, DistributionByRegion } from "../types";
+import ExportButtons from "@/Components/ExportButtons";
+import type { ExportColumn } from "@/lib/tableExport";
 
 Chart.register(DoughnutController, ArcElement, Tooltip, Legend);
 
@@ -23,6 +25,33 @@ const formatFull = (num?: number): string => {
   if (!num && num !== 0) return "0";
   return Number(num).toLocaleString("ru-RU");
 };
+
+/**
+ * Canvas matni CSS'dan meros olmaydi — px da chiziladi. Katta monitorda
+ * interfeys `html` shrift o'lchami orqali kattalashadi (index.css),
+ * shuning uchun diagramma shriftlari ham shu koeffitsientga ko'paytiriladi.
+ * Aks holda halqa konteyner bilan o'sib, yozuvlar mayda qolardi.
+ */
+const remScale = () =>
+  parseFloat(getComputedStyle(document.documentElement).fontSize) / 16 || 1;
+
+const distMoney = (header: string, get: (r: DistributionByRegion) => number): ExportColumn<DistributionByRegion> => ({
+  header,
+  value: (r) => formatFull(get(r)),
+  excelValue: (r) => Number(get(r)) || 0,
+  align: "right",
+});
+
+const distExportColumns = (): ExportColumn<DistributionByRegion>[] => [
+  { header: "№", value: (_, i) => i + 1, width: 6, align: "center" },
+  { header: tt("Viloyat", "Регион"), value: (r) => r.region_name },
+  distMoney(tt("Jami kirim", "Всего поступило"), (r) => r.jami_kirim),
+  distMoney(tt("Moddiy baza (75%)", "Материальная база (75%)"), (r) => r.summa_65),
+  distMoney(tt("Hamkor tashkilotlar", "Партнёрские организации"), (r) => r.rasxod_summa),
+  distMoney(tt("Xodimlar premiyasi (25%)", "Премия сотрудникам (25%)"), (r) => r.summa_25),
+  distMoney(tt("Jami tarqatilgan", "Всего распределено"), (r) => r.all_rasxod),
+  distMoney(tt("Qolgan", "Остаток"), (r) => (r.jami_kirim || 0) - (r.all_rasxod || 0)),
+];
 
 export default function StatusChart({ distData }: StatusChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -62,12 +91,23 @@ export default function StatusChart({ distData }: StatusChartProps) {
         meta.data.forEach((arc: any, i: number) => {
           const value = chart.data.datasets[0].data[i] as number;
           if (!value) return;
+          // Tor bo'lakka yozuv sig'maydi — qo'shni bo'laklar ustiga chiqib
+          // ketardi. Qiymat baribir hover'da markazda ko'rinadi.
+          if (arc.endAngle - arc.startAngle < 0.45) return;
           const { x, y } = arc.tooltipPosition();
+          const k = remScale();
           c.save();
-          c.fillStyle = "#ffffff";
-          c.font = "bold 13px Inter, sans-serif";
+          c.font = `bold ${Math.round(13 * k)}px Inter, sans-serif`;
           c.textAlign = "center";
           c.textBaseline = "middle";
+          // Kichik ekranda halqa yozuvdan ingichka — oq matnning halqadan
+          // chiqqan qismi oq fonda ko'rinmay qolardi. To'q kontur har qanday
+          // fonda o'qiladigan qiladi.
+          c.lineJoin = "round";
+          c.lineWidth = 3 * k;
+          c.strokeStyle = "rgba(15, 23, 42, 0.55)";
+          c.strokeText(formatNum(value), x, y);
+          c.fillStyle = "#ffffff";
           c.fillText(formatNum(value), x, y);
           c.restore();
         });
@@ -99,15 +139,20 @@ export default function StatusChart({ distData }: StatusChartProps) {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: "60%",
+        cutout: "64%",
         layout: { padding: 10 },
         plugins: {
           legend: {
             position: "bottom",
             labels: {
               color: legendColor,
-              padding: 12,
-              font: { size: 11, family: "'Inter', sans-serif" },
+              padding: Math.round(12 * remScale()),
+              // Funksiya — har chizishda qayta o'qiladi, oyna o'lchami
+              // o'zgarganda ham shrift interfeys bilan birga o'zgaradi
+              font: () => ({
+                size: Math.round(11 * remScale()),
+                family: "'Inter', sans-serif",
+              }),
               usePointStyle: true,
               pointStyle: "circle",
             },
@@ -136,14 +181,14 @@ export default function StatusChart({ distData }: StatusChartProps) {
 
   return (
     <>
-      <div className="dash-glass p-[12px] flex flex-col flex-1 min-h-0">
+      <div className="dash-glass p-[0.75rem] flex flex-col flex-1 min-h-0">
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-[14px] font-semibold text-[var(--dash-text)]">
+          <h2 className="text-[0.875rem] font-semibold text-[var(--dash-text)]">
             {tt("Kirim bo'lgan pulning taqsimoti", "Распределение поступивших средств")}
           </h2>
           <button
             onClick={() => setModalOpen(true)}
-            className="text-[10px] text-primary hover:text-primary font-medium flex items-center gap-1 border border-primary/30/40 hover:border-primary/30/60 rounded-md px-2.5 py-1 transition"
+            className="text-[0.625rem] text-primary hover:text-primary font-medium flex items-center gap-1 border border-primary/30/40 hover:border-primary/30/60 rounded-md px-2.5 py-1 transition"
           >
             {tt("Batafsil", "Подробнее")}
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -151,18 +196,21 @@ export default function StatusChart({ distData }: StatusChartProps) {
             </svg>
           </button>
         </div>
-        <div className="relative flex-1 w-full h-full flex justify-center items-center min-h-0">
+        {/* Ustma-ust joylashuvda (2xl dan kichik) karta qator balandligini
+            o'zi belgilaydi — minimal balandlik bo'lmasa halqa kichrayib,
+            markazdagi summa uning ustiga chiqib qolardi */}
+        <div className="relative flex min-h-[18rem] w-full flex-1 items-center justify-center">
           <canvas ref={canvasRef} />
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-4">
             {hoverInfo ? (
               <>
-                <span className="text-[var(--dash-text-muted)] text-[9px] text-center leading-tight max-w-[140px]">{hoverInfo.label}</span>
-                <span className="text-[16px] font-bold text-[var(--dash-text)]">{formatFull(hoverInfo.value)}</span>
+                <span className="text-[var(--dash-text-muted)] text-[0.5625rem] text-center leading-tight max-w-[8.75rem]">{hoverInfo.label}</span>
+                <span className="text-[1rem] font-bold text-[var(--dash-text)]">{formatFull(hoverInfo.value)}</span>
               </>
             ) : (
               <>
-                <span className="text-[var(--dash-text-muted)] text-[10px]">{tt("Jami kirim", "Всего поступило")}</span>
-                <span className="text-[18px] font-bold text-[var(--dash-text)]">{formatFull(d.prixod?.summa)}</span>
+                <span className="text-[var(--dash-text-muted)] text-[0.625rem]">{tt("Jami kirim", "Всего поступило")}</span>
+                <span className="text-[1.125rem] font-bold text-[var(--dash-text)]">{formatFull(d.prixod?.summa)}</span>
               </>
             )}
           </div>
@@ -211,7 +259,7 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
   return (
     <div ref={overlayRef} className="dash-modal-overlay fixed inset-0 z-[100] flex items-center justify-center p-4"
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}>
-      <div className="shadow-2xl rounded-2xl w-[95vw] max-w-[1400px] max-h-[85vh] flex flex-col"
+      <div className="shadow-2xl rounded-2xl w-[95vw] max-w-[87.5rem] max-h-[85vh] flex flex-col"
         style={{ background: "var(--dash-modal-bg)", border: "1px solid var(--dash-modal-border)" }}>
 
         <div className="px-5 py-4 flex justify-between items-center rounded-t-2xl shrink-0"
@@ -225,17 +273,17 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
         </div>
 
         {/* Summary */}
-        <div className="grid grid-cols-5 gap-3 px-5 py-3 shrink-0" style={{ borderBottom: "1px solid var(--dash-modal-border)" }}>
+        <div className="grid grid-cols-2 gap-3 px-5 py-3 shrink-0 sm:grid-cols-3 lg:grid-cols-5" style={{ borderBottom: "1px solid var(--dash-modal-border)" }}>
           {[
             { label: tt("Jami kirim", "Всего поступило"), value: totals.jami_kirim, color: "" },
-            { label: tt("Moddiy baza (65%)", "Материальная база (65%)"), value: totals.summa_65, color: "text-primary" },
+            { label: tt("Moddiy baza (75%)", "Материальная база (75%)"), value: totals.summa_65, color: "text-primary" },
             { label: tt("Hamkor tashkilotlar", "Партнёрские организации"), value: totals.rasxod_summa, color: "text-success" },
             { label: tt("Xodimlar premiyasi (25%)", "Премия сотрудникам (25%)"), value: totals.summa_25, color: "text-warning" },
             { label: tt("Qolgan", "Остаток"), value: totals.jami_kirim - totals.all_rasxod, color: "text-destructive" },
           ].map((c, i) => (
             <div key={i} className="rounded-lg p-2.5" style={{ background: "var(--dash-table-row-alt)" }}>
-              <p className="text-[10px] text-[var(--dash-text-muted)] uppercase tracking-wider">{c.label}</p>
-              <p className={`text-[18px] font-bold leading-none mt-1 ${c.color || "text-[var(--dash-text)]"}`}>{formatFull(c.value)}</p>
+              <p className="text-[0.625rem] text-[var(--dash-text-muted)] uppercase tracking-wider">{c.label}</p>
+              <p className={`text-[1.125rem] font-bold leading-none mt-1 ${c.color || "text-[var(--dash-text)]"}`}>{formatFull(c.value)}</p>
             </div>
           ))}
         </div>
@@ -250,15 +298,15 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
             <div className="overflow-auto rounded-xl max-h-[50vh]" style={{ border: "1px solid var(--dash-table-border)" }}>
               <table className="table-grid w-full text-left text-sm whitespace-nowrap">
                 <thead className="sticky top-0 z-10" style={{ background: "var(--dash-table-header-bg)" }}>
-                  <tr className="text-[var(--dash-text-secondary)] uppercase text-[11px]">
+                  <tr className="text-[var(--dash-text-secondary)] uppercase text-[0.6875rem]">
                     <th className="px-4 py-3 font-semibold">№</th>
-                    <th className="px-4 py-3 font-semibold min-w-[180px]">{tt("Viloyat", "Регион")}</th>
-                    <th className="px-4 py-3 font-semibold text-right min-w-[120px]">{tt("Jami kirim", "Всего поступило")}</th>
-                    <th className="px-4 py-3 font-semibold text-right min-w-[140px]">{tt("Moddiy baza (65%)", "Материальная база (65%)")}</th>
-                    <th className="px-4 py-3 font-semibold text-right min-w-[140px]">{tt("Hamkor tashkilotlar", "Партнёрские организации")}</th>
-                    <th className="px-4 py-3 font-semibold text-right min-w-[150px]">{tt("Xodimlar premiyasi (25%)", "Премия сотрудникам (25%)")}</th>
-                    <th className="px-4 py-3 font-semibold text-right min-w-[120px]">{tt("Jami tarqatilgan", "Всего распределено")}</th>
-                    <th className="px-4 py-3 font-semibold text-right min-w-[120px]">{tt("Qolgan", "Остаток")}</th>
+                    <th className="px-4 py-3 font-semibold min-w-[11.25rem]">{tt("Viloyat", "Регион")}</th>
+                    <th className="px-4 py-3 font-semibold text-right min-w-[7.5rem]">{tt("Jami kirim", "Всего поступило")}</th>
+                    <th className="px-4 py-3 font-semibold text-right min-w-[8.75rem]">{tt("Moddiy baza (75%)", "Материальная база (75%)")}</th>
+                    <th className="px-4 py-3 font-semibold text-right min-w-[8.75rem]">{tt("Hamkor tashkilotlar", "Партнёрские организации")}</th>
+                    <th className="px-4 py-3 font-semibold text-right min-w-[9.375rem]">{tt("Xodimlar premiyasi (25%)", "Премия сотрудникам (25%)")}</th>
+                    <th className="px-4 py-3 font-semibold text-right min-w-[7.5rem]">{tt("Jami tarqatilgan", "Всего распределено")}</th>
+                    <th className="px-4 py-3 font-semibold text-right min-w-[7.5rem]">{tt("Qolgan", "Остаток")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -281,8 +329,13 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
           )}
         </div>
 
-        <div className="px-5 py-3 flex justify-end shrink-0" style={{ borderTop: "1px solid var(--dash-modal-border)" }}>
-          <button onClick={onClose} className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground text-[12px] font-medium rounded-lg transition">
+        <div className="px-5 py-3 flex justify-end items-center gap-2 shrink-0" style={{ borderTop: "1px solid var(--dash-modal-border)" }}>
+          <ExportButtons
+            title={tt("Kirim bo'lgan pulning taqsimoti — viloyatlar bo'yicha", "Распределение поступивших средств по регионам")}
+            columns={distExportColumns()}
+            fetchRows={async () => data}
+          />
+          <button onClick={onClose} className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground text-[0.75rem] font-medium rounded-lg transition">
             {tt("Yopish", "Закрыть")}
           </button>
         </div>

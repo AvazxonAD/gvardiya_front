@@ -92,7 +92,7 @@ function Input(props: any) {
       }
       {...rest}
       className={[
-        tush ? "w-[320px]" : "",
+        tush ? "w-[20rem]" : "",
         readonly ? "read-only:bg-muted/50" : "",
         className ?? "",
       ]

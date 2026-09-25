@@ -49,11 +49,11 @@ const RasxodModal = ({
               ? [
                   {
                     text: tt("Shartnoma №", "№ договора"),
-                    className: "text-left w-[150px] ",
+                    className: "text-left w-[9.375rem] ",
                   },
                   {
                     text: tt("Sanasi", "Дата"),
-                    className: "text-left w-[130px]",
+                    className: "text-left w-[8.125rem]",
                   },
                   {
                     text: tt("Buyurtmachi", "Заказчик"),
@@ -65,11 +65,11 @@ const RasxodModal = ({
                   },
                   {
                     text: tt("Summa", "Сумма"),
-                    className: "text-left w-[200px]",
+                    className: "text-left w-[12.5rem]",
                   },
                   {
                     text: tt("Qoldiq", "Остаток"),
-                    className: "text-left w-[200px]",
+                    className: "text-left w-[12.5rem]",
                   },
                 ]
               : [

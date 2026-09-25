@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setClose } from "../Redux/LanguageSlice";
 
@@ -32,9 +33,15 @@ function Alert() {
     ? "bg-success" // Green for success
     : "bg-destructive"; // Red for error
 
-  return (
+  // Alert har doim eng ustida turishi kerak. Modallar `body` ga portal
+  // orqali chiziladi (z-[100]); alert ham xuddi shunday `body` ga
+  // chiqariladi va ulardan yuqori z-index oladi — aks holda modal
+  // ochiqligida xato xabari fon ortida xiralashib qolardi.
+  // `fixed` — sahifa aylantirilganda ham ekranda ko'rinib tursin.
+  return createPortal(
     <div
-      className={`absolute bottom-6 right-6 p-3 cursor-pointer flex-col text-primary-foreground border rounded-lg shadow-md z-[100] transition-all duration-300 ${alertStyles}`}
+      role="alert"
+      className={`fixed bottom-6 right-6 p-3 cursor-pointer flex-col text-primary-foreground border rounded-lg shadow-md z-[10000] transition-all duration-300 ${alertStyles}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -63,7 +70,8 @@ function Alert() {
           }}
         ></div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

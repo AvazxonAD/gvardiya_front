@@ -44,7 +44,7 @@ export const SwitchTemplate = (props: Props) => {
           <div
             key={idx}
             onClick={() => handleChangeTemplate(el, idx)}
-            className={`flex w-[150px] h-[150px] bg-card  justify-center items-center rounded-md border-[2px] ${el.active ? "border-warning" : "border-[transparent]"
+            className={`flex w-[9.375rem] h-[9.375rem] bg-card  justify-center items-center rounded-md border-[2px] ${el.active ? "border-warning" : "border-[transparent]"
               }`}>
             {el.shablon_name}
           </div>

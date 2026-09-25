@@ -37,7 +37,7 @@ const Contract = () => {
             <ArrowLeft />
             {tt("Orqaga", "Назад")}
           </Button>
-          <h1 className="truncate text-[16px] font-semibold text-foreground">
+          <h1 className="truncate text-[1rem] font-semibold text-foreground">
             {title}
           </h1>
         </div>

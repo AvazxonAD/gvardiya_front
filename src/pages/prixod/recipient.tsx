@@ -26,7 +26,7 @@ const Recipient = ({
   return (
     <div className="flex items-center gap-3 py-1.5">
       <div className="flex w-1/3 shrink-0 justify-end sm:w-1/4">
-        <h3 className="text-right text-[13px] font-medium text-muted-foreground">
+        <h3 className="text-right text-[0.8125rem] font-medium text-muted-foreground">
           {txt}
         </h3>
       </div>

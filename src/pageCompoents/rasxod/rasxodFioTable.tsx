@@ -6,19 +6,25 @@ import { formatDate, formatInn, formatNum, textNum, tt } from "@/utils";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Award, CreditCard, FileSpreadsheet, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
+import ExportMenu, { reportItems, type ExportMenuItem } from "@/Components/ExportMenu";
 import { Button } from "@/ui";
 import Table, { ITheadItem } from "../../Components/reusable/table/Table";
 import { getExcel } from "@/api";
+import { permBtn, usePermission } from "@/lib/permissions";
+import type { SortState } from "@/hooks/useTableSort";
 import ScreenLoader from "@/Components/ScreenLoader";
 
 interface RasxodTableProps {
     data: RasxodInterface[];
     getAllFn: () => void;
     source?: string;
+    /** Backend saralash (ixtiyoriy) */
+    sort?: SortState;
+    onSort?: (key: string) => void;
 }
 
-export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source }) => {
+export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source, sort, onSort }) => {
     const [activeDeleteModal, setActiveDeleteModal] = useState(false);
     const [activeId, setActiveId] = useState(0);
     const [screenLoader, setScreenLoader] = useState(false);
@@ -27,25 +33,29 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
     const { account_number_id } = useSelector((state: any) => state.account);
     const JWT = useSelector((s: any) => s.auth.jwt);
     const dispatch = useDispatch();
+    // "fio" — hodimlar hisob-kitobi, aks holda chiqimlar kitobi
+    const perm = usePermission(source === "fio" ? "rasxod_workers" : "rasxod");
 
     // 13 ta ustun bitta ekranga sig'ishi kerak: shrift kichik, sarlavhalar
     // esa `whitespace-normal` bilan ikki qatorga tushadi — shunda ustun
     // kengligini uzun sarlavha emas, raqamning o'zi belgilaydi.
-    const NUM = "whitespace-normal text-center text-[9px] leading-[1.15]";
+    const NUM = "whitespace-normal text-center text-[0.5625rem] leading-[1.15]";
     const tableHeaders: ITheadItem[] = [
-        { text: "\u2116", className: "w-[30px] text-center text-[9px]" },
-        { text: tt("Sana", "Дата"), className: "w-[58px] text-center text-[9px]" },
-        { text: tt("Qabul qiluvchi", "Получатель"), className: "w-[44px] whitespace-normal text-center text-[9px] leading-[1.15]" },
-        { text: tt("Jami (100%)", "Всего (100%)"), className: NUM },
-        { text: tt("Boshqarma (10%)", "Управление (10%)"), className: NUM },
-        { text: tt("Qolgan (90%)", "Остаток (90%)"), className: NUM },
-        { text: tt("Moddiy baza (65%)", "Материальная база (65%)"), className: NUM },
-        { text: tt("I-II guruh (25%)", "I-II группы (25%)"), className: NUM },
-        { text: tt("Shaxsiy tarkib", "Личный состав"), className: NUM },
-        { text: tt("Ijtimoiy soliq (25%)", "Социальный налог (25%)"), className: NUM },
-        { text: tt("Daromad solig'i (12%)", "Налог на доходы (12%)"), className: NUM },
-        { text: tt("Kartaga o'tkazildi", "Перечислено на карту"), className: NUM },
-        { text: tt("Amallar", "Действия"), className: "w-[100px] whitespace-normal text-center text-[9px] leading-[1.15]" },
+        { sortKey: "doc_num", text: "\u2116", className: "w-[1.875rem] text-center text-[0.5625rem]" },
+        { sortKey: "doc_date", text: tt("Sana", "Дата"), className: "w-[3.625rem] text-center text-[0.5625rem]" },
+        // `w-` emas `min-w-`: joy bo'lsa (katta monitor) ustun kengayadi va
+        // batalon nomi so'zma-so'z ustunga tizilib ketmaydi
+        { sortKey: "batalon_name", text: tt("Qabul qiluvchi", "Получатель"), className: "min-w-[2.75rem] whitespace-normal text-center text-[0.5625rem] leading-[1.15]" },
+        { sortKey: "summa", text: tt("Jami (100%)", "Всего (100%)"), className: NUM },
+        { sortKey: "summa_10", text: tt("Boshqarma (10%)", "Управление (10%)"), className: NUM },
+        { sortKey: "summa_remaining", text: tt("Qolgan (90%)", "Остаток (90%)"), className: NUM },
+        { sortKey: "summa_65", text: tt("Moddiy baza (75%)", "Материальная база (75%)"), className: NUM },
+        { sortKey: "summa_25", text: tt("I-II guruh (25%)", "I-II группы (25%)"), className: NUM },
+        { sortKey: "summa_1_25", text: tt("Shaxsiy tarkib", "Личный состав"), className: NUM },
+        { sortKey: "summa_25_2", text: tt("Ijtimoiy soliq (25%)", "Социальный налог (25%)"), className: NUM },
+        { sortKey: "summa_12", text: tt("Daromad solig'i (12%)", "Налог на доходы (12%)"), className: NUM },
+        { sortKey: "worker_summa", text: tt("Kartaga o'tkazildi", "Перечислено на карту"), className: NUM },
+        { text: tt("Amallar", "Действия"), className: "w-[6.25rem] whitespace-normal text-center text-[0.5625rem] leading-[1.15]" },
     ];
 
     const handleRemove = async () => {
@@ -71,114 +81,49 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
         }
     };
 
-    const handleExcelDownload = async (item: RasxodInterface) => {
-        try {
-            const URL = `/rasxod/fio/export/${item.id}?account_number_id=${account_number_id}`;
-            const excelBlob = await getExcel(JWT, URL);
-            const url = window.URL.createObjectURL(excelBlob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `${URL.split("/")[2]}_file.xlsx`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            dispatch(
-                alertt({
-                    text: tt("Excel fayl yuklandi", "Файл Excel загружен"),
-                    success: true,
-                })
-            );
-        } catch (error) {
-            dispatch(
-                alertt({
-                    text: tt("Excel faylni yuklashda muammo yuz berdi", "Проблема с загрузкой файла Excel"),
-                    success: false,
-                })
-            );
+    // Qator hisobotlari (backend Excel) — har biri ⋮ menyuda Excel va PDF
+    const rowReports = (item: RasxodInterface): ExportMenuItem[] => {
+        const q = `?account_number_id=${account_number_id}`;
+        const fetchBlob = (url: string) => () => getExcel(JWT, url + q);
+        if (source !== "fio") {
+            return reportItems({
+                key: "batalon",
+                name: tt("Shartnomalar bo'yicha ma'lumot", "Сведения о договорах"),
+                fetchBlob: fetchBlob(`/rasxod/export/${item.id}`),
+                fileName: "export_file.xlsx",
+            });
         }
-    };
-
-    const handleExcelDownloadRasxod = async (item: RasxodInterface) => {
-        try {
-            const URL = `/rasxod/export/${item.id}?account_number_id=${account_number_id}`;
-            const excelBlob = await getExcel(JWT, URL);
-            const url = window.URL.createObjectURL(excelBlob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `${URL.split("/")[2]}_file.xlsx`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            dispatch(
-                alertt({
-                    text: tt("Excel fayl yuklandi", "Файл Excel загружен"),
-                    success: true,
-                })
-            );
-        } catch (error) {
-            dispatch(
-                alertt({
-                    text: tt("Excel faylni yuklashda muammo yuz berdi", "Проблема с загрузкой файла Excel"),
-                    success: false,
-                })
-            );
-        }
-    };
-
-    const handleExcelDownload3 = async (item: RasxodInterface) => {
-        try {
-            const URL = `/rasxod/fio/export3/${item.id}?account_number_id=${account_number_id}`;
-            const excelBlob = await getExcel(JWT, URL);
-            const url = window.URL.createObjectURL(excelBlob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `taqsimot_${item.doc_num}.xlsx`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            dispatch(alertt({ text: tt("Excel fayl yuklandi", "Файл Excel загружен"), success: true }));
-        } catch (error) {
-            dispatch(alertt({ text: tt("Excel faylni yuklashda muammo yuz berdi", "Проблема с загрузкой файла Excel"), success: false }));
-        }
-    };
-
-    const handleExcelDownload2 = async (item: RasxodInterface) => {
-        try {
-            const URL = `/rasxod/fio/export2/${item.id}?account_number_id=${account_number_id}`;
-            const excelBlob = await getExcel(JWT, URL);
-            const url = window.URL.createObjectURL(excelBlob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `${URL.split("/")[2]}_file.xlsx`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            dispatch(
-                alertt({
-                    text: tt("Excel fayl yuklandi", "Файл Excel загружен"),
-                    success: true,
-                })
-            );
-        } catch (error) {
-            dispatch(
-                alertt({
-                    text: tt("Excel faylni yuklashda muammo yuz berdi", "Проблема с загрузкой файла Excel"),
-                    success: false,
-                })
-            );
-        }
+        return [
+            ...reportItems({
+                key: "umumiy",
+                name: tt("Umumiy hisobot", "Общий отчёт"),
+                fetchBlob: fetchBlob(`/rasxod/fio/export3/${item.id}`),
+                fileName: `taqsimot_${item.doc_num}.xlsx`,
+            }),
+            ...reportItems({
+                key: "vedomost",
+                name: tt("Tarqatuv vedomosti", "Раздаточная ведомость"),
+                fetchBlob: fetchBlob(`/rasxod/fio/export/${item.id}`),
+                fileName: "fio_file.xlsx",
+            }),
+            ...reportItems({
+                key: "vedomost-karta",
+                name: tt("Tarqatuv vedomosti (karta raqamlari bilan)", "Раздаточная ведомость (с номерами карт)"),
+                fetchBlob: fetchBlob(`/rasxod/fio/export2/${item.id}`),
+                fileName: "fio_file.xlsx",
+            }),
+        ];
     };
 
     return (
         <>
             <Table
                 thead={tableHeaders}
-                theadClassName="[&>tr>th]:px-1 [&>tr>th]:py-1.5"
-                tbodyClassName="text-[9px] min-[1360px]:text-[10px] [&>tr>td]:px-1 [&>tr>td]:py-1.5"
+                sort={sort}
+                onSort={onSort}
+                // Keng ekranda joy yetarli: mayda shrift faqat tor ekran uchun
+                theadClassName="[&>tr>th]:px-1 [&>tr>th]:py-1.5 min-[1700px]:[&>tr>th]:text-[0.6875rem]"
+                tbodyClassName="text-[0.5625rem] min-[1360px]:text-[0.625rem] min-[1700px]:text-[0.75rem] [&>tr>td]:px-1 [&>tr>td]:py-1.5"
             >
                 {data.map((item) => (
                     <tr key={item.id}>
@@ -186,7 +131,7 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
                         <td className="whitespace-nowrap text-center tabular-nums">{formatDate(item.doc_date)}</td>
                         <td className="group relative cursor-default">
                             {item.batalon_name}
-                            <div className="pointer-events-none absolute left-4 top-full z-30 hidden w-[250px] rounded-md border border-border bg-popover p-3 text-[12px] text-popover-foreground shadow-lg group-hover:block">
+                            <div className="pointer-events-none absolute left-4 top-full z-30 hidden w-[15.625rem] rounded-md border border-border bg-popover p-3 text-[0.75rem] text-popover-foreground shadow-lg group-hover:block">
                                 <p>{tt("Nomi", "Название")}: {item.batalon_name}</p>
                                 <p>{tt("Manzil", "Адрес")}: {item.batalon_address}</p>
                                 <p>{tt("INN", "ИНН")}: {formatInn(item.batalon_str)}</p>
@@ -204,11 +149,9 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
                         <td className="whitespace-nowrap text-right font-medium tabular-nums text-success">{formatNum(item.worker_summa)}</td>
                         <RowActions
                             item={item}
-                            source={source}
-                            onExcelDownload={handleExcelDownload}
-                            onExcelDownloadRasxod={handleExcelDownloadRasxod}
-                            onExcelDownload2={handleExcelDownload2}
-                            onExcelDownload3={handleExcelDownload3}
+                            reports={rowReports(item)}
+                            canEdit={perm.update}
+                            canDelete={perm.delete}
                             onDelete={() => {
                                 setActiveDeleteModal(true);
                                 setActiveId(item.id);
@@ -226,11 +169,9 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
 
 interface RowActionsProps {
     item: RasxodInterface;
-    source?: string;
-    onExcelDownload: (item: RasxodInterface) => void;
-    onExcelDownloadRasxod: (item: RasxodInterface) => void;
-    onExcelDownload2: (item: RasxodInterface) => void;
-    onExcelDownload3: (item: RasxodInterface) => void;
+    reports: ExportMenuItem[];
+    canEdit: boolean;
+    canDelete: boolean;
     onDelete: () => void;
 }
 
@@ -242,11 +183,9 @@ interface RowActionsProps {
  */
 const RowActions: React.FC<RowActionsProps> = ({
     item,
-    source,
-    onExcelDownload,
-    onExcelDownloadRasxod,
-    onExcelDownload2,
-    onExcelDownload3,
+    reports,
+    canEdit,
+    canDelete,
     onDelete,
 }) => {
     const navigate = useNavigate();
@@ -256,56 +195,12 @@ const RowActions: React.FC<RowActionsProps> = ({
     return (
         <td>
             <div className="flex items-center justify-center">
-                {source === "fio" ? (
-                    <>
-                        <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            className={btn}
-                            title={tt("Umumiy hisobot", "Общий отчёт")}
-                            aria-label={tt("Umumiy hisobot", "Общий отчёт")}
-                            onClick={() => onExcelDownload3(item)}
-                        >
-                            <FileSpreadsheet />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            className={btn}
-                            title={tt("Premiya hisoboti", "Отчёт по премиям")}
-                            aria-label={tt("Premiya hisoboti", "Отчёт по премиям")}
-                            onClick={() => onExcelDownload(item)}
-                        >
-                            <Award />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            className={btn}
-                            title={tt("Karta hisoboti", "Отчёт по картам")}
-                            aria-label={tt("Karta hisoboti", "Отчёт по картам")}
-                            onClick={() => onExcelDownload2(item)}
-                        >
-                            <CreditCard />
-                        </Button>
-                    </>
-                ) : (
-                    <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className={btn}
-                        title={tt("Taqsimot hisoboti", "Отчёт по распределению")}
-                        aria-label={tt("Taqsimot hisoboti", "Отчёт по распределению")}
-                        onClick={() => onExcelDownloadRasxod(item)}
-                    >
-                        <FileSpreadsheet />
-                    </Button>
-                )}
+                {/* Barcha hisobotlar bitta ⋮ menyuda (menyu body ga chiziladi — kesilmaydi) */}
+                <ExportMenu size="xs" items={reports} title={tt("Hisobotlar", "Отчёты")} />
                 <Button
                     variant="ghost"
-                    size="icon-xs"
-                    className={btn}
-                    title={tt("Tahrirlash", "\u0420\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c")}
+                    size="icon-xs"
+                    {...permBtn(canEdit, tt("Tahrirlash", "\u0420\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c"), btn)}
                     aria-label={tt("Tahrirlash", "\u0420\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c")}
                     onClick={() => navigate(`${item.id}`)}
                 >
@@ -313,9 +208,8 @@ const RowActions: React.FC<RowActionsProps> = ({
                 </Button>
                 <Button
                     variant="ghost"
-                    size="icon-xs"
-                    className={`${btn} hover:bg-destructive/10 hover:text-destructive`}
-                    title={tt("O'chirish", "\u0423\u0434\u0430\u043b\u0438\u0442\u044c")}
+                    size="icon-xs"
+                    {...permBtn(canDelete, tt("O'chirish", "\u0423\u0434\u0430\u043b\u0438\u0442\u044c"), `${btn} hover:bg-destructive/10 hover:text-destructive`)}
                     aria-label={tt("O'chirish", "\u0423\u0434\u0430\u043b\u0438\u0442\u044c")}
                     onClick={onDelete}
                 >

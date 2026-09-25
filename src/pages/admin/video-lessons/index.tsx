@@ -1,5 +1,7 @@
 import { URL as API_URL } from "@/api";
 import DeleteModal from "@/Components/DeleteModal";
+import ExportButtons from "@/Components/ExportButtons";
+import type { ExportColumn } from "@/lib/tableExport";
 import { useRequest } from "@/hooks/useRequest";
 import { alertt } from "@/Redux/LanguageSlice";
 import { formatFileSize, type IVideoLesson } from "@/types/videoLesson";
@@ -21,6 +23,14 @@ import {
 import { Pencil, Plus, Trash2, Video } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
+
+const exportColumns = (): ExportColumn<IVideoLesson>[] => [
+  { header: "№", value: (r) => r.position, width: 6, align: "center" },
+  { header: tt("Dars nomi", "Название урока"), value: (r) => r.title },
+  { header: tt("Tavsif", "Описание"), value: (r) => r.description || "" },
+  { header: tt("Hajmi", "Размер"), value: (r) => formatFileSize(r.file_size), align: "right" },
+  { header: tt("Yuklangan", "Загружено"), value: (r) => formatDateTime(r.created_at), align: "center" },
+];
 
 /** Bo'sh shakl — "Qo'shish" bosilganda shu holatga qaytadi */
 const EMPTY_FORM = { title: "", description: "", position: "" };
@@ -187,7 +197,7 @@ export default function AdminVideoLessons() {
             {row.title}
           </span>
           {row.description && (
-            <span className="block truncate text-[12px] text-muted-foreground">
+            <span className="block truncate text-[0.75rem] text-muted-foreground">
               {row.description}
             </span>
           )}
@@ -258,7 +268,8 @@ export default function AdminVideoLessons() {
   ];
 
   return (
-    <div className="flex flex-col gap-4">
+    // Sarlavha bilan birga ekranga sig'sin — jadval o'zi aylanadi (ListCard)
+    <div className="flex flex-col gap-4 lg:max-h-[max(24rem,calc(100dvh_-_6rem))]">
       <PageHeader
         title={tt("Video darslar", "Видеоуроки")}
         description={tt(
@@ -276,19 +287,24 @@ export default function AdminVideoLessons() {
       <ListCard
         toolbar={
           <Toolbar>
-            <span className="text-[13px] text-muted-foreground">
+            <span className="text-[0.8125rem] text-muted-foreground">
               {tt("Jami", "Всего")}:{" "}
               <span className="font-semibold text-foreground tabular-nums">
                 {lessons.length}
               </span>
             </span>
             <ToolbarSpacer />
-            <span className="text-[12px] text-muted-foreground">
+            <span className="text-[0.75rem] text-muted-foreground">
               {tt(
                 "Tartib № bo'yicha — kichik raqam yuqorida",
                 "Порядок по № — меньший номер выше"
               )}
             </span>
+            <ExportButtons
+              title={tt("Video darslar", "Видеоуроки")}
+              columns={exportColumns()}
+              fetchRows={async () => lessons}
+            />
           </Toolbar>
         }
       >
@@ -376,7 +392,7 @@ export default function AdminVideoLessons() {
               min={0}
               value={form.position}
               onChange={(e) => setForm({ ...form, position: e.target.value })}
-              className="w-[140px]"
+              className="w-[8.75rem]"
             />
           </Field>
 
@@ -394,12 +410,12 @@ export default function AdminVideoLessons() {
               type="file"
               accept="video/mp4,video/webm"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="block w-full text-[13px] text-muted-foreground file:mr-3 file:border file:border-border file:bg-muted file:px-3 file:py-1.5 file:text-[13px] file:font-medium file:text-foreground hover:file:bg-muted/70"
+              className="block w-full text-[0.8125rem] text-muted-foreground file:mr-3 file:border file:border-border file:bg-muted file:px-3 file:py-1.5 file:text-[0.8125rem] file:font-medium file:text-foreground hover:file:bg-muted/70"
             />
           </Field>
 
           {editing && !file && (
-            <p className="text-[12px] text-muted-foreground">
+            <p className="text-[0.75rem] text-muted-foreground">
               {tt(
                 "Yangi fayl tanlanmasa, mavjud video o'zgarmaydi.",
                 "Если файл не выбран, текущее видео останется прежним."
@@ -415,7 +431,7 @@ export default function AdminVideoLessons() {
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <span className="text-[12px] text-muted-foreground tabular-nums">
+              <span className="text-[0.75rem] text-muted-foreground tabular-nums">
                 {progress}%
               </span>
             </div>

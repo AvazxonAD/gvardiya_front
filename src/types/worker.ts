@@ -4,6 +4,7 @@ export type  IWorker = {
     account_number: string;   // Card number of the worker
     batalon_name: string;     // Name of the batalon
     xisob_raqam: string;      // Account number
+    pinfl?: string | null;    // PINFL (JSHSHIR, 14 raqam)
   }
   
 export type IWorkerData = {
