@@ -6,6 +6,7 @@ import { usePagedFetch } from "@/hooks/usePagedFetch";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import FilterActions from "@/Components/FilterActions";
 import Input from "@/Components/Input";
+import MassReportReconcile from "@/Components/MassReportReconcile";
 import { sortParamsObject, useTableSort } from "@/hooks/useTableSort";
 import { useDebounce } from "use-debounce";
 import { useRequest } from "@/hooks/useRequest";
@@ -24,11 +25,15 @@ import {
 import {
   Button as UIButton,
   ListCard,
+  Select,
   SummaryRow,
   SummaryTile,
   Toolbar,
   ToolbarSpacer,
 } from "@/ui";
+
+// "To'landi" holati filtri: "" — barchasi, aks holda backendga `is_paid`
+type PaidFilter = "" | "true" | "false";
 
 // Funksiya: `tt` til tanlovini chaqirilgan paytda o'qiydi
 const exportColumns = (): ExportColumn<RasxodInterface>[] => [
@@ -85,6 +90,9 @@ export const Rasxod = () => {
   const [q, setQ] = useState("");
   const [searchText] = useDebounce(q.trim(), 500);
   const { sort, toggle: toggleSort, reset: resetSort } = useTableSort();
+  // Holat filtri qidiruv kabi faqat ro'yxat (va jami soni) ga ta'sir qiladi —
+  // pastdagi yig'indi va hisobot bilan solishtirish sana oralig'i bo'yicha qoladi
+  const [paidFilter, setPaidFilter] = useState<PaidFilter>("");
 
   // Joriy filtrlar — ro'yxat ham, eksport ham aynan shu shartlar bilan oladi
   const listParams = (page: number, limit: number) => ({
@@ -94,11 +102,13 @@ export const Rasxod = () => {
     limit,
     page,
     ...(searchText ? { search: searchText } : {}),
+    ...(paidFilter ? { is_paid: paidFilter } : {}),
     ...sortParamsObject(sort),
   });
 
   const clearFilters = () => {
     setQ("");
+    setPaidFilter("");
     resetSort();
     setSearch({ fromDate: startDate, toDate: endDate });
   };
@@ -138,7 +148,7 @@ export const Rasxod = () => {
   usePagedFetch({
     page: currentPage,
     setPage: setCurrentPage,
-    filters: [limet, search.fromDate, search.toDate, searchText, sort],
+    filters: [limet, search.fromDate, search.toDate, searchText, paidFilter, sort],
     fetch: getRasxod,
   });
 
@@ -148,6 +158,7 @@ export const Rasxod = () => {
   return (
     <div className="flex min-w-0 flex-col gap-3">
       <ListCard
+        flush
         toolbar={
           <Toolbar>
             <div className="flex items-center gap-1.5">
@@ -170,6 +181,19 @@ export const Rasxod = () => {
                 search={true}
                 p={tt("№, qabul qiluvchi yoki izoh", "№, получатель или примечание")}
                 className="h-9 w-full"
+              />
+            </div>
+
+            <div className="w-full sm:w-44">
+              <Select
+                aria-label={tt("Holati", "Статус")}
+                placeholder={tt("Barcha holatlar", "Все статусы")}
+                options={[
+                  { value: "true", label: tt("To'langan", "Оплаченные") },
+                  { value: "false", label: tt("To'lanmagan", "Неоплаченные") },
+                ]}
+                value={paidFilter}
+                onChange={(e) => setPaidFilter(e.target.value as PaidFilter)}
               />
             </div>
 
@@ -212,6 +236,45 @@ export const Rasxod = () => {
                   tone="primary"
                 />
               </SummaryRow>
+
+              {/* "Ommaviy tadbirlar hisoboti"dagi "O'tkazildi" bilan solishtirish
+                  (sahifa Jami = hisobot − outside + duplicate + other +
+                  cancelled + batalon) */}
+              {rasxodmeta.period_contract && (
+                <MassReportReconcile
+                  caption={tt("O'tkazildi", "Перечислено")}
+                  total={rasxodmeta.period_contract.summa}
+                  parts={[
+                    { label: tt("IIO", "ОВД"), value: rasxodmeta.period_contract.iiv },
+                    { label: tt("FVV", "МЧС"), value: rasxodmeta.period_contract.fvv },
+                    { label: tt("MG harbiy qismlari", "Воинские части НГ"), value: rasxodmeta.period_contract.mg_qism },
+                  ]}
+                  onlyPage={[
+                    {
+                      label: tt("boshqa davrda tuzilgan shartnomalar bo'yicha", "по договорам других периодов"),
+                      value: rasxodmeta.period_contract.other,
+                    },
+                    {
+                      label: tt("«Batalon» turidagi quyi tuzilmalarga", "подразделениям типа «Батальон»"),
+                      value: rasxodmeta.period_contract.batalon,
+                    },
+                    {
+                      label: tt("bekor qilingan shartnomalar bo'yicha", "по отменённым договорам"),
+                      value: rasxodmeta.period_contract.cancelled,
+                    },
+                    {
+                      label: tt("bir topshiriq qayta chiqim qilingan", "задание проведено повторно"),
+                      value: rasxodmeta.period_contract.duplicate,
+                    },
+                  ]}
+                  onlyReport={[
+                    {
+                      label: tt("boshqa sanadagi chiqimlarda", "в расходах с другой датой"),
+                      value: rasxodmeta.period_contract.outside,
+                    },
+                  ]}
+                />
+              )}
 
               <Paginatsiya
                 currentPage={currentPage}

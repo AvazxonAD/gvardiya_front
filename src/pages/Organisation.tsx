@@ -65,6 +65,12 @@ function Organisation() {
     boss: "",
     account_numbers: [] as string[],
     gazna_numbers: [] as string[],
+    // Har bir raqamning bazadagi `id` si (yangi qator — undefined), satrlar
+    // bilan bir xil tartibda. Ilgari `id` yuborilmasdi: backend barcha eski
+    // raqamlarni o'chirib, qaytadan yaratardi — shartnomalardagi hisob/g'azna
+    // raqami o'chirilgan yozuvga ishora qilib qolardi ("Hisob raqami topilmadi!")
+    account_ids: [] as (number | undefined)[],
+    gazna_ids: [] as (number | undefined)[],
   });
   const dispatch = useDispatch();
   const [value, setValue] = useState({
@@ -203,13 +209,18 @@ function Organisation() {
   };
 
   const editInfo = async () => {
-    // Format the data to match the expected structure
+    // Mavjud raqamlar `id` si bilan ketadi — backend ularni o'zgartiradi,
+    // o'chirib qayta yaratmaydi (shartnomalardagi bog'lanish saqlanadi)
+    const { account_ids = [], gazna_ids = [], ...rest } = value2;
+    const withId = (id: number | undefined) => (id ? { id } : {});
     const formattedData = {
-      ...value2,
-      account_numbers: value2.account_numbers.map((num: any) => ({
+      ...rest,
+      account_numbers: value2.account_numbers.map((num: any, i: number) => ({
+        ...withId(account_ids[i]),
         account_number: num.replace(/\s/g, ""),
       })),
-      gazna_numbers: value2.gazna_numbers.map((num: any) => ({
+      gazna_numbers: value2.gazna_numbers.map((num: any, i: number) => ({
+        ...withId(gazna_ids[i]),
         gazna_number: num.replace(/\s/g, ""),
       })),
     };
@@ -274,6 +285,8 @@ function Organisation() {
         gazna_numbers: (res.data?.gazna_numbers || []).map((item: any) =>
           formatAccountNumber(item.gazna_number || "")
         ),
+        account_ids: (res.data?.account_numbers || []).map((item: any) => item.id),
+        gazna_ids: (res.data?.gazna_numbers || []).map((item: any) => item.id),
       });
     }
     setOpen2(true);
@@ -326,29 +339,44 @@ function Organisation() {
     setValue2({ ...value2, gazna_numbers: updatedGaznas });
   };
 
+  // Tahrirlash formasida `account_ids` / `gazna_ids` satrlar bilan birga
+  // qo'shiladi va o'chiriladi — tartib bir xil qolsin
   const addAccountNumber2 = () => {
-    setValue2({ ...value2, account_numbers: [...value2.account_numbers, ""] });
+    setValue2({
+      ...value2,
+      account_numbers: [...value2.account_numbers, ""],
+      account_ids: [...(value2.account_ids || []), undefined],
+    });
   };
 
   const addGazna2 = () => {
-    setValue2({ ...value2, gazna_numbers: [...value2.gazna_numbers, ""] });
+    setValue2({
+      ...value2,
+      gazna_numbers: [...value2.gazna_numbers, ""],
+      gazna_ids: [...(value2.gazna_ids || []), undefined],
+    });
   };
 
   const removeAccountNumber2 = (index: number) => {
     const updatedAccountNumbers = [...value2.account_numbers];
+    const updatedIds = [...(value2.account_ids || [])];
     updatedAccountNumbers.splice(index, 1);
-    setValue2({ ...value2, account_numbers: updatedAccountNumbers });
+    updatedIds.splice(index, 1);
+    setValue2({ ...value2, account_numbers: updatedAccountNumbers, account_ids: updatedIds });
   };
 
   const removeGazna2 = (index: number) => {
     const updatedGaznas = [...value2.gazna_numbers];
+    const updatedIds = [...(value2.gazna_ids || [])];
     updatedGaznas.splice(index, 1);
-    setValue2({ ...value2, gazna_numbers: updatedGaznas });
+    updatedIds.splice(index, 1);
+    setValue2({ ...value2, gazna_numbers: updatedGaznas, gazna_ids: updatedIds });
   };
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
       <ListCard
+        flush
         toolbar={
           <Toolbar>
             <div className="w-full sm:w-72">
@@ -451,6 +479,9 @@ function Organisation() {
             account_numbers: newAccountNumber
               ? [...prev.account_numbers, newAccountNumber]
               : prev.account_numbers,
+            account_ids: newAccountNumber
+              ? [...(prev.account_ids || []), undefined]
+              : prev.account_ids,
           }))
         }
       />

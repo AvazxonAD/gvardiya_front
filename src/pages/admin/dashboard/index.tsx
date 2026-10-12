@@ -10,6 +10,8 @@ import RegionModal from "./components/RegionModal";
 import ContractsModal from "./components/ContractsModal";
 import { DashboardCountResponse, RegionApiData, DistributionResponse, RedWorkersResponse, KpiData, ContractType, mapRegions } from "./types";
 import { DebtBreakdownStrip } from "@/lib/debtStatus";
+import { NavbarPortal } from "@/layout/navbarSlot";
+import MassEventReport from "./components/MassEventReport";
 import "./dashboard.css";
 
 export default function AdminDashboard() {
@@ -23,7 +25,8 @@ export default function AdminDashboard() {
   const [redData, setRedData] = useState<RedWorkersResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const { startDate, endDate } = useSelector((state: RootState) => state.defaultDate);
+  // Dashboardning o'z davri (yil boshidan) — boshqa sahifalar sanasidan alohida
+  const { startDate, endDate } = useSelector((state: RootState) => state.dashboardDate);
   const api = useApi();
 
   const fetchData = useCallback(async () => {
@@ -86,6 +89,11 @@ export default function AdminDashboard() {
 
   return (
     <div className="dashboard-content flex flex-col gap-[0.625rem] pb-5">
+      {/* "Ommaviy tadbirlar hisoboti" — yuqori panelda, sarlavha yonida */}
+      <NavbarPortal>
+        <MassEventReport />
+      </NavbarPortal>
+
       {loading && !countData ? (
         <div className="flex items-center justify-center h-[25rem]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary/30" />
@@ -130,6 +138,8 @@ export default function AdminDashboard() {
             onClose={() => setContractsModalOpen(false)}
             type={contractsType}
             regionId={selectedRegionId}
+            from={startDate}
+            to={endDate}
           />
         </>
       )}

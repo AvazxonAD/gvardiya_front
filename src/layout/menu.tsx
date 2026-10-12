@@ -1,4 +1,5 @@
 import {
+  Activity,
   ArrowDownToLine,
   ArrowUpFromLine,
   BarChart3,
@@ -6,13 +7,16 @@ import {
   Building2,
   ClipboardList,
   FileText,
+  FileUp,
   History,
+  Landmark,
   LayoutDashboard,
   Shield,
   UserCog,
   UserMinus,
   Users,
   Video,
+  Warehouse,
   type LucideIcon,
 } from "lucide-react";
 import { can, isStaffUser, menuKeyForPath } from "@/lib/permissions";
@@ -48,6 +52,22 @@ const SPRAVOCHNIK_SUB: SubItem[] = [
   { path: "/", uz: "Rekvizitlar", ru: "Реквизиты" },
 ];
 
+// Moddiy bazaga ajratilgan pul (F.I.Sh. chiqimlaridagi 75%) va undan
+// chiqimlar; muddatli harbiy xizmatchilar ishtirokidagi pul ham shu yerda
+const MODDIY_BAZA_SUB: SubItem[] = [
+  { path: "/", uz: "Monitoring", ru: "Мониторинг" },
+  { path: "/rasxod", uz: "Chiqimlar", ru: "Расходы" },
+  { path: "/muddatli-harbiy", uz: "Muddatli harbiy xizmatchilar", ru: "Военнослужащие срочной службы" },
+];
+
+// Super-admin: markaziy devon moddiy bazasiga ajratilgan pul (F.I.Sh.
+// chiqimlaridagi 10%, barcha viloyatlardan) va undan chiqimlar —
+// viloyatlardagi "Moddiy baza" kabi
+const MARKAZIY_BAZA_SUB: SubItem[] = [
+  { path: "/", uz: "Monitoring", ru: "Мониторинг" },
+  { path: "/rasxod", uz: "Chiqimlar", ru: "Расходы" },
+];
+
 // Super-admin: respublika bo'yicha umumiy ma'lumotnomalar
 const ADMIN_SPRAVOCHNIK_SUB: SubItem[] = [
   { path: "/", uz: "BXM", ru: "БХМ" },
@@ -74,6 +94,13 @@ const REGION_MENU: MenuItem[] = [
     ru: "Расчёты с сотрудниками",
     icon: UserMinus,
   },
+  {
+    path: "/moddiy-baza",
+    uz: "Moddiy baza",
+    ru: "Материальная база",
+    icon: Warehouse,
+    subItems: MODDIY_BAZA_SUB,
+  },
   // Yurist va buxgalterni viloyat admini o'zi ochadi (buxgalterda yo'q)
   { path: "/staff", uz: "Foydalanuvchilar", ru: "Пользователи", icon: UserCog },
   // Viloyat foydalanuvchilari amallari (faqat o'z viloyati)
@@ -94,6 +121,17 @@ const ADMIN_MENU: MenuItem[] = [
   { path: "/", uz: "Dashboard", ru: "Дашборд", icon: LayoutDashboard },
   // Eski "Hisobot" o'rniga — qarzdorlik tahlili
   { path: "/debt", uz: "Qarzdorlik", ru: "Задолженность", icon: BarChart3 },
+  // Qaysi viloyat ma'lumot kiritayapti, qaysi biri yo'q (oy bo'yicha)
+  { path: "/monitoring-data", uz: "Monitoring", ru: "Мониторинг", icon: Activity },
+  {
+    path: "/markaziy-baza",
+    uz: "Markaziy baza",
+    ru: "Центральная база",
+    icon: Landmark,
+    subItems: MARKAZIY_BAZA_SUB,
+  },
+  // Viloyat shartnomalarini Exceldan import qilish (shablon bo'yicha)
+  { path: "/contract-import", uz: "Shartnoma importi", ru: "Импорт договоров", icon: FileUp },
   {
     path: "/users",
     uz: "Foydalanuvchilar",

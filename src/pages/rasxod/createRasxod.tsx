@@ -270,7 +270,7 @@ export const CreateRasxod = () => {
     setOpisanie(e.target.value);
 
   return (
-    <div className="relative">
+    <div className="relative min-h-[calc(100dvh_-_3.5rem)] bg-card p-3 sm:p-4">
       {screenLoader && <ScreenLoader />}
       <div className="flex items-center mb-[1.9375rem]">
         <div className="m-0 p-0">

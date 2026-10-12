@@ -30,6 +30,7 @@ import AdminDashboard from "./pages/admin/dashboard";
 import RegionDashboard from "./pages/dashboard/RegionDashboard";
 import Report from "./pages/Report";
 import AdminOverview from "./pages/admin/overview";
+import AdminMonitoringData from "./pages/admin/monitoring-data";
 import AppShell from "./layout/AppShell";
 import Spravichnik from "./pages/Spravichnik";
 import Bxm from "./pages/sprPages/Bxm";
@@ -38,8 +39,13 @@ import Tasks from "./pages/Task";
 import Workers from "./pages/Workers";
 import BatalonWorkers from "./pages/batalon/worker";
 import VideoLessons from "./pages/video-lessons";
+import Manual from "./pages/video-lessons/manual/index";
 import AdminVideoLessons from "./pages/admin/video-lessons";
 import Logs from "./pages/logs";
+import ModdiyBazaMonitoring, { MarkaziyBazaMonitoring } from "./pages/moddiyBaza/Monitoring";
+import ModdiyBazaRasxod, { MarkaziyBazaRasxod } from "./pages/moddiyBaza/Rasxod";
+import MuddatliHarbiy from "./pages/moddiyBaza/MuddatliHarbiy";
+import ContractImport from "./pages/admin/contract-import";
 import { isRealUser } from "./Redux/apiSlice";
 import { decodeJwt } from "./services/tokenManager";
 import { can, type PermAction } from "./lib/permissions";
@@ -117,6 +123,9 @@ const MainProvider = () => {
                   {c("video_lessons") && (
                     <Route path="/video-lessons" element={<VideoLessons />} />
                   )}
+                  {c("video_lessons") && (
+                    <Route path="/video-lessons/manual" element={<Manual />} />
+                  )}
                   {c("logs") && <Route path="/logs" element={<Logs />} />}
                   {/* Xodimlar va ularning ruhsatlarini faqat viloyat admini boshqaradi */}
                   {user.type !== "accountant" && user.type !== "lawyer" && (
@@ -181,6 +190,14 @@ const MainProvider = () => {
                       <Route path=":id" element={<EditRasxodFio />} />
                     </Route>
                   )}
+                  {/* Moddiy baza: monitoring, chiqimlar, muddatli harbiy xizmatchilar */}
+                  {c("moddiy_baza") && (
+                    <Route path="/moddiy-baza">
+                      <Route path="" element={<ModdiyBazaMonitoring />} />
+                      <Route path="rasxod" element={<ModdiyBazaRasxod />} />
+                      <Route path="muddatli-harbiy" element={<MuddatliHarbiy />} />
+                    </Route>
+                  )}
                 </Fragment>
               ) : (
                 <Fragment>
@@ -192,6 +209,13 @@ const MainProvider = () => {
                   <Route index={true} element={<Home />} />
                   <Route path="/dashboard" element={<AdminDashboard />} />
                   <Route path="/debt" element={<AdminOverview />} />
+                  <Route path="/monitoring-data" element={<AdminMonitoringData />} />
+                  {/* Markaziy baza: monitoring va chiqimlar (viloyatlardagi "Moddiy baza" kabi) */}
+                  <Route path="/markaziy-baza">
+                    <Route path="" element={<MarkaziyBazaMonitoring />} />
+                    <Route path="rasxod" element={<MarkaziyBazaRasxod />} />
+                  </Route>
+                  <Route path="/contract-import" element={<ContractImport />} />
                   {/* Eski "Hisobot" havolasi */}
                   <Route path="/report" element={<Navigate to="/debt" replace />} />
                   <Route path="/video-lessons" element={<AdminVideoLessons />} />

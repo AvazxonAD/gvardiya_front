@@ -10,11 +10,12 @@ import {
 import { alertt } from "@/Redux/LanguageSlice";
 import useApi from "@/services/api";
 import { IOrganization, primaryAccountNumber } from "@/types/organization";
-import { latinToCyrillic, numberToWords, textNum, tt } from "@/utils";
+import { formatNum, latinToCyrillic, numberToWords, textNum, tt } from "@/utils";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Recipient from "../prixod/recipient";
+import { useRecipientRows } from "../contract/recipientData";
 
 import Button from "@/Components/reusable/button";
 import { Checkbox } from "@/Components/ui/checkbox";
@@ -109,6 +110,19 @@ export const CreateRasxodFio = () => {
   };
 
   const handleSubmit = async () => {
+    if (rasxodRequestdata.length === 0) {
+      dispatch(
+        alertt({
+          success: false,
+          text: tt(
+            "Jadvalda qator yo'q — «Ishga tushirish» ni bosing yoki olib tashlangan qatorlarni qaytaring",
+            "В таблице нет строк — нажмите «Запустить» или верните убранные строки"
+          ),
+        })
+      );
+      return;
+    }
+
     try {
       const data = {
         doc_num: docNum,
@@ -153,8 +167,10 @@ export const CreateRasxodFio = () => {
       dispatch(
         alertt({
           success: false,
+          // Backend xato matnini `message` da qaytaradi (res.error);
+          // ilgari `error` o'qilib, "Request failed with status code 400" chiqardi
           //@ts-ignore
-          text: error?.response?.data?.error || error.message,
+          text: error?.response?.data?.message || error.message,
         })
       );
     }
@@ -237,23 +253,13 @@ export const CreateRasxodFio = () => {
     if (open) getBrigada();
   }, [open, page]);
 
-  const userStore = localStorage.getItem("user");
-  const userData = userStore ? JSON.parse(userStore) : undefined;
-  const user = userData ? userData.user : undefined;
-
-  const recipient = [
-    {
-      txt: tt("To'lovchi", "Плательщик"),
-      value: user?.doer_name || "",
-    },
-    { txt: tt("Bank", "Банк"), value: user?.bank_name || "" },
-    { txt: tt("MFO", "МФО"), value: user?.mfo || "" },
-    { txt: tt("INN", "ИНН"), value: textNum(user?.str, 3) || "" },
-    {
-      txt: tt("Joriy hisob", "Расчетный счет"),
-      value: textNum(user?.account_number, 4) || "",
-    },
-  ];
+  // To'lovchi — o'z boshqarmamiz: rekvizitlar serverdan, hisob raqam —
+  // yuqori panelda tanlangani (chiqim aynan shundan). Ilgari kirish
+  // paytidagi localStorage nusxasidan o'qilardi: rekvizitlar to'ldirilgach
+  // ham qayta kirmaguncha bo'sh turardi.
+  const recipient = useRecipientRows().map((row, i) =>
+    i === 0 ? { ...row, txt: tt("To'lovchi", "Плательщик") } : row
+  );
 
   const payer = [
     {
@@ -313,7 +319,7 @@ export const CreateRasxodFio = () => {
     : rasxodRequestdata;
 
   return (
-    <div className="relative">
+    <div className="relative min-h-[calc(100dvh_-_3.5rem)] bg-card p-3 sm:p-4">
       {screenLoader && <ScreenLoader />}
       <div className="flex items-center mb-[1.9375rem]">
         <div className="">
@@ -427,7 +433,7 @@ export const CreateRasxodFio = () => {
               {/* yigilgan pull */}
               <Input
                 className="w-full text-right"
-                v={calculatedSum ? calculatedSum : ""}
+                v={calculatedSum ? formatNum(calculatedSum) : ""}
                 change={handleChange}
               />
             </div>
@@ -480,7 +486,7 @@ export const CreateRasxodFio = () => {
           onChange={setRasxodToDate}
         />
         <Button
-          text="Ishga tushirish"
+          text={tt("Ishga tushirish", "Запустить")}
           type="button"
           className="!h-10 !mt-[1.25rem] border-success !bg-success text-success-foreground hover:!bg-success/90"
           onClick={() => getRasxodRequest()}

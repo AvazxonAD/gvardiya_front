@@ -1,19 +1,24 @@
 import DeleteModal from "@/Components/DeleteModal";
 import { useRequest } from "@/hooks/useRequest";
-import { RasxodInterface } from "@/interface";
 import { alertt } from "@/Redux/LanguageSlice";
 import { formatDate, formatInn, formatNum, textNum, tt } from "@/utils";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Pencil, Trash2 } from "lucide-react";
 import ExportMenu, { reportItems, type ExportMenuItem } from "@/Components/ExportMenu";
-import { Button } from "@/ui";
 import Table, { ITheadItem } from "../../Components/reusable/table/Table";
 import { getExcel } from "@/api";
-import { permBtn, usePermission } from "@/lib/permissions";
+import { usePermission } from "@/lib/permissions";
 import type { SortState } from "@/hooks/useTableSort";
 import ScreenLoader from "@/Components/ScreenLoader";
+import type { RasxodInterface } from "@/interface";
+import {
+    PaidStatusBadge,
+    PaidStatusConfirm,
+    usePaidStatusAction,
+    type PaidStatusTarget,
+} from "@/pages/RasxodFio/paidStatus";
+import { rasxodRowMenu } from "./rowMenu";
 
 interface RasxodTableProps {
     data: RasxodInterface[];
@@ -34,9 +39,17 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
     const JWT = useSelector((s: any) => s.auth.jwt);
     const dispatch = useDispatch();
     // "fio" — hodimlar hisob-kitobi, aks holda chiqimlar kitobi
-    const perm = usePermission(source === "fio" ? "rasxod_workers" : "rasxod");
+    const isFio = source === "fio";
+    const kind = isFio ? "fio" : "rasxod";
+    const perm = usePermission(isFio ? "rasxod_workers" : "rasxod");
+    const navigate = useNavigate();
 
-    // 13 ta ustun bitta ekranga sig'ishi kerak: shrift kichik, sarlavhalar
+    // "To'landi" holati: tanlangan hujjat tasdiqlash oynasida ko'rsatiladi;
+    // null — oyna yopiq
+    const [paidTarget, setPaidTarget] = useState<PaidStatusTarget | null>(null);
+    const setPaid = usePaidStatusAction(kind);
+
+    // 14 ta ustun bitta ekranga sig'ishi kerak: shrift kichik, sarlavhalar
     // esa `whitespace-normal` bilan ikki qatorga tushadi — shunda ustun
     // kengligini uzun sarlavha emas, raqamning o'zi belgilaydi.
     const NUM = "whitespace-normal text-center text-[0.5625rem] leading-[1.15]";
@@ -55,7 +68,9 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
         { sortKey: "summa_25_2", text: tt("Ijtimoiy soliq (25%)", "Социальный налог (25%)"), className: NUM },
         { sortKey: "summa_12", text: tt("Daromad solig'i (12%)", "Налог на доходы (12%)"), className: NUM },
         { sortKey: "worker_summa", text: tt("Kartaga o'tkazildi", "Перечислено на карту"), className: NUM },
-        { text: tt("Amallar", "Действия"), className: "w-[6.25rem] whitespace-normal text-center text-[0.5625rem] leading-[1.15]" },
+        { sortKey: "is_paid", text: tt("Holati", "Статус"), className: "whitespace-normal text-center text-[0.5625rem] leading-[1.15]" },
+        // Barcha amallar bitta ⋮ menyuda — ustunga bitta tugma sig'sa yetarli
+        { text: tt("Amallar", "Действия"), className: "w-[3rem] whitespace-normal text-center text-[0.5625rem] leading-[1.15]" },
     ];
 
     const handleRemove = async () => {
@@ -147,75 +162,55 @@ export const RasxodFIOTable: React.FC<RasxodTableProps> = ({ data, getAllFn, sou
                         <td className="whitespace-nowrap text-right tabular-nums">{formatNum(item.summa_25_2)}</td>
                         <td className="whitespace-nowrap text-right tabular-nums">{formatNum(item.summa_12)}</td>
                         <td className="whitespace-nowrap text-right font-medium tabular-nums text-success">{formatNum(item.worker_summa)}</td>
-                        <RowActions
-                            item={item}
-                            reports={rowReports(item)}
-                            canEdit={perm.update}
-                            canDelete={perm.delete}
-                            onDelete={() => {
-                                setActiveDeleteModal(true);
-                                setActiveId(item.id);
-                            }}
-                        />
+                        <td className="text-center">
+                            {item.is_paid == null ? (
+                                <span className="text-muted-foreground">—</span>
+                            ) : (
+                                // Jadval shrifti mayda — belgi ham shunga moslab kichraytiriladi
+                                <PaidStatusBadge
+                                    paid={item.is_paid}
+                                    dot={false}
+                                    className="px-1 py-0 text-[0.5625rem] min-[1360px]:text-[0.625rem] min-[1700px]:text-[0.6875rem]"
+                                />
+                            )}
+                        </td>
+                        <td className="text-center">
+                            {/* Amallar va hisobotlar bitta ⋮ menyuda, har biri nomi bilan.
+                                Menyu body ga chiziladi — aylanuvchi jadval qutisida kesilmaydi */}
+                            <ExportMenu
+                                size="xs"
+                                title={tt("Amallar", "Действия")}
+                                items={rasxodRowMenu({
+                                    kind,
+                                    paid: Boolean(item.is_paid),
+                                    canEdit: perm.update,
+                                    canDelete: perm.delete,
+                                    reports: rowReports(item),
+                                    onEdit: () => navigate(`${item.id}`),
+                                    onTogglePaid: () => setPaidTarget(item),
+                                    onDelete: () => {
+                                        setActiveDeleteModal(true);
+                                        setActiveId(item.id);
+                                    },
+                                })}
+                            />
+                        </td>
                     </tr>
                 ))}
             </Table>
 
             <DeleteModal closeModal={() => setActiveDeleteModal(false)} open={activeDeleteModal} deletee={handleRemove} />
+            <PaidStatusConfirm
+                doc={paidTarget}
+                kind={kind}
+                onClose={() => setPaidTarget(null)}
+                onConfirm={async (doc) => {
+                    const ok = await setPaid(doc.id, !doc.is_paid);
+                    if (ok) getAllFn();
+                    return ok;
+                }}
+            />
             {screenLoader && <ScreenLoader title={tt("O'chirilmoqda...", "Удаляется...")} />}
         </>
-    );
-};
-
-interface RowActionsProps {
-    item: RasxodInterface;
-    reports: ExportMenuItem[];
-    canEdit: boolean;
-    canDelete: boolean;
-    onDelete: () => void;
-}
-
-/**
- * Ilgari bu yerda `absolute` joylashgan uch nuqtali menyu bor edi. Jadval
- * endi o'z ichida aylanadigan qutida turibdi va har qanday ochiluvchi qatlam
- * shu quti chetida kesiladi — shuning uchun amallar bevosita tugma bo'lib
- * turadi.
- */
-const RowActions: React.FC<RowActionsProps> = ({
-    item,
-    reports,
-    canEdit,
-    canDelete,
-    onDelete,
-}) => {
-    const navigate = useNavigate();
-    // Ustun tor bo'lgani uchun tugmalar odatdagidan kichikroq
-    const btn = "h-5 w-5 [&_svg]:size-3";
-
-    return (
-        <td>
-            <div className="flex items-center justify-center">
-                {/* Barcha hisobotlar bitta ⋮ menyuda (menyu body ga chiziladi — kesilmaydi) */}
-                <ExportMenu size="xs" items={reports} title={tt("Hisobotlar", "Отчёты")} />
-                <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    {...permBtn(canEdit, tt("Tahrirlash", "\u0420\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c"), btn)}
-                    aria-label={tt("Tahrirlash", "\u0420\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c")}
-                    onClick={() => navigate(`${item.id}`)}
-                >
-                    <Pencil />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    {...permBtn(canDelete, tt("O'chirish", "\u0423\u0434\u0430\u043b\u0438\u0442\u044c"), `${btn} hover:bg-destructive/10 hover:text-destructive`)}
-                    aria-label={tt("O'chirish", "\u0423\u0434\u0430\u043b\u0438\u0442\u044c")}
-                    onClick={onDelete}
-                >
-                    <Trash2 />
-                </Button>
-            </div>
-        </td>
     );
 };

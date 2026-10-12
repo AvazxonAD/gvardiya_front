@@ -266,6 +266,7 @@ export default function UsersTab({
 
   return (
     <ListCard
+      flush
       toolbar={
         <Toolbar>
           {sharedFilters}

@@ -17,6 +17,7 @@ import RasxodModal from "./modal";
 import { RasxodcreateTable } from "./rasxodcreateTable";
 import ScreenLoader from "@/Components/ScreenLoader";
 import { validateRasxodForm } from "./validate";
+import { PaidStatusBadge } from "../RasxodFio/paidStatus";
 
 const SimpleText = ({ txt }: { txt: string }) => (
   <h3 className="opacity-[0.7] dark:opacity-[1] text-foreground font-[600]">
@@ -329,7 +330,7 @@ export const EditRasxod = () => {
     setOpisanie(e.target.value);
 
   return (
-    <div className="relative">
+    <div className="relative min-h-[calc(100dvh_-_3.5rem)] bg-card p-3 sm:p-4">
       {screenLoader && <ScreenLoader />}
       <div className="flex items-center mb-[1.9375rem]">
         <div className="m-0 p-0">
@@ -341,6 +342,19 @@ export const EditRasxod = () => {
             "Редактирование расходного документа"
           )}
         </h1>
+        {/* "To'landi" holati — hujjat yuklangach ko'rsatiladi (aks holda bir
+            lahza "To'lanmagan" chiqib qolardi). Holat ro'yxatdagi ⋮ menyu bilan
+            o'zgaradi, saqlash esa uni o'zgartirmaydi */}
+        {typeof editedData?.is_paid === "boolean" && (
+          <PaidStatusBadge
+            paid={editedData.is_paid}
+            className="ms-4"
+            title={tt(
+              "Holat «Chiqimlar kitobi» ro'yxatidagi ⋮ menyu orqali o'zgartiriladi",
+              "Статус меняется через меню ⋮ в списке «Книга расходов»"
+            )}
+          />
+        )}
       </div>
       {/* <SimpleText txt="To'lov hujjatlari" /> */}
       <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">

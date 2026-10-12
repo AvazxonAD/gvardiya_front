@@ -4,6 +4,7 @@ import { Pencil, Shield, Trash2 } from "lucide-react";
 import Table from "@/Components/reusable/table/Table";
 import DeleteModal from "../Components/DeleteModal";
 import { IBatalon } from "@/types/batalon";
+import { batalonTypeLabel } from "@/lib/batalonType";
 import { permBtn, usePermission } from "@/lib/permissions";
 import { formatInn, tt } from "../utils";
 import { cn } from "@/lib/utils";
@@ -25,6 +26,7 @@ const BatTab = ({ data, setActive, edit, handleDelete, sort, onSort }: any) => {
             { text: "№", className: "w-[2.75rem]" },
             { sortKey: "name", text: tt("Nomi", "Название"), className: "whitespace-normal leading-[1.15]" },
             { sortKey: "birgada", text: tt("Turi", "Тип"), className: "w-[9.5rem] whitespace-normal leading-[1.15]" },
+            { sortKey: "type", text: tt("Tegishliligi", "Принадлежность"), className: "w-[8.5rem] whitespace-normal leading-[1.15]" },
             { sortKey: "address", text: tt("Manzil", "Адрес"), className: "whitespace-normal leading-[1.15]" },
             { sortKey: "str", text: "INN", className: "w-[5.75rem]" },
             { sortKey: "bank_name", text: tt("Bank nomi", "Название банка"), className: "whitespace-normal leading-[1.15]" },
@@ -47,6 +49,14 @@ const BatTab = ({ data, setActive, edit, handleDelete, sort, onSort }: any) => {
                 ) : (
                   <Badge tone="neutral">{tt("Batalon", "Батальон")}</Badge>
                 )}
+              </td>
+              <td>
+                <Badge
+                  tone={person.type && person.type !== "batalon" ? "primary" : "neutral"}
+                  className="whitespace-nowrap"
+                >
+                  {batalonTypeLabel(person.type)}
+                </Badge>
               </td>
               <td className="text-muted-foreground">{person.address}</td>
               <td className="tabular-nums">{formatInn(person.str)}</td>

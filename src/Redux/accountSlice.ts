@@ -32,4 +32,13 @@ const accountSlice = createSlice({
 });
 export const { changeAccountNumber, removeAccountNumber } =
   accountSlice.actions;
+
+/**
+ * Hisob raqamlar ro'yxati o'zgardi (qo'shildi / tahrirlandi / o'chirildi).
+ * Yuqori panel (`AppNavbar`) shu hodisani tinglab ro'yxatni qayta oladi —
+ * sahifani yangilamasdan yoki qayta kirmasdan.
+ */
+export const ACCOUNTS_CHANGED = "accounts:changed";
+export const notifyAccountsChanged = () =>
+  window.dispatchEvent(new Event(ACCOUNTS_CHANGED));
 export default accountSlice.reducer;

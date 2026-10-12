@@ -214,6 +214,15 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(function Select(
     : items.find((i) => i.key === current)?.label;
 
   const handleValueChange = (key: string) => {
+    /*
+     * Bo'sh kalit ("") foydalanuvchidan kelmaydi: bo'sh band EMPTY kaliti
+     * bilan chiziladi. "" ni Radix'ning <form> ichidagi yashirin <select> i
+     * yuboradi — `value` o'zgarganda u o'zi `change` hodisasini chiqaradi,
+     * yangi qiymatning <option> i hali chizilmagan bo'lsa esa qiymat "" bo'lib
+     * ketadi. Shu soxta "" ilgari shartnomada tanlangan buyurtmachini
+     * o'chirib yuborardi (tashkilot tanlanmay qolardi).
+     */
+    if (key === "") return;
     if (!isControlled) setInner(key);
     const target = { value: key === EMPTY ? "" : key, name: name ?? "" };
     onChange?.({

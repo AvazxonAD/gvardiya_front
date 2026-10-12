@@ -3,6 +3,7 @@ import DeleteModal from "@/Components/DeleteModal";
 import ExportButtons from "@/Components/ExportButtons";
 import type { ExportColumn } from "@/lib/tableExport";
 import { useRequest } from "@/hooks/useRequest";
+import { NavbarPortal } from "@/layout/navbarSlot";
 import { alertt } from "@/Redux/LanguageSlice";
 import { formatFileSize, type IVideoLesson } from "@/types/videoLesson";
 import { formatDateTime, tt } from "@/utils";
@@ -14,7 +15,6 @@ import {
   Input,
   ListCard,
   Modal,
-  PageHeader,
   Textarea,
   Toolbar,
   ToolbarSpacer,
@@ -268,23 +268,20 @@ export default function AdminVideoLessons() {
   ];
 
   return (
-    // Sarlavha bilan birga ekranga sig'sin — jadval o'zi aylanadi (ListCard)
-    <div className="flex flex-col gap-4 lg:max-h-[max(24rem,calc(100dvh_-_6rem))]">
-      <PageHeader
-        title={tt("Video darslar", "Видеоуроки")}
-        description={tt(
-          "Viloyat foydalanuvchilari ko'radigan o'quv videolari",
-          "Обучающие видео для пользователей области"
-        )}
-        actions={
-          <Button onClick={openCreate}>
-            <Plus />
-            {tt("Qo'shish", "Добавить")}
-          </Button>
-        }
-      />
+    <div className="flex min-w-0 flex-col gap-3">
+      {/* Sarlavha yuqori panelda (menyudan), izoh ham o'sha yerda —
+          sahifa paddingsiz, kartadan yuqorida hech narsa turmaydi */}
+      <NavbarPortal>
+        <p className="hidden min-w-0 truncate text-[0.75rem] text-muted-foreground xl:block">
+          {tt(
+            "Viloyat foydalanuvchilari ko'radigan o'quv videolari",
+            "Обучающие видео для пользователей области"
+          )}
+        </p>
+      </NavbarPortal>
 
       <ListCard
+        flush
         toolbar={
           <Toolbar>
             <span className="text-[0.8125rem] text-muted-foreground">
@@ -305,6 +302,10 @@ export default function AdminVideoLessons() {
               columns={exportColumns()}
               fetchRows={async () => lessons}
             />
+            <Button size="sm" onClick={openCreate}>
+              <Plus />
+              {tt("Qo'shish", "Добавить")}
+            </Button>
           </Toolbar>
         }
       >

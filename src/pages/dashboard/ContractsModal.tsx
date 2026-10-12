@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { ChevronLeft, ChevronRight, FileText } from "lucide-react";
+import { Ban, ChevronLeft, ChevronRight, FileText } from "lucide-react";
 
 import { formatDate, formatSum, tt } from "@/utils";
 import { DebtStatusBadge } from "@/lib/debtStatus";
@@ -8,6 +8,13 @@ import ExportMenu, { reportItems } from "@/Components/ExportMenu";
 import useApi, { baseUri } from "@/services/api";
 import { authFetch } from "@/services/tokenManager";
 import { RootState } from "@/Redux/store";
+import {
+  ContractStatusConfirm,
+  type ContractStatusTarget,
+  cancelBtnProps,
+  useContractStatusAction,
+} from "@/lib/contractStatus";
+import { usePermission } from "@/lib/permissions";
 import type {
   ContractItem,
   ContractsMeta,
@@ -38,6 +45,7 @@ export default function ContractsModal({
   type,
   from,
   to,
+  onCancelled,
 }: {
   open: boolean;
   onClose: () => void;
@@ -45,6 +53,8 @@ export default function ContractsModal({
   /** Davr — berilmasa umumiy (redux) sana oralig'i */
   from?: string;
   to?: string;
+  /** Berilsa — qatorda "Bekor qilish" (viloyat qarzdorlik sahifasi) */
+  onCancelled?: () => void;
 }) {
   const api = useApi();
   const def = useSelector((s: RootState) => s.defaultDate);
@@ -82,6 +92,20 @@ export default function ContractsModal({
   useEffect(() => {
     if (open) fetchContracts();
   }, [open, fetchContracts]);
+
+  const perm = usePermission("contract");
+  const setStatus = useContractStatusAction();
+  const [cancelItem, setCancelItem] = useState<ContractStatusTarget | null>(null);
+  const cancelContract = async (c: ContractStatusTarget) => {
+    const ok = await setStatus("cancel", c.id);
+    if (ok) {
+      // Sahifadagi oxirgi qator bo'lsa — oldingi sahifaga
+      if (rows.length === 1 && page > 1) setPage((p) => p - 1);
+      else fetchContracts();
+      onCancelled?.();
+    }
+    return ok;
+  };
 
   // Backend hisobot: joriy tur va davr bo'yicha BARCHA shartnomalar (Excel + xuddi o'sha PDF)
   const fetchExcel = () =>
@@ -179,9 +203,39 @@ export default function ContractsModal({
           </div>
         ) : null,
     },
+    // Qarzdorlik sahifasi (viloyat): shartnomani bekor qilish
+    ...(onCancelled
+      ? [
+          {
+            key: "actions",
+            header: "",
+            width: "8.5rem",
+            align: "right" as const,
+            cell: (r: any) => (
+              <Button
+                variant="destructive-soft"
+                size="xs"
+                {...cancelBtnProps(perm.update, r.cancel_block)}
+                onClick={() =>
+                  setCancelItem({
+                    id: r.id,
+                    doc_num: r.doc_num,
+                    organization_name: r.organization_name,
+                    result_summa: r.result_summa,
+                  })
+                }
+              >
+                <Ban />
+                {tt("Bekor qilish", "Отменить")}
+              </Button>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
+    <>
     <Modal
       open={open}
       onClose={onClose}
@@ -255,5 +309,13 @@ export default function ContractsModal({
         />
       </div>
     </Modal>
+
+      <ContractStatusConfirm
+        action="cancel"
+        contract={cancelItem}
+        onClose={() => setCancelItem(null)}
+        onConfirm={cancelContract}
+      />
+    </>
   );
 }

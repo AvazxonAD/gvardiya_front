@@ -1,9 +1,8 @@
-import Icon from "@/assets/icons";
 import { RasxodFioTaskInterface, UstamaInterFaceEdited } from "@/interface";
 import "@/pages/rasxod/rasxod.css";
 import { formatDate, formatNum, textNum, tt } from "@/utils";
+import { Trash2 } from "lucide-react";
 import React from "react";
-import { TableItem } from "../rasxod/rasxodcreateTable";
 import { splitSumma } from "./splitSumma";
 
 const tablehead = [
@@ -30,6 +29,8 @@ interface Props {
     React.SetStateAction<RasxodFioTaskInterface[]>
   >;
   summa_10_percent?: number;
+  /** Qatorni hujjatdan olib tashlash (ruxsat bo'lmasa tugma o'chiq) */
+  canRemove?: boolean;
 }
 
 export const RasxodcreateTableFio = ({
@@ -37,7 +38,11 @@ export const RasxodcreateTableFio = ({
   data,
   setRasxodRequestData,
   summa_10_percent = 0,
+  canRemove = true,
 }: Props) => {
+  // Qator faqat shu hujjatdan chiqadi: bu topshiriq uchun hozir pul
+  // to'lanmaydi. Backend yuborilgan qatorlarnigina saqlaydi, olib
+  // tashlangani esa keyingi «Ishga tushirish» da yana chiqadi.
   const handleRemove = (item: RasxodFioTaskInterface) => {
     setRasxodRequestData((prev) =>
       prev?.filter((el) => el.worker_task_id !== item.worker_task_id)
@@ -103,6 +108,10 @@ export const RasxodcreateTableFio = ({
         <table className="table-grid min-w-full table-auto relative">
           <thead className="bg-muted text-foreground text-[0.6875rem] leading-[0.875rem] rounded-t-[6px] sticky top-0 z-20">
             <tr className="rounded-t-[6px]">
+              {/* Birinchi ustun — jadval o'ngga aylantirilmasa ham ko'rinsin */}
+              <th className="w-8 px-1 py-2 border-b border-border">
+                <span className="sr-only">{tt("O'chirish", "Удалить")}</span>
+              </th>
               {tablehead.map((item, index) => (
                 <th
                   key={index}
@@ -125,7 +134,7 @@ export const RasxodcreateTableFio = ({
 
               return (
                 <tr
-                  key={index}
+                  key={item.worker_task_id ?? index}
                   className={`text-foreground ${item.saved ? "bg-[#e5fedea9] dark:bg-muted/60border" : ""
                     } relative`}
                 >
@@ -133,7 +142,30 @@ export const RasxodcreateTableFio = ({
                     const r = (v: number) => Math.round(v * 100) / 100;
                     const s = amountsOf(item);
                     const c = "px-2 py-1 border-b border-border";
+                    const removeLabel = tt(
+                      `Olib tashlash: ${item.fio}, shartnoma № ${item.contract_doc_num}`,
+                      `Убрать: ${item.fio}, договор № ${item.contract_doc_num}`
+                    );
                     return (<>
+                      <td className="px-1 py-1 border-b border-border text-center">
+                        <button
+                          type="button"
+                          onClick={() => handleRemove(item)}
+                          disabled={!canRemove}
+                          aria-label={removeLabel}
+                          title={
+                            canRemove
+                              ? tt(
+                                  "Hujjatdan olib tashlash — bu ish uchun hozir to'lanmaydi",
+                                  "Убрать из документа — эта работа сейчас не оплачивается"
+                                )
+                              : tt("Ruxsat yo'q", "Нет доступа")
+                          }
+                          className="inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none disabled:opacity-40 [&_svg]:size-3.5"
+                        >
+                          <Trash2 />
+                        </button>
+                      </td>
                       <td className={`${c} text-left`}>{item.contract_doc_num}</td>
                       <td className={`${c} text-left`}>{newdate(item.contract_doc_date)}</td>
                       <td className={`${c} text-left relative group cursor-pointer max-w-[10.625rem]`}>
@@ -167,7 +199,7 @@ export const RasxodcreateTableFio = ({
               const c = "px-2 py-1 border-b border-border font-semibold";
               return (
                 <tr className="bg-muted/60">
-                  <td colSpan={4} className={`${c} text-right whitespace-nowrap`}>{tt("Jami", "Итого")}</td>
+                  <td colSpan={5} className={`${c} text-right whitespace-nowrap`}>{tt("Jami", "Итого")}</td>
                   <td className={`${c} text-center`}>{formatNum(total.task_time)}</td>
                   <td className={`${c} text-right whitespace-nowrap`}>{formatNum(total.totalSumma)}</td>
                   <td className={`${c} text-right whitespace-nowrap`}>{formatNum(total.total_summa_10)}</td>

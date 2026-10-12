@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import AnalizView from "./analizView";
 import { ArrowLeft, BarChart3 } from "lucide-react";
 import { tt } from "@/utils";
-import { Button as UIButton, Card, EmptyState } from "@/ui";
+import { Button as UIButton, Card, EmptyState, PageBar } from "@/ui";
 
 
 const ContractAnaliz = () => {
@@ -31,8 +31,9 @@ const ContractAnaliz = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="flex min-w-0 flex-col gap-3">
-            <div className="flex items-center gap-3">
+        // Paddingsiz sahifa: sarlavha `PageBar` da, tahlil kartasi chetma-chet
+        <div className="flex min-w-0 flex-1 flex-col bg-card">
+            <PageBar className="gap-3">
                 <UIButton variant="secondary" size="sm" onClick={() => navigate(-1)}>
                     <ArrowLeft />
                     {tt("Orqaga", "Назад")}
@@ -40,12 +41,12 @@ const ContractAnaliz = () => {
                 <h1 className="text-[1rem] font-semibold text-foreground">
                     {tt("Shartnoma tahlili", "Анализ договора")}
                 </h1>
-            </div>
+            </PageBar>
 
             {/* `data` bor bo'lsa ham `contract` bo'lmasligi mumkin —
                 ilgari shu holatda sahifa yiqilardi */}
             {data?.contract ? (
-                <Card className="overflow-hidden">
+                <Card className="overflow-hidden rounded-none border-0 shadow-none">
                     <AnalizView data={data} />
                 </Card>
             ) : (

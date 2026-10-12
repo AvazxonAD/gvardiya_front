@@ -1,28 +1,54 @@
 import { IContractForm } from "@/types/contract";
 import { IOrganization } from "@/types/organization";
+import { getSpr } from "@/api";
+import { pickLang } from "@/lib/docText";
 import { textNum, tt } from "@/utils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
-export const recipient = () => {
-  try {
-    const userStore = localStorage.getItem("user");
-    const userData = userStore ? JSON.parse(userStore) : undefined;
-    const user = userData ? userData.user : undefined;
-    const result = [
-      { txt: tt("Qabul qiluvchi", "Получатель"), value: user?.doer_name || "" },
-      { txt: tt("Bank", "Банк"), value: user?.bank_name || "" },
-      { txt: tt("MFO", "МФО"), value: user?.mfo || "" },
-      { txt: tt("INN", "ИНН"), value: textNum(user?.str, 3) || "" },
-      {
-        txt: tt("Joriy hisob", "Расчетный счет"),
-        value: textNum(user?.account_number, 4) || "",
-      },
-    ];
-    return result;
-  } catch {
-    return [];
-  }
+/**
+ * Qabul qiluvchi (viloyat) tafsilotlari qatorlari.
+ *
+ * Ilgari kirish paytidagi `localStorage.user` nusxasidan o'qilardi:
+ * Rekvizitlar to'ldirilgach ham panel qayta kirmaguncha bo'sh turardi,
+ * "Joriy hisob" esa tanlangan emas, tasodifiy hisob raqam edi. Endi
+ * rekvizitlar hujjat sahifasidagidek (`Document.tsx`) har safar
+ * serverdan olinadi, hisob raqam — yuqori panelda tanlangani (shartnoma
+ * aynan shunga bog'lanadi).
+ */
+export const useRecipientRows = () => {
+  const JWT = useSelector((s: any) => s.auth.jwt);
+  const account = useSelector((s: any) => s.account);
+  const [spr, setSpr] = useState<{ doer?: any; bank?: any; str?: any }>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([getSpr(JWT, "doer"), getSpr(JWT, "bank"), getSpr(JWT, "str")])
+      .then(([doer, bank, str]) => {
+        if (!cancelled) setSpr({ doer: doer?.data, bank: bank?.data, str: str?.data });
+      })
+      .catch((e) => console.error("Rekvizitlarni olishda xatolik:", e));
+    return () => {
+      cancelled = true;
+    };
+  }, [JWT]);
+
+  // Yangi viloyatda rekvizit yozuvi bo'lmaydi (`data` — null)
+  return [
+    { txt: tt("Qabul qiluvchi", "Получатель"), value: pickLang(spr.doer, "doer") },
+    { txt: tt("Bank", "Банк"), value: pickLang(spr.bank, "bank") },
+    { txt: tt("MFO", "МФО"), value: spr.bank?.mfo || "" },
+    { txt: tt("INN", "ИНН"), value: textNum(spr.str?.str ?? "", 3) || "" },
+    {
+      txt: tt("Joriy hisob", "Расчетный счет"),
+      value: textNum(account?.account_number ?? "", 4) || "",
+    },
+  ];
 };
+
+/** Ikki hisob/g'azna raqami bir xilmi (bo'sh joylarsiz) */
+const sameNumber = (a?: string | null, b?: string | null) =>
+  Boolean(a && b) && String(a).replace(/\s/g, "") === String(b).replace(/\s/g, "");
 
 /**
  * To'lovchi tafsilotlari qatorlari.
@@ -35,15 +61,22 @@ export const recipient = () => {
  * komponentning yuqorisidan chaqiriladi.
  */
 export const usePayerRows = ({
-  data,
+  org: selected,
   contract,
   setContract,
 }: {
-  data?: IOrganization[];
+  /**
+   * Tanlangan tashkilot obyekti. Ilgari u oynadagi joriy ro'yxat sahifasidan
+   * `id` bo'yicha qidirilardi — qidiruv yoki sahifa almashsa (yoki tahrirda
+   * tashkilot yuklangan ro'yxatda bo'lmasa) panel bo'sh qolardi.
+   */
+  org?: IOrganization | null;
   contract?: IContractForm;
   setContract?: (contract: any) => void;
 }) => {
-  const org = data?.find((d: any) => d.id == contract?.organization_id);
+  // Faqat shartnomadagi tashkilotga mos kelsa ishlatiladi
+  const org =
+    selected && selected.id == contract?.organization_id ? selected : undefined;
 
   const defaultAccount =
     org?.account_numbers?.map((d: any) => ({
@@ -74,15 +107,28 @@ export const usePayerRows = ({
     if (!org) return;
 
     const patch: Record<string, any> = {};
+    // Shartnomada saqlangan raqamlar (tahrirda serverdan keladi)
+    const saved = contract as any;
 
     if (!accountFitsOrg) {
-      // Boshqa tashkilotniki — joriy tashkilotning birinchisiga almashtiramiz
-      patch.organ_account_number_id = defaultAccount || null;
+      // Saqlangan hisob tashkilotda yo'q: yo boshqa tashkilot tanlangan, yo
+      // eski yozuv o'chirilgan (ilgari tashkilot tahrirlanganda raqamlar
+      // qaytadan yaratilardi). Xuddi shu raqamli yozuv bo'lsa — o'sha,
+      // bo'lmasa — tashkilotning birinchi hisobi.
+      const same = (org.account_numbers ?? []).find((d: any) =>
+        sameNumber(d.account_number, saved?.organization_account_number)
+      ) as any;
+      patch.organ_account_number_id = same?.id ?? (defaultAccount || null);
     } else if (!contract?.organ_account_number_id && defaultAccount) {
       patch.organ_account_number_id = defaultAccount;
     }
 
-    if (!gaznaFitsOrg) patch.gazna_number_id = null;
+    if (!gaznaFitsOrg) {
+      const same = (org.gazna_numbers ?? []).find((d: any) =>
+        sameNumber(d.gazna_number, saved?.gazna_number)
+      ) as any;
+      patch.gazna_number_id = same?.id ?? null;
+    }
 
     if (Object.keys(patch).length === 0) return;
 
@@ -119,10 +165,13 @@ export const usePayerRows = ({
             name: textNum(d.account_number, 4),
           })) ?? [],
         onChange: (value: any) => {
-          setContract?.({
-            ...contract,
+          // Funksiya ko'rinishida: `contract` bu yerda eski nusxa bo'lishi
+          // mumkin — tashkilot tanlangan zahoti tanlagich o'zgarsa, tanlov
+          // (organization_id) o'chib ketardi
+          setContract?.((prev: any) => ({
+            ...prev,
             organ_account_number_id: value,
-          });
+          }));
         },
         value: contract?.organ_account_number_id || defaultAccount,
       },
@@ -135,10 +184,10 @@ export const usePayerRows = ({
             name: textNum(d.gazna_number, 4),
           })) ?? [],
         onChange: (value: any) => {
-          setContract?.({
-            ...contract,
+          setContract?.((prev: any) => ({
+            ...prev,
             gazna_number_id: value,
-          });
+          }));
         },
         value: contract?.gazna_number_id || "",
       },

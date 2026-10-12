@@ -41,6 +41,8 @@ import {
 import ContractsModal from "./ContractsModal";
 import OrgContractsModal from "./OrgContractsModal";
 import RedWorkersModal from "./RedWorkersModal";
+import { NavbarPortal } from "@/layout/navbarSlot";
+import MassEventReport from "@/pages/admin/dashboard/components/MassEventReport";
 import ExportButtons from "@/Components/ExportButtons";
 import { reportItems } from "@/Components/ExportMenu";
 import type { ExportColumn } from "@/lib/tableExport";
@@ -57,6 +59,7 @@ import {
   Input,
   Legend,
   Modal,
+  PageBar,
   Skeleton,
   StatCard,
   chartColor,
@@ -84,7 +87,8 @@ const pct = (part?: number, total?: number) =>
 
 export default function RegionDashboard() {
   const api = useApi();
-  const { startDate, endDate } = useSelector((s: RootState) => s.defaultDate);
+  // Dashboardning o'z davri (yil boshidan) — boshqa sahifalar sanasidan alohida
+  const { startDate, endDate } = useSelector((s: RootState) => s.dashboardDate);
 
   const [loading, setLoading] = useState(true);
   const [count, setCount] = useState<DashboardCountResponse | null>(null);
@@ -417,12 +421,17 @@ export default function RegionDashboard() {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* "Ommaviy tadbirlar hisoboti" — super-admindagi shakl, faqat o'z hududi */}
+      <NavbarPortal>
+        <MassEventReport scope="region" />
+      </NavbarPortal>
+
       {/* Sahifa nomi navbar'da turadi. Davr navbar'dagi sana
           tanlagichlaridan ko'rinadi — ular yashiringan kichik
           ekranlar uchun quyidagi qator. */}
-      <p className="text-[0.8125rem] text-muted-foreground md:hidden">
+      <PageBar className="text-[0.8125rem] text-muted-foreground md:hidden">
         {tt("Davr", "Период")}: {startDate} — {endDate}
-      </p>
+      </PageBar>
 
       {/* ═══ 1. Shartnomalar + qizil chegara ═══════════════════════ */}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -699,6 +708,8 @@ export default function RegionDashboard() {
         open={contractsOpen}
         onClose={() => setContractsOpen(false)}
         type={contractsType}
+        from={startDate}
+        to={endDate}
       />
 
       <RedWorkersModal

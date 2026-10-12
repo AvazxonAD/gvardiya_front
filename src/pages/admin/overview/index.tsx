@@ -37,6 +37,7 @@ import {
   DataTable,
   Input,
   MiniBar,
+  PageBar,
   StatCard,
   type TableColumn,
 } from "@/ui";
@@ -262,6 +263,15 @@ export default function AdminDebtOverview({ scope = "admin" }: { scope?: "admin"
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [from, to, region?.region_id]);
 
+  // Viloyat qarzdorlik sahifasi: shartnoma bekor qilinsa — kartalar,
+  // diagrammalar va qarzdorlar ro'yxati qayta hisoblanadi
+  const onCancelled = isRegion
+    ? () => {
+        load();
+        fetchOrgs(1);
+      }
+    : undefined;
+
   const s = data?.summary;
   // Qidiruv bo'lsa — topilganlar soni, bo'lmasa — jami qarzdorlar
   const orgTotal = orgCount;
@@ -425,19 +435,16 @@ export default function AdminDebtOverview({ scope = "admin" }: { scope?: "admin"
 
   return (
     <div className="flex min-w-0 flex-col gap-3 pb-5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-[1rem] font-semibold text-foreground">
-            {tt("Qarzdorlik tahlili", "Анализ задолженности")}
-          </h1>
-          {region && (
-            <Button variant="outline" size="sm" onClick={() => setRegion(null)}>
-              {region.region_name}
-              <X />
-            </Button>
-          )}
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
+      {/* Paddingsiz sahifa: boshqaruvlar `PageBar` qatorida. Sahifa nomi
+          ("Qarzdorlik") yuqori panelda — bu yerda takrorlanmaydi. */}
+      <PageBar>
+        {region && (
+          <Button variant="outline" size="sm" onClick={() => setRegion(null)}>
+            {region.region_name}
+            <X />
+          </Button>
+        )}
+        <div className="ml-auto flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1.5">
             <SpecialDatePicker defaultValue={from} onChange={setFrom} />
             <span className="text-muted-foreground">—</span>
@@ -448,7 +455,7 @@ export default function AdminDebtOverview({ scope = "admin" }: { scope?: "admin"
             {tt("Yangilash", "Обновить")}
           </Button>
         </div>
-      </div>
+      </PageBar>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
@@ -644,6 +651,7 @@ export default function AdminDebtOverview({ scope = "admin" }: { scope?: "admin"
             ? "region/dashboard/organization-debt-contracts"
             : "admin/dashboard/organization-debt-contracts"
         }
+        onCancelled={onCancelled}
         organization={
           org
             ? ({
@@ -666,6 +674,7 @@ export default function AdminDebtOverview({ scope = "admin" }: { scope?: "admin"
           type={modal ?? "debt"}
           from={from}
           to={to}
+          onCancelled={onCancelled}
         />
       ) : (
         <ContractsModal

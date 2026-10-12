@@ -37,6 +37,9 @@ const cellText = (cell: any): string => {
   if (v === null || v === undefined) return "";
   if (typeof v === "object" && !(v instanceof Date)) {
     if ("result" in v) v = v.result; // formula
+    // ExcelJS 0 natijani `value` dan tushirib qoldiradi (faqat `cell.result` da
+    // qoladi) — aks holda nol jami "[object Object]" bo'lib chiqardi
+    else if ("formula" in v || "sharedFormula" in v) v = cell.result;
     else if ("richText" in v) return v.richText.map((r: any) => r.text).join("");
     else if ("text" in v) return String(v.text); // giperhavola
     else if ("error" in v) return String(v.error);
@@ -59,7 +62,15 @@ const cellText = (cell: any): string => {
   return String(v);
 };
 
-export async function excelBlobToPdf(blob: Blob, fileName: string) {
+type PdfOptions = {
+  /** Varaq formati — juda keng shakllar (20+ ustun) uchun "a3" */
+  format?: "a4" | "a3";
+  /** Shrift koeffitsienti — ko'p ustunli shaklda sonlar bo'linib ketmasin */
+  fontScale?: number;
+};
+
+export async function excelBlobToPdf(blob: Blob, fileName: string, opts: PdfOptions = {}) {
+  const { format = "a4", fontScale = 1 } = opts;
   const [{ default: ExcelJS }, { jsPDF }, { default: autoTable }, fonts] = await Promise.all([
     import("exceljs"),
     import("jspdf"),
@@ -87,7 +98,7 @@ export async function excelBlobToPdf(blob: Blob, fileName: string) {
   const landscape =
     firstWidths.filter(Boolean).length > 6 || firstWidths.reduce((a, b) => a + b, 0) > 110;
 
-  const doc = new jsPDF({ orientation: landscape ? "landscape" : "portrait", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: landscape ? "landscape" : "portrait", unit: "mm", format });
   doc.addFileToVFS(`${FONT_NAME}.ttf`, fonts.regular);
   doc.addFont(`${FONT_NAME}.ttf`, FONT_NAME, "normal");
   doc.addFileToVFS(`${FONT_NAME}-Bold.ttf`, fonts.bold);
@@ -149,7 +160,7 @@ export async function excelBlobToPdf(blob: Blob, fileName: string) {
           styles: {
             fontStyle: font.bold ? "bold" : "normal",
             // Excel shrifti (11pt) PDF da kichikroq — ustunlar sig'ishi uchun
-            fontSize: Math.max(6.5, Math.min(14, size * 0.72)),
+            fontSize: Math.max(6.5 * Math.min(1, fontScale), Math.min(14, size * 0.72 * fontScale)),
             halign: align.horizontal === "center" || align.horizontal === "centerContinuous"
               ? "center"
               : align.horizontal === "right"

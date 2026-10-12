@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AlertTriangle,
+  Ban,
   BarChart3,
   Check,
   Download,
@@ -30,6 +31,72 @@ import { DebtStatusBadge, debtStatusLabel } from "@/lib/debtStatus";
 import type { ExportColumn } from "@/lib/tableExport";
 import type { SortState } from "@/hooks/useTableSort";
 import { permBtn, usePermission } from "@/lib/permissions";
+import { Popover, PopoverAnchor, PopoverContent } from "@/Components/ui/popover";
+import {
+  type CancelBlock,
+  ContractStatusConfirm,
+  type ContractStatusTarget,
+  cancelBtnProps,
+  useContractStatusAction,
+} from "@/lib/contractStatus";
+
+/**
+ * Buyurtmachi nomi + hover'da tafsilot.
+ *
+ * Ilgari tafsilot katak ichida (`absolute`) chizilardi, ya'ni jadvalning
+ * aylanadigan qutisi ichida. Pastki qatorlarda u qutidan chiqib ketib
+ * aylantirish panelini chiqarardi → ustunlar torayib qatorlar siljirdi →
+ * sichqoncha nomdan chiqib tafsilot yopilardi → panel yo'qolardi… — shu
+ * aylanish "qaltirash" edi. Endi tafsilot `body` ga (portal) chiziladi:
+ * jadval o'lchamiga ta'sir qilmaydi, ekran pastida esa yuqoriga ochiladi.
+ */
+export function OrganizationHover({ item }: { item: any }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverAnchor asChild>
+        <span
+          className="cursor-help"
+          onMouseEnter={() => setOpen(true)}
+          onMouseLeave={() => setOpen(false)}
+        >
+          {item.organization_name}
+        </span>
+      </PopoverAnchor>
+      <PopoverContent
+        side="bottom"
+        align="start"
+        collisionPadding={8}
+        // Sichqonchani o'ziga "tortmasin" — aks holda nomdan chiqish
+        // hisoblanib, yana yopilib-ochilardi
+        className="pointer-events-none w-[16.25rem] p-3 text-[0.75rem] shadow-lg"
+        // Hover'da fokusni o'g'irlamasin (klaviatura/qidiruv joyida qolsin)
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        onCloseAutoFocus={(e) => e.preventDefault()}
+      >
+        <p>
+          <span className="text-muted-foreground">{tt("Nomi", "Название")}:</span>{" "}
+          {item.organization_name}
+        </p>
+        <p>
+          <span className="text-muted-foreground">{tt("Manzil", "Адрес")}:</span>{" "}
+          {item.organization_address}
+        </p>
+        <p>
+          <span className="text-muted-foreground">INN:</span>{" "}
+          {formatInn(item.organization_str)}
+        </p>
+        <p>
+          <span className="text-muted-foreground">
+            {tt("Hisob raqam", "Номер счета")}:
+          </span>{" "}
+          {textNum(item.organization_account_number, 4)}
+        </p>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 interface ContTabProps {
   data: any[];
@@ -40,6 +107,8 @@ interface ContTabProps {
   /** Backend saralash (ixtiyoriy) — `useTableSort` dan */
   sort?: SortState;
   onSort?: (key: string) => void;
+  /** Berilsa — qatorda "Bekor qilish" tugmasi; bekor qilingandan keyin chaqiriladi */
+  onCancelled?: () => void;
 }
 
 /* ── Eksport ustunlari (ContractHome va LawyerContract uchun) ─────── */
@@ -137,9 +206,18 @@ const ContTab: React.FC<ContTabProps> = ({
   isLawyer,
   sort,
   onSort,
+  onCancelled,
 }) => {
   const navigate = useNavigate();
   const [delOpen, setDelOpen] = useState(false);
+  const [cancelItem, setCancelItem] = useState<ContractStatusTarget | null>(null);
+  const setStatus = useContractStatusAction();
+
+  const cancelContract = async (c: ContractStatusTarget) => {
+    const ok = await setStatus("cancel", c.id);
+    if (ok) onCancelled?.();
+    return ok;
+  };
 
   if (!data || data.length === 0) {
     return (
@@ -187,7 +265,7 @@ const ContTab: React.FC<ContTabProps> = ({
           { sortKey: "send_lawyer", text: tt("Yuristga", "Юристу"), className: "text-center whitespace-normal leading-[1.15]" },
           ...(isLawyer ? [{ text: "PDF", className: "text-center" }] : []),
           ...(!hideActions
-            ? [{ text: tt("Amallar", "Действия"), className: "w-[7rem] text-center" }]
+            ? [{ text: tt("Amallar", "Действия"), className: onCancelled ? "w-[8.5rem] text-center" : "w-[7rem] text-center" }]
             : []),
         ]}
       >
@@ -214,36 +292,8 @@ const ContTab: React.FC<ContTabProps> = ({
             </td>
 
             {/* Tashkilot tafsiloti hover'da ko'rinadi */}
-            <td className="relative">
-              <span className="peer cursor-help">{item.organization_name}</span>
-              <div
-                className={cn(
-                  "pointer-events-none absolute left-3 top-full z-20 w-[16.25rem] -translate-y-1 rounded-md border border-border",
-                  // `opacity-0` emas `hidden`: shaffof bo'lsa ham joy egallab,
-                  // jadval ostida bo'sh aylanadigan joy qoldirardi
-                  "hidden bg-popover p-3 text-[0.75rem] text-popover-foreground shadow-lg",
-                  "peer-hover:pointer-events-auto peer-hover:block"
-                )}
-              >
-                <p>
-                  <span className="text-muted-foreground">{tt("Nomi", "Название")}:</span>{" "}
-                  {item.organization_name}
-                </p>
-                <p>
-                  <span className="text-muted-foreground">{tt("Manzil", "Адрес")}:</span>{" "}
-                  {item.organization_address}
-                </p>
-                <p>
-                  <span className="text-muted-foreground">INN:</span>{" "}
-                  {formatInn(item.organization_str)}
-                </p>
-                <p>
-                  <span className="text-muted-foreground">
-                    {tt("Hisob raqam", "Номер счета")}:
-                  </span>{" "}
-                  {textNum(item.organization_account_number, 4)}
-                </p>
-              </div>
+            <td>
+              <OrganizationHover item={item} />
             </td>
 
             <td className="text-muted-foreground">{item.adress}</td>
@@ -354,6 +404,8 @@ const ContTab: React.FC<ContTabProps> = ({
                   id={item.id as unknown as number}
                   setDelOpen={setDelOpen}
                   setActive={setActive!}
+                  onCancel={onCancelled ? () => setCancelItem(item) : undefined}
+                  cancelBlock={item.cancel_block}
                 />
               </td>
             )}
@@ -365,6 +417,13 @@ const ContTab: React.FC<ContTabProps> = ({
         open={delOpen}
         deletee={handleDelete}
         closeModal={() => setDelOpen(false)}
+      />
+
+      <ContractStatusConfirm
+        action="cancel"
+        contract={cancelItem}
+        onClose={() => setCancelItem(null)}
+        onConfirm={cancelContract}
       />
     </>
   );
@@ -378,6 +437,10 @@ type Props = {
   id: number;
   setDelOpen: Dispatch<SetStateAction<boolean>>;
   setActive: Dispatch<SetStateAction<number>>;
+  /** Berilsa — "Bekor qilish" tugmasi (tasdiqlash oynasini ochadi) */
+  onCancel?: () => void;
+  /** To'siq bo'lsa tugma o'chiq, sababi title'da (pul tushgan / chiqim / tadbir boshlangan) */
+  cancelBlock?: CancelBlock;
 };
 
 /**
@@ -387,7 +450,7 @@ type Props = {
  * ochiluvchi qatlam kesiladi — shuning uchun amallar to'g'ridan-to'g'ri
  * tugmalar sifatida ko'rsatiladi.
  */
-export const RowMenu = ({ id, setDelOpen, setActive }: Props) => {
+export const RowMenu = ({ id, setDelOpen, setActive, onCancel, cancelBlock }: Props) => {
   const navigate = useNavigate();
   const perm = usePermission("contract");
 
@@ -395,7 +458,7 @@ export const RowMenu = ({ id, setDelOpen, setActive }: Props) => {
     <div className="flex items-center justify-center">
       <Button
         variant="ghost"
-        size="icon-xs"
+        size="icon-xs"
         {...permBtn(perm.update, tt("Tahrirlash", "Редактировать"), "h-6 w-6 [&_svg]:size-3")}
         aria-label={tt("Tahrirlash", "Редактировать")}
         onClick={() => navigate("/contract/" + id)}
@@ -422,9 +485,20 @@ export const RowMenu = ({ id, setDelOpen, setActive }: Props) => {
       >
         <BarChart3 />
       </Button>
+      {onCancel && (
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          {...cancelBtnProps(perm.update, cancelBlock, "h-6 w-6 [&_svg]:size-3 hover:bg-warning/15 hover:text-warning")}
+          aria-label={tt("Bekor qilish", "Отменить договор")}
+          onClick={onCancel}
+        >
+          <Ban />
+        </Button>
+      )}
       <Button
         variant="ghost"
-        size="icon-xs"
+        size="icon-xs"
         {...permBtn(perm.delete, tt("O'chirish", "Удалить"), "h-6 w-6 [&_svg]:size-3 hover:bg-destructive/10 hover:text-destructive")}
         aria-label={tt("O'chirish", "Удалить")}
         onClick={() => {

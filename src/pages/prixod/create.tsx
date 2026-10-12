@@ -278,7 +278,7 @@ const CreatePrixod = () => {
   const { pathname } = useLocation();
 
   return (
-    <div className="relative">
+    <div className="relative min-h-[calc(100dvh_-_3.5rem)] bg-card p-3 sm:p-4">
       <div className="flex items-center mb-5">
         <div className="m-0 p-0">
           <BackButton />

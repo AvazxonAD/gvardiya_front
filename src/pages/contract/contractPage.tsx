@@ -17,9 +17,24 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import Recipient from "../prixod/recipient";
 import { initialContract } from "./ContractEdit";
-import { recipient, usePayerRows } from "./recipientData";
+import { usePayerRows, useRecipientRows } from "./recipientData";
 import TaskColumn, { returnBxmSum } from "./taskColumn";
 import OrganizationModal from "@/shared/components/OrganizationModal";
+
+/** "Buyurtmachi" oynasidagi ro'yxat sahifasi hajmi (so'rov va raqamlash uchun bir xil) */
+const ORG_PAGE_SIZE = 15;
+
+/** "Yangi tashkilot qo'shish" formasining bo'sh holati */
+const EMPTY_ORGANIZATION = {
+  name: "",
+  address: "",
+  str: "",
+  bank_name: "",
+  mfo: "",
+  boss: "",
+  account_numbers: [] as string[],
+  gazna_numbers: [] as string[],
+};
 
 const SimpleText = ({ txt }: { txt: string }) => (
   <h3 className="text-[0.875rem] font-semibold text-foreground">{txt}</h3>
@@ -41,8 +56,14 @@ const ContractPage = () => {
   const [contract, setContract] = useState<IContractForm>(
     initialContract as any
   );
-  const [allOrgan, setAllOrgan] = useState<IOrganization[]>([]);
+  /* Tanlangan buyurtmachi — alohida saqlanadi. Ilgari u oynadagi joriy
+     ro'yxat sahifasidan `id` bo'yicha qidirilardi: qidiruv/sahifa almashsa
+     yoki tahrirda tashkilot yuklangan ro'yxatda bo'lmasa, "To'lovchi
+     tafsilotlari" bo'sh qolardi. */
+  const [selectedOrg, setSelectedOrg] = useState<IOrganization | null>(null);
   const [organWorkers, setOrganWorkers] = useState<IOrganization[]>([]);
+  // Oynadagi ro'yxatni qayta yuklash (yangi tashkilot qo'shilganda)
+  const [orgListReload, setOrgListReload] = useState(0);
   const [searchValue, setSearchValue] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1); // Starting at page 2 for example
   const [totalPages, setTotalPages] = useState(1);
@@ -50,16 +71,7 @@ const ContractPage = () => {
   const [bxm, setBxm] = useState<any[]>([]);
   const [templates, setTemplates] = useState<any[]>([]);
   const divRef = useRef<HTMLDivElement>(null);
-  const [organizationValue, setOrganizationValue] = useState({
-    name: "",
-    address: "",
-    str: "",
-    bank_name: "",
-    mfo: "",
-    boss: "",
-    account_numbers: [] as string[],
-    gazna_numbers: [] as string[],
-  });
+  const [organizationValue, setOrganizationValue] = useState(EMPTY_ORGANIZATION);
 
   const getContract = async () => {
     const get = await api.get<IContractForm>(
@@ -79,15 +91,36 @@ const ContractPage = () => {
       setContract({ ...get.data, tasks: appendUniqueId });
       if (get.data?.dist) setAddressBox(true);
       if (get.data?.date) setDateBox(true);
+      if (get.data?.organization_id) loadOrganization(get.data.organization_id);
     }
     //  else navigate("/contract");
   };
 
-  const getAllOrgan = async () => {
-    const get = await api.get<IOrganization[]>(
-      `organization?page=1&limit=10000`
-    );
-    if (get?.success) setAllOrgan(get.data);
+  /** Tashkilotni hisob va g'azna raqamlari bilan birga olib, tanlangan qiladi */
+  const loadOrganization = async (orgId: number) => {
+    const get = await api.get<IOrganization>(`organization/${orgId}`);
+    if (get?.success && get.data) setSelectedOrg(get.data);
+  };
+
+  /**
+   * Buyurtmachini tanlash. Boshqa tashkilot tanlansa, oldingisining hisob va
+   * g'azna raqamlari olib tashlanadi — yangisining birinchi hisobini
+   * `usePayerRows` o'zi qo'yadi. Funksiya ko'rinishidagi yangilash: eski
+   * `contract` nusxasi yozilib, boshqa maydonlar o'chib ketmasin.
+   */
+  const selectOrganization = (org: IOrganization) => {
+    setSelectedOrg(org);
+    setContract((prev) => {
+      if (prev.organization_id === org.id) return prev;
+      const next: any = {
+        ...prev,
+        organization_id: org.id,
+        organ_account_number_id: null,
+        gazna_number_id: null,
+      };
+      return next;
+    });
+    setOpen(false);
   };
 
   const getBxm = async () => {
@@ -104,10 +137,7 @@ const ContractPage = () => {
   };
 
   useEffect(() => {
-    if (id) {
-      getContract();
-      getAllOrgan();
-    }
+    if (id) getContract();
     getBxm();
     getTemplates();
   }, [id]);
@@ -130,7 +160,7 @@ const ContractPage = () => {
     (async () => {
       const sParam = query ? `&search=${encodeURIComponent(query)}` : "";
       const get: any = await api.get<IOrganization[]>(
-        `organization?page=${currentPage}&limit=${15}${sParam}`
+        `organization?page=${currentPage}&limit=${ORG_PAGE_SIZE}${sParam}`
       );
       if (stale) return;
       if (get?.success) {
@@ -142,15 +172,16 @@ const ContractPage = () => {
     return () => {
       stale = true;
     };
-  }, [currentPage, query]);
+  }, [currentPage, query, orgListReload]);
 
   /* Hook, shuning uchun JSX ichidan emas, komponentning yuqorisidan
      chaqiriladi — chaqiruv shartli bo'lib qolsa hooklar tartibi buzilardi. */
   const payerRows = usePayerRows({
-    data: id ? allOrgan : organWorkers,
+    org: selectedOrg,
     contract,
     setContract,
   });
+  const recipientRows = useRecipientRows();
 
   const height = useFullHeight();
   const fullHeight =
@@ -166,9 +197,9 @@ const ContractPage = () => {
       inputVal = inputVal.slice(0, 2) + ":" + inputVal.slice(2);
     }
     if (namee === "start_time") {
-      setContract({ ...contract, start_time: inputVal });
+      setContract((prev) => ({ ...prev, start_time: inputVal }));
     } else {
-      setContract({ ...contract, end_time: inputVal });
+      setContract((prev) => ({ ...prev, end_time: inputVal }));
     }
   };
 
@@ -201,6 +232,23 @@ const ContractPage = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    // Buyurtmachisiz server faqat `"Hamkor tashkilot" 1 dan kichik bo'lmasligi
+    // kerak!` deb qaytarardi — nima qilish kerakligi tushunarsiz edi
+    if (!contract.organization_id || !selectedOrg) {
+      dispatch(
+        alertt({
+          text: tt(
+            "Buyurtmachi tashkilot tanlanmagan — «Tashkilotni tanlash» tugmasi orqali tanlang",
+            "Не выбрана организация-заказчик — выберите её кнопкой «Выбрать организацию»"
+          ),
+          success: false,
+        })
+      );
+      setOpen(true);
+      return;
+    }
+
     const newrows = contract.tasks?.map((row) => {
       const {
         id,
@@ -345,7 +393,15 @@ const ContractPage = () => {
       if (response?.success) {
         dispatch(alertt({ text: response.message, success: true }));
         setOrganizationModalOpen(false);
-        getAllOrgan(); // Refresh the organizations list
+        setOrganizationValue(EMPTY_ORGANIZATION);
+        // Oynadagi ro'yxat yangilansin, yangi tashkilot esa darhol tanlansin —
+        // ilgari u ro'yxatda ko'rinmay qolardi (qidirib topish kerak edi)
+        setOrgListReload((n) => n + 1);
+        const createdId = (response.data as any)?.id;
+        if (createdId) {
+          const full = await api.get<IOrganization>(`organization/${createdId}`);
+          if (full?.success && full.data) selectOrganization(full.data);
+        }
       } else {
         dispatch(alertt({ text: response?.message, success: false }));
       }
@@ -357,7 +413,8 @@ const ContractPage = () => {
   const totals = allDiscount();
 
   return (
-    <div className="h-full mt-5 mx-auto">
+    // Paddingsiz sahifadagi shakl sirti: chetma-chet, bo'shliq faqat ichida
+    <div className="flex-1 bg-card p-3 sm:p-4">
       <form onSubmit={handleSubmit}>
         <div style={{ maxHeight: fullHeight }} className="w-full overfloww">
           {/* ═══ Shartnoma ma'lumotlari ═════════════════════════════
@@ -366,7 +423,7 @@ const ContractPage = () => {
               bo'sh turardi. Endi bitta karta ichida yagona 4-ustunli
               setka: maydonlar ma'no bo'yicha guruhlangan va bo'sh joy
               qolmaydi. */}
-          <div className="my-6 rounded-lg border border-border bg-card p-4">
+          <div className="mb-5 rounded-lg border border-border bg-card p-4">
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <Field label={tt("Shartnoma raqami", "Номер договора")}>
                 <Input
@@ -537,15 +594,23 @@ const ContractPage = () => {
                 txt={tt("Qabul qiluvchi tafsilotlari", "Данные получателя")}
               />
               <div>
-                {recipient().map((e, ind) => (
+                {recipientRows.map((e, ind) => (
                   <Recipient key={ind} txt={e.txt} value={e.value} />
                 ))}
               </div>
             </div>
             <div className="min-w-0 rounded-lg border border-border bg-card p-4">
-              <SimpleText
-                txt={tt("To'lovchi tafsilotlari", "Данные плательщика")}
-              />
+              {/* Tashkilot maydonga ikki marta bosib ham tanlanadi, lekin buni
+                  ekranda hech narsa aytmasdi — shu uchun alohida tugma */}
+              <div className="flex items-center justify-between gap-3">
+                <SimpleText
+                  txt={tt("To'lovchi tafsilotlari", "Данные плательщика")}
+                />
+                <Button type="button" variant="secondary" size="xs" onClick={() => setOpen(true)}>
+                  <Search />
+                  {tt("Tashkilotni tanlash", "Выбрать организацию")}
+                </Button>
+              </div>
               <div>
                 {payerRows.map((e, ind) => (
                   <Recipient
@@ -689,16 +754,13 @@ const ContractPage = () => {
           </div>
           <OrganTAb
             openEdit={false}
-            setActive={(id: number) => {
-              setContract((prev) => ({
-                ...prev,
-                organization_id: id,
-              }));
-              setOpen(false);
+            setActive={(orgId: number) => {
+              const org = organWorkers.find((o) => o.id === orgId);
+              if (org) selectOrganization(org);
             }}
             data={organWorkers}
             page={currentPage}
-            itemsPerPage={20}
+            itemsPerPage={ORG_PAGE_SIZE}
             variant
           />
 

@@ -24,11 +24,15 @@ import {
 import {
   Button as UIButton,
   ListCard,
+  Select,
   SummaryRow,
   SummaryTile,
   Toolbar,
   ToolbarSpacer,
 } from "@/ui";
+
+// "To'landi" holati filtri: "" — barchasi, aks holda backendga `is_paid`
+type PaidFilter = "" | "true" | "false";
 
 // Pul ustuni: PDF da formatlangan matn, Excelda esa yig'ish uchun son
 const moneyCol = (
@@ -56,6 +60,46 @@ const exportColumns = (): ExportColumn<RasxodInterface>[] => [
   moneyCol(tt("Daromad solig'i (12%)", "Налог на доходы (12%)"), "summa_12"),
   moneyCol(tt("Kartaga o'tkazildi", "Перечислено на карту"), "worker_summa"),
 ];
+
+type MassReport = {
+  sarf_25: number;
+  other_accounts: number;
+};
+
+/**
+ * "Ommaviy tadbirlar hisoboti"ga bu sahifadan faqat 25% qism tushadi —
+ * "Rag'batlantirishga 25% → Sarflandi", chiqim sanasi bo'yicha (sahifadagi
+ * kabi), viloyatning barcha hisob raqamlari bo'yicha. "Hisoblandi"
+ * ustunlari shartnomalardan hisoblanadi (mass.event.report.js)
+ */
+function MassReportNote({ data }: { data?: MassReport }) {
+  if (!data) return null;
+
+  return (
+    <p className="px-3 pt-2 text-[0.75rem] leading-relaxed text-muted-foreground sm:px-4">
+      <span className="font-medium text-foreground">
+        {tt("«Ommaviy tadbirlar hisoboti»da", "В «Отчёте по массовым мероприятиям»")}
+      </span>{" "}
+      {tt(
+        "«Rag'batlantirishga 25% → Sarflandi» — shu davrdagi chiqimlarning 25% qismi:",
+        "«На поощрение 25% → Израсходовано» — 25% расходов за этот период:"
+      )}{" "}
+      <span className="font-medium tabular-nums text-foreground">{formatSum(data.sarf_25) || "0"}</span>
+      {data.other_accounts >= 0.01 && (
+        <>
+          {" "}
+          {tt("(shundan boshqa hisob raqamlarda", "(из них по другим счетам")}{" "}
+          <span className="tabular-nums">{formatSum(data.other_accounts)}</span>)
+        </>
+      )}
+      .{" "}
+      {tt(
+        "«Hisoblandi» ustunlari bu sahifadan emas, shu davrda tuzilgan shartnomalar summasidan hisoblanadi.",
+        "Графы «Начислено» считаются не по этой странице, а по сумме договоров, заключённых в этот период."
+      )}
+    </p>
+  );
+}
 
 export const RasxodFio = () => {
   const { startDate, endDate } = useSelector((state: RootState) => state.defaultDate);
@@ -85,6 +129,9 @@ export const RasxodFio = () => {
   const [q, setQ] = useState("");
   const [searchText] = useDebounce(q.trim(), 500);
   const { sort, toggle: toggleSort, reset: resetSort } = useTableSort();
+  // Holat filtri qidiruv kabi faqat ro'yxat (va jami soni) ga ta'sir qiladi —
+  // pastdagi yig'indilar sana oralig'i bo'yicha qoladi
+  const [paidFilter, setPaidFilter] = useState<PaidFilter>("");
 
   // Joriy filtrlar — ro'yxat ham, eksport ham aynan shu shartlar bilan oladi
   const listParams = (page: number, limit: number) => ({
@@ -94,11 +141,13 @@ export const RasxodFio = () => {
     limit,
     page,
     ...(searchText ? { search: searchText } : {}),
+    ...(paidFilter ? { is_paid: paidFilter } : {}),
     ...sortParamsObject(sort),
   });
 
   const clearFilters = () => {
     setQ("");
+    setPaidFilter("");
     resetSort();
     setSearch({ fromDate: startDate, toDate: endDate });
   };
@@ -155,7 +204,7 @@ export const RasxodFio = () => {
   usePagedFetch({
     page: currentPage,
     setPage: setCurrentPage,
-    filters: [limet, search.fromDate, search.toDate, searchText, sort],
+    filters: [limet, search.fromDate, search.toDate, searchText, paidFilter, sort],
     fetch: getRasxod,
   });
 
@@ -177,6 +226,7 @@ export const RasxodFio = () => {
   return (
     <div className="flex min-w-0 flex-col gap-3">
       <ListCard
+        flush
         toolbar={
           <Toolbar>
             <div className="flex items-center gap-1.5">
@@ -199,6 +249,19 @@ export const RasxodFio = () => {
                 search={true}
                 p={tt("№ yoki qabul qiluvchi", "№ или получатель")}
                 className="h-9 w-full"
+              />
+            </div>
+
+            <div className="w-full sm:w-44">
+              <Select
+                aria-label={tt("Holati", "Статус")}
+                placeholder={tt("Barcha holatlar", "Все статусы")}
+                options={[
+                  { value: "true", label: tt("To'langan", "Оплаченные") },
+                  { value: "false", label: tt("To'lanmagan", "Неоплаченные") },
+                ]}
+                value={paidFilter}
+                onChange={(e) => setPaidFilter(e.target.value as PaidFilter)}
               />
             </div>
 
@@ -251,6 +314,8 @@ export const RasxodFio = () => {
                   />
                 ))}
               </SummaryRow>
+
+              <MassReportNote data={rasxodmeta?.mass_report} />
 
               <Paginatsiya
                 currentPage={currentPage}

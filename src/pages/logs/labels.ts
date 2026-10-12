@@ -37,6 +37,7 @@ const MODULES: Record<string, Pair> = {
   template: ["Shablon", "Шаблон"],
   monitoring: ["Monitoring", "Мониторинг"],
   "region/dashboard": ["Asosiy sahifa", "Главная"],
+  "moddiy-baza": ["Moddiy baza", "Материальная база"],
   "region/users": ["Batalon foydalanuvchilari", "Пользователи батальонов"],
   "batalon/worker": ["Batalon: F.I.Sh.", "Батальон: Ф.И.О"],
   "batalon/tasks": ["Batalon: topshiriqlar", "Батальон: задания"],
@@ -50,6 +51,8 @@ const MODULES: Record<string, Pair> = {
   "admin/regions": ["Viloyatlar", "Области"],
   "admin/dashboard": ["Asosiy sahifa (admin)", "Главная (админ)"],
   "admin/monitoring": ["Monitoring (admin)", "Мониторинг (админ)"],
+  "admin/markaziy-baza": ["Markaziy baza", "Центральная база"],
+  "admin/contract-import": ["Shartnomalar importi", "Импорт договоров"],
 };
 
 const ACTIONS: Record<LogAction, { label: Pair; tone: Tone }> = {
@@ -76,6 +79,10 @@ const OPERATIONS: Record<string, Pair> = {
   "PATCH /contract/:id/verify-lawyer": ["Yurist tasdiqladi", "Подтверждено юристом"],
   "PATCH /contract/:id/verify-boss": ["Rahbar tasdiqladi", "Подтверждено руководителем"],
   "PATCH /contract/:id/reject-lawyer": ["Yurist rad etdi", "Отклонено юристом"],
+  "PATCH /contract/:id/cancel": ["Shartnomani bekor qilish", "Отмена договора"],
+  "POST /admin/contract-import/check": ["Import faylini tekshirish", "Проверка файла импорта"],
+  "POST /admin/contract-import": ["Shartnomalarni import qilish", "Импорт договоров"],
+  "PATCH /contract/:id/restore": ["Shartnomani qayta faollashtirish", "Восстановление договора"],
   "GET /contract/:id/verification": ["Tasdiqlash holati", "Статус подтверждения"],
   "GET /contract/:id/verification/history": ["Tasdiqlash tarixi", "История подтверждения"],
   "POST /contract/check": ["Tekshirish", "Проверка"],

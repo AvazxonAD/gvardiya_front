@@ -1,11 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, FileText } from "lucide-react";
+import { Ban, ChevronLeft, ChevronRight, FileText } from "lucide-react";
 
 import { formatDate, formatSum, tt } from "@/utils";
 import { DebtStatusBadge } from "@/lib/debtStatus";
 import ExportMenu, { reportItems } from "@/Components/ExportMenu";
 import useApi, { baseUri } from "@/services/api";
 import { authFetch } from "@/services/tokenManager";
+import {
+  ContractStatusConfirm,
+  type ContractStatusTarget,
+  cancelBtnProps,
+  useContractStatusAction,
+} from "@/lib/contractStatus";
+import { usePermission } from "@/lib/permissions";
 import type {
   ContractsMeta,
   OrgDebtContractItem,
@@ -28,6 +35,7 @@ export default function OrgContractsModal({
   to,
   organization,
   endpoint = "region/dashboard/organization-debt-contracts",
+  onCancelled,
 }: {
   open: boolean;
   onClose: () => void;
@@ -35,6 +43,8 @@ export default function OrgContractsModal({
   organization: OrganizationDebtRow | null;
   /** Super-admin: admin/dashboard/organization-debt-contracts */
   endpoint?: string;
+  /** Berilsa — qatorda "Bekor qilish" (viloyat qarzdorlik sahifasi) */
+  onCancelled?: () => void;
 }) {
   const api = useApi();
   const [rows, setRows] = useState<OrgDebtContractItem[]>([]);
@@ -80,6 +90,20 @@ export default function OrgContractsModal({
   useEffect(() => {
     if (open) fetchContracts();
   }, [open, fetchContracts]);
+
+  const perm = usePermission("contract");
+  const setStatus = useContractStatusAction();
+  const [cancelItem, setCancelItem] = useState<ContractStatusTarget | null>(null);
+  const cancelContract = async (c: ContractStatusTarget) => {
+    const ok = await setStatus("cancel", c.id);
+    if (ok) {
+      // Sahifadagi oxirgi qator bo'lsa — oldingi sahifaga
+      if (rows.length === 1 && page > 1) setPage((p) => p - 1);
+      else fetchContracts();
+      onCancelled?.();
+    }
+    return ok;
+  };
 
   // Backend hisobot: tashkilotning BARCHA qarzdor shartnomalari (Excel + xuddi o'sha PDF)
   const fetchExcel = () =>
@@ -170,9 +194,39 @@ export default function OrgContractsModal({
           </div>
         ) : null,
     },
+    // Qarzdorlik sahifasi (viloyat): shartnomani bekor qilish
+    ...(onCancelled
+      ? [
+          {
+            key: "actions",
+            header: "",
+            width: "8.5rem",
+            align: "right" as const,
+            cell: (r: any) => (
+              <Button
+                variant="destructive-soft"
+                size="xs"
+                {...cancelBtnProps(perm.update, r.cancel_block)}
+                onClick={() =>
+                  setCancelItem({
+                    id: r.id,
+                    doc_num: r.doc_num,
+                    organization_name: organization?.organization_name,
+                    result_summa: r.result_summa,
+                  })
+                }
+              >
+                <Ban />
+                {tt("Bekor qilish", "Отменить")}
+              </Button>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
+    <>
     <Modal
       open={open}
       onClose={onClose}
@@ -255,5 +309,13 @@ export default function OrgContractsModal({
         />
       </div>
     </Modal>
+
+      <ContractStatusConfirm
+        action="cancel"
+        contract={cancelItem}
+        onClose={() => setCancelItem(null)}
+        onConfirm={cancelContract}
+      />
+    </>
   );
 }

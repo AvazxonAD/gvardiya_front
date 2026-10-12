@@ -3,6 +3,7 @@ import accountSlice from "./accountSlice";
 import apiSlice from "./apiSlice";
 import darklightmode from "./colorSwitcher";
 import DateReducer from "./dateSlice";
+import DashboardDateReducer from "./dashboardDateSlice";
 import LanguageSlice from "./LanguageSlice";
 import adminMonitoringReducer from "./monitoringSlice";
 import monthReducer from "./monthSlice";
@@ -15,6 +16,7 @@ const store = configureStore({
     theme: darklightmode,
     adminMonitoring: adminMonitoringReducer,
     defaultDate: DateReducer,
+    dashboardDate: DashboardDateReducer,
     month: monthReducer
     },
 });

@@ -226,7 +226,7 @@ function DistributionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
   const overlayRef = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<DistributionByRegion[]>([]);
   const [loading, setLoading] = useState(false);
-  const { startDate, endDate } = useSelector((state: RootState) => state.defaultDate);
+  const { startDate, endDate } = useSelector((state: RootState) => state.dashboardDate);
   const api = useApi();
 
   const fetchData = useCallback(async () => {

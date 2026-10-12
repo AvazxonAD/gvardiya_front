@@ -1,3 +1,5 @@
+import type { BatalonType } from "@/lib/batalonType";
+
 export type IBatalon = {
   id: number;
   name: string;
@@ -6,5 +8,7 @@ export type IBatalon = {
   bank_name: string;
   mfo: string;
   birgada: boolean;
+  /** Hisobot uchun tegishliligi (@/lib/batalonType) */
+  type?: BatalonType;
   account_number: string;
 };

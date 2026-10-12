@@ -7,12 +7,23 @@ import { cn } from "@/lib/utils";
 import { tt } from "@/utils";
 import { removeAccountNumber } from "@/Redux/accountSlice";
 import { clearUserData } from "@/Redux/apiSlice";
+import { DASHBOARD_DATE_KEY } from "@/Redux/dashboardDateSlice";
 import { clearTokens, revokeRefreshToken } from "@/services/tokenManager";
 import Logo from "@/assets/logo.png";
 import { AppFullName, appFullName } from "@/lib/appName";
 import { getHomePathForUser, getMenuForUser, type MenuItem } from "./menu";
 
-const SPR_OPEN_KEY = "sidebar:spravochnikOpen";
+// Ochiq guruhlar (Ma'lumotnoma, Moddiy baza, ...) — har biri alohida
+const OPEN_GROUPS_KEY = "sidebar:openGroups";
+
+const readOpenGroups = (): string[] => {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(OPEN_GROUPS_KEY) ?? "[]");
+    return Array.isArray(saved) ? saved.filter((p) => typeof p === "string") : [];
+  } catch {
+    return [];
+  }
+};
 
 type Props = {
   collapsed: boolean;
@@ -33,20 +44,30 @@ export default function AppSidebar({
   const dispatch = useDispatch();
   const { user } = useSelector((s: any) => s.auth);
 
-  const [sprOpen, setSprOpen] = useState(
-    () => sessionStorage.getItem(SPR_OPEN_KEY) === "true"
-  );
+  // Ilgari bitta `sprOpen` edi — ikkinchi guruh qo'shilganda ikkalasi birga
+  // ochilib-yopilardi
+  const [openGroups, setOpenGroups] = useState<string[]>(readOpenGroups);
 
   const items = useMemo(() => getMenuForUser(user), [user]);
 
   useEffect(() => {
-    sessionStorage.setItem(SPR_OPEN_KEY, String(sprOpen));
-  }, [sprOpen]);
+    sessionStorage.setItem(OPEN_GROUPS_KEY, JSON.stringify(openGroups));
+  }, [openGroups]);
 
-  // Spravochnik ichidagi sahifaga o'tilsa bo'lim o'zi ochiladi
+  // Guruh ichidagi sahifaga o'tilsa o'sha guruh o'zi ochiladi
   useEffect(() => {
-    if (pathname.startsWith("/spravichnik")) setSprOpen(true);
-  }, [pathname]);
+    const group = items.find(
+      (i) => i.subItems && (pathname === i.path || pathname.startsWith(i.path + "/"))
+    );
+    if (group) {
+      setOpenGroups((prev) => (prev.includes(group.path) ? prev : [...prev, group.path]));
+    }
+  }, [pathname, items]);
+
+  const toggleGroup = (path: string) =>
+    setOpenGroups((prev) =>
+      prev.includes(path) ? prev.filter((p) => p !== path) : [...prev, path]
+    );
 
   /**
    * Faol bandni aniqlash: eng uzun mos keluvchi yo'l g'olib.
@@ -76,6 +97,7 @@ export default function AppSidebar({
     localStorage.removeItem("account");
     localStorage.removeItem("standartDate");
     localStorage.removeItem("user");
+    sessionStorage.removeItem(DASHBOARD_DATE_KEY);
 
     navigate("/");
     location.reload();
@@ -142,8 +164,8 @@ export default function AppSidebar({
                 key={item.path}
                 item={item}
                 collapsed={collapsed}
-                open={sprOpen}
-                onToggle={() => setSprOpen((v) => !v)}
+                open={openGroups.includes(item.path)}
+                onToggle={() => toggleGroup(item.path)}
                 pathname={pathname}
                 onExpand={() => onCollapsedChange(false)}
               />

@@ -4,6 +4,7 @@ import FilterActions from "@/Components/FilterActions";
 import { sortParams, useTableSort } from "@/hooks/useTableSort";
 import { useDebounce } from "use-debounce";
 import Input from "@/Components/Input";
+import PasswordField from "@/Components/PasswordField";
 import Modal from "@/Components/Modal";
 import Button from "@/Components/reusable/button";
 import Table from "@/Components/reusable/table/Table";
@@ -18,6 +19,7 @@ import * as Yup from "yup";
 import { KeyRound, Pencil, Plus, Trash2, UserCog } from "lucide-react";
 import PermissionsModal from "./PermissionsModal";
 import type { Permissions } from "@/lib/permissions";
+import { passwordYup } from "@/lib/passwordPolicy";
 import {
   Badge,
   Button as UIButton,
@@ -127,19 +129,8 @@ const StaffPage: React.FC = () => {
     validationSchema: Yup.object({
       fio: Yup.string().trim().required(tt("F.I.Sh. kiriting", "Введите ФИО")),
       login: Yup.string().trim().required(tt("Login kiriting", "Введите логин")),
-      password: (() => {
-        const base = Yup.string().min(
-          8,
-          tt(
-            "Parol kamida 8 ta belgi bo'lishi kerak",
-            "Пароль должен содержать минимум 8 символов"
-          )
-        );
-        // Tahrirlashda bo'sh qoldirilsa — parol o'zgarmaydi
-        return isNew
-          ? base.required(tt("Parolni kiriting", "Введите пароль"))
-          : base;
-      })(),
+      // Tahrirlashda bo'sh qoldirilsa — parol o'zgarmaydi
+      password: passwordYup({ optional: !isNew }),
       pinfl: Yup.string()
         .required(tt("PINFL kiriting", "Введите ПИНФЛ"))
         .matches(/^\d{14}$/, {
@@ -219,6 +210,7 @@ const StaffPage: React.FC = () => {
   return (
     <div className="flex min-w-0 flex-col gap-3">
       <ListCard
+        flush
         toolbar={
           <Toolbar>
             <div className="w-full sm:w-72">
@@ -393,20 +385,20 @@ const StaffPage: React.FC = () => {
           </div>
 
           <div className="mb-4 w-full">
-            <Input
-              n="password"
-              t="password"
+            <PasswordField
               label={isNew ? tt("Parol", "Пароль") : tt("Yangi parol", "Новый пароль")}
               v={formik.values.password}
               change={formik.handleChange}
               blur={formik.handleBlur}
-              autoComplete="new-password"
+              touched={formik.touched.password}
+              error={formik.errors.password}
+              login={formik.values.login}
+              optional={!isNew}
               p={
                 isNew
                   ? undefined
                   : tt("Bo'sh qoldiring — parol o'zgarmaydi", "Оставьте пустым — пароль не изменится")
               }
-              error={err("password")}
               className="w-full"
             />
           </div>

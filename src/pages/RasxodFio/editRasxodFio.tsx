@@ -26,8 +26,10 @@ import React, { ChangeEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import Recipient from "../prixod/recipient";
+import { useRecipientRows } from "../contract/recipientData";
 import { RasxodcreateTableFio } from "./createRasxodTableFio";
 import { splitSumma } from "./splitSumma";
+import { PaidStatusBadge } from "./paidStatus";
 import ScreenLoader from "@/Components/ScreenLoader";
 
 const SimpleText = ({ txt }: { txt: string }) => (
@@ -241,12 +243,26 @@ export const EditRasxodFio = () => {
       return;
     }
 
-    if (rasxodfromdate == "" && rasxodtodate == "") {
+    // Backend ikkalasini ham talab qiladi
+    if (rasxodfromdate == "" || rasxodtodate == "") {
       dispatch(
         alertt({
           text: tt(
             "dan va gacha qiymatlarini tanlash majburiy",
             "Обязательно выбирать значения от и до"
+          ),
+          success: false,
+        })
+      );
+      return;
+    }
+
+    if (filtereddata.length === 0) {
+      dispatch(
+        alertt({
+          text: tt(
+            "Hujjatda kamida bitta qator qolishi kerak. Hujjatni butunlay o'chirish uchun ro'yxatdagi savat tugmasidan foydalaning",
+            "В документе должна остаться хотя бы одна строка. Чтобы удалить документ целиком, используйте корзину в списке"
           ),
           success: false,
         })
@@ -303,15 +319,20 @@ export const EditRasxodFio = () => {
       dispatch(
         alertt({
           success: false,
+          // Backend xato matnini `message` da qaytaradi (res.error);
+          // ilgari `error` o'qilib, "Request failed with status code 400" chiqardi
           //@ts-ignore
-          text: error?.response?.data?.error || error.message,
+          text: error?.response?.data?.message || error.message,
         })
       );
     }
   };
 
   const calculateSum = () => {
-    const sum = rasxodRequestdata.reduce((acc, el) => acc + el.summa, 0);
+    // Saqlanadigan qatorlar (tanlangan batalonniki) — jadval va yuboriladigan
+    // ma'lumot bilan bir xil. Ilgari batalon almashtirilsa, eskisining
+    // qatorlari ham summaga qo'shilib ketardi.
+    const sum = filtereddata.reduce((acc, el) => acc + el.summa, 0);
 
     // Tanlangan foizlar ro'yxatini olish
     const activeUstama = ustamaData.filter((el) => el.active);
@@ -403,23 +424,10 @@ export const EditRasxodFio = () => {
     if (open) getBrigada();
   }, [open, page]);
 
-  const userStore = localStorage.getItem("user");
-  const userData = userStore ? JSON.parse(userStore) : undefined;
-  const user = userData ? userData.user : undefined;
-
-  const recipient = [
-    {
-      txt: tt("To'lovchi", "Плательщик"),
-      value: user?.doer_name || "",
-    },
-    { txt: tt("Bank", "Банк"), value: user?.bank_name || "" },
-    { txt: tt("MFO", "МФО"), value: user?.mfo || "" },
-    { txt: tt("INN", "ИНН"), value: textNum(user?.str || "", 3) },
-    {
-      txt: tt("Joriy hisob", "Расчетный счет"),
-      value: textNum(user?.account_number || "", 4),
-    },
-  ];
+  // To'lovchi — o'z boshqarmamiz (createRasxodFio.tsx dagi kabi)
+  const recipient = useRecipientRows().map((row, i) =>
+    i === 0 ? { ...row, txt: tt("To'lovchi", "Плательщик") } : row
+  );
 
   const payer = [
     {
@@ -472,7 +480,7 @@ export const EditRasxodFio = () => {
     setOpisanie(e.target.value);
 
   return (
-    <div className="relative">
+    <div className="relative min-h-[calc(100dvh_-_3.5rem)] bg-card p-3 sm:p-4">
       {screenLoader && <ScreenLoader />}
       <div className="flex items-center mb-[1.9375rem]">
         <div className="">
@@ -481,6 +489,19 @@ export const EditRasxodFio = () => {
         <h1 className="font-[700] text-foreground text-[1.25rem] block ms-8">
           {tt("Chiqim F.I.Sh. tahrirlash", "Редактирование расхода по Ф.И.О.")}
         </h1>
+        {/* "To'landi" holati — hujjat yuklangach ko'rsatiladi (aks holda bir
+            lahza "To'lanmagan" chiqib qolardi). Holat ro'yxatdagi ⋮ menyu bilan
+            o'zgaradi, saqlash esa uni o'zgartirmaydi */}
+        {typeof editedData?.is_paid === "boolean" && (
+          <PaidStatusBadge
+            paid={editedData.is_paid}
+            className="ms-4"
+            title={tt(
+              "Holat «Hodimlarning pul hisob-kitobi» ro'yxatidagi ⋮ menyu orqali o'zgartiriladi",
+              "Статус меняется через меню ⋮ в списке «Расчёты с сотрудниками»"
+            )}
+          />
+        )}
         <div className="flex ml-[3.3125rem] gap-[2rem] items-center">
           {/* {ustamaData?.map((item: UstamaInterFaceEdited, index: number) => (
             <Checkbox
@@ -653,6 +674,7 @@ export const EditRasxodFio = () => {
         data={searchedData}
         setRasxodRequestData={setRasxodRequestData}
         summa_10_percent={10}
+        canRemove={perm.update}
       />
 
       {/* submit btn  */}

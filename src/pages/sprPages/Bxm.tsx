@@ -3,6 +3,7 @@ import DeleteModal from "@/Components/DeleteModal";
 import Input from "@/Components/Input";
 import Modal from "@/Components/Modal";
 import Button from "@/Components/reusable/button";
+import { NavbarPortal } from "@/layout/navbarSlot";
 import { alertt } from "@/Redux/LanguageSlice";
 import useApi from "@/services/api";
 import { useEffect, useState } from "react";
@@ -124,13 +125,17 @@ function Bxm() {
   }
 
   return (
-    // Sarlavha bilan birga ekranga sig'sin — jadval o'zi aylanadi (ListCard)
-    <div className="flex min-w-0 flex-col gap-3 lg:max-h-[max(24rem,calc(100dvh_-_6rem))]">
-      <h1 className="text-[1rem] font-semibold text-foreground">
-        {tt("BXM", "БХМ")}
-      </h1>
+    <div className="flex min-w-0 flex-col gap-3">
+      {/* Yuqori panelda "Ma'lumotnoma" yonida — sahifa paddingsiz,
+          kartadan yuqorida hech narsa turmaydi */}
+      <NavbarPortal>
+        <span className="shrink-0 text-[0.875rem] font-medium text-muted-foreground">
+          / {tt("BXM", "БХМ")}
+        </span>
+      </NavbarPortal>
 
       <ListCard
+        flush
         toolbar={
           <Toolbar>
             <FilterActions onRefresh={getInfo} onClear={resetSort} />

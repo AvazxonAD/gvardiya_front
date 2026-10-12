@@ -50,6 +50,8 @@ export const PERM_MENUS: PermMenu[] = [
     ru: "Расчёты с сотрудниками",
     actions: CRUD,
   },
+  // Guruh: monitoring, chiqimlar, muddatli harbiy xizmatchilar — bitta ruxsat
+  { key: "moddiy_baza", path: "/moddiy-baza", uz: "Moddiy baza", ru: "Материальная база", actions: CRUD },
   { key: "spravochnik", path: "/spravichnik", uz: "Ma'lumotnoma", ru: "Справочник", actions: CRUD },
   { key: "logs", path: "/logs", uz: "Qaydlar", ru: "Журнал", actions: ["read"] },
   { key: "video_lessons", path: "/video-lessons", uz: "Video darslar", ru: "Видеоуроки", actions: ["read"] },

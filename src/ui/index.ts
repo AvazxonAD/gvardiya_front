@@ -63,6 +63,7 @@ export type { SelectOption, SelectProps } from "./select";
 
 export {
   ListCard,
+  PageBar,
   Toolbar,
   ToolbarSpacer,
   SummaryTile,

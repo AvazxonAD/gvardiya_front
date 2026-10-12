@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useDispatch } from "react-redux";
 import { FileDown, FileSpreadsheet, Loader2, MoreVertical } from "lucide-react";
@@ -19,6 +19,9 @@ import { tt } from "@/utils";
  *
  * Menyu `body` ga chiziladi va tugmaga nisbatan `fixed` joylashadi —
  * jadval (overflow) yoki modal ichida kesilib qolmaydi.
+ *
+ * Jadval qatorining barcha amallari (tahrirlash, o'chirish va h.k.) ham shu
+ * menyuga yig'iladi — `section` / `divider` bilan guruhlanadi.
  */
 
 export type ExportMenuItem = {
@@ -32,6 +35,12 @@ export type ExportMenuItem = {
   disabled?: boolean;
   /** O'chirilganda sichqoncha ustiga kelganda chiqadigan izoh */
   disabledTitle?: string;
+  /** Shu banddan yangi guruh boshlanadi: chiziq va guruh nomi ("Hisobotlar") */
+  section?: string;
+  /** Shu banddan oldin faqat ajratuvchi chiziq */
+  divider?: boolean;
+  /** "danger" — qaytarib bo'lmaydigan amal (o'chirish): qizil yozuv */
+  tone?: "danger";
 };
 
 type Props = {
@@ -157,30 +166,43 @@ export default function ExportMenu({ items, title, className, size = "sm" }: Pro
               left: pos?.left ?? -9999,
               visibility: pos ? "visible" : "hidden",
             }}
-            className="z-[1000] min-w-[15rem] max-w-[22rem] overflow-hidden rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-lg"
+            // Qator menyusi uzun (amallar + hisobotlar): past ekranda o'zi aylanadi
+            className="z-[1000] max-h-[calc(100dvh-1rem)] min-w-[15rem] max-w-[22rem] overflow-y-auto rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
-            {items.map((item) => (
-              <button
-                key={item.key}
-                type="button"
-                role="menuitem"
-                disabled={item.disabled}
-                aria-disabled={item.disabled || undefined}
-                title={item.disabled ? item.disabledTitle : undefined}
-                onClick={() => !item.disabled && run(item)}
-                className="flex w-full disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent items-start gap-2.5 rounded-md px-2.5 py-2 text-left text-[0.8125rem] font-medium text-foreground outline-none transition-colors hover:bg-accent focus-visible:bg-accent [&_svg]:mt-px [&_svg]:size-4 [&_svg]:shrink-0"
-              >
-                {item.icon}
-                <span className="flex min-w-0 flex-col">
-                  <span>{item.label}</span>
-                  {item.hint && (
-                    <span className="text-[0.6875rem] font-normal text-muted-foreground">
-                      {item.hint}
-                    </span>
+            {items.map((item, i) => (
+              <Fragment key={item.key}>
+                {i > 0 && (item.section || item.divider) && (
+                  <div role="separator" className="-mx-1 my-1 h-px bg-border" />
+                )}
+                {item.section && (
+                  <div className="px-2.5 pb-0.5 pt-1 text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {item.section}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  role="menuitem"
+                  disabled={item.disabled}
+                  aria-disabled={item.disabled || undefined}
+                  title={item.disabled ? item.disabledTitle : undefined}
+                  onClick={() => !item.disabled && run(item)}
+                  className={cn(
+                    "flex w-full disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent items-start gap-2.5 rounded-md px-2.5 py-2 text-left text-[0.8125rem] font-medium text-foreground outline-none transition-colors hover:bg-accent focus-visible:bg-accent [&_svg]:mt-px [&_svg]:size-4 [&_svg]:shrink-0",
+                    item.tone === "danger" && "text-destructive hover:bg-destructive/10 focus-visible:bg-destructive/10"
                   )}
-                </span>
-              </button>
+                >
+                  {item.icon}
+                  <span className="flex min-w-0 flex-col">
+                    <span>{item.label}</span>
+                    {item.hint && (
+                      <span className="text-[0.6875rem] font-normal text-muted-foreground">
+                        {item.hint}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              </Fragment>
             ))}
           </div>,
           document.body

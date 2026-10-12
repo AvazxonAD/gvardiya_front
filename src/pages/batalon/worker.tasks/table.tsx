@@ -5,6 +5,7 @@ import Icon from "@/assets/icons";
 import BackButton from "@/Components/reusable/BackButton";
 import { useRequest } from "@/hooks/useRequest";
 import ExportMenu, { reportItems } from "@/Components/ExportMenu";
+import { PageBar } from "@/ui";
 
 const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
   data,
@@ -16,8 +17,9 @@ const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
   const [creatingId, setCreatingId] = useState<number | null>(null);
 
   return (
-    <div className="my-5">
-      <div className="m-0 p-1 flex items-center gap-2">
+    <div>
+      {/* Sahifa paddingsiz: qaytish va hisobot `PageBar` qatorida */}
+      <PageBar>
         <BackButton />
         {/* Bitta "⋮" menyu: backend Excel hisobot va aynan shu hisobotning PDF nusxasi */}
         <ExportMenu
@@ -39,7 +41,7 @@ const Table: React.FC<{ data: any[]; getTasks: Function }> = ({
             fileName: `${task?.contract_number}.xlsx`,
           })}
         />
-      </div>
+      </PageBar>
 
       <div className="overflow-x-auto">
         <table className="table-grid min-w-full">

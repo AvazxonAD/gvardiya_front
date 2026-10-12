@@ -13,6 +13,7 @@ import {
   CardTitle,
   Field,
   Input,
+  PageBar,
   Skeleton,
 } from "@/ui";
 import { permBtn, usePermission } from "@/lib/permissions";
@@ -172,7 +173,8 @@ export default function Rekvizitlar() {
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      {/* Paddingsiz sahifa: sarlavha va tugmalar `PageBar` qatorida */}
+      <PageBar className="justify-between">
         <h1 className="text-[1rem] font-semibold text-foreground">
           {tt("Tashkilot rekvizitlari", "Реквизиты организации")}
         </h1>
@@ -191,7 +193,7 @@ export default function Rekvizitlar() {
             {tt("Saqlash", "Сохранить")}
           </Button>
         </div>
-      </div>
+      </PageBar>
 
       <div className="grid gap-3 xl:grid-cols-2">
         {list.map((s) => (

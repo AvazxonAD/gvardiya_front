@@ -165,7 +165,7 @@ function Deduction() {
 
   return (
     // Sarlavha bilan birga ekranga sig'sin — jadval o'zi aylanadi (ListCard)
-    <div className="flex min-w-0 flex-col gap-3 lg:max-h-[max(24rem,calc(100dvh_-_6rem))]">
+    <div className="flex min-w-0 flex-col gap-3 lg:max-h-[max(24rem,calc(100dvh_-_3.5rem))]">
       <h1 className="text-[1rem] font-semibold text-foreground">
         {tt("Ushlanma", "Удержание")}
       </h1>

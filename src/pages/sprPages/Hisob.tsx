@@ -6,6 +6,7 @@ import Input from "../../Components/Input";
 import Modal from "../../Components/Modal";
 import HisobTab from "../../pageCompoents/HisobTab";
 import { alertt } from "../../Redux/LanguageSlice";
+import { notifyAccountsChanged } from "../../Redux/accountSlice";
 import { textNum, tt } from "../../utils";
 import ExportButtons from "@/Components/ExportButtons";
 import { sortParams, useTableSort } from "@/hooks/useTableSort";
@@ -91,6 +92,7 @@ function Hisob() {
       );
       setOpen(false);
       getInfo();
+      notifyAccountsChanged();
     } else {
       dispatch(
         alertt({
@@ -120,6 +122,7 @@ function Hisob() {
       );
       setOpen2(false);
       getInfo();
+      notifyAccountsChanged();
       setValue("");
     } else {
       dispatch(
@@ -149,7 +152,7 @@ function Hisob() {
       );
 
       getInfo();
-      //edit dispacth
+      notifyAccountsChanged();
     } else {
       dispatch(
         alertt({
@@ -166,7 +169,7 @@ function Hisob() {
 
   return (
     // Sarlavha bilan birga ekranga sig'sin — jadval o'zi aylanadi (ListCard)
-    <div className="flex min-w-0 flex-col gap-3 lg:max-h-[max(24rem,calc(100dvh_-_6rem))]">
+    <div className="flex min-w-0 flex-col gap-3 lg:max-h-[max(24rem,calc(100dvh_-_3.5rem))]">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-[1rem] font-semibold text-foreground">
           {tt("Hisob raqami", "Номер счета")}
@@ -206,7 +209,7 @@ function Hisob() {
             v={value}
             change={(e: any) => {
               const val = e.target.value;
-              if (val?.split(" ")?.join("").length < 17) {
+              if (val?.split(" ")?.join("").length <= 20) {
                 setValue(formatAccountNumber(e.target.value))
               }
             }} // Har safar qiymatni formatlaymiz
@@ -233,7 +236,7 @@ function Hisob() {
             v={value2}
             change={(e: any) => {
               const val = e.target.value;
-              if (val?.split(" ")?.join("").length < 17) {
+              if (val?.split(" ")?.join("").length <= 20) {
                 setValue2(formatAccountNumber(e.target.value))
               }
             }} // Har safar qiymatni formatlaymiz

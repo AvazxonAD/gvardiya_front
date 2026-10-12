@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { formatDate, formatSum, toNumber, tt } from "@/utils";
-import { Card } from "@/ui";
+import { Card, PageBar } from "@/ui";
 import ExportButtons from "@/Components/ExportButtons";
 import FilterActions from "@/Components/FilterActions";
 import { sortParams, useTableSort } from "@/hooks/useTableSort";
@@ -96,9 +96,11 @@ function Tasks() {
   }, [sort]);
 
   return (
-    <div className="flex min-w-0 flex-col gap-3">
+    // Paddingsiz sahifa: shartnoma ma'lumoti `PageBar` qatorida, jadval
+    // kartasi chetma-chet (ro'yxat sahifalaridagi `ListCard flush` kabi)
+    <div className="flex min-w-0 flex-1 flex-col bg-card">
       {contract && (
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5 rounded-lg border border-border bg-card px-4 py-3 text-[0.8125rem] text-foreground">
+        <PageBar className="gap-x-6 gap-y-1.5 text-[0.8125rem] text-foreground">
           <div>
             <span className="text-muted-foreground">{tt("Shartnoma raqami", "Номер договора")}: </span>
             <span className="font-semibold">{contract.doc_num}</span>
@@ -131,9 +133,9 @@ function Tasks() {
               fetchRows={fetchExportRows}
             />
           </div>
-        </div>
+        </PageBar>
       )}
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden rounded-none border-0 shadow-none">
         <Table
           getTasks={getInfo}
           data={data}

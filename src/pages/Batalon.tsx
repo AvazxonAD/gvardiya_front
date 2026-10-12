@@ -6,6 +6,8 @@ import Input from "../Components/Input";
 import Modal from "../Components/Modal";
 import BatTab from "../pageCompoents/BatTab";
 import ChangeSelect from "../pageCompoents/ChangeSelect";
+import { BatalonTypeField } from "../pageCompoents/BatalonTypeSelect";
+import { batalonTypeLabel } from "@/lib/batalonType";
 import { alertt } from "../Redux/LanguageSlice";
 import { formatInn, tt } from "../utils";
 import { formatAccountNumber } from "./Organisation";
@@ -32,6 +34,11 @@ const exportColumns = (): ExportColumn<any>[] => [
     value: (b) => (b.birgada ? tt("Brigada", "Бригада") : tt("Batalon", "Батальон")),
     align: "center",
   },
+  {
+    header: tt("Tegishliligi", "Принадлежность"),
+    value: (b) => batalonTypeLabel(b.type),
+    align: "center",
+  },
   { header: tt("Manzil", "Адрес"), value: (b) => b.address },
   { header: "INN", value: (b) => formatInn(b.str), align: "center" },
   { header: tt("Bank nomi", "Название банка"), value: (b) => b.bank_name },
@@ -56,6 +63,7 @@ function Batalon() {
   const [value, setValue] = useState({
     name: "",
     birgada: false,
+    type: "batalon",
     mfo: "",
     bank_name: "",
     account_number: "",
@@ -68,6 +76,7 @@ function Batalon() {
   const [value2, setValue2] = useState({
     name: "",
     birgada: false,
+    type: "batalon",
     mfo: "",
     bank_name: "",
     account_number: "",
@@ -159,7 +168,7 @@ function Batalon() {
         })
       );
       //@ts-ignore
-      setValue({ name: "", birgada: false });
+      setValue({ name: "", birgada: false, type: "batalon" });
     } else {
       dispatch(
         alertt({
@@ -222,6 +231,7 @@ function Batalon() {
   return (
     <div className="flex min-w-0 flex-col gap-3">
       <ListCard
+        flush
         toolbar={
           <Toolbar>
             <div className="w-full sm:w-72">
@@ -326,6 +336,10 @@ function Batalon() {
               onChange={(e: any) => setValue({ ...value, birgada: e })}
             />
           </div>
+          <BatalonTypeField
+            value={value.type}
+            onChange={(type) => setValue({ ...value, type })}
+          />
           <div className="mt-4 flex justify-end">
             <Button mode="save" type="submit" />
           </div>
@@ -399,6 +413,10 @@ function Batalon() {
               onChange={(e: any) => setValue2({ ...value2, birgada: e })}
             />
           </div>
+          <BatalonTypeField
+            value={value2.type}
+            onChange={(type) => setValue2({ ...value2, type })}
+          />
           <div className="mt-4 flex justify-end">
             <Button mode="save" type="submit" />
           </div>

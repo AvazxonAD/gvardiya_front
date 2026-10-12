@@ -6,14 +6,19 @@ import { formatDate, formatInn, formatNum, textNum, tt } from "@/utils";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Pencil, Trash2 } from "lucide-react";
 import ExportMenu, { reportItems, type ExportMenuItem } from "@/Components/ExportMenu";
-import { Button } from "@/ui";
 import Table, { ITheadItem } from "../../Components/reusable/table/Table"; // Assuming Table is in the same directory
 import { getExcel } from "@/api";
-import { permBtn, usePermission } from "@/lib/permissions";
+import { usePermission } from "@/lib/permissions";
 import type { SortState } from "@/hooks/useTableSort";
 import ScreenLoader from "@/Components/ScreenLoader";
+import {
+  PaidStatusBadge,
+  PaidStatusConfirm,
+  usePaidStatusAction,
+  type PaidStatusTarget,
+} from "@/pages/RasxodFio/paidStatus";
+import { rasxodRowMenu } from "./rowMenu";
 
 interface RasxodTableProps {
   data: RasxodInterface[];
@@ -35,7 +40,13 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source
   const dispatch = useDispatch();
   const navigate = useNavigate();
   // "fio" — hodimlar hisob-kitobi, aks holda chiqimlar kitobi
+  const kind = source === "fio" ? "fio" : "rasxod";
   const perm = usePermission(source === "fio" ? "rasxod_workers" : "rasxod");
+
+  // "To'landi" holati (summa qabul qiluvchiga o'tkazildi): tanlangan hujjat
+  // tasdiqlash oynasida ko'rsatiladi; null — oyna yopiq
+  const [paidTarget, setPaidTarget] = useState<PaidStatusTarget | null>(null);
+  const setPaid = usePaidStatusAction(kind);
 
   const tableHeaders: ITheadItem[] = [
     {
@@ -63,6 +74,12 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source
       text: tt("Summa", "Сумма"),
       className: "w-[13rem] text-center",
     },
+    {
+      sortKey: "is_paid",
+      text: tt("Holati", "Статус"),
+      className: "w-[7rem] text-center",
+    },
+    // Barcha amallar bitta ⋮ menyuda — ustunga bitta tugma sig'sa yetarli
     {
       text: tt("Amallar", "Действия"),
       className: "w-[5rem] text-center",
@@ -151,40 +168,49 @@ export const RasxodTable: React.FC<RasxodTableProps> = ({ data, getAllFn, source
             <td className="whitespace-nowrap text-right font-medium tabular-nums">
               {formatNum(item.summa)}
             </td>
-            <td>
-              {/* Jadval aylanuvchi qutida — ochiluvchi menyu kesilib qolardi,
-                  shuning uchun amallar bevosita tugma sifatida turadi */}
-              <div className="flex items-center justify-center gap-0.5">
-                {/* Barcha hisobotlar bitta ⋮ menyuda (menyu body ga chiziladi — kesilmaydi) */}
-                <ExportMenu size="xs" items={rowReports(item)} title={tt("Hisobotlar", "Отчёты")} />
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  {...permBtn(perm.update, tt("Tahrirlash", "Редактировать"))}
-                  aria-label={tt("Tahrirlash", "Редактировать")}
-                  onClick={() => navigate(`${item.id}`)}
-                >
-                  <Pencil />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  {...permBtn(perm.delete, tt("O'chirish", "Удалить"), "hover:bg-destructive/10 hover:text-destructive")}
-                  aria-label={tt("O'chirish", "Удалить")}
-                  onClick={() => {
+            <td className="text-center">
+              {item.is_paid == null ? (
+                <span className="text-muted-foreground">—</span>
+              ) : (
+                <PaidStatusBadge paid={item.is_paid} dot={false} />
+              )}
+            </td>
+            <td className="text-center">
+              {/* Amallar va hisobotlar bitta ⋮ menyuda, har biri nomi bilan.
+                  Menyu body ga chiziladi — aylanuvchi jadval qutisida kesilmaydi */}
+              <ExportMenu
+                size="xs"
+                title={tt("Amallar", "Действия")}
+                items={rasxodRowMenu({
+                  kind,
+                  paid: Boolean(item.is_paid),
+                  canEdit: perm.update,
+                  canDelete: perm.delete,
+                  reports: rowReports(item),
+                  onEdit: () => navigate(`${item.id}`),
+                  onTogglePaid: () => setPaidTarget(item),
+                  onDelete: () => {
                     setActiveDeleteModal(true);
                     setActiveId(item.id);
-                  }}
-                >
-                  <Trash2 />
-                </Button>
-              </div>
+                  },
+                })}
+              />
             </td>
           </tr>
         ))}
       </Table>
 
       <DeleteModal closeModal={() => setActiveDeleteModal(false)} open={activeDeleteModal} deletee={handleRemove} />
+      <PaidStatusConfirm
+        doc={paidTarget}
+        kind={kind}
+        onClose={() => setPaidTarget(null)}
+        onConfirm={async (doc) => {
+          const ok = await setPaid(doc.id, !doc.is_paid);
+          if (ok) getAllFn();
+          return ok;
+        }}
+      />
       {screenLoader && <ScreenLoader title={tt("O'chirilmoqda...", "Удаляется...")} />}
     </>
   );

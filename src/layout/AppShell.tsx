@@ -113,10 +113,14 @@ export default function AppShell() {
           slotRef={setNavbarSlot}
         />
 
-        {/* `py-5` va yuqori panelning `h-14` i o'zgarsa, `ListCard` dagi
-            `100dvh - 6rem` ham o'zgarishi kerak: ro'yxat sahifalari shu
+        {/* Barcha sahifalar paddingsiz: kontent yon va yuqori panelga
+            tegib turadi. Sahifa sarlavhasi yuqori panelda (`NavbarPortal`)
+            yoki `PageBar` qatorida — kontent ildizida chetga yopishgan
+            matn bo'lmasin.
+            Yuqori panelning `h-14` i o'zgarsa, `ListCard` dagi
+            `100dvh - 3.5rem` ham o'zgarishi kerak: ro'yxat sahifalari shu
             hisob bilan ekranga aynan sig'adi. */}
-        <main className="min-w-0 flex-1 px-3 py-4 sm:px-5 sm:py-5 lg:px-6">
+        <main className="min-w-0 flex-1">
           {/* Sahifadagi istisno qobiqni (menyu, chiqish) o'chirmasin */}
           <ErrorBoundary resetKey={pathname}>
             <NavbarSlotProvider value={navbarSlot}>

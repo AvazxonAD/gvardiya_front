@@ -4,7 +4,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 import { tt } from "../../utils";
-import { Button } from "@/ui";
+import { Button, PageBar } from "@/ui";
 
 /**
  * Shartnoma bo'limining qobig'i.
@@ -29,10 +29,12 @@ const Contract = () => {
       ? tt("Shartnoma tahrirlash", "Редактировать договор")
       : "";
 
+  // Sahifa paddingsiz: sarlavha qatori `PageBar` ichida, ostidagi kontent
+  // ekran oxirigacha cho'ziladi (shakl sirti `flex-1` bilan to'ldiradi)
   return (
-    <div className="flex min-w-0 flex-col gap-3">
+    <div className="flex min-h-[calc(100dvh_-_3.5rem)] min-w-0 flex-col">
       {title && (
-        <div className="flex items-center gap-3">
+        <PageBar className="gap-3">
           <Button variant="secondary" size="sm" onClick={() => navigate(-1)}>
             <ArrowLeft />
             {tt("Orqaga", "Назад")}
@@ -40,10 +42,10 @@ const Contract = () => {
           <h1 className="truncate text-[1rem] font-semibold text-foreground">
             {title}
           </h1>
-        </div>
+        </PageBar>
       )}
 
-      <div className="min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col">
         <Outlet />
       </div>
     </div>

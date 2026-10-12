@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
+import { Ban } from "lucide-react";
 import DocumentForPrint from "./DocumentForPrint";
 import EimzoBadges from "./EimzoBadges";
 import BudgetTable from "./Smeta";
@@ -799,9 +800,26 @@ const Document = () => {
             setTemplatesdata={setTemplatesdata}
           />
           <div className="h-full  text-[#000000] text-[0.875rem] leading-[1.2rem]">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
+            {/* Sahifa paddingsiz: amallar qatori `PageBar` ko'rinishida */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-card px-3 py-3 sm:px-4">
+              <div className="flex flex-wrap items-center gap-3">
                 <BackButton link="/contract" />
+                {/* Bekor qilingan shartnoma — "Bekor qilinganlar" oynasidan ochiladi */}
+                {data?.status === "cancelled" && (
+                  <span
+                    className="inline-flex items-center gap-1.5 border border-destructive/30 bg-destructive/10 px-2.5 py-1 text-[0.8125rem] font-semibold text-destructive"
+                    title={tt(
+                      "Qarzdorlik, dashboard, hisobot va chiqimda hisobga olinmaydi",
+                      "Не учитывается в задолженности, дашборде, отчётах и расходах"
+                    )}
+                  >
+                    <Ban className="size-3.5" />
+                    {tt("Bekor qilingan", "Отменён")}
+                    {data.cancelled_at && (
+                      <span className="font-normal tabular-nums">· {data.cancelled_at}</span>
+                    )}
+                  </span>
+                )}
               </div>
               <div className="flex flex-wrap justify-end gap-2 xl:mr-16">
                 {/* E-IMZO tasdiqlash: yurist — yurist ustuni, qolganlar — boshliq ustuni */}
@@ -948,14 +966,14 @@ const Document = () => {
 
             {/* E-IMZO xatolik xabari */}
             {signError && (
-              <div className="mt-2 px-4 py-3 xl:mx-16 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+              <div className="mx-3 mt-2 px-4 py-3 sm:mx-4 xl:mx-16 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
                 {signError}
               </div>
             )}
 
             {/* Yurist rad qilgan — sababi bilan, qayta jo'natish mumkin */}
             {lawyerStatus === "rejected" && lawyerRejection && (
-              <div className="mt-2 px-4 py-3 xl:mx-16 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
+              <div className="mx-3 mt-2 px-4 py-3 sm:mx-4 xl:mx-16 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
                 <div className="flex items-center gap-2 font-semibold">
                   <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="text-red-600">
                     <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z" />

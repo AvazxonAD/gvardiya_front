@@ -23,10 +23,13 @@ import { useRequest } from "@/hooks/useRequest";
 import { useDebounce } from "use-debounce";
 import Select from "../../Components/Select";
 import {
+  Ban,
   Loader2,
   Plus,
   SlidersHorizontal,
 } from "lucide-react";
+import useApi from "@/services/api";
+import CancelledContractsModal from "./CancelledContractsModal";
 import { cn } from "@/lib/utils";
 import { permBtn, usePermission } from "@/lib/permissions";
 import {
@@ -250,6 +253,27 @@ function ContractHome() {
   const request = useRequest();
   const { account_number_id } = useSelector((state: any) => state.account);
 
+  // Bekor qilingan shartnomalar — alohida oynada; tugmada soni ko'rinadi
+  const api = useApi();
+  const [cancelledOpen, setCancelledOpen] = useState(false);
+  const [cancelledCount, setCancelledCount] = useState(0);
+  const loadCancelledCount = async () => {
+    if (!account_id) return;
+    const res = await api.get<unknown[]>(
+      `contract?page=1&limit=1&from=2000-01-01&to=2099-12-31&account_number_id=${account_id}&contract_status=cancelled`
+    );
+    if (res?.success) setCancelledCount((res as any).meta?.count ?? 0);
+  };
+  useEffect(() => {
+    loadCancelledCount();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account_id]);
+  // Bekor qilish / faollashtirishdan keyin: ro'yxat, jamlanmalar va son
+  const refreshAfterStatus = () => {
+    getInfo(dates);
+    loadCancelledCount();
+  };
+
   // Backend hisobotlari (Excel fayl) — ⋮ menyuda Excel va PDF (o'sha hisobot)
   const reportName = `contract-${dates.date1}-dan-${dates.date2}-gacha.xlsx`;
 
@@ -307,6 +331,7 @@ function ContractHome() {
   return (
     <div className="flex flex-col gap-3">
       <ListCard
+        flush
         toolbar={
           <Toolbar>
             <div className="w-full sm:w-64">
@@ -339,6 +364,24 @@ function ContractHome() {
             <FilterActions onRefresh={() => getInfo(dates)} onClear={clearFilters} />
 
             <ToolbarSpacer />
+
+            <UIButton
+              variant="secondary"
+              size="sm"
+              onClick={() => setCancelledOpen(true)}
+              title={tt(
+                "Bekor qilingan shartnomalar — ko'rish va qayta faollashtirish",
+                "Отменённые договоры — просмотр и восстановление"
+              )}
+            >
+              <Ban className="text-destructive" />
+              {tt("Bekor qilinganlar", "Отменённые")}
+              {cancelledCount > 0 && (
+                <span className="ml-0.5 inline-flex h-[1.125rem] min-w-[1.125rem] items-center justify-center rounded-full bg-destructive/10 px-1 text-[0.6875rem] font-semibold text-destructive tabular-nums">
+                  {cancelledCount}
+                </span>
+              )}
+            </UIButton>
 
             <ExportButtons
               extraItems={[
@@ -383,11 +426,12 @@ function ContractHome() {
               {tt("Qo'shish", "Добавить")}
             </UIButton>
 
-            {/* Filtrlar paneli — "Filtrlar" tugmasi bosilganda ochiladi */}
+            {/* Filtrlar paneli — "Filtrlar" tugmasi bosilganda ochiladi.
+                Alohida ramka/paddingsiz: sahifa chetma-chet (flush) */}
             {filtersOpen && (
               <div
                 id="contract-filters"
-                className="grid w-full basis-full grid-cols-1 gap-3 rounded-md border border-border bg-muted/30 p-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+                className="grid w-full basis-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
               >
                 <div className="flex min-w-0 flex-col gap-1.5">
                   <Label htmlFor="cf-status">{tt("Bajarilish holati", "Статус выполнения")}</Label>
@@ -528,6 +572,7 @@ function ContractHome() {
                 setActive={setactive}
                 sort={sort}
                 onSort={toggleSort}
+                onCancelled={refreshAfterStatus}
               />
             </div>
             {loading && (
@@ -541,6 +586,13 @@ function ContractHome() {
           </div>
         )}
       </ListCard>
+
+      <CancelledContractsModal
+        open={cancelledOpen}
+        onClose={() => setCancelledOpen(false)}
+        accountNumberId={account_id}
+        onRestored={refreshAfterStatus}
+      />
 
       <Modal
         open={open}

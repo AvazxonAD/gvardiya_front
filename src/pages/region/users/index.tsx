@@ -1,11 +1,13 @@
 import DeleteModal from "@/Components/DeleteModal";
 import Input from "@/Components/Input";
+import PasswordField from "@/Components/PasswordField";
 import Modal from "@/Components/Modal";
 import Button from "@/Components/reusable/button";
 import Table from "@/Components/reusable/table/Table";
 import Select from "@/Components/Select";
 import { alertt } from "@/Redux/LanguageSlice";
 import useApi, { baseUri } from "@/services/api";
+import { passwordYup } from "@/lib/passwordPolicy";
 import { IUsers } from "@/types/user";
 import { tt } from "@/utils";
 import { FormikHelpers, useFormik } from "formik";
@@ -98,15 +100,7 @@ const BatalonUser: React.FC = () => {
     },
     validationSchema: Yup.object({
       fio: Yup.string().required(tt("F.I.Sh. kiriting", "Введите ФИО")),
-      password: Yup.string()
-        .min(
-          8,
-          tt(
-            "Parol kamida 8 ta belgi bo'lishi kerak",
-            "Пароль должен содержать минимум 8 символов"
-          )
-        )
-        .required(tt("Parolni kiriting", "Введите пароль")),
+      password: passwordYup(),
       login: Yup.string().required(tt("Login kiriting", "Введите логин")),
       file: Yup.mixed().nullable(),
       batalon_id: Yup.number().required(
@@ -164,13 +158,7 @@ const BatalonUser: React.FC = () => {
     validationSchema: Yup.object({
       fio: Yup.string().required(tt("F.I.Sh. kiriting", "Введите ФИО")),
       // Tahrirlashda parol ixtiyoriy: bo'sh qoldirilsa mavjudi saqlanadi.
-      password: Yup.string().min(
-        8,
-        tt(
-          "Parol kamida 8 ta belgi bo'lishi kerak",
-          "Пароль должен содержать минимум 8 символов"
-        )
-      ),
+      password: passwordYup({ optional: true }),
       login: Yup.string().required(tt("Login kiriting", "Введите логин")),
       batalon_id: Yup.number().required(
         tt("Batalonni tanlang", "Выберите батальон")
@@ -352,22 +340,19 @@ const BatalonUser: React.FC = () => {
             />
           </div>
           <div className="mb-4 w-full">
-            <Input
-              n="password"
-              t="password"
+            <PasswordField
               label={tt("Yangi parol", "Новый пароль")}
               v={formik2.values.password}
               change={formik2.handleChange}
               blur={formik2.handleBlur}
-              // Brauzer saqlangan parolni o'zi to'ldirib qo'ymasin
-              autoComplete="new-password"
+              touched={formik2.touched?.password}
+              error={formik2.errors?.password}
+              login={formik2.values.login}
+              optional
               p={tt(
                 "Bo'sh qoldiring — parol o'zgarmaydi",
                 "Оставьте пустым — пароль не изменится"
               )}
-              error={
-                formik2.touched?.password ? formik2.errors?.password : undefined
-              }
               className="w-full"
             />
           </div>
@@ -474,17 +459,14 @@ const BatalonUser: React.FC = () => {
             />
           </div>
           <div className="mb-4 w-full">
-            <Input
-              n="password"
-              t="password"
+            <PasswordField
               label={tt("Parol", "Пароль")}
               v={formik.values.password}
               change={formik.handleChange}
               blur={formik.handleBlur}
-              autoComplete="new-password"
-              error={
-                formik.touched?.password ? formik.errors?.password : undefined
-              }
+              touched={formik.touched?.password}
+              error={formik.errors?.password}
+              login={formik.values.login}
               className="w-full"
             />
           </div>

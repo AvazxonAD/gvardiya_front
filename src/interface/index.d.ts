@@ -120,6 +120,8 @@ export interface RasxodInterface {
   summa_25_2?: number | string;
   summa_12?: number | string;
   worker_summa?: number | string;
+  /** "To'landi" holati (rasxod_fio_doc — 91.sql, rasxod_doc — 92.sql) */
+  is_paid?: boolean;
 }
 
 export interface RasxodPaginationMetaInterface {
@@ -131,6 +133,18 @@ export interface RasxodPaginationMetaInterface {
   summa_from: string;
   summa_to: string;
   summa: string;
+  /** "Ommaviy tadbirlar hisoboti" bilan solishtirish (rasxod.service.js) */
+  period_contract?: {
+    summa: number;
+    iiv: number;
+    fvv: number;
+    mg_qism: number;
+    outside: number;
+    duplicate: number;
+    other: number;
+    cancelled: number;
+    batalon: number;
+  };
 }
 
 export interface RasxodTabelInterface {
@@ -167,7 +181,9 @@ interface SingleRasxodInterface {
   summa: number;
   tasks: RasxodTabelInterface[];
   from: string,
-  to: string
+  to: string,
+  /** "To'landi" holati (92.sql) */
+  is_paid?: boolean
 }
 
 export interface UstamaInterFace {

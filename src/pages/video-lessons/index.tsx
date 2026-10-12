@@ -1,10 +1,12 @@
 import { URL as API_URL } from "@/api";
 import { useRequest } from "@/hooks/useRequest";
+import { NavbarPortal } from "@/layout/navbarSlot";
 import { formatFileSize, type IVideoLesson } from "@/types/videoLesson";
 import { formatDateTime, tt } from "@/utils";
-import { Card, EmptyState, Modal, PageHeader, Skeleton } from "@/ui";
-import { PlayCircle, Video } from "lucide-react";
+import { Button, Card, EmptyState, Modal, Skeleton } from "@/ui";
+import { BookOpen, PlayCircle, Video } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Video darslar — viloyat foydalanuvchisi uchun ko'rish bo'limi.
@@ -15,6 +17,7 @@ import { useEffect, useState } from "react";
  */
 export default function VideoLessons() {
   const request = useRequest();
+  const navigate = useNavigate();
   const [lessons, setLessons] = useState<IVideoLesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<IVideoLesson | null>(null);
@@ -40,13 +43,20 @@ export default function VideoLessons() {
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader
-        title={tt("Video darslar", "Видеоуроки")}
-        description={tt(
-          "Dastur bilan ishlashni o'rgatuvchi videolar",
-          "Видео, обучающие работе с программой"
-        )}
-      />
+      {/* Sahifa paddingsiz: nomi (menyudan) va izohi yuqori panelda.
+          Yozma qo'llanma — alohida sahifa (video emas) */}
+      <NavbarPortal>
+        <p className="hidden min-w-0 truncate text-[0.75rem] text-muted-foreground xl:block">
+          {tt(
+            "Dastur bilan ishlashni o'rgatuvchi videolar",
+            "Видео, обучающие работе с программой"
+          )}
+        </p>
+        <Button variant="secondary" size="sm" onClick={() => navigate("/video-lessons/manual")}>
+          <BookOpen />
+          {tt("Qo'llanma", "Руководство")}
+        </Button>
+      </NavbarPortal>
 
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

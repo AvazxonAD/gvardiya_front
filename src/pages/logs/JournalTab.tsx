@@ -329,6 +329,7 @@ export default function JournalTab({
   return (
     <>
       <ListCard
+        flush
         toolbar={
           <div className="flex flex-col gap-2">
             <Toolbar>

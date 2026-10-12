@@ -213,6 +213,7 @@ function Workers() {
   return (
     <div className="flex min-w-0 flex-col gap-3">
       <ListCard
+        flush
         toolbar={
           <Toolbar>
             <div className="w-full sm:w-64">

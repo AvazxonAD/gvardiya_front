@@ -19,6 +19,7 @@ export function ListCard({
   children,
   className,
   bodyClassName,
+  flush,
 }: {
   /** Yuqoridagi filtrlar qatori */
   toolbar?: React.ReactNode;
@@ -27,6 +28,13 @@ export function ListCard({
   children: React.ReactNode;
   className?: string;
   bodyClassName?: string;
+  /**
+   * Sahifaning yagona kartasi bo'lsa: chetma-chet — burchak, chegara va
+   * soyasiz, qisqa ro'yxatda ham ekran oxirigacha cho'ziladi. Kartadan
+   * yuqorida sarlavha bo'lmasin (u `NavbarPortal` orqali yuqori panelga
+   * chiqariladi).
+   */
+  flush?: boolean;
 }) {
   return (
     <Card
@@ -34,11 +42,14 @@ export function ListCard({
         "overflow-hidden",
         // Kompyuter ekranida karta ekrandan oshmaydi: filtrlar, jamlanma va
         // sahifalash doim ko'rinib turadi, faqat jadval o'zi aylanadi (sahifa
-        // emas). 6rem — yuqori panel (h-14) va `main` ning tepa/past
-        // bo'shlig'i (py-5), AppShell bilan mos bo'lishi shart. 24rem dan
-        // pastga tushmaydi: juda past oynada jadval ko'rinmay qolmasin —
-        // unda sahifaning o'zi aylanadi. Qisqa ro'yxatda karta mazmunicha.
-        "lg:flex lg:max-h-[max(24rem,calc(100dvh_-_6rem))] lg:min-h-0 lg:flex-col",
+        // emas). 3.5rem — yuqori panel (h-14), AppShell bilan mos bo'lishi
+        // shart (`main` paddingsiz). 24rem dan pastga tushmaydi: juda past
+        // oynada jadval ko'rinmay qolmasin — unda sahifaning o'zi aylanadi.
+        // Qisqa ro'yxatda karta mazmunicha.
+        "lg:flex lg:max-h-[max(24rem,calc(100dvh_-_3.5rem))] lg:min-h-0 lg:flex-col",
+        // Qisqa ro'yxatda ham ekran oxirigacha — ostida fon ko'rinib qolmasin
+        flush &&
+          "rounded-none border-0 shadow-none lg:min-h-[calc(100dvh_-_3.5rem)]",
         className
       )}
     >
@@ -55,6 +66,8 @@ export function ListCard({
         data-slot="list-body"
         className={cn(
           "min-w-0 lg:flex lg:min-h-0 lg:flex-col lg:overflow-auto lg:[--table-max-h:none]",
+          // Bo'sh joyni jadval qutisi oladi — jamlanma va sahifalash pastda
+          flush && "lg:flex-1",
           bodyClassName
         )}
       >
@@ -65,6 +78,31 @@ export function ListCard({
         <div className="shrink-0 border-t border-border bg-muted/30">{footer}</div>
       )}
     </Card>
+  );
+}
+
+/**
+ * Sahifa tepasidagi boshqaruv qatori (ro'yxat bo'lmagan sahifalar uchun):
+ * `ListCard` toolbar'i bilan bir xil ko'rinish — `main` paddingsiz,
+ * shuning uchun sarlavha, tugma va sanalar shu qator ichida turadi va
+ * chetga yopishmaydi.
+ */
+export function PageBar({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex shrink-0 flex-wrap items-center gap-2 border-b border-border bg-card px-3 py-3 sm:px-4",
+        className
+      )}
+    >
+      {children}
+    </div>
   );
 }
 

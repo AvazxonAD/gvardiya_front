@@ -320,14 +320,15 @@ export default function Login() {
    ═══════════════════════════════════════════════════════════════════ */
 
 function LoginHero() {
-  // Banner rasmi — sarlavha, logo va afzalliklar rasmning o'zida. Panel
-  // kengligi rasm nisbatida (balandlik × 1672/940), shuning uchun rasm
-  // to'liq sig'adi. Tor ekranda login ustuniga 22rem qoladi va rasm
-  // o'ngdan kesiladi — matn chapda, shu sabab chap chetga yopishtirilgan.
+  // Banner rasmi (`public/logo-banner.png`, 1672×941) — sarlavha, logo va
+  // afzalliklar rasmning o'zida. Panel kengligi rasm nisbatida
+  // (balandlik × 1672/941), shuning uchun rasm to'liq sig'adi. Tor ekranda
+  // login ustuniga 22rem qoladi va rasm o'ngdan kesiladi — matn chapda,
+  // shu sabab chap chetga yopishtirilgan.
   return (
-    <aside className="relative hidden h-screen max-w-[calc(100vw-22rem)] overflow-hidden bg-slate-950 lg:sticky lg:top-0 lg:block lg:aspect-[1672/940]">
+    <aside className="relative hidden h-screen max-w-[calc(100vw-22rem)] overflow-hidden bg-slate-950 lg:sticky lg:top-0 lg:block lg:aspect-[1672/941]">
       <img
-        src="/login-banner.jpg?v=3"
+        src="/logo-banner.png?v=4"
         alt={appFullName()}
         className="absolute inset-0 size-full object-cover object-left"
       />

@@ -1,4 +1,5 @@
 import { isRealUser } from "@/Redux/apiSlice";
+import { DASHBOARD_DATE_KEY } from "@/Redux/dashboardDateSlice";
 import { store } from "@/Redux/store";
 import React, { useEffect } from "react";
 
@@ -24,6 +25,8 @@ export const Utilsprovider = ({ children }: { children: React.ReactNode }) => {
 
       localStorage.setItem("account", JSON.stringify(state.account));
       localStorage.setItem("standartDate", JSON.stringify(state.defaultDate));
+      // Dashboard davri — faqat shu tab sessiyasida (dashboardDateSlice.ts)
+      sessionStorage.setItem(DASHBOARD_DATE_KEY, JSON.stringify(state.dashboardDate));
 
       // Bo'sh andoza saqlanmaydi — aks holda haqiqiy foydalanuvchi
       // ustidan yozilib ketadi. Chiqishda `user` alohida o'chiriladi.
