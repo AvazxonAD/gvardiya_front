@@ -20,9 +20,11 @@ import {
   ToolbarSpacer,
   type TableColumn,
 } from "@/ui";
-import { Pencil, Plus, Trash2, Video } from "lucide-react";
+import BookButton from "@/pages/video-lessons/manual/BookButton";
+import { BookOpen, Pencil, Plus, Trash2, Video } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const exportColumns = (): ExportColumn<IVideoLesson>[] => [
   { header: "№", value: (r) => r.position, width: 6, align: "center" },
@@ -45,6 +47,7 @@ const EMPTY_FORM = { title: "", description: "", position: "" };
 export default function AdminVideoLessons() {
   const request = useRequest();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [lessons, setLessons] = useState<IVideoLesson[]>([]);
@@ -278,6 +281,12 @@ export default function AdminVideoLessons() {
             "Обучающие видео для пользователей области"
           )}
         </p>
+        {/* Super-admin qo'llanmasi va uning PDF kitobi (viloyatnikidan alohida) */}
+        <Button variant="secondary" size="sm" onClick={() => navigate("/video-lessons/manual")}>
+          <BookOpen />
+          {tt("Qo'llanma", "Руководство")}
+        </Button>
+        <BookButton />
       </NavbarPortal>
 
       <ListCard

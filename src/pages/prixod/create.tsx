@@ -16,6 +16,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDebounce } from "use-debounce";
 import PrixodModal from "./modal";
 import Recipient from "./recipient";
+import { useRecipientRows } from "../contract/recipientData";
 import { RootState } from "@/Redux/store";
 
 const SimpleText = ({ txt }: { txt: string }) => (
@@ -164,20 +165,9 @@ const CreatePrixod = () => {
     },
   });
 
-  const userStore = localStorage.getItem("user");
-  const userData = userStore ? JSON.parse(userStore) : undefined;
-  const user = userData ? userData.user : undefined;
-
-  const recipient = [
-    { txt: tt("Qabul qiluvchi", "Получатель"), value: user?.doer_name || "" },
-    { txt: tt("Bank", "Банк"), value: user?.bank_name || "" },
-    { txt: tt("MFO", "МФО"), value: user?.mfo || "" },
-    { txt: tt("INN", "ИНН"), value: textNum(user?.str, 3) || "" },
-    {
-      txt: tt("Joriy hisob", "Расчетный счет"),
-      value: textNum(user?.account_number, 4) || "",
-    },
-  ];
+  // Rekvizitlar har safar serverdan (shartnoma sahifasidagidek) — kirish
+  // paytidagi localStorage nusxasida ular yo'q yoki eskirgan bo'ladi
+  const recipient = useRecipientRows();
 
   const payer = [
     {

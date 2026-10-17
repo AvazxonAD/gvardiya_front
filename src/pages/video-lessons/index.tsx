@@ -5,6 +5,7 @@ import { formatFileSize, type IVideoLesson } from "@/types/videoLesson";
 import { formatDateTime, tt } from "@/utils";
 import { Button, Card, EmptyState, Modal, Skeleton } from "@/ui";
 import { BookOpen, PlayCircle, Video } from "lucide-react";
+import BookButton from "./manual/BookButton";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -56,6 +57,7 @@ export default function VideoLessons() {
           <BookOpen />
           {tt("Qo'llanma", "Руководство")}
         </Button>
+        <BookButton />
       </NavbarPortal>
 
       {loading ? (

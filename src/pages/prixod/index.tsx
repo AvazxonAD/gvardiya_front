@@ -15,17 +15,15 @@ import { alertt } from "@/Redux/LanguageSlice";
 import { RootState } from "@/Redux/store";
 import useApi from "@/services/api";
 import { permBtn, usePermission } from "@/lib/permissions";
+import { ContractStatusConfirm, type ContractStatusTarget, cancelBtnProps, useContractStatusAction } from "@/lib/contractStatus";
+import CancelledPrixodModal from "./CancelledPrixodModal";
 import { IPrixod } from "@/types/prixod";
 import { formatDate, formatSum, textNum, toNumber, tt } from "@/utils";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useDebounce } from "use-debounce";
 import { Outlet, useNavigate } from "react-router-dom";
-import {
-  Pencil,
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { Ban, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   Button as UIButton,
   ListCard,
@@ -137,6 +135,30 @@ const Prixod = () => {
     },
   });
 
+  // Bekor qilish: kirim hamma summalardan chiqadi, «Bekor qilinganlar» oynasida qoladi
+  const setStatus = useContractStatusAction("prixod");
+  const [cancelItem, setCancelItem] = useState<ContractStatusTarget | null>(null);
+  const [cancelledOpen, setCancelledOpen] = useState(false);
+  const [cancelledCount, setCancelledCount] = useState(0);
+  const loadCancelledCount = async () => {
+    if (!account_number_id) return;
+    const res = await api.get<unknown[]>(`prixod/cancelled?page=1&limit=1&account_number_id=${account_number_id}`);
+    if (res?.success) setCancelledCount((res as any).meta?.count ?? 0);
+  };
+  useEffect(() => {
+    loadCancelledCount();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account_number_id]);
+  const refreshAfterStatus = () => {
+    getData();
+    loadCancelledCount();
+  };
+  const cancelPrixod = async (p: ContractStatusTarget) => {
+    const ok = await setStatus("cancel", p.id, account_number_id);
+    if (ok) refreshAfterStatus();
+    return ok;
+  };
+
   const handleDelete = async () => {
     const remove: any = await api.remove(
       `prixod/${open}?account_number_id=${account_number_id}`
@@ -218,6 +240,21 @@ const Prixod = () => {
             <FilterActions onRefresh={getData} onClear={clearFilters} />
 
             <ToolbarSpacer />
+
+            <UIButton
+              variant="secondary"
+              size="sm"
+              onClick={() => setCancelledOpen(true)}
+              title={tt("Bekor qilingan kirimlar — ko'rish va qayta faollashtirish", "Отменённые приходы — просмотр и восстановление")}
+            >
+              <Ban className="text-destructive" />
+              {tt("Bekor qilinganlar", "Отменённые")}
+              {cancelledCount > 0 && (
+                <span className="ml-0.5 inline-flex h-[1.125rem] min-w-[1.125rem] items-center justify-center rounded-full bg-destructive/10 px-1 text-[0.6875rem] font-semibold text-destructive tabular-nums">
+                  {cancelledCount}
+                </span>
+              )}
+            </UIButton>
 
             {/* Backend hisoboti filtr va saralashni hisobga oladi — ro'yxat
                 eksporti shart emas: Excel ham, PDF ham o'sha hisobot */}
@@ -367,6 +404,23 @@ const Prixod = () => {
                         <UIButton
                           variant="ghost"
                           size="icon-xs"
+                          {...cancelBtnProps(perm.update, p.cancel_block, "hover:bg-warning/15 hover:text-warning", "prixod")}
+                          aria-label={tt("Bekor qilish", "Отменить")}
+                          onClick={() =>
+                            setCancelItem({
+                              id: p.id,
+                              doc_num: p.prixod_doc_num,
+                              organization_name: p.organization_name,
+                              result_summa: p.prixod_summa,
+                              note: `${tt("Shartnoma", "Договор")} № ${p.contract_doc_num}`,
+                            })
+                          }
+                        >
+                          <Ban />
+                        </UIButton>
+                        <UIButton
+                          variant="ghost"
+                          size="icon-xs"
                           {...permBtn(perm.delete, tt("O'chirish", "Удалить"), "hover:bg-destructive/10 hover:text-destructive")}
                           aria-label={tt("O'chirish", "Удалить")}
                           onClick={() => setOpen(p.id)}
@@ -380,6 +434,20 @@ const Prixod = () => {
             })}
           </Table>
       </ListCard>
+
+      <ContractStatusConfirm
+        kind="prixod"
+        action="cancel"
+        contract={cancelItem}
+        onClose={() => setCancelItem(null)}
+        onConfirm={cancelPrixod}
+      />
+      <CancelledPrixodModal
+        open={cancelledOpen}
+        onClose={() => setCancelledOpen(false)}
+        accountNumberId={account_number_id}
+        onRestored={refreshAfterStatus}
+      />
 
       <Modal
         open={Boolean(open)}

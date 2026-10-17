@@ -16,7 +16,10 @@ export const spravochnik: SectionGuide = {
         "Измените поле в нужной карточке — рядом с её названием появится отметка «изменено». Нажмите «Сохранить» вверху.",
       ],
       items: [
-        ["«Ijrochi» — boshqarma nomi va «Hujjat sarlavhasi».", "«Исполнитель» — название управления и «Заголовок документа»."],
+        [
+          "«Ijrochi nomi» — faqat hudud nomi, masalan «Samarqand viloyati» (shartnomada «O'zbekiston Respublikasi Milliy gvardiyasi … bo'yicha boshqarmasi» jumlasiga qo'yiladi — «boshqarma» so'zini yozmang). «Hujjat sarlavhasi» — shartnoma tuzilgan joy, masalan «Samarqand sh.» (shartnoma tepasida, sana qatorining o'ng tomonida chiqadi). Batafsil va misollar — «Ishni boshlash» ning 2-bosqichida.",
+          "«Название исполнителя» — только название территории, например «Самаркандской области» (подставляется во фразу «Управление Национальной гвардии Республики Узбекистан по …» — слово «управление» не пишите). «Заголовок документа» — место заключения договора, например «г. Самарканд» (вверху договора, справа в строке с датой). Подробно и с примерами — в шаге 2 раздела «Начало работы».",
+        ],
         ["«Rahbar» — boshliq F.I.Sh.", "«Руководитель» — Ф.И.О. начальника."],
         ["«Manzil» — boshqarma manzili.", "«Адрес» — адрес управления."],
         ["«Bank» — bank nomi va «MFO» (5 ta raqam).", "«Банк» — название банка и «МФО» (5 цифр)."],

@@ -219,6 +219,8 @@ const MainProvider = () => {
                   {/* Eski "Hisobot" havolasi */}
                   <Route path="/report" element={<Navigate to="/debt" replace />} />
                   <Route path="/video-lessons" element={<AdminVideoLessons />} />
+                  {/* Super-admin qo'llanmasi (viloyatnikidan alohida — sections.ts, MANUALS) */}
+                  <Route path="/video-lessons/manual" element={<Manual />} />
                   <Route path="/logs" element={<Logs />} />
                 </Fragment>
               )}

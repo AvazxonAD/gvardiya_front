@@ -66,14 +66,17 @@ export default function MassEventReport({ scope = "admin" }: { scope?: keyof typ
     }
   };
 
+  // Yuqori panelning bo'sh joyiga sig'adi: tor bo'lsa avval yozuv qisqaradi,
+  // tugmalar o'z o'lchamida qoladi (ilgari blok sanalar ostiga kirib ketardi)
   return (
-    <div className="flex shrink-0 items-center gap-1.5" title={title}>
-      <span className="hidden whitespace-nowrap text-[0.75rem] font-medium text-muted-foreground xl:inline">
+    <div className="flex min-w-0 items-center gap-1.5" title={title}>
+      <span className="hidden min-w-0 truncate whitespace-nowrap text-[0.75rem] font-medium text-muted-foreground 2xl:block">
         {title}:
       </span>
       <Button
         variant="outline"
         size="sm"
+        className="shrink-0"
         onClick={() => download("excel")}
         loading={busy === "excel"}
         disabled={!!busy}
@@ -85,6 +88,7 @@ export default function MassEventReport({ scope = "admin" }: { scope?: keyof typ
       <Button
         variant="outline"
         size="sm"
+        className="shrink-0"
         onClick={() => download("pdf")}
         loading={busy === "pdf"}
         disabled={!!busy}

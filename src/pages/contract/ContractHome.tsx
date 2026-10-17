@@ -7,15 +7,15 @@ import { useNavigate } from "react-router-dom";
 import Input from "../../Components/Input";
 import Paginatsiya from "../../Components/Paginatsiya";
 import { alertt } from "../../Redux/LanguageSlice";
-import { PayCont, deleteCont, getSpr, getCont } from "../../api";
+import { PayCont, deleteCont, getSpr, getCont, getExcel } from "../../api";
 import ContTab, { contExportColumns } from "../../pageCompoents/ContTab";
 import { formatSum, tt } from "../../utils";
 import Modal from "@/Components/Modal";
 import ExportButtons from "@/Components/ExportButtons";
-import { reportItems } from "@/Components/ExportMenu";
+import { excelIcon, reportItems } from "@/Components/ExportMenu";
 import FilterActions from "@/Components/FilterActions";
 import { sortParams, useTableSort } from "@/hooks/useTableSort";
-import { EXPORT_ALL_LIMIT } from "@/lib/tableExport";
+import { EXPORT_ALL_LIMIT, saveBlob } from "@/lib/tableExport";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
 import Button from "@/Components/reusable/button";
 import { RootState } from "@/Redux/store";
@@ -400,6 +400,25 @@ function ContractHome() {
                     setBatalonOpen(true);
                   },
                 })),
+              ]}
+              // Import shabloni — super-admin importidagi fayl: viloyat to'ldirib, super-adminga beradi
+              endItems={[
+                {
+                  key: "contract-template",
+                  disabled: !perm.create,
+                  disabledTitle: tt("Ruxsat yo'q", "Нет доступа"),
+                  icon: excelIcon,
+                  label: tt("Import shabloni (Excel)", "Шаблон импорта (Excel)"),
+                  hint: tt(
+                    "Shartnomalarni import qilish uchun — to'ldirib, super-adminga yuboring",
+                    "Для импорта договоров — заполните и отправьте супер-админу"
+                  ),
+                  run: async () => {
+                    const blob = await getExcel(JWT, "/contract/template");
+                    if (!blob || blob.size === 0 || blob.type.includes("json")) throw new Error("BAD_FILE");
+                    saveBlob(blob, "shartnomalar_shablon.xlsx");
+                  },
+                },
               ]}
               title={tt("Shartnoma", "Договор")}
               columns={contExportColumns()}

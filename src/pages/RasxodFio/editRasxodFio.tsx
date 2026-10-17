@@ -95,6 +95,8 @@ export const EditRasxodFio = () => {
   // Jadval uchun frontda qidiruv: shartnoma №, tashkilot, FIO bo'yicha
   const searchText = tableSearch.trim().toLowerCase();
   const searchCyr = latinToCyrillic(tableSearch.trim()).toLowerCase();
+  // So'z boshidagi "e" — "э"; "Е" bilan yozilgan F.I.Sh. ham topilsin
+  const searchCyrE = searchCyr.replace(/э/g, "е");
   const searchedData = searchText
     ? filtereddata.filter((item) => {
         const fields = [
@@ -103,7 +105,7 @@ export const EditRasxodFio = () => {
           item.fio ?? "",
         ].map((f) => f.toLowerCase());
         return fields.some(
-          (f) => f.includes(searchText) || f.includes(searchCyr)
+          (f) => f.includes(searchText) || f.includes(searchCyr) || f.includes(searchCyrE)
         );
       })
     : filtereddata;

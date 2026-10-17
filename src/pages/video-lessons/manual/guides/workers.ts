@@ -42,6 +42,50 @@ export const workers: SectionGuide = {
       shots: [shot("01-qoshish.webp", ["«Xodim qo'shish» oynasi", "Окно добавления сотрудника"])],
     },
     {
+      title: ["Exceldan import qilish", "Импорт из Excel"],
+      body: [
+        "Ko'p xodimni bir yo'la kiritish uchun «Import» tugmasini bosing — «Xodimlarni Exceldan import qilish» oynasi ochiladi.",
+        "Чтобы внести много сотрудников сразу, нажмите «Импорт» — откроется окно «Импорт сотрудников из Excel».",
+      ],
+      ordered: true,
+      items: [
+        [
+          "Oynaning pastidagi «Shablonni yuklab olish» ni bosing (shu shablon «⋮» menyusidagi «Import shabloni (Excel)» da ham bor).",
+          "Нажмите «Скачать шаблон» внизу окна (тот же шаблон есть в меню «⋮» — «Шаблон импорта (Excel)»).",
+        ],
+        [
+          "Shablonning «Xodimlar» varag'ini to'ldiring: har bir xodim — bitta qator. «Batalon» — katakni bosib ro'yxatdan tanlang (unda viloyatingiz batalonlari), «F.I.Sh.» — majburiy, «Karta raqami» — 16, «Hisob raqami» — 20, «PINFL» — 14 ta raqam. Batafsil qoidalar — «Izoh» varag'ida.",
+          "Заполните лист «Сотрудники»: каждый сотрудник — одна строка. «Батальон» — выберите из списка в ячейке (там батальоны вашей области), «ФИО» — обязательно, «Номер карты» — 16, «Лицевой счёт» — 20, «ПИНФЛ» — 14 цифр. Подробные правила — на листе «Пояснение».",
+        ],
+        [
+          "2–4-qatorlarda kulrang namuna bor — qanday to'ldirishni ko'rsatadi, raqamlari soxta. Import qilishdan oldin namuna qatorlarini o'chirib, o'z xodimlaringizni yozing.",
+          "В строках 2–4 — серый образец: показывает, как заполнять, номера ненастоящие. Перед импортом удалите строки-образцы и впишите своих сотрудников.",
+        ],
+        [
+          "Faylni oynadagi maydonga tashlang yoki «Faylni tanlash» ni bosing — u o'zi tekshiriladi: «Xodimlar», «Import qilinadi», «Xatolar», «Ogohlantirishlar» kataklari, xatolar jadvali (Excel qator raqami bilan) va «Fayldagi xodimlar» chiqadi (karta, hisob raqami va PINFL oxirgi 4 raqami bilan).",
+          "Перетащите файл в поле окна или нажмите «Выбрать файл» — он проверится сам: появятся плашки «Сотрудники», «Будет импортировано», «Ошибки», «Предупреждения», таблица ошибок (с номером строки Excel) и «Сотрудники в файле».",
+        ],
+        [
+          "Xato bo'lmasa «Import qilish» ni bosing (qavsda — qo'shiladigan xodimlar soni): hamma xodimlar birga qo'shiladi va ro'yxat yangilanadi.",
+          "Если ошибок нет, нажмите «Импортировать» (в скобках — число добавляемых сотрудников): все сотрудники добавятся вместе, список обновится.",
+        ],
+      ],
+      warn: [
+        "Bitta xato bo'lsa ham hech kim qo'shilmaydi: faylni tuzatib, «Boshqa fayl» bilan qayta tanlang. Xato hisoblanadi: viloyatda yo'q batalon, shu batalonda bor F.I.Sh., viloyatda bor karta yoki hisob raqami, raqam uzunligi noto'g'ri. Batalon import paytida yaratilmaydi — avval «Quyi tuzilmalar» bo'limida qo'shing.",
+        "Если есть хотя бы одна ошибка, никто не добавляется: исправьте файл и выберите его снова («Другой файл»). Ошибкой считаются: батальон, которого нет в области, ФИО, которое уже есть в этом батальоне, номер карты или счёта, который уже есть в области, неверная длина номера. Батальон при импорте не создаётся — сначала добавьте его в разделе «Подразделения».",
+      ],
+      tip: [
+        "Import qilingan xodimlar «Muddatli harbiy xizmatchi» belgisisiz qo'shiladi — kerak bo'lsa keyin xodimni tahrirlab belgilang. Raqamlarni boshqa fayldan nusxalaganda «Faqat qiymatni qo'yish» ni tanlang: Excel 16–20 xonali raqamni son qilib qo'ysa, oxirgi raqamlari yo'qoladi va «Excelda son bo'lib qolgan» xatosi chiqadi. «вакант» deb yozilgan qatorlar o'tkazib yuboriladi.",
+        "Импортированные сотрудники добавляются без отметки «Срочнослужащий» — при необходимости отметьте её, изменив сотрудника. При копировании номеров из другого файла используйте «Вставить только значения»: если Excel превратит 16–20-значный номер в число, последние цифры потеряются и появится ошибка «Excelda son bo'lib qolgan». Строки с «вакант» пропускаются.",
+      ],
+      shots: [
+        shot("05-import.webp", [
+          "Tekshiruv natijasi: kataklar, xatolar jadvali va «Import qilish»",
+          "Результат проверки: плашки, таблица ошибок и «Импортировать»",
+        ]),
+      ],
+    },
+    {
       title: ["Xodimni qidirish", "Поиск сотрудника"],
       body: [
         "Qidiruv maydoniga («F.I.Sh., PINFL yoki raqam bo'yicha») F.I.Sh. ning bir qismini yozing. Bitta batalon xodimlarini ko'rish uchun yonidagi batalon filtridan (odatda «Hammasi» turadi) batalonni tanlang.",
@@ -72,8 +116,8 @@ export const workers: SectionGuide = {
     {
       title: ["Ro'yxatni yuklab olish", "Выгрузка списка"],
       body: [
-        "«⋮» tugmasini bosing va «Xodimlar ro'yxati — Excel» yoki «Xodimlar ro'yxati — PDF» ni tanlang. «Import shabloni (Excel)» — xodimlar uchun bo'sh Excel shablon.",
-        "Нажмите «⋮» и выберите выгрузку списка сотрудников в Excel или PDF. «Шаблон импорта (Excel)» — пустой шаблон для сотрудников.",
+        "«⋮» tugmasini bosing va «Xodimlar ro'yxati — Excel» yoki «Xodimlar ro'yxati — PDF» ni tanlang. «Import shabloni (Excel)» — xodimlarni import qilish shabloni (2-qadam).",
+        "Нажмите «⋮» и выберите выгрузку списка сотрудников в Excel или PDF. «Шаблон импорта (Excel)» — шаблон для импорта сотрудников (шаг 2).",
       ],
       shots: [shot("04-yuklab-olish.webp", ["«⋮» menyusi", "Меню «⋮»"])],
     },

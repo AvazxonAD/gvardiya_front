@@ -85,7 +85,7 @@
 //     (char) => map[char] || char
 //   );
 // };
-export const latinToCyrillic = (latin: string): string => {
+const toCyrillicPart = (latin: string): string => {
   const map: { [key: string]: string } = {
     a: "а",
     A: "А",
@@ -163,15 +163,28 @@ export const latinToCyrillic = (latin: string): string => {
     ya: "я",
     "y'": "ь",
     "Y'": "ь",
-    "'": "ь",
+    // Tutuq belgisi: ma'lumot → маълумот, e'tibor → эътибор
+    "'": "ъ",
+    // "yo'" — "й" + "ў" (yo'l → йўл), "ё" + tutuq emas
+    "yo'": "йў",
+    "Yo'": "Йў",
+    "YO'": "ЙЎ",
   };
+  const vowels = "аеёиоуўэюяыАЕЁИОУЎЭЮЯЫ";
 
   let result = "";
   let i = 0;
 
   while (i < latin.length) {
-    // Try to match the longest patterns first
-    if (i + 2 <= latin.length && map[latin.substring(i, i + 2)]) {
+    const char = latin[i];
+    // "e" so'z boshida va unlidan keyin — "э": eslatma → эслатма, aeroport → аэропорт
+    if ((char === "e" || char === "E") && (!/\p{L}/u.test(latin[i - 1] ?? "") || vowels.includes(result.slice(-1)))) {
+      result += char === "e" ? "э" : "Э";
+      i += 1;
+    } else if (i + 3 <= latin.length && map[latin.substring(i, i + 3)]) {
+      result += map[latin.substring(i, i + 3)];
+      i += 3;
+    } else if (i + 2 <= latin.length && map[latin.substring(i, i + 2)]) {
       result += map[latin.substring(i, i + 2)];
       i += 2;
     } else if (i + 1 <= latin.length && map[latin.substring(i, i + 1)]) {
@@ -185,6 +198,25 @@ export const latinToCyrillic = (latin: string): string => {
   }
 
   return result;
+};
+
+// Dastur nomlari, fayl turlari va ${...} o'rinbosarlari lotincha qoladi
+// ("Excel" → "Эхцел", "${client.name}" → "${цлиент.наме}" bo'lib qolmasin).
+// Qo'shimcha o'giriladi: Excelda → Excelда, Didox'ga → Didox'га.
+const KEEP_LATIN = /(?:USB Manager|E-IMZO|IMZO|Didox|PDF|Excel|Word|WEBM|MP4)'?|\$\{[^}]*\}/g;
+const isLetter = (char?: string) => !!char && /\p{L}/u.test(char);
+
+export const latinToCyrillic = (latin: string): string => {
+  let result = "";
+  let from = 0;
+  for (const match of latin.matchAll(KEEP_LATIN)) {
+    const start = match.index ?? 0;
+    // So'z ichida bo'lsa (jsPDF) — nom emas
+    if (isLetter(latin[start - 1])) continue;
+    result += toCyrillicPart(latin.slice(from, start)) + match[0];
+    from = start + match[0].length;
+  }
+  return result + toCyrillicPart(latin.slice(from));
 };
 
 /**

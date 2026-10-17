@@ -16,7 +16,10 @@ import { useSelector } from "react-redux";
  * serverdan olinadi, hisob raqam — yuqori panelda tanlangani (shartnoma
  * aynan shunga bog'lanadi).
  */
-export const useRecipientRows = () => {
+export const useRecipientRows = (
+  /** Birinchi qator yorlig'i: chiqimda viloyat — «To'lovchi» */
+  firstLabel?: string
+) => {
   const JWT = useSelector((s: any) => s.auth.jwt);
   const account = useSelector((s: any) => s.account);
   const [spr, setSpr] = useState<{ doer?: any; bank?: any; str?: any }>({});
@@ -35,7 +38,7 @@ export const useRecipientRows = () => {
 
   // Yangi viloyatda rekvizit yozuvi bo'lmaydi (`data` — null)
   return [
-    { txt: tt("Qabul qiluvchi", "Получатель"), value: pickLang(spr.doer, "doer") },
+    { txt: firstLabel ?? tt("Qabul qiluvchi", "Получатель"), value: pickLang(spr.doer, "doer") },
     { txt: tt("Bank", "Банк"), value: pickLang(spr.bank, "bank") },
     { txt: tt("MFO", "МФО"), value: spr.bank?.mfo || "" },
     { txt: tt("INN", "ИНН"), value: textNum(spr.str?.str ?? "", 3) || "" },

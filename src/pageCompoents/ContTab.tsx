@@ -439,7 +439,7 @@ type Props = {
   setActive: Dispatch<SetStateAction<number>>;
   /** Berilsa — "Bekor qilish" tugmasi (tasdiqlash oynasini ochadi) */
   onCancel?: () => void;
-  /** To'siq bo'lsa tugma o'chiq, sababi title'da (pul tushgan / chiqim / tadbir boshlangan) */
+  /** To'siq bo'lsa tugma o'chiq, sababi title'da (pul tushgan / chiqim) */
   cancelBlock?: CancelBlock;
 };
 

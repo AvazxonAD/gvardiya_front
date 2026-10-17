@@ -73,7 +73,13 @@ const ADMIN_SPRAVOCHNIK_SUB: SubItem[] = [
   { path: "/", uz: "BXM", ru: "БХМ" },
 ];
 
-/** Viloyat (region) foydalanuvchisi — to'liq moliyaviy kontur */
+/**
+ * Viloyat (region) foydalanuvchisi — to'liq moliyaviy kontur.
+ *
+ * Yangi bo'lim qo'shilsa — qo'llanmaga ham qo'shing:
+ * `pages/video-lessons/manual/sections.ts` + `guides/`, keyin
+ * `npm run manual:pdf` (u qo'llanmada yo'q menyu bo'limini ogohlantiradi).
+ */
 const REGION_MENU: MenuItem[] = [
   { path: "/", uz: "Dashboard", ru: "Дашборд", icon: LayoutDashboard },
   { path: "/contract", uz: "Shartnomalar ro'yhati", ru: "Список договоров", icon: FileText },
@@ -116,7 +122,12 @@ const REGION_MENU: MenuItem[] = [
   },
 ];
 
-/** Markaziy admin — umumiy ko'rsatkichlar va foydalanuvchilar */
+/**
+ * Markaziy admin — umumiy ko'rsatkichlar va foydalanuvchilar.
+ *
+ * Yangi bo'lim qo'shilsa — super-admin qo'llanmasiga ham qo'shing:
+ * `pages/video-lessons/manual/sections.ts` (ADMIN_SECTIONS) + `guides/admin/`.
+ */
 const ADMIN_MENU: MenuItem[] = [
   { path: "/", uz: "Dashboard", ru: "Дашборд", icon: LayoutDashboard },
   // Eski "Hisobot" o'rniga — qarzdorlik tahlili

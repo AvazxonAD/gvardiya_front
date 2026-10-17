@@ -71,8 +71,8 @@ export const contract: SectionGuide = {
     {
       title: ["Qatordagi amallar", "Действия в строке"],
       body: [
-        "Har bir qatorning oxirida to'rtta belgi-tugma bor (nomi sichqonchani ustiga olib borganda chiqadi):",
-        "В конце каждой строки четыре кнопки-значка (название появляется при наведении мыши):",
+        "Har bir qatorning oxirida beshta belgi-tugma bor (nomi sichqonchani ustiga olib borganda chiqadi):",
+        "В конце каждой строки пять кнопок-значков (название появляется при наведении мыши):",
       ],
       items: [
         ["«Tahrirlash» (qalam) — shartnomani o'zgartirish.", "«Редактировать» (карандаш) — изменить договор."],
@@ -81,17 +81,69 @@ export const contract: SectionGuide = {
           "«Закрепить сотрудников» (человек с «+») — назначить сотрудников на задания.",
         ],
         ["«Analiz» (diagramma belgisi) — shartnoma bo'yicha tahlil.", "«Анализ» (значок диаграммы) — анализ по договору."],
+        [
+          "«Shartnomani bekor qilish» (chizilgan doira) — tadbir bo'lmaydigan shartnomani bekor qilish (keyingi bosqich).",
+          "«Отменить договор» (перечёркнутый круг) — отменить договор, если мероприятия не будет (следующий шаг).",
+        ],
         ["«O'chirish» (savat) — shartnomani o'chirish.", "«Удалить» (корзина) — удалить договор."],
       ],
       warn: [
-        "Shartnoma bo'yicha kirim, chiqim yoki xodimlarga to'lov qilingan bo'lsa, uni o'chirib ham, summasini o'zgartirib ham bo'lmaydi — «Ushbu hujjat bilan bog'liq hujjatlar mavjud» degan xabar chiqadi. Avval o'sha hujjatlarni o'chiring.",
-        "Если по договору есть приходы, расходы или выплаты сотрудникам, его нельзя удалить или изменить сумму — появится сообщение о связанных документах. Сначала удалите их.",
+        "Shartnoma bo'yicha kirim, chiqim yoki xodimlarga to'lov qilingan bo'lsa, uni o'chirib ham, summasini o'zgartirib ham bo'lmaydi — «Ushbu hujjat bilan bog'liq hujjatlar mavjud» degan xabar chiqadi. Avval o'sha hujjatlarni o'chiring. Topshiriqlarga xodim biriktirilgan bo'lsa, shartnomani o'chirib bo'lmaydi; tahrirda esa xodimli topshiriqni olib tashlab, batalonini, sanasini yoki bir soat narxini (BHM, chegirma) o'zgartirib, hajmini biriktirilgan soatdan kamaytirib bo'lmaydi, tadbir sanasi va vaqti esa biriktirilgan xodimlarni o'z ichiga olishi kerak. Manzil, raqam, tashkilot va hisob raqamlarini o'zgartirish, yangi topshiriq qo'shish mumkin. Kirim qilingan shartnomada tashkilot o'zgarmaydi — u kirimdagi tashkilot bilan bir xil bo'lishi kerak.",
+        "Если по договору есть приходы, расходы или выплаты сотрудникам, его нельзя удалить или изменить сумму — появится сообщение о связанных документах. Сначала удалите их. Если на задания прикреплены сотрудники, договор нельзя удалить, а при изменении нельзя убрать задание с сотрудниками, сменить его батальон, дату или стоимость часа (БХМ, скидку) и уменьшить объём ниже назначенных часов; даты и время мероприятия должны охватывать назначения. Адрес, номер, организацию и счета менять можно, новые задания — добавлять. Если по договору есть приход, организацию изменить нельзя — она должна совпадать с организацией в приходе.",
       ],
       tip: [
         "Shartnoma tahrirlanib saqlansa, oldingi tasdiqlar bekor bo'ladi (sariq ✎) — uni yuristga qayta jo'natib, qayta tasdiqlash kerak.",
         "После изменения договора прежние подтверждения сбрасываются (жёлтый ✎) — его нужно снова отправить юристу и подтвердить.",
       ],
       shots: [shot("03-amallar.webp", ["Qatordagi amallar tugmalari", "Кнопки действий в строке"])],
+    },
+    {
+      title: ["Shartnomani bekor qilish", "Отмена договора"],
+      body: [
+        "Tadbir bo'lmaydigan bo'lsa, shartnomani o'chirmasdan bekor qilish mumkin: u saqlanib qoladi, lekin hech qayerda hisobga olinmaydi. Qatordagi «Shartnomani bekor qilish» tugmasini bosing — «Shartnomani bekor qilasizmi?» oynasi chiqadi. Shartnoma raqami, buyurtmachi va summani tekshirib, «Ha, bekor qilish» ni bosing.",
+        "Если мероприятия не будет, договор можно не удалять, а отменить: он сохранится, но нигде не будет учитываться. Нажмите в строке «Отменить договор» — появится окно «Отменить договор?». Проверьте номер, заказчика и сумму и нажмите «Да, отменить».",
+      ],
+      items: [
+        [
+          "Bekor qilish ikki shart bajarilganda mumkin: shartnomaga pul kelib tushmagan va chiqim qilinmagan. Tadbir sanasi ahamiyatsiz — tadbir boshlangan yoki o'tgan shartnoma ham bekor qilinadi. Aks holda tugma o'chiq turadi, sichqonchani ustiga olib borsangiz sababi chiqadi: «Pul kelib tushgan — bekor qilib bo'lmaydi» yoki «Chiqim qilingan — bekor qilib bo'lmaydi».",
+          "Отменить можно при двух условиях: по договору не поступали деньги и не было расходов. Дата мероприятия не важна — можно отменить и начавшийся или прошедший договор. Иначе кнопка неактивна, а при наведении показывается причина: «Поступила оплата — отменить нельзя» или «Есть расход — отменить нельзя».",
+        ],
+        [
+          "Pul kelib tushgan, lekin tadbir bo'lmaydigan bo'lsa — avval «Kirimlar kitobi» da shu shartnomaning kirimini bekor qiling, keyin shartnomani bekor qilish mumkin bo'ladi.",
+          "Если деньги поступили, но мероприятия не будет, сначала отмените приход по этому договору в «Книге приходов» — после этого договор можно отменить.",
+        ],
+        [
+          "Bekor qilingan shartnoma asosiy ro'yxatdan chiqadi, qarzdorlik, dashboard, hisobot va chiqimda hisobga olinmaydi, summasi jamlanmalarga qo'shilmaydi. Uni tahrirlab bo'lmaydi.",
+          "Отменённый договор уходит из основного списка, не учитывается в задолженности, дашборде, отчётах и расходах, его сумма не входит в итоги. Изменить его нельзя.",
+        ],
+        [
+          "«Qarzdorlik» sahifasida ham bekor qilish mumkin: kartochka yoki qarzdor tashkilot bosilganda ochiladigan shartnomalar ro'yxatida har qatorda «Bekor qilish» tugmasi bor.",
+          "Отменить можно и на странице «Задолженность»: в списке договоров, который открывается по карточке или организации-должнику, в каждой строке есть кнопка «Отменить».",
+        ],
+      ],
+      tip: [
+        "Bekor qilish o'chirish emas: shartnoma «Bekor qilinganlar» ro'yxatida turadi va kerak bo'lsa qayta faollashtiriladi (keyingi bosqich).",
+        "Отмена — не удаление: договор остаётся в списке «Отменённые» и при необходимости восстанавливается (следующий шаг).",
+      ],
+      shots: [shot("12-bekor-qilish.webp", ["«Shartnomani bekor qilasizmi?» oynasi", "Окно «Отменить договор?»"])],
+    },
+    {
+      title: ["Bekor qilinganlar va qayta faollashtirish", "Отменённые договоры и восстановление"],
+      body: [
+        "Ro'yxat sahifasidagi «Bekor qilinganlar» tugmasi (yonida — soni) «Bekor qilingan shartnomalar» oynasini ochadi: shartnoma raqami, sanasi, buyurtmachisi, summasi (chizilgan — jamlanmaga qo'shilmaydi), qachon va kim bekor qilgani.",
+        "Кнопка «Отменённые» на странице списка (рядом — их число) открывает окно «Отменённые договоры»: номер, дата, заказчик, сумма (зачёркнута — не входит в итоги), когда и кем отменён.",
+      ],
+      items: [
+        [
+          "Qidiruv — «№, tashkilot yoki INN». Buyurtmachi ustiga sichqoncha olib borsangiz, tashkilot ma'lumotlari chiqadi; shartnoma raqamini bossangiz, hujjat ochiladi.",
+          "Поиск — по №, организации или ИНН. При наведении на заказчика показываются данные организации; нажмите номер договора — откроется документ.",
+        ],
+        [
+          "Shartnoma yana kerak bo'lsa, qatordagi «Faollashtirish» ni bosing va «Ha, faollashtirish» bilan tasdiqlang — u yana asosiy ro'yxatga, qarzdorlik, dashboard va hisobotlarga qaytadi.",
+          "Если договор снова нужен, нажмите в строке «Восстановить» и подтвердите «Да, восстановить» — он вернётся в основной список, задолженность, дашборд и отчёты.",
+        ],
+      ],
+      shots: [shot("13-bekor-qilinganlar.webp", ["«Bekor qilingan shartnomalar» oynasi", "Окно «Отменённые договоры»"])],
     },
     {
       title: ["Shartnoma hujjati", "Документ договора"],
@@ -240,6 +292,10 @@ export const contract: SectionGuide = {
         [
           "«Excel formatda yuklab olish» yoki «PDF formatda yuklab olish» (Jadval ro'yxati) — ekrandagi jadvalning o'zi.",
           "«Скачать в Excel» или «Скачать в PDF» (список таблицы) — сама таблица с экрана.",
+        ],
+        [
+          "«Import shabloni (Excel)» (menyuning oxirida) — shartnomalarni Exceldan import qilish shabloni. «Shartnomalar» varag'ini to'ldiring (qoidalar — «Izoh» varag'ida), 901–912 raqamli namuna qatorlarini o'chiring va faylni super-adminga yuboring — u «Shartnoma importi» bo'limida yuklaydi.",
+          "«Шаблон импорта (Excel)» (в конце меню) — шаблон для импорта договоров из Excel. Заполните лист «Shartnomalar» (правила — на листе «Izoh»), удалите строки-образцы с номерами 901–912 и отправьте файл супер-админу — он загрузит его в разделе «Импорт договоров».",
         ],
       ],
       shots: [shot("11-yuklab-olish.webp", ["«⋮» menyusi", "Меню «⋮»"])],

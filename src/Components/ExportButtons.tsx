@@ -23,6 +23,8 @@ type Props<T> = {
   kinds?: ("excel" | "pdf")[];
   /** Menyuning boshida turadigan qo'shimcha bandlar (masalan, backend hisobotlari) */
   extraItems?: ExportMenuItem[];
+  /** Menyuning oxirida, ajratuvchi chiziqdan keyin turadigan bandlar (masalan, import shabloni) */
+  endItems?: ExportMenuItem[];
   size?: "sm" | "xs";
 };
 
@@ -39,6 +41,7 @@ function ExportButtons<T>({
   fetchRows,
   kinds = ["excel", "pdf"],
   extraItems = [],
+  endItems = [],
   size,
 }: Props<T>) {
   const load = async () => {
@@ -75,7 +78,12 @@ function ExportButtons<T>({
         ]
       : [];
 
-  return <ExportMenu items={[...extraItems, ...listItems]} size={size} />;
+  return (
+    <ExportMenu
+      items={[...extraItems, ...listItems, ...endItems.map((it, i) => (i === 0 ? { ...it, divider: true } : it))]}
+      size={size}
+    />
+  );
 }
 
 export default ExportButtons;

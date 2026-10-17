@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Button, Card, Modal, PageBar } from "@/ui";
 import { tt } from "@/utils";
 import {
+  Activity,
   AlertTriangle,
   ArrowDownToLine,
   ArrowLeft,
@@ -17,101 +18,58 @@ import {
   ChevronRight,
   Compass,
   FileText,
+  FileUp,
   History,
+  Landmark,
   LayoutDashboard,
   Lightbulb,
   Shield,
   UserCog,
   UserMinus,
   Users,
+  Video,
+  Warehouse,
   ZoomIn,
   type LucideIcon,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { batalon } from "./guides/batalon";
-import { contract } from "./guides/contract";
-import { dashboard } from "./guides/dashboard";
-import { logs } from "./guides/logs";
-import { organisation } from "./guides/organisation";
-import { prixod } from "./guides/prixod";
-import { rasxod } from "./guides/rasxod";
-import { rasxodWorkers } from "./guides/rasxodWorkers";
-import { report } from "./guides/report";
-import { spravochnik } from "./guides/spravochnik";
-import { staff } from "./guides/staff";
-import { start } from "./guides/start";
-import { workers } from "./guides/workers";
-import type { GuideStep, SectionGuide, Shot, Text } from "./types";
+import BookButton from "./BookButton";
+import { MANUALS, manualAudience, type SectionData } from "./sections";
+import type { GuideStep, Shot, Text } from "./types";
 
-type Section = {
-  id: string;
-  /** Menyu yo'li — foydalanuvchida shu bo'lim yo'q bo'lsa bo'lim yashiriladi */
-  path?: string;
-  icon: LucideIcon;
-  title: Text;
-  guide: SectionGuide;
+type Section = SectionData & { icon: LucideIcon };
+
+const ICONS: Record<string, LucideIcon> = {
+  start: Compass,
+  dashboard: LayoutDashboard,
+  contract: FileText,
+  workers: Users,
+  batalon: Shield,
+  report: BarChart3,
+  organisation: Building2,
+  prixod: ArrowDownToLine,
+  rasxod: ArrowUpFromLine,
+  "rasxod-workers": UserMinus,
+  "moddiy-baza": Warehouse,
+  staff: UserCog,
+  logs: History,
+  spravochnik: BookMarked,
+  // Super-admin qo'llanmasi — menyusidagi belgilar bilan (ADMIN_MENU)
+  "admin-start": Compass,
+  "admin-dashboard": LayoutDashboard,
+  "admin-debt": BarChart3,
+  "admin-monitoring": Activity,
+  "admin-baza": Landmark,
+  "admin-import": FileUp,
+  "admin-users": UserCog,
+  "admin-logs": History,
+  "admin-videos": Video,
+  "admin-bxm": BookMarked,
 };
 
-/** Bo'limlar viloyat menyusi tartibida (`layout/menu.tsx`) */
-const SECTIONS: Section[] = [
-  { id: "start", icon: Compass, title: ["Ishni boshlash", "Начало работы"], guide: start },
-  { id: "dashboard", path: "/", icon: LayoutDashboard, title: ["Dashboard", "Дашборд"], guide: dashboard },
-  {
-    id: "contract",
-    path: "/contract",
-    icon: FileText,
-    title: ["Shartnomalar ro'yhati", "Список договоров"],
-    guide: contract,
-  },
-  {
-    id: "workers",
-    path: "/workers",
-    icon: Users,
-    title: ["Hodimlar ro'yhati", "Список сотрудников"],
-    guide: workers,
-  },
-  { id: "batalon", path: "/batalon", icon: Shield, title: ["Quyi tuzilmalar", "Подразделения"], guide: batalon },
-  { id: "report", path: "/report", icon: BarChart3, title: ["Qarzdorlik", "Задолженность"], guide: report },
-  {
-    id: "organisation",
-    path: "/organisation",
-    icon: Building2,
-    title: ["Tashkilot", "Организация"],
-    guide: organisation,
-  },
-  {
-    id: "prixod",
-    path: "/prixod",
-    icon: ArrowDownToLine,
-    title: ["Kirimlar kitobi", "Книга приходов"],
-    guide: prixod,
-  },
-  {
-    id: "rasxod",
-    path: "/rasxod",
-    icon: ArrowUpFromLine,
-    title: ["Chiqimlar kitobi", "Книга расходов"],
-    guide: rasxod,
-  },
-  {
-    id: "rasxod-workers",
-    path: "/rasxod-workers",
-    icon: UserMinus,
-    title: ["Hodimlarning pul hisob-kitobi", "Расчёты с сотрудниками"],
-    guide: rasxodWorkers,
-  },
-  { id: "staff", path: "/staff", icon: UserCog, title: ["Foydalanuvchilar", "Пользователи"], guide: staff },
-  { id: "logs", path: "/logs", icon: History, title: ["Qaydlar", "Журнал"], guide: logs },
-  {
-    id: "spravochnik",
-    path: "/spravichnik",
-    icon: BookMarked,
-    title: ["Ma'lumotnoma", "Справочник"],
-    guide: spravochnik,
-  },
-];
+const withIcon = (s: SectionData): Section => ({ ...s, icon: ICONS[s.id] ?? FileText });
 
 const t = ([uz, ru]: Text) => tt(uz, ru);
 
@@ -119,9 +77,10 @@ const t = ([uz, ru]: Text) => tt(uz, ru);
  * Qo'llanma — dastur bo'limlari bo'yicha bosqichma-bosqich yozma
  * ko'rsatma (rasmlar bilan).
  *
- * Foydalanuvchida yo'q bo'limlar (masalan, yuristda "Foydalanuvchilar"
- * yoki ruhsat berilmagan menyular) ko'rsatilmaydi — menyu bilan bir xil
- * qoida `getMenuForUser` dan olinadi.
+ * Ikki alohida qo'llanma (`sections.ts`, MANUALS): super-admin o'zinikini,
+ * viloyat foydalanuvchisi viloyatnikini ko'radi. Foydalanuvchida yo'q
+ * bo'limlar (masalan, yuristda "Foydalanuvchilar" yoki ruhsat berilmagan
+ * menyular) ko'rsatilmaydi — menyu bilan bir xil qoida `getMenuForUser` dan.
  */
 export default function Manual() {
   const navigate = useNavigate();
@@ -136,9 +95,9 @@ export default function Manual() {
     );
     // "Ishni boshlash" — viloyat adminining birinchi sozlashlari (rekvizitlar,
     // quyi tuzilmalar...). Yurist/buxgalter ularni qilmaydi — ko'rsatilmaydi.
-    return SECTIONS.filter((s) =>
-      s.id === "start" ? !isStaffUser(user) : !s.path || open.has(s.path)
-    );
+    return MANUALS[manualAudience(user)].sections
+      .filter((s) => (s.id === "start" ? !isStaffUser(user) : !s.path || open.has(s.path)))
+      .map(withIcon);
   }, [user]);
 
   // Tanlangan bo'lim URL da (`?s=contract`) — havola bilan ulashsa ham,
@@ -148,6 +107,22 @@ export default function Manual() {
     sections.findIndex((s) => s.id === params.get("s"))
   );
   const active = sections[activeIndex];
+
+  // Xodimga qo'llanmasi bor bo'limlardan birortasi ham ochilmagan bo'lsa
+  if (!active) {
+    return (
+      <PageBar>
+        <Button variant="secondary" size="sm" onClick={() => navigate("/video-lessons")}>
+          <ArrowLeft />
+          {tt("Video darslar", "Видеоуроки")}
+        </Button>
+        <p className="min-w-0 truncate text-[0.8125rem] text-muted-foreground">
+          {tt("Sizga ochilgan bo'limlar uchun qo'llanma yo'q", "Для открытых вам разделов руководства нет")}
+        </p>
+      </PageBar>
+    );
+  }
+
   const { guide } = active;
   const prev = sections[activeIndex - 1];
   const next = sections[activeIndex + 1];
@@ -187,6 +162,8 @@ export default function Manual() {
             "Разделы программы и порядок работы с ними"
           )}
         </p>
+        {/* Shu qo'llanmaning PDF kitobi (barcha bo'limlar, to'liq rasmlar bilan) */}
+        <BookButton className="ml-auto" />
       </PageBar>
 
       <div className="grid items-start gap-4 lg:grid-cols-[15rem_minmax(0,1fr)]">

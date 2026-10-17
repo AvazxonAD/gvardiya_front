@@ -104,12 +104,19 @@ export const rasxodWorkers: SectionGuide = {
           "Qatordagi «⋮» (Amallar) — shu hujjat bo'yicha hamma amallar nomi bilan: «Hujjatni tahrirlash», «To'landi deb belgilash», «Hisobotlar» guruhida «Umumiy hisobot», «Tarqatuv vedomosti» va «Tarqatuv vedomosti (karta raqamlari bilan)», oxirida «Hujjatni o'chirish».",
           "«⋮» в строке (Действия) — все действия с документом по названиям: «Редактировать документ», «Отметить как оплачено», в группе «Отчёты» — «Общий отчёт», «Раздаточная ведомость» и ведомость с номерами карт, в конце — «Удалить документ».",
         ],
+        [
+          "Jami kataklar ostida — «Ommaviy tadbirlar hisoboti» uchun izoh: hisobotdagi «Rag'batlantirishga 25% → Sarflandi» — shu davrdagi hujjatlarning 25% qismi, viloyatning barcha hisob raqamlari bo'yicha (boshqa hisob raqamlardagisi qavsda). Hisobotning «Hisoblandi» ustunlari bu sahifadan emas, shu davrda tuzilgan shartnomalar summasidan hisoblanadi.",
+          "Под итоговыми ячейками — пояснение к «Отчёту по массовым мероприятиям»: графа «На поощрение 25% → Израсходовано» — 25% документов за этот период по всем счетам области (сумма по другим счетам — в скобках). Графы «Начислено» считаются не по этой странице, а по сумме договоров, заключённых в этот период.",
+        ],
       ],
       tip: [
         "Chop etish uchun shu Excel yoki PDF fayllarni yuklab olib, chop eting.",
         "Для печати скачайте эти файлы Excel или PDF и распечатайте их.",
       ],
-      shots: [shot("03-royxat.webp", ["Ro'yxat va hisobotlar menyusi", "Список и меню отчётов"])],
+      shots: [
+        shot("03-royxat.webp", ["Ro'yxat va qatordagi «⋮» (Amallar)", "Список и «⋮» (Действия) в строке"]),
+        shot("05-hisobot-izohi.webp", ["«Ommaviy tadbirlar hisoboti» uchun izoh", "Пояснение к отчёту по массовым мероприятиям"]),
+      ],
     },
     {
       title: ["To'lov holati", "Статус оплаты"],

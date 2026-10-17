@@ -25,7 +25,8 @@ import { Checkbox } from "@/Components/ui/checkbox";
 import { useDebounce } from "use-debounce";
 import Select from "../Components/Select";
 import { alertt } from "../Redux/LanguageSlice";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
+import WorkerImportModal from "../pageCompoents/WorkerImportModal";
 import { permBtn, usePermission } from "@/lib/permissions";
 import FilterActions from "@/Components/FilterActions";
 import { sortParams, useTableSort } from "@/hooks/useTableSort";
@@ -71,6 +72,7 @@ function Workers() {
     pinfl: "",
     is_muddatli_harbiy: false,
   });
+  const [importOpen, setImportOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
   const [value2, setValue2] = useState<any>({
     fio: "",
@@ -313,15 +315,20 @@ function Workers() {
                   disabledTitle: tt("Ruxsat yo'q", "Нет доступа"),
                   icon: excelIcon,
                   label: tt("Import shabloni (Excel)", "Шаблон импорта (Excel)"),
-                  hint: tt("Xodimlarni yuklash uchun bo'sh shablon", "Пустой шаблон для импорта сотрудников"),
+                  hint: tt("«Import» uchun shablon — batalonlar ro'yxati bilan", "Шаблон для «Импорта» — со списком батальонов"),
                   run: async () => {
-                    const blob = await getExcel(JWT, "/worker/template/");
+                    const blob = await getExcel(JWT, "/worker/template");
                     if (!blob || blob.size === 0 || blob.type.includes("json")) throw new Error("BAD_FILE");
-                    saveBlob(blob, "template_file.xlsx");
+                    saveBlob(blob, "xodimlar_shablon.xlsx");
                   },
                 },
               ]}
             />
+            {/* Exceldan import — shablon bo'yicha (WorkerImportModal) */}
+            <UIButton {...permBtn(perm.create)} variant="secondary" size="sm" onClick={() => setImportOpen(true)}>
+              <Upload />
+              {tt("Import", "Импорт")}
+            </UIButton>
             <UIButton {...permBtn(perm.create)} size="sm" onClick={() => setOpen(true)}>
               <Plus />
               {tt("Qo'shish", "Добавить")}
@@ -350,6 +357,8 @@ function Workers() {
           onSort={toggleSort}
         />
       </ListCard>
+
+      <WorkerImportModal open={importOpen} onClose={() => setImportOpen(false)} onImported={getInfo} />
 
       <Modal
         open={open}

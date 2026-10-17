@@ -28,8 +28,8 @@ export const start: SectionGuide = {
         "Откройте адрес программы в браузере. Введите выданные вам данные в поля «Логин» и «Пароль» и нажмите «Войти».",
       ],
       tip: [
-        "Agar keyingi oynada E-IMZO kalitlari ro'yxati chiqsa — kalitingizni tanlab, «E-IMZO bilan kirish» ni bosing. Buning uchun kompyuterda E-IMZO va USB Manager dasturlari ochiq bo'lishi kerak.",
-        "Если следующим окном появится список ключей E-IMZO — выберите свой ключ и нажмите «Войти через E-IMZO». Для этого на компьютере должны быть запущены программы E-IMZO и USB Manager.",
+        "Keyingi oynada «E-IMZO bilan tasdiqlash» chiqadi. E-IMZO kalitlari ro'yxati chiqsa — kalitingizni tanlab, «E-IMZO bilan kirish» ni bosing (kompyuterda E-IMZO va USB Manager dasturlari ochiq bo'lishi kerak). «Sinov rejimi — imzo talab qilinmaydi» deb yozilgan bo'lsa — shunchaki «Kirish» ni bosing.",
+        "Следующим окном появится «Подтверждение E-IMZO». Если показан список ключей E-IMZO — выберите свой ключ и нажмите «Войти через E-IMZO» (на компьютере должны быть запущены программы E-IMZO и USB Manager). Если написано «Тестовый режим — подпись не требуется» — просто нажмите «Войти».",
       ],
       shots: [shot("01-login.webp", ["Kirish oynasi", "Окно входа"])],
     },
@@ -37,31 +37,43 @@ export const start: SectionGuide = {
     {
       title: ["Rekvizitlarni to'ldirish", "Заполнение реквизитов"],
       body: [
-        "Chap menyuning eng pastidagi «Ma'lumotnoma» → «Rekvizitlar» ni oching — «Tashkilot rekvizitlari» sahifasi ochiladi. Bu yerga o'z boshqarmangiz ma'lumotlari yoziladi — ular har bir shartnomaning «Bajaruvchi» qismiga o'zi tushadi.",
-        "Откройте «Справочник» → «Реквизиты» внизу левого меню. Здесь указываются данные вашего управления — они автоматически попадают в раздел «Исполнитель» каждого договора.",
+        "Chap menyuning eng pastidagi «Ma'lumotnoma» → «Rekvizitlar» ni oching — «Tashkilot rekvizitlari» sahifasi ochiladi. Bu yerga o'z boshqarmangiz ma'lumotlari yoziladi: ular har bir shartnoma matniga va uning oxiridagi «Bajaruvchi» rekvizitlariga o'zi qo'yiladi. Shuning uchun har bir maydonga aynan nima yozilishi muhim:",
+        "Откройте «Справочник» → «Реквизиты» внизу левого меню. Здесь указываются данные вашего управления: они сами подставляются в текст каждого договора и в реквизиты «Исполнителя» в его конце. Поэтому важно, что именно записано в каждом поле:",
       ],
       items: [
         [
-          "«Ijrochi» — boshqarma nomi va «Hujjat sarlavhasi» (shartnomada sana qatorining o'ng tomonida chiqadi).",
-          "«Исполнитель» — название управления и «Заголовок документа» (выводится в договоре справа в строке с датой).",
+          "«Ijrochi nomi» — boshqarmangizning faqat HUDUD nomi. Shartnoma matnida u «O'zbekiston Respublikasi Milliy gvardiyasi … bo'yicha boshqarmasi» jumlasidagi bo'sh joyga qo'yiladi va oxiridagi «Bajaruvchi» rekvizitlarida chiqadi. To'g'ri: «Samarqand viloyati». Noto'g'ri: «Samarqand viloyati Milliy gvardiya boshqarmasi» — shartnomada «… Milliy gvardiyasi Samarqand viloyati Milliy gvardiya boshqarmasi bo'yicha boshqarmasi» bo'lib, so'zlar takrorlanadi.",
+          "«Название исполнителя» — только НАЗВАНИЕ ТЕРРИТОРИИ вашего управления. В тексте договора оно подставляется во фразу «Управление Национальной гвардии Республики Узбекистан по …» и выводится в реквизитах «Исполнителя» в конце. Правильно: «Самаркандской области». Неправильно: «Управление Нацгвардии по Самаркандской области» — в договоре слова повторятся.",
         ],
-        ["«Rahbar» — boshqarma boshlig'ining F.I.Sh.", "«Руководитель» — Ф.И.О. начальника управления."],
-        ["«Manzil» — boshqarma manzili.", "«Адрес» — адрес управления."],
-        ["«Bank» — bank nomi va «MFO» (5 ta raqam).", "«Банк» — название банка и «МФО» (5 цифр)."],
-        ["«STIR» — boshqarmaning STIR raqami (9 ta raqam).", "«ИНН» — ИНН управления (9 цифр)."],
+        [
+          "«Hujjat sarlavhasi» — shartnoma tuzilgan JOY (shahar yoki tuman). Har bir shartnomaning tepasida, shartnoma raqami ostidagi qatorda chiqadi: chapda — shartnoma sanasi, o'ngda — shu matn. Masalan: «Samarqand sh.». Bu maydon bo'sh bo'lsa, shartnomada sananing o'ng tomoni bo'sh qoladi.",
+          "«Заголовок документа» — МЕСТО заключения договора (город или район). Выводится вверху каждого договора, в строке под номером договора: слева — дата договора, справа — этот текст. Например: «г. Самарканд». Если поле пустое, справа от даты в договоре будет пусто.",
+        ],
+        [
+          "«Rahbar F.I.Sh.» — boshqarma boshlig'i: shartnoma matnida «Boshqarma boshlig'i …» deb chiqadi.",
+          "«ФИО руководителя» — начальник управления: в тексте договора выводится «в лице начальника управления …».",
+        ],
+        [
+          "«Manzil», «Bank nomi», «MFO» (5 ta raqam) va «STIR raqami» (9 ta raqam) — shartnoma oxiridagi «Bajaruvchi» rekvizitlarida chiqadi.",
+          "«Адрес», «Название банка», «МФО» (5 цифр) и «Номер ИНН» (9 цифр) — выводятся в реквизитах «Исполнителя» в конце договора.",
+        ],
       ],
       warn: [
-        "Har bir matn uch xil yoziladi: qo'shimchasiz maydon — kirill yozuvida (Ўзбек), «(lotin)» — lotin yozuvida, «(rus tilida)» — rus tilida. Shartnoma qaysi tilda chop etilsa, o'sha variant olinadi. Hammasi to'ldirilishi shart, keyin yuqoridagi «Saqlash» ni bosing.",
-        "Каждый текст вводится в трёх вариантах: поле без пометки — кириллицей (Ўзбек), «(lotin)» — латиницей, «(rus tilida)» — на русском. В договор берётся вариант на языке печати. Заполните все поля и нажмите «Сохранить» вверху.",
+        "Har bir matn uch xil yoziladi va shartnoma qaysi tilda ochilsa yoki chop etilsa, o'sha variant olinadi: qo'shimchasiz maydon — kirill yozuvida («Самарқанд вилояти», «Самарқанд ш.»), «(lotin)» — lotin yozuvida («Samarqand viloyati», «Samarqand sh.»), «(rus tilida)» — rus tilida («Самаркандской области» — rus matnida «… по Самаркандской области» bo'lib o'qiladi; «г. Самарканд»). Lotin maydoniga kirill yoki rus matnini yozmang. Hammasi to'ldirilishi shart, keyin yuqoridagi «Saqlash» ni bosing.",
+        "Каждый текст вводится в трёх вариантах, и в договор берётся вариант на языке, на котором он открыт или напечатан: поле без пометки — кириллицей по-узбекски («Самарқанд вилояти», «Самарқанд ш.»), «(lotin)» — латиницей («Samarqand viloyati», «Samarqand sh.»), «(rus tilida)» — по-русски («Самаркандской области» — в тексте читается «… по Самаркандской области»; «г. Самарканд»). Не вписывайте в поле «(lotin)» кириллицу или русский текст. Заполните все поля и нажмите «Сохранить» вверху.",
       ],
       tip: [
-        "Rekvizitlarni shartnoma tuzishdan OLDIN to'ldiring: shartnoma hujjati (PDF) yaratilgan paytdagi rekvizitlar bilan saqlanadi.",
-        "Заполните реквизиты ДО создания договоров: документ договора (PDF) сохраняется с реквизитами на момент его создания.",
+        "Rekvizitlarni shartnoma tuzishdan OLDIN to'ldiring: shartnoma hujjati (PDF) yaratilgan paytdagi rekvizitlar bilan saqlanadi. Yozganingiz shartnomada qanday chiqqanini shartnoma hujjatini ochib tekshiring (ikkinchi rasm).",
+        "Заполните реквизиты ДО создания договоров: документ договора (PDF) сохраняется с реквизитами на момент его создания. Как записанное выглядит в договоре, проверьте, открыв документ договора (второй рисунок).",
       ],
       shots: [
         shot("02-rekvizitlar.webp", [
-          "Ma'lumotnoma → Rekvizitlar: beshta kartochka va «Saqlash» tugmasi",
-          "Справочник → Реквизиты: пять карточек и кнопка «Сохранить»",
+          "«Ijrochi» kartochkasi: «Ijrochi nomi» va «Hujjat sarlavhasi» — uch xil yozuvda",
+          "Карточка «Исполнитель»: «Название исполнителя» и «Заголовок документа» — в трёх вариантах",
+        ]),
+        shot("02b-shartnomada.webp", [
+          "Shartnomada: «Hujjat sarlavhasi» — sana qatorining o'ngida, «Ijrochi nomi» va rahbar — kirish qismida",
+          "В договоре: «Заголовок документа» — справа в строке с датой, «Название исполнителя» и руководитель — во вступлении",
         ]),
       ],
     },

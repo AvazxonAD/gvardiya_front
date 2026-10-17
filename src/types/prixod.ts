@@ -1,3 +1,5 @@
+import type { CancelBlock } from "@/lib/contractStatus";
+
 export type IPrixod = {
   id: number;
   contract_id: number;
@@ -18,4 +20,6 @@ export type IPrixod = {
   opisanie: string;
   prixod_date: string; // assuming it's in ISO date format
   remaining_balance: number;
+  /** Bekor qilish to'sig'i (backend: helper/contract.cancel.js) — NULL bo'lsa mumkin */
+  cancel_block?: CancelBlock;
 };

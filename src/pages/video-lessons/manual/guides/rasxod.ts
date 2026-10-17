@@ -67,11 +67,20 @@ export const rasxod: SectionGuide = {
         "Ro'yxatdagi sanalar chiqim hujjati sanasi bo'yicha filtrlaydi. Qidiruv: «№, qabul qiluvchi yoki izoh», yonidagi filtr — holat bo'yicha («To'langan» / «To'lanmagan»). Yuqoridagi «⋮» — ro'yxatni Excel yoki PDF qilib yuklab olish.",
         "Даты списка фильтруют по дате расходного документа. Поиск по номеру, получателю или комментарию, рядом — фильтр по статусу («Оплаченные» / «Неоплаченные»). «⋮» вверху — выгрузка списка в Excel или PDF.",
       ],
+      items: [
+        [
+          "Pastda «Davr bo'yicha chiqim» — tanlangan davrdagi chiqimlar jami. Uning ostida «Ommaviy tadbirlar hisoboti» bilan solishtirish: hisobotdagi «O'tkazildi» (shu davrda tuzilgan shartnomalar bo'yicha — «Jami», IIO, FVV va «MG harbiy qismlari») va farq nimadan iboratligi — «Sahifada bor, hisobotda yo'q» (masalan, boshqa davrda tuzilgan shartnomalar bo'yicha chiqimlar) va «Hisobotda bor, sahifada yo'q» (boshqa sanadagi chiqimlarda).",
+          "Внизу «Расход за период» — итог расходов за выбранный период. Под ним сверка с «Отчётом по массовым мероприятиям»: «Перечислено» в отчёте (по договорам, заключённым в этом периоде — «Всего», ОВД, МЧС и «Воинские части НГ») и из чего складывается разница — «Есть на странице, нет в отчёте» (например, расходы по договорам других периодов) и «Есть в отчёте, нет на странице» (в расходах с другой датой).",
+        ],
+      ],
       tip: [
         "Qatordagi «⋮» (Amallar) — shu chiqim bo'yicha hamma amallar nomi bilan: «Hujjatni tahrirlash», «To'landi deb belgilash», «Hisobotlar» guruhida «Shartnomalar bo'yicha ma'lumot» (Excel yoki PDF) va «Hujjatni o'chirish».",
         "«⋮» в строке (Действия) — все действия с этим расходом по названиям: «Редактировать документ», «Отметить как оплачено», в группе «Отчёты» — «Сведения по договорам» (Excel или PDF) и «Удалить документ».",
       ],
-      shots: [shot("03-royxat.webp", ["Chiqimlar ro'yxati", "Список расходов"])],
+      shots: [
+        shot("03-royxat.webp", ["Chiqimlar ro'yxati va qatordagi «⋮» (Amallar)", "Список расходов и «⋮» (Действия) в строке"]),
+        shot("05-solishtirish.webp", ["«Ommaviy tadbirlar hisoboti» bilan solishtirish", "Сверка с отчётом по массовым мероприятиям"]),
+      ],
     },
     {
       title: ["To'lov holati", "Статус оплаты"],

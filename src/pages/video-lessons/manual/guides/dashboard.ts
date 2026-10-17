@@ -22,6 +22,36 @@ export const dashboard: SectionGuide = {
       shots: [shot("01-davr.webp", ["Yuqori paneldagi sanalar", "Даты на верхней панели"])],
     },
     {
+      title: ["Ommaviy tadbirlar hisoboti", "Отчёт по массовым мероприятиям"],
+      body: [
+        "Yuqori paneldagi «Excel» va «PDF» tugmalari «Ommaviy tadbirlar hisoboti»ni yuklab beradi: 1-toifali ommaviy tadbirlardan kelib tushgan pul mablag'lari to'g'risidagi ma'lumotnoma, viloyat bo'yicha, rasmiy shaklda. Davr — dashboarddagi sanalar (hisobot shu oraliqda tuzilgan shartnomalar bo'yicha), til — interfeys tili. Keng ekranda tugmalar yonida hisobot nomi yoziladi, kichikroq ekranda nom sichqonchani tugma ustiga olib borganda chiqadi. Hisobot ustunlari:",
+        "Кнопки «Excel» и «PDF» на верхней панели выгружают «Отчёт по массовым мероприятиям»: справку о денежных средствах, поступивших от массовых мероприятий 1-й категории, по области, в официальной форме. Период — даты дашборда (отчёт строится по договорам, заключённым в этом периоде), язык — язык интерфейса. На широком экране рядом с кнопками написано название отчёта, на меньшем оно появляется при наведении мыши на кнопку. Графы отчёта:",
+      ],
+      items: [
+        [
+          "«Shartnomalar» — davrda tuzilgan shartnomalar soni va summasi; «Shartnoma bo'yicha ishtirok etgan sh/t» — MG, IIO va FVV xodimlari soni; «Pul taqsimoti» — shartnomalar summasining MG, IIO va FVV ga bo'linishi.",
+          "«Договоры» — количество и сумма договоров за период; «Задействованный личный состав по договорам» — сотрудники НГ, ОВД и МЧС; «Распределение средств» — сумма договоров по НГ, ОВД и МЧС.",
+        ],
+        [
+          "«Debitor qarzdorlik» va «Kelib tushgan mablag'» — shartnomalar summasining to'lanmagan va to'langan qismi: shartnomalar soni, «Jami», MG, IIO va FVV. Ikkalasi qo'shilsa, shartnomalar summasi chiqadi — ortiqcha to'lov hisoblanmaydi.",
+          "«Дебиторская задолженность» и «Поступившие средства» — неоплаченная и оплаченная часть суммы договоров: количество договоров, «Всего», НГ, ОВД и МЧС. Вместе они дают сумму договоров — переплата не учитывается.",
+        ],
+        [
+          "«Har bir boshqarma o'z ixtiyorida qolgan pullarning taqsimlanishi» — boshqarma ulushi: «Markaziy devon moddiy bazasiga 10%», qolganidan «Rag'batlantirishga 25%» va «Moddiy bazaga 75%». Har birida «Hisoblandi (so'mda)» va «Sarflandi (so'mda)», rag'batda yana «Shaxsiy tarkib soni».",
+          "«Распределение средств, оставшихся в распоряжении каждого управления» — доля управления: «На материальную базу центрального аппарата 10%», из остатка «На поощрение 25%» и «На материальную базу 75%». В каждой — «Начислено (в сумах)» и «Израсходовано (в сумах)», в поощрении ещё «Кол-во личного состава».",
+        ],
+        [
+          "«Boshqa organlar ixtiyorida qolgan» — «Ichki ishlar organlari», «Favqulodda vaziyatlar bo'linmalari» va «MG harbiy qismlari» ulushi: «Hisoblandi (so'mda)» va «O'tkazildi (so'mda)» («Chiqimlar kitobi» da chiqim qilingani).",
+          "«Оставшиеся в распоряжении других органов» — доля «Органы внутренних дел», «Подразделения по чрезвычайным ситуациям» и «Воинские части НГ»: «Начислено (в сумах)» и «Перечислено (в сумах)» (проведённое в «Книге расходов»).",
+        ],
+      ],
+      tip: [
+        "«Hisoblandi» ustunlari shu davrda tuzilgan shartnomalar summasidan, «Sarflandi» ustunlari esa chiqim hujjatlari sanasi bo'yicha olinadi. Shuning uchun hisobot raqamlari «Chiqimlar kitobi» va «Hodimlarning pul hisob-kitobi» sahifalaridagi jamidan farq qilishi mumkin — farq nimadan iboratligi o'sha sahifalarning pastida yozilgan. Viloyat hisobotida «Markaziy devon moddiy bazasiga 10%» ning «Sarflandi» ustuni 0 bo'ladi.",
+        "Графы «Начислено» считаются по сумме договоров, заключённых в периоде, а «Израсходовано» — по дате расходных документов. Поэтому цифры отчёта могут отличаться от итогов страниц «Книга расходов» и «Расчёты с сотрудниками» — из чего складывается разница, написано внизу этих страниц. В отчёте по области «Израсходовано» у «На материальную базу центрального аппарата 10%» равно 0.",
+      ],
+      shots: [shot("06-ommaviy-hisobot.webp", ["Hisobotning «Excel» va «PDF» tugmalari", "Кнопки «Excel» и «PDF» отчёта"])],
+    },
+    {
       title: ["Asosiy ko'rsatkichlar", "Основные показатели"],
       body: [
         "Yuqoridagi to'rtta kartochka. Har biri bosiladi — tegishli shartnomalar ro'yxati ochiladi.",

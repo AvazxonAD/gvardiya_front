@@ -41,7 +41,8 @@ import {
  *
  * Viloyat faqat shablonni to'ldiradi — qolgani shu yerda avtomatik:
  * viloyatda yo'q tashkilot va batalonlar import paytida yaratiladi, hisob
- * raqami bo'lmasa shu oynada kiritiladi.
+ * raqami bo'lmasa shu oynada kiritiladi. Viloyat rekvizitlari esa majburiy:
+ * to'ldirilmagan bo'lsa (options.missing) import qilinmaydi.
  *
  * 1) Viloyat va fayl tanlanadi (fayl tashlanadi yoki tanlanadi) — fayl o'zi
  *    tekshiriladi: har xato/ogohlantirish Excel qator raqami bilan.
@@ -123,25 +124,54 @@ export default function ContractImport() {
   // Eskirgan tekshiruv javobi yangisini bosib ketmasin
   const checkReq = useRef(0);
 
-  useEffect(() => {
-    api.get<Region[]>("admin/regions").then((res) => {
+  // Viloyatlar ro'yxati. Xato jim o'tib ketmasin: server javob bermasa
+  // (masalan, qayta ishga tushayotgan paytda sahifa yangilansa) ro'yxat bo'sh
+  // qolib, viloyat tanlab bo'lmasdi — endi xato va «Qayta urinish» ko'rinadi
+  const [regionsLoading, setRegionsLoading] = useState(true);
+  const [regionsError, setRegionsError] = useState("");
+  const loadRegions = async () => {
+    setRegionsLoading(true);
+    setRegionsError("");
+    try {
+      const res = await api.get<Region[]>("admin/regions");
       if (res?.success && Array.isArray(res.data)) setRegions(res.data);
-    });
+      else setRegionsError(res?.message || tt("Viloyatlar ro'yxatini yuklab bo'lmadi", "Не удалось загрузить список областей"));
+    } finally {
+      setRegionsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadRegions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Viloyat ma'lumotnomalari: hisob raqamlari, batalonlar, importni to'sadigan sabablar
+  const [optionsLoading, setOptionsLoading] = useState(false);
+  const [optionsError, setOptionsError] = useState("");
+  const loadOptions = async () => {
+    setOptionsLoading(true);
+    setOptionsError("");
+    try {
+      const res = await api.get<Options>(`admin/contract-import/options?region_id=${regionId}`);
+      if (res?.success && res.data) {
+        setOptions(res.data);
+        if (res.data.accounts.length === 1) setAccountId(String(res.data.accounts[0].id));
+      } else {
+        setOptionsError(res?.message || tt("Viloyat ma'lumotlarini yuklab bo'lmadi", "Не удалось загрузить данные области"));
+      }
+    } finally {
+      setOptionsLoading(false);
+    }
+  };
 
   // Viloyat almashsa — uning ma'lumotnomalari
   useEffect(() => {
     setOptions(null);
+    setOptionsError("");
     setAccountId("");
     setNewAccount("");
-    if (!regionId) return;
-    api.get<Options>(`admin/contract-import/options?region_id=${regionId}`).then((res) => {
-      if (res?.success && res.data) {
-        setOptions(res.data);
-        if (res.data.accounts.length === 1) setAccountId(String(res.data.accounts[0].id));
-      }
-    });
+    if (regionId) loadOptions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [regionId]);
 
@@ -211,12 +241,8 @@ export default function ContractImport() {
         setPreview(null);
         setFile(null);
         // Hisob raqami / batalonlar endi viloyatda bor — ma'lumotnoma yangilanadi
-        const opt = await api.get<Options>(`admin/contract-import/options?region_id=${regionId}`);
-        if (opt?.success && opt.data) {
-          setOptions(opt.data);
-          setNewAccount("");
-          if (opt.data.accounts.length === 1) setAccountId(String(opt.data.accounts[0].id));
-        }
+        setNewAccount("");
+        await loadOptions();
         dispatch(alertt({ text: res.message, success: true }));
       } else {
         // Server yana tekshirib xato topsa — natijasi ko'rsatiladi
@@ -245,7 +271,9 @@ export default function ContractImport() {
 
   const importHint = !regionId
     ? tt("Viloyatni tanlang", "Выберите область")
-    : !file
+    : missing.length
+      ? missing[0].message
+      : !file
       ? tt("Excel faylni tanlang", "Выберите файл Excel")
       : !preview
         ? tt("Fayl tekshirilmoqda", "Файл проверяется")
@@ -436,7 +464,9 @@ export default function ContractImport() {
           <Label>{tt("Viloyat", "Область")}</Label>
           <Select
             selectSize="sm"
-            placeholder={tt("Viloyatni tanlang", "Выберите область")}
+            placeholder={regionsLoading ? tt("Yuklanmoqda...", "Загрузка...") : tt("Viloyatni tanlang", "Выберите область")}
+            // Bo'sh ro'yxat ochilmasin — yuklanguncha yoki xatoda tanlab bo'lmaydi
+            disabled={regionsLoading || !regions.length}
             value={regionId}
             onChange={(e) => {
               setResult(null);
@@ -525,11 +555,32 @@ export default function ContractImport() {
         </Button>
       </PageBar>
 
-      {/* Viloyatda admin yo'q — import mumkin emas */}
+      {/* Viloyatlar yoki viloyat ma'lumotlari yuklanmadi — sababi va qayta urinish */}
+      {(regionsError || optionsError) && (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-destructive/30 bg-destructive/10 px-3 py-2 text-[0.8125rem] text-destructive sm:px-4">
+          <span className="flex min-w-0 items-center gap-1.5">
+            <XCircle className="size-4 shrink-0" />
+            {regionsError
+              ? tt(`Viloyatlar ro'yxati yuklanmadi: ${regionsError}`, `Список областей не загружен: ${regionsError}`)
+              : tt(`Viloyat ma'lumotlari yuklanmadi: ${optionsError}`, `Данные области не загружены: ${optionsError}`)}
+          </span>
+          <Button
+            variant="ghost"
+            size="xs"
+            onClick={regionsError ? loadRegions : loadOptions}
+            disabled={regionsLoading || optionsLoading}
+          >
+            {regionsLoading || optionsLoading ? <Loader2 className="animate-spin" /> : <RefreshCw />}
+            {tt("Qayta urinish", "Повторить")}
+          </Button>
+        </div>
+      )}
+
+      {/* Viloyatda admin yo'q yoki rekvizitlari to'ldirilmagan — import mumkin emas */}
       {missing.length > 0 && (
-        <div className="flex flex-col gap-1 border-b border-warning/30 bg-warning/10 px-3 py-2.5 text-[0.8125rem] text-foreground sm:px-4">
-          <span className="flex items-center gap-1.5 font-medium text-warning">
-            <AlertTriangle className="size-4" />
+        <div className="flex flex-col gap-1 border-b border-destructive/30 bg-destructive/10 px-3 py-2.5 text-[0.8125rem] text-foreground sm:px-4">
+          <span className="flex items-center gap-1.5 font-medium text-destructive">
+            <XCircle className="size-4" />
             {tt(`${options?.region.name}: import qilib bo'lmaydi`, `${options?.region.name}: импорт невозможен`)}
           </span>
           {missing.map((m) => (
@@ -537,6 +588,11 @@ export default function ContractImport() {
               — {m.message}
             </span>
           ))}
+          {/* Viloyat to'ldirib bo'lgach — sahifani yangilamasdan qayta tekshirish */}
+          <Button variant="ghost" size="xs" onClick={loadOptions} disabled={optionsLoading} className="ml-4 self-start">
+            {optionsLoading ? <Loader2 className="animate-spin" /> : <RefreshCw />}
+            {tt("Qayta tekshirish", "Проверить снова")}
+          </Button>
         </div>
       )}
 

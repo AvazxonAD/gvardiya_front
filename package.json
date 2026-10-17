@@ -11,7 +11,10 @@
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "lint": "eslint .",
     "preview": "vite preview",
-    "serve": "node server.js"
+    "serve": "node server.js",
+    "manual:pdf": "node scripts/manual-book/build.mjs",
+    "manual:capture": "node scripts/manual-book/capture.mjs",
+    "manual:shots": "node scripts/manual-book/shots.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.5",

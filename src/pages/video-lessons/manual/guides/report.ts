@@ -87,6 +87,10 @@ export const report: SectionGuide = {
         ],
         ["«⋮» — ro'yxatni Excel yoki PDF qilib yuklab olish.", "«⋮» — выгрузить список в Excel или PDF."],
       ],
+      tip: [
+        "Tadbir bo'lmaydigan shartnomani kartochka yoki tashkilot bosilganda ochiladigan shartnomalar ro'yxatidagi «Bekor qilish» tugmasi bilan bekor qilish mumkin — u qarzdorlikdan chiqadi. Shartlari va qayta faollashtirish — «Shartnomalar ro'yhati» bo'limida.",
+        "Договор, по которому мероприятия не будет, можно отменить кнопкой «Отменить» в списке договоров, который открывается по карточке или организации, — он уйдёт из задолженности. Условия и восстановление — в разделе «Список договоров».",
+      ],
       shots: [shot("04-tashkilotlar.webp", ["«Qarzdor tashkilotlar» jadvali", "Таблица организаций-должников"])],
     },
   ],

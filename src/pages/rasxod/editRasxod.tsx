@@ -1,4 +1,5 @@
 import Input from "@/Components/Input";
+import { useRecipientRows } from "../contract/recipientData";
 import BackButton from "@/Components/reusable/BackButton";
 import Button from "@/Components/reusable/button";
 import { SpecialDatePicker } from "@/Components/SpecialDatePicker";
@@ -273,20 +274,9 @@ export const EditRasxod = () => {
     if (open) getBrigada();
   }, [open, page]);
 
-  const userStore = localStorage.getItem("user");
-  const userData = userStore ? JSON.parse(userStore) : undefined;
-  const user = userData ? userData.user : undefined;
-
-  const recipient = [
-    { txt: tt("To'lovchi", "Плательщик"), value: user?.doer_name || "" },
-    { txt: tt("Bank", "Банк"), value: user?.bank_name || "" },
-    { txt: tt("MFO", "МФО"), value: user?.mfo || "" },
-    { txt: tt("INN", "ИНН"), value: textNum(user?.str, 3) || "" },
-    {
-      txt: tt("Joriy hisob", "Расчетный счет"),
-      value: textNum(user?.account_number, 4) || "",
-    },
-  ];
+  // Viloyat rekvizitlari har safar serverdan — kirish paytidagi localStorage
+  // nusxasida ular yo'q yoki eskirgan bo'ladi
+  const recipient = useRecipientRows(tt("To'lovchi", "Плательщик"));
 
   const payer = [
     {
